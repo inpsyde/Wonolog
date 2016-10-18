@@ -55,15 +55,15 @@ class LogActionSubscriber {
 	}
 
 	/**
-	 * @param array ...$args
-	 *
 	 * @wp-hook wonolog.log
 	 */
-	public function listen( ...$args ) {
+	public function listen() {
 
 		if ( ! did_action( 'wonolog.loaded' ) ) {
 			return;
 		}
+
+		$args = func_get_args();
 
 		// Seems no args were passed, no much we can do
 		if ( ! $args ) {

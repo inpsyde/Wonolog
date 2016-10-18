@@ -40,7 +40,7 @@ final class FailedLoginListener implements ActionListenerInterface {
 	 *
 	 * @see     \Inpsyde\Wonolog\Data\FailedLogin
 	 */
-	public function update( ...$args ) {
+	public function update( array $args ) {
 
 		$username = $args ? reset( $args ) : 'Unknown';
 

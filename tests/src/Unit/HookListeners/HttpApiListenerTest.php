@@ -62,9 +62,9 @@ class HttpApiListenerTest extends TestCase {
 
 		Actions::expectFired( 'http_api_debug' )
 			->whenHappen(
-				function ( ...$args ) use ( $listener ) {
+				function () use ( $listener ) {
 
-					$listener->update( ...$args );
+					$listener->update( func_get_args() );
 				}
 			);
 
@@ -98,9 +98,9 @@ class HttpApiListenerTest extends TestCase {
 
 		Actions::expectFired( 'http_api_debug' )
 			->whenHappen(
-				function ( ...$args ) use ( $listener, $tester ) {
+				function () use ( $listener, $tester ) {
 
-					$tester( $listener->update( ...$args ) );
+					$tester( $listener->update( func_get_args() ) );
 				}
 			);
 
@@ -121,9 +121,9 @@ class HttpApiListenerTest extends TestCase {
 
 		Actions::expectFired( 'http_api_debug' )
 			->whenHappen(
-				function ( ...$args ) use ( $listener ) {
+				function () use ( $listener ) {
 
-					$log = $listener->update( ...$args );
+					$log = $listener->update( func_get_args() );
 					self::assertInstanceOf( NullLog::class, $log );
 				}
 			);
@@ -168,9 +168,9 @@ class HttpApiListenerTest extends TestCase {
 
 		Actions::expectFired( 'http_api_debug' )
 			->whenHappen(
-				function ( ...$args ) use ( $listener, $tester ) {
+				function () use ( $listener, $tester ) {
 
-					$tester( $listener->update( ...$args ) );
+					$tester( $listener->update( func_get_args() ) );
 				}
 			);
 

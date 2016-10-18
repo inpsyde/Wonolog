@@ -42,7 +42,7 @@ final class DbErrorListener implements ActionListenerInterface {
 	 *
 	 * @wp-hook shutdown
 	 */
-	public function update( ...$args ) {
+	public function update( array $args ) {
 
 		/** @var array $EZSQL_ERROR */
 		global $EZSQL_ERROR;

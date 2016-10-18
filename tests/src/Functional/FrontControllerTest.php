@@ -147,9 +147,9 @@ class FrontControllerTest extends TestCase {
 		Actions::expectFired( 'wonolog.log' )
 			->once()
 			->whenHappen(
-				function ( ...$args ) use ( &$listener ) {
+				function ( $log ) use ( &$listener ) {
 
-					$listener( ...$args );
+					$listener( $log );
 				}
 			);
 
@@ -197,9 +197,9 @@ class FrontControllerTest extends TestCase {
 		Actions::expectFired( 'wonolog.log' )
 			->once()
 			->whenHappen(
-				function ( ...$args ) use ( &$listener ) {
+				function ( $log ) use ( &$listener ) {
 
-					$listener( ...$args );
+					$listener( $log );
 				}
 			);
 
@@ -257,7 +257,7 @@ class FrontControllerTest extends TestCase {
 		Actions::expectFired( 'wonolog.log' )
 			->once()
 			->whenHappen(
-				function ( Info $log ) use ( &$listener ) {
+				function ( $log ) use ( &$listener ) {
 
 					$listener( $log );
 				}

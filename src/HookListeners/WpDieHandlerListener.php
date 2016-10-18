@@ -39,7 +39,7 @@ final class WpDieHandlerListener implements FilterListenerInterface {
 	 *
 	 * @return LogDataInterface
 	 */
-	public function update( ...$args ) {
+	public function update( array $args ) {
 
 		return new NullLog();
 	}
@@ -52,11 +52,11 @@ final class WpDieHandlerListener implements FilterListenerInterface {
 	 * @wp-hook wp_die_ajax_handler
 	 * @wp-hook wp_die_handler
 	 *
-	 * @param array ...$args
+	 * @param array $args
 	 *
 	 * @return mixed
 	 */
-	public function filter( ...$args ) {
+	public function filter( array $args ) {
 
 		$handler = $args ? reset( $args ) : NULL;
 

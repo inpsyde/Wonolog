@@ -63,7 +63,7 @@ class wpdb {
 		};
 
 		$listener = $this->wp_die_listener;
-		$handler  = call_user_func_array( [ $listener, 'filter' ], [ $handler ] );
+		$handler  = call_user_func( [ $listener, 'filter' ], [ $handler ] );
 
 		return $handler;
 	}

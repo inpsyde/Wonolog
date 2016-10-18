@@ -54,9 +54,9 @@ class WpErrorChannelTest extends TestCase {
 
 		$error = \Mockery::mock( 'WP_Error' );
 		$error
-			->shouldReceive('get_error_codes')
+			->shouldReceive( 'get_error_codes' )
 			->once()
-			->andReturn(['foo', 'bar', 'db_failed']);
+			->andReturn( [ 'foo', 'bar', 'db_failed' ] );
 
 		$instance = WpErrorChannel::for_error( $error );
 		$channel  = $instance->channel();
@@ -68,9 +68,9 @@ class WpErrorChannelTest extends TestCase {
 
 		$error = \Mockery::mock( 'WP_Error' );
 		$error
-			->shouldReceive('get_error_codes')
+			->shouldReceive( 'get_error_codes' )
 			->once()
-			->andReturn(['foo', 'bar', 'rest_error']);
+			->andReturn( [ 'foo', 'bar', 'rest_error' ] );
 
 		$instance = WpErrorChannel::for_error( $error );
 		$channel  = $instance->channel();
@@ -82,9 +82,9 @@ class WpErrorChannelTest extends TestCase {
 
 		$error = \Mockery::mock( 'WP_Error' );
 		$error
-			->shouldReceive('get_error_codes')
+			->shouldReceive( 'get_error_codes' )
 			->once()
-			->andReturn(['foo', 'authentication', 'rest_error']);
+			->andReturn( [ 'foo', 'authentication', 'rest_error' ] );
 
 		$instance = WpErrorChannel::for_error( $error );
 		$channel  = $instance->channel();
@@ -101,9 +101,9 @@ class WpErrorChannelTest extends TestCase {
 
 		$error = \Mockery::mock( 'WP_Error' );
 		$error
-			->shouldReceive('get_error_codes')
+			->shouldReceive( 'get_error_codes' )
 			->once()
-			->andReturn(['foo', 'authentication', 'rest_error']);
+			->andReturn( [ 'foo', 'authentication', 'rest_error' ] );
 
 		$instance = WpErrorChannel::for_error( $error );
 		$channel  = $instance->channel();

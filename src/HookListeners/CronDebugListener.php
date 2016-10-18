@@ -41,11 +41,11 @@ final class CronDebugListener implements FilterListenerInterface {
 	/**
 	 * @wp-hook  pre_transient_doing_cron
 	 *
-	 * @param array ...$args
+	 * @param array $args
 	 *
 	 * @return NullLog
 	 */
-	public function update( ...$args ) {
+	public function update( array $args ) {
 
 		return new NullLog();
 	}
@@ -59,7 +59,7 @@ final class CronDebugListener implements FilterListenerInterface {
 	 *
 	 * @return bool
 	 */
-	public function filter( ...$args ) {
+	public function filter( array $args ) {
 
 		$doing_cron = $args ? reset( $args ) : FALSE;
 

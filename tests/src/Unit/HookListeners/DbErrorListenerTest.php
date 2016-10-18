@@ -50,9 +50,9 @@ class DbErrorListenerTest extends TestCase {
 		Actions::expectFired( 'shutdown' )
 			->once()
 			->whenHappen(
-				function ( ...$args ) use ( $listener, $tester ) {
+				function () use ( $listener, $tester ) {
 
-					$tester( $listener->update( ...$args ) );
+					$tester( $listener->update( func_get_args() ) );
 				}
 			);
 
@@ -66,6 +66,6 @@ class DbErrorListenerTest extends TestCase {
 
 		$listener = new DbErrorListener();
 
-		self::assertInstanceOf( NullLog::class, $listener->update() );
+		self::assertInstanceOf( NullLog::class, $listener->update( [] ) );
 	}
 }

@@ -75,9 +75,9 @@ class CronActionListenerTest extends TestCase {
 		Filters::expectApplied( 'pre_transient_doing_cron' )
 			->once()
 			->andReturnUsing(
-				function ( ...$args ) use ( $listener ) {
+				function () use ( $listener ) {
 
-					return $listener->filter( ...$args );
+					return $listener->filter( func_get_args() );
 				}
 			);
 

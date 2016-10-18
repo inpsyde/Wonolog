@@ -63,7 +63,7 @@ It is based on [Monolog](https://github.com/Seldaek/monolog) that, with its over
 
 Wonolog requires:
 
-- PHP 5.6+
+- PHP 5.5+
 - WordPress 4.5.3+
 - Composer to be installed
 
@@ -209,7 +209,7 @@ Please refer to [Monolog documentation](https://github.com/Seldaek/monolog/blob/
 One of the aim of Wonolog is to make plugins and themes to be compatible with it, without requiring it as a
 dependency.
 
-For this reason, logging in Wonolog is done va a WordPress function: `do_action()`.
+For this reason, logging in Wonolog is done via a WordPress function: `do_action()`.
 
 There's just one hook to use for the scope that is **`wonolog.log`**.
 
@@ -765,13 +765,13 @@ both extending `HookListenerInterface`.
 `ActionListenerInterface` has just two methods:
 
  - **`listen_to()`** which have to return an array of "listened" action hooks 
- - **`update(...$args)`** that is called when each of the "listened" action hook is fired, receives all the arguments that
-    each hook passes as parameters ("packed" in the `$args` array) and has to return an instance of`LogDataInterface`.
+ - **`update($args)`** that is called when each of the "listened" action hook is fired, receives all the arguments that
+    each hook passes as parameters (in the `$args` array) and has to return an instance of`LogDataInterface`.
    
 `FilterListenerInterface` has the same two methods plus
 
-- `filter(...$args)` that is called when each of the "listened" filter hook is applied, it receives all the arguments that 
-  each hook passes as parameters ("packed" in the `$args` array) and has to return the return value for the filter.
+- `filter($args)` that is called when each of the "listened" filter hook is applied, it receives all the arguments that 
+  each hook passes as parameters (in the `$args` array) and has to return the return value for the filter.
   If one wants just use the listener to perform log and do not affect filter return value, `filter()` method will
   probably just contain:
   

@@ -10,6 +10,7 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit;
 
+use Andrew\StaticProxy;
 use Brain\Monkey\WP\Filters;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Tests\TestCase;
@@ -21,12 +22,6 @@ use Monolog\Logger;
  * @license http://opensource.org/licenses/MIT MIT
  */
 class ChannelsTest extends TestCase {
-
-	public function test_channels() {
-
-		self::assertSame( Channels::CHANNELS, Channels::all_channels() );
-
-	}
 
 	public function test_channels_filtered() {
 
@@ -40,7 +35,9 @@ class ChannelsTest extends TestCase {
 				}
 			);
 
-		$expected = array_merge( Channels::CHANNELS, [ 'the_new_channel' ] );
+		$proxy = new StaticProxy( Channels::class );
+
+		$expected = array_merge( $proxy->default_channels, [ 'the_new_channel' ] );
 
 		self::assertEquals( $expected, Channels::all_channels() );
 
@@ -64,7 +61,9 @@ class ChannelsTest extends TestCase {
 
 		$channels = new Channels();
 
-		foreach ( Channels::CHANNELS as $channel ) {
+		$proxy = new StaticProxy( Channels::class );
+
+		foreach ( $proxy->default_channels as $channel ) {
 			self::assertFalse( $channels->has_logger( $channel ) );
 			$logger = $channels->logger( $channel );
 			self::assertTrue( $channels->has_logger( $channel ) );

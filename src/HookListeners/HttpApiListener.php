@@ -43,7 +43,7 @@ final class HttpApiListener implements ActionListenerInterface {
 	 *
 	 * @wp-hook 'http_api_debug'
 	 */
-	public function update( ...$args ) {
+	public function update( array $args ) {
 
 		/**
 		 * @var \WP_Error|array $response

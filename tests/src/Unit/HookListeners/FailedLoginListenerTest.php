@@ -36,9 +36,9 @@ class FailedLoginListenerTest extends TestCase {
 		Actions::expectFired( 'wp_login_failed' )
 			->once()
 			->whenHappen(
-				function ( ...$args ) use ( $listener ) {
+				function () use ( $listener ) {
 
-					$log = $listener->update( ...$args );
+					$log = $listener->update( func_get_args() );
 					self::assertInstanceOf( FailedLogin::class, $log );
 				}
 			);
@@ -62,9 +62,9 @@ class FailedLoginListenerTest extends TestCase {
 		Actions::expectFired( 'wp_login_failed' )
 			->once()
 			->whenHappen(
-				function ( ...$args ) use ( $listener ) {
+				function () use ( $listener ) {
 
-					$log = $listener->update( ...$args );
+					$log = $listener->update( func_get_args() );
 					self::assertInstanceOf( FailedLogin::class, $log );
 					self::assertSame( 0, $log->level() );
 				}

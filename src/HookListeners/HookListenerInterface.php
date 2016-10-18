@@ -25,10 +25,10 @@ interface HookListenerInterface {
 	public function listen_to();
 
 	/**
-	 * @param array ...$args
+	 * @param array $args
 	 *
 	 * @return LogDataInterface
 	 */
-	public function update( ...$args );
+	public function update( array $args );
 
 }

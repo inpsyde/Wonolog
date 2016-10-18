@@ -31,11 +31,11 @@ class Channels {
 	const SECURITY = 'SECURITY';
 	const DEBUG = 'DEBUG';
 
-	const CHANNELS = [
-		self::HTTP,
-		self::DB,
-		self::SECURITY,
-		self::DEBUG,
+	private static $default_channels = [
+		Channels::HTTP,
+		Channels::DB,
+		Channels::SECURITY,
+		Channels::DEBUG,
 	];
 
 	/**
@@ -53,7 +53,7 @@ class Channels {
 	 */
 	public static function all_channels() {
 
-		$default_channels = self::CHANNELS;
+		$default_channels = self::$default_channels;
 		$channels         = apply_filters( 'wonolog.channels', $default_channels );
 
 		return is_array( $channels ) ? array_unique( array_filter( $channels, 'is_string' ) ) : [];

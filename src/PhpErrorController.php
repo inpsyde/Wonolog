@@ -23,7 +23,7 @@ use Inpsyde\Wonolog\Data\Log;
  */
 class PhpErrorController {
 
-	const ERROR_LEVELS_MAP = [
+	private static $errors_level_map = [
 		E_USER_ERROR        => Logger::ERROR,
 		E_USER_NOTICE       => Logger::NOTICE,
 		E_USER_WARNING      => Logger::WARNING,
@@ -70,7 +70,7 @@ class PhpErrorController {
 
 		do_action(
 			'wonolog.log',
-			new Log( $str, self::ERROR_LEVELS_MAP[ $num ], self::CHANNEL, $ext_context )
+			new Log( $str, self::$errors_level_map[ $num ], self::CHANNEL, $ext_context )
 		);
 
 		return FALSE;

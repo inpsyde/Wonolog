@@ -57,9 +57,9 @@ class QueryErrorsListenerTest extends TestCase {
 
 		Actions::expectFired( 'wp' )
 			->whenHappen(
-				function ( ...$args ) use ( $listener, $tester ) {
+				function () use ( $listener, $tester ) {
 
-					$tester( $listener->update( ...$args ) );
+					$tester( $listener->update( func_get_args() ) );
 				}
 			);
 
@@ -82,9 +82,9 @@ class QueryErrorsListenerTest extends TestCase {
 
 		Actions::expectFired( 'wp' )
 			->whenHappen(
-				function ( ...$args ) use ( $listener ) {
+				function () use ( $listener ) {
 
-					$log = $listener->update( ...$args );
+					$log = $listener->update( func_get_args() );
 					self::assertInstanceOf( NullLog::class, $log );
 				}
 			);
