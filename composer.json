@@ -14,6 +14,12 @@
   "license": "MIT",
   "authors": [
     {
+      "name": "Inpsyde GmbH",
+      "email": "hello@inpsyde.com",
+      "homepage": "http://inpsyde.com",
+      "role": "Company"
+    },
+    {
       "name": "Giuseppe Mazzapica",
       "email": "giuseppe.mazzapica@gmail.com",
       "role": "Developer"
