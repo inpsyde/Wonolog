@@ -233,7 +233,7 @@ Every log event comes with some information:
 - a **"level"**, a integer<sup>**</sup> representing the event severity level;
   Events with low levels might be discarded by some handlers and event with high level might trigger "emergency" handlers
   that should not be triggered by standard events;
-- a **"context"**, an array of arbitrary data that gives context to the event. For example, and event regarding a post,
+- a **"context"**, an array of arbitrary data that gives context to the event. For example, an event regarding a post,
   would probably have the post object as part of the context.
 
 <sup>*</sup> _There are no default channels in Monolog, but there are some default channels in Wonolog.
@@ -241,13 +241,13 @@ They are accessed via class constants of a `Channels` class. More on this below 
   
 <sup>**</sup> _Log level is normally represented with an integer, that can be compared in order of severity
 with the levels defined by PSR-3, which assign to each of the eight log levels a name (as interface constant) and an 
-integer (as that constant values)._
+integer (as that constant value)._
   
 In Wonolog these information are represented with objects implementing `LogDataIntergface`, but to allow plugins and 
 themes to be compatible with Wonolog without requiring it as a dependency, there are other way to set event information
 without relying on Wonolog objects and interfaces.
 
-It worth nothing that Monolog always adds to log message  date / time of the log event, so there's no need to add
+It worth nothing that Monolog always adds to log messages date / time of the log event, so there's no need to add
 it to message or context.
  
 Moreover, Wonolog, for all logged events that happen after `'init'` hook, will add to log context a string ("yes" or "no") 
@@ -282,7 +282,7 @@ less verbose. All the objects are in the `Inpsyde\Wonolog\Data` namespace and th
 For example, following line of code has the exact same effect of the the line right above:
 
 ```php
-do_action( 'wonolog.log', new Info('Something cool happen.') );
+do_action( 'wonolog.log', new Data\Info('Something cool happen.') );
 ```
 
 ### Logging data via array
@@ -379,7 +379,7 @@ They are available as class constants of `Channels` class, and they are:
 The first three are for specific "areas" of core code: "HTTP" (that includes HTTP and REST APIs), "DB" for database,
 and "SECURITY" (for authorization and other security-related events).
 
-The fourth, "DEBUG" is a generic channel for events that does not belong to any of the other channels. This channel
+The fourth, "DEBUG", is a generic channel for events that does not belong to any of the other channels. This channel
 is used as default when no channel is explicitly set via log data.
 
 The fifth, "PHP_ERROR", is a channel that is used to log PHP error (warning, notices or even fatal errors) that might be
@@ -444,7 +444,7 @@ For example, to completely disable it, it is possible to:
 add_filter( 'wonolog.enable-php-error-handler', '__return_false' );
 ```
 
-or maybe, to only enable it on backed but disabling on frontend:
+or maybe, to only enable it on backed, but disabling on frontend:
 
 ```php
 add_filter( 'wonolog.enable-php-error-handler', 'is_admin' );
