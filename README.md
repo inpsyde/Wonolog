@@ -1,11 +1,8 @@
 Wonolog (by Inpsyde)
 ====================
 
-----
-
 > Monolog-based logger package for WordPress.
- 
-----
+
 
 # TOC
 
@@ -263,7 +260,12 @@ Wonolog ships with the object `Inpsyde\Wonolog\Data\Log` that generally represen
 Its constructor signature is:
 
 ```php
-public function __construct($message = '', $level = Logger::DEBUG, $channel = Channels::CHANNEL_DEBUG,array $context = [])
+public function __construct(
+  $message = '',
+  $level = Logger::DEBUG,
+  $channel = Channels::CHANNEL_DEBUG,
+  array $context = []
+)
 ```
 
 So it allows to set each bit of the log event data and comes with some defaults for convenience.
