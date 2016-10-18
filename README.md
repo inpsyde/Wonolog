@@ -97,7 +97,7 @@ The reason behind this hook choice is that it is the first hook available in Wor
  
 Loading so early means that:
  
- - **all Wonolog configurations to Wonolog have to be done in a MU plugin**
+ - **all Wonolog configurations have to be done in a MU plugin**
  - all Wonolog configurations are _naturally_ site-wide in a network install 
 
 On the bright side, Wonolog comes with some out-of-the-box configurations that make it possible to have a working and
@@ -112,7 +112,7 @@ This will ensure that if Wonolog is not available for any reason, nothing inside
 In the rest of README different actions and filters will be mentioned and **if not explicitly said differently, all those
 actions and filters are assumed to be used in a MU plugin, possibly inside a _wrapper callback_ hooked into `'wonolog.setup'`**.
 
-## Disabling Wonolog pragmatically
+## Disabling Wonolog programmatically
 
 Wonolog provides a filter to disable it via code.
 
@@ -221,7 +221,7 @@ This is nice and easy, however there are a few thing missing, the most important
  - the "channel" of the log event
  - the "level" of the log event
  
-It sill works because Wonolog will _kindly_ set them with defaults, but in real world is better to have control on this.
+It still works because Wonolog will _kindly_ set them with defaults, but in real world is better to have control on this.
 
 ## Logging data
 
@@ -247,15 +247,15 @@ In Wonolog these information are represented with objects implementing `LogDataI
 themes to be compatible with Wonolog without requiring it as a dependency, there are other way to set event information
 without relying on Wonolog objects and interfaces.
 
-Iw worth nothing that Monolog always adds to log message  date / time of the log event, so there's no need to add
+It worth nothing that Monolog always adds to log message  date / time of the log event, so there's no need to add
 it to message or context.
  
-Moreover, Wonolog for to all logged events that happen after `'init'` hook, will add to log context a string ("yes" or "no") 
-indicating if there's an user is logged or not, and the logged user ID, which will always be `0` whe no user is logged in. 
+Moreover, Wonolog, for all logged events that happen after `'init'` hook, will add to log context a string ("yes" or "no") 
+indicating if there's an user is logged or not, and the logged user ID, which will always be `0` when no user is logged in. 
 
 ### Logging data via Wonolog objects
 
-Wonolog ships with the object `Inpsyde\Wonolog\Data\Log` that generally represent log even data.
+Wonolog ships with the object `Inpsyde\Wonolog\Data\Log` that generally represent log event data.
 
 Its constructor signature is:
 
@@ -273,14 +273,13 @@ So it allows to set each bit of the log event data and comes with some defaults 
 Using this object, a log event can triggered like this:
 
 ```php
-$log = new Data\Log( 'Something happen.', Logger::INFO );
-do_action( 'wonolog.log', 'Something cool happen.' );
+do_action( 'wonolog.log', new Data\Log( 'Something happen.', Logger::INFO ) );
 ```
 
 Wonolog also ships with a series of objects that represent specific error levels, making the triggering of events 
 less verbose. All the objects are in the `Inpsyde\Wonolog\Data` namespace and there's an object for each log level.
 
-For example, following line of code has the exact same effect of the two lines of code right above:
+For example, following line of code has the exact same effect of the the line right above:
 
 ```php
 do_action( 'wonolog.log', new Info('Something cool happen.') );
@@ -411,7 +410,7 @@ bootstrap will not work (or not work as expected).
 
 ## Wonolog PHP error handler
 
-By default, when active Wonolog register a custom PHP error handler to log any PHP error. A dedicated channel, 
+By default, when it is active Wonolog registers a custom PHP error handler to log any PHP error. A dedicated channel, 
 `Channels::PHP_ERROR`, is used to log such errors.
 
 The severity level is mapped from PHP error constants, with a "map" that looks like this:
@@ -437,15 +436,15 @@ The severity level is mapped from PHP error constants, with a "map" that looks l
 ];
 ```
 
-This handler can be disabled return `false` to the filter **`'wonolog.enable-php-error-handler'`**.
+This handler can be disabled returning `false` to the filter **`'wonolog.enable-php-error-handler'`**.
 
-For example, disable it always it is possible to:
+For example, to completely disable it, it is possible to:
 
 ```php
 add_filter( 'wonolog.enable-php-error-handler', '__return_false' );
 ```
 
-or maybe, to only enable it on backed with disabling on frontend:
+or maybe, to only enable it on backed but disabling on frontend:
 
 ```php
 add_filter( 'wonolog.enable-php-error-handler', 'is_admin' );
@@ -469,9 +468,9 @@ As explained in the "Monolog concepts" section above, each handler may have a di
 Any log event that has a severity lower than handler minimum level will be just ignored by the handler.
 
 This setting is even more important for Wonolog default handler: considering that it is the only handler shipped out of 
-the box with Wonolog, the **default handler minimum level may be the primary cause of a log even be logged or not by Wonolog**.
+the box with Wonolog, the **default handler minimum level may be the primary cause of a log event be logged or not by Wonolog**.
 
-There are different way to customize its value.
+There are different ways to customize its value.
 
 First of all, the "base" minimum level is set to `Logger::ERROR` when `WP_DEBUG_LOG` is set to `false` and is set to
 `Logger::DEBUG` (which essentially means "log everything") when `WP_DEBUG_LOG` is set to `true`.
@@ -524,7 +523,8 @@ By default, target folder for default handler is `WP_CONTENT . '/wonolog/'`. Thi
 
 By default, target file name for the default handler is obtained via the PHP code: `date('Y/m-d') . '.log'`.
 
-It means that a subfolder with the year is created in the target folder, and inside it there will be one file per day.
+It means that a subfolder named after current year is created in the target folder, and inside it there will be one file 
+per day.
  
 By using the filter **`'wonolog.default-handler-name-format'`** it is possible to customize what is passed to `date()` 
 to obtain file name.
@@ -537,7 +537,7 @@ add_filter( 'wonolog.default-handler-name-format', function() {
 } );
 ```
 
-Wonolog will create a subfolder with year, inside it subfolder for each month, and inside them a file for each day.
+Wonolog will create a subfolder named after year, inside it a subfolder for each month, and inside them a file for each day.
 
 Note that is possible to include arbitrary strings and even file extension in the format returned with the filter, because
 `date()` will leave those untouched.
@@ -551,7 +551,7 @@ Wonolog will build the target file using `"{$target_folder}/" . date($target_fil
 
 Where `$target_folder` and `$target_file_format` are obtained as described above.
 
-The so build full file path can be still overridden via **`'wonolog.default-handler-filepath'`** filter.
+The full file path built in like this can be still overridden via **`'wonolog.default-handler-filepath'`** filter.
 
 
 ### Override or disable default handler for all or some channels
@@ -674,7 +674,7 @@ The lister counts the failed login attempts for same user in a given time frame 
 During a brute force attack, logging all the failed attempts can be so expensive to put the server down.
 
 For this reason the listener does not log all the failed attempts, but as much faster attempts come, as less frequently 
-(and with higher log level) attempts comes are logged.
+(and with higher log level) attempts are logged.
 
 The listener logs:
 
@@ -870,10 +870,10 @@ add_action('wonolog.setup', function() {
 });
 ```
 
-Beside concept already seen in this README, in code above we see a concrete example of a custom hook listener
+Beside some concepts already seen in this README, in code above we see a concrete example of a custom hook listener
 and how to "register" it in Wonolog via the **`'wonolog.register-listeners'`** hook.
 
-That hook passes an instance of `HookListenersRegistry` that beside the `register_listener()` method also has a
+That hook passes an instance of `HookListenersRegistry` that, beside the `register_listener()` method, also has a
 `register_listener_factory()` method, which receives a callback that once called will return an hook listener.
 
 For example we could rewrite that part of code above as:
@@ -908,7 +908,7 @@ distinguish one logger from the others.
 
 ## Monolog configuration example
 
-Let's assume we want to want to log a specific plugin logger, with its own channel and handlers.
+Let's assume we want to log events of a specific plugin, with its own channel and handlers.
 
 To make the example more close to real world, let's assume the target plugin is a popular, large plugin: WooCommerce.
 
@@ -921,9 +921,9 @@ The "plan" is:
 All of this need to be done in a **MU plugin**.
 
 If we realize this is too much to be done in a single file, we could create a Composer package that would contains 
-necessary auto-loaded classes, and maybe a MU plugin that would that package via Composer.
+necessary auto-loaded classes, and maybe a MU plugin that would use that package via Composer.
 
-For the moment, and for simplicity's sake I will just write everything as it was just ine Mu plugin file.
+For the moment, and for simplicity's sake I will just write everything as it was just in a MU plugin file.
 
 Let's start.
 
@@ -989,18 +989,12 @@ function setup_additional_handlers( Logger $logger ) {
 	$syslog_handler = new SyslogHandler( 'woocommerce', LOG_USER, Logger::NOTICE );
 	$logger->pushHandler( $syslog_handler );
 
-	// Syslog handler, minimum level: Logger::NOTICE
-	$syslog_handler = new SyslogHandler( 'woocommerce', LOG_USER, Logger::NOTICE );
-	$logger->pushHandler( $syslog_handler );
-
 	// Slack handler, minimum level: Logger::WARNING
 	// Configs in environment variables
 	$slack_token   = getenv( "SLACK_API_TOKEN" );
 	$slack_channel = getenv( "SLACK_WC_LOG_CHANNEL" );
 	if ( $slack_token && $slack_channel ) {
-		$slack_handler = new SlackHandler(
-			$slack_token, $slack_channel, 'WooCommerce', FALSE, NULL, Logger::WARNING
-		);
+		$slack_handler = new SlackHandler( $slack_token, $slack_channel, 'WooCommerce', FALSE, NULL, Logger::WARNING );
 		$logger->pushHandler( $slack_handler );
 	}
 
