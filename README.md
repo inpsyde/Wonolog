@@ -778,7 +778,7 @@ both extending `HookListenerInterface`.
   probably just contain:
   
 ```php
-    public function filter( ...$args ) {
+    public function filter($args ) {
         return reset($args);
     }
 ```
@@ -842,7 +842,7 @@ class SomePluginListener implements HookListeners\ActionListenerInterface {
 	    ];
 	}
 	
-	public function update( ...$args ) {
+	public function update( array $args ) {
 		return new Log::from_array([
 			'message' => current_filter() . ' just fired',
 			'channel' => 'PLUGINS_DEBUG', // This is a custom channel
