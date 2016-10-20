@@ -67,7 +67,7 @@ class FrontControllerTest extends TestCase {
 
 		global $wp_filter;
 		/** @var callable $boot */
-		$boot = $wp_filter[ 'muplugins_loaded' ][ 0 ][ FrontController::class . '::boot' ][ 'function' ];
+		$boot = $wp_filter[ 'muplugins_loaded' ][ 20 ][ FrontController::class . '::boot' ][ 'function' ];
 		$boot();
 	}
 

@@ -25,6 +25,7 @@ class HookListenersRegistry {
 		HookListeners\DbErrorListener::class,
 		HookListeners\FailedLoginListener::class,
 		HookListeners\HttpApiListener::class,
+		HookListeners\MailerListener::class,
 		HookListeners\QueryErrorsListener::class,
 		HookListeners\CronDebugListener::class,
 		HookListeners\WpDieHandlerListener::class,

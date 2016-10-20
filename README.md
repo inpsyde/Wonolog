@@ -16,10 +16,11 @@ Wonolog (by Inpsyde)
   - [Logging levels](#logging-levels)
   - [Handlers processors](#handlers-processors)
 - [Logging with Wonolog](#logging-with-wonolog)
-  - [Logging data](#logging-data)
+  - [Log events data](#log-events-data)
     - [Logging data via Wonolog objects](#logging-data-via-wonolog-objects)
     - [Logging data via array](#logging-data-via-array)
     - [Logging data via `WP_Error`](#logging-data-via-wp_error)
+  - [Level-rich log hooks](#level-rich-log-hooks)
 - [Wonolog configuration and defaults](#wonolog-configuration-and-defaults)
   - [Wonolog channels](#wonolog-channels)
   - [Wonolog PHP error handler](#wonolog-php-error-handler)
@@ -208,7 +209,7 @@ dependency.
 
 For this reason, logging in Wonolog is done via a WordPress function: `do_action()`.
 
-There's just one hook to use for the scope that is **`wonolog.log`**.
+The main hook to use for the scope that is **`wonolog.log`**.
 
 For example a minimal example of logging with Wonolog could be:
 
@@ -223,25 +224,29 @@ This is nice and easy, however there are a few thing missing, the most important
  
 It still works because Wonolog will _kindly_ set them with defaults, but in real world is better to have control on this.
 
-## Logging data
+## Log events data
 
 Every log event comes with some information:
 
 - a **"message"**, a string describing the event;
-- a **"channel"**<sup>*</sup> a string that identifies the log channel. Every channel is handled by a different logger, 
+- a **"channel"**,**°** a string that identifies the log channel. Every channel is handled by a different logger, 
   which has different handlers, so depending on the channel Monolog will choose _how_ the event will be logged.
-- a **"level"**, a integer<sup>**</sup> representing the event severity level;
+- a **"level"**, a integer**°°** representing the event severity level;
   Events with low levels might be discarded by some handlers and event with high level might trigger "emergency" handlers
   that should not be triggered by standard events;
 - a **"context"**, an array of arbitrary data that gives context to the event. For example, an event regarding a post,
   would probably have the post object as part of the context.
 
-<sup>*</sup> _There are no default channels in Monolog, but there are some default channels in Wonolog.
+----
+
+**°** _There are no default channels in Monolog, but there are some default channels in Wonolog.
 They are accessed via class constants of a `Channels` class. More on this below in this README._
   
-<sup>**</sup> _Log level is normally represented with an integer, that can be compared in order of severity
+**°°** _Log level is normally represented with an integer, that can be compared in order of severity
 with the levels defined by PSR-3, which assign to each of the eight log levels a name (as interface constant) and an 
 integer (as that constant value)._
+
+----
   
 In Wonolog these information are represented with objects implementing `LogDataIntergface`, but to allow plugins and 
 themes to be compatible with Wonolog without requiring it as a dependency, there are other way to set event information
@@ -353,6 +358,60 @@ do_action( 'wonolog.log', $error, Logger::WARNING, Channels::CHANNEL_DEBUG );
 ```
 
 In both cases channel is explicitly set or it is "guessed", it can also be filtered via `'wonolog.wp-error-channel'` filter.
+
+
+## Level-rich log hooks
+
+As of now, we seen only one Wonolog log hook, **`'wonolog.log'`**.
+
+However, there are more hooks that can be used to log data. These are hook who embeds error level in them.
+
+For example, the following log code:
+
+```php
+do_action( 'wonolog.log', [ 'message' => 'Please log me!', 'level' => 'INFO' ] );
+```
+
+can be also rewritten like so:
+
+```php
+do_action( 'wonolog.log.info', [ 'message' => 'Please log me!' ] );
+```
+
+This could make logging actions calls more concise, even without relying in Wonolog objects.
+
+There is one hook per each level, so we have:
+
+- `'wonolog.log.emergency`
+- `'wonolog.log.alert`
+- `'wonolog.log.critical`
+- `'wonolog.log.error`
+- `'wonolog.log.warning`
+- `'wonolog.log.notice`
+- `'wonolog.log.info`
+- `'wonolog.log.debug`
+
+In case one of the above hook is used passing some data that also contain level information, the level with  higher severity wins.
+
+For example:
+
+```php
+// In this case the actually logged level will be "ERROR", because it has higher severity than "DEBUG"
+do_action( 'wonolog.log.debug', [ 'message' => 'Please log me!', 'level' => 'ERROR' ] );
+
+// In this case the actually logged level will be "CRITICAL", because it has higher severity than "ERROR"
+do_action( 'wonolog.log.critical', [ 'message' => 'Please log me!', 'level' => 'ERROR' ] );
+```
+
+The same applies if the data is done with Wonolog log data objects:
+
+```php
+// In this case the actually logged level will be "ERROR", because it has higher severity than "DEBUG"
+do_action( 'wonolog.log.error', new Debug( 'message' => 'Please log me!' ));
+
+// In this case the actually logged level will be "CRITICAL", because it has higher severity than "ERROR"
+do_action( 'wonolog.log.critical', new Log( 'Please log me!', Logger::ERROR ) );
+```
 
 --------
 

@@ -103,6 +103,8 @@ class WpErrorChannel {
 			|| stripos( $code, 'simplepie' ) !== FALSE
 			|| stripos( $code, 'mail' ) !== FALSE
 			|| stripos( $code, 'rest' ) !== FALSE
+			|| stripos( $code, 'wp_mail' ) !== FALSE
+			|| stripos( $code, 'email' ) !== FALSE
 		) {
 			return Channels::HTTP;
 		}

@@ -104,6 +104,8 @@ final class Log implements LogDataInterface {
 			$channels = Channels::all_channels();
 
 			$object_context = NULL;
+			$log_levels     = [];
+
 			foreach ( $values as $value ) {
 				if ( count( $log_data ) === 4 ) {
 					break;
@@ -113,11 +115,10 @@ final class Log implements LogDataInterface {
 					continue;
 				}
 				if (
-					! isset( $log_data[ 'level' ] )
-					&& ( is_string( $value ) || is_numeric( $value ) )
+					( is_string( $value ) || is_numeric( $value ) )
 					&& ( $min_level = $log_level->check_level( $value, $levels ) )
 				) {
-					$log_data[ 'level' ] = $min_level;
+					$log_levels[] = $min_level;
 					continue;
 				}
 				if ( ! isset( $log_data[ 'message' ] ) && is_string( $value ) ) {
@@ -131,6 +132,8 @@ final class Log implements LogDataInterface {
 					$object_context = $value;
 				}
 			}
+
+			$log_levels and $log_data[ 'level' ] = max( $log_levels );
 
 			// If no message was found, but an object was passed as log data, we use its class name for the message.
 			if ( ! isset( $log_data[ 'message' ] ) && $object_context ) {
