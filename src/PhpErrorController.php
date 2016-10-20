@@ -14,8 +14,8 @@ use Monolog\Logger;
 use Inpsyde\Wonolog\Data\Log;
 
 /**
- * Handler for PHP core errors, used to log those errors mapping error types to log levels.
- *Monolog
+ * Handler for PHP core errors, used to log those errors mapping error types to Monolog log levels.
+ *
  *
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
@@ -79,11 +79,11 @@ class PhpErrorController {
 	/**
 	 * Uncaught exception handler.
 	 *
-	 * @param  \Exception $e
+	 * @param  \Throwable $e
 	 *
-	 * @throws \Exception
+	 * @throws \Throwable
 	 */
-	public function on_exception( \Exception $e ) {
+	public function on_exception( $e ) {
 
 		do_action(
 			'wonolog.log',

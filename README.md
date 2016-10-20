@@ -570,7 +570,7 @@ There are different customizations available, in fact, it is possible to:
 
 ### Change default handler target folder
 
-By default, target folder for default handler is `WP_CONTENT . '/wonolog/'`. This folder can be changed in two ways:
+By default, target folder for default handler is `WP_CONTENT . '/wonolog'`. This folder can be changed in two ways:
 
  - via the environment variable **`'WONOLOG_HANDLER_FILE_DIR'`**
  - via the filter **`'wonolog.default-handler-folder'`**
