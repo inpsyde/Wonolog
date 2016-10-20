@@ -16,6 +16,7 @@ use Inpsyde\Wonolog\HookListeners\FilterListenerInterface;
 use Inpsyde\Wonolog\HookListeners\HookListenerInterface;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 /**
  * "Entry point" for package bootstrapping.
@@ -63,12 +64,13 @@ class FrontController {
 
 		$this->setup_php_error_handler();
 
-		add_action(
-			'wonolog.log',
-			[ new LogActionSubscriber( new Channels(), $this->setup_default_handler() ), 'listen' ],
-			100,
-			9999
-		);
+		$listener = [ new LogActionSubscriber( new Channels(), $this->setup_default_handler() ), 'listen' ];
+
+		add_action( 'wonolog.log', $listener, 100, 9999 );
+
+		foreach ( Logger::getLevels() as $level => $level_code ) {
+			add_action( 'wonolog.log.' . strtolower( $level ), $listener, 100, 9999 );
+		}
 
 		$hook_listeners_registry = new HookListenersRegistry();
 		do_action( 'wonolog.register-listeners', $hook_listeners_registry );
@@ -183,7 +185,7 @@ class FrontController {
 		$callback = function () use ( $listener, $is_filter ) {
 
 			$args = func_get_args();
-			$log = $listener->update( $args );
+			$log  = $listener->update( $args );
 			$log instanceof LogDataInterface and do_action( 'wonolog.log', $log );
 
 			return $is_filter ? $listener->filter( $args ) : NULL;

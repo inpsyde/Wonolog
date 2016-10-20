@@ -45,6 +45,11 @@ class LogActionSubscriber {
 	private $setup_loggers = [];
 
 	/**
+	 * @var LogLevel
+	 */
+	private $log_level;
+
+	/**
 	 * @param Channels         $channels
 	 * @param HandlerInterface $default_handler
 	 */
@@ -52,10 +57,19 @@ class LogActionSubscriber {
 
 		$this->channels        = $channels;
 		$this->default_handler = $default_handler;
+		$this->log_level       = new LogLevel();
 	}
 
 	/**
 	 * @wp-hook wonolog.log
+	 * @wp-hook wonolog.log.debug
+	 * @wp-hook wonolog.log.info
+	 * @wp-hook wonolog.log.notice
+	 * @wp-hook wonolog.log.warning
+	 * @wp-hook wonolog.log.error
+	 * @wp-hook wonolog.log.critical
+	 * @wp-hook wonolog.log.alert
+	 * @wp-hook wonolog.log.emergency
 	 */
 	public function listen() {
 
@@ -75,9 +89,10 @@ class LogActionSubscriber {
 
 		$first_arg  = reset( $args );
 		$single_arg = count( $args ) === 1;
+		$hook_level = $this->hook_level( current_filter() );
 
 		if ( is_string( $first_arg ) && $single_arg ) {
-			$log = new Debug( $first_arg, Channels::DEBUG );
+			$log = new Log( $first_arg, ( $hook_level ? : Logger::DEBUG ), Channels::DEBUG );
 			$this->update( $log );
 
 			return;
@@ -87,7 +102,7 @@ class LogActionSubscriber {
 		$logged = FALSE;
 		foreach ( $args as $arg ) {
 			if ( $arg instanceof LogDataInterface ) {
-				$this->update( $arg );
+				$this->update( $this->maybe_raise_level( $hook_level, $arg ) );
 				$logged = TRUE;
 			}
 		}
@@ -99,7 +114,8 @@ class LogActionSubscriber {
 		// If the first argument was a WP_Error, use it to build the log
 		if ( is_wp_error( $first_arg ) ) {
 
-			$level   = ( isset( $args[ 1 ] ) && is_scalar( $args[ 1 ] ) ) ? $args[ 1 ] : Logger::NOTICE;
+			$level = ( isset( $args[ 1 ] ) && is_scalar( $args[ 1 ] ) ) ? $args[ 1 ] : Logger::NOTICE;
+			$level < $hook_level and $level = $hook_level;
 			$channel = ( isset( $args[ 2 ] ) && is_string( $args[ 2 ] ) ) ? $args[ 2 ] : '';
 
 			$this->update( Log::from_wp_error( $first_arg, $level, $channel ) );
@@ -109,10 +125,16 @@ class LogActionSubscriber {
 
 		// If there was just one argument and it was an array, use it to build the log
 		if ( is_array( $first_arg ) && $single_arg ) {
+
+			$level = array_key_exists( 'level', $first_arg ) ? $first_arg[ 'level' ] : 0;
+			$level < $hook_level and $first_arg[ 'level' ] = $hook_level;
+
 			$this->update( Log::from_array( $first_arg ) );
 
 			return;
 		}
+
+		$hook_level and $args[] = $hook_level;
 
 		// If any other thing failed, let's use all received arguments to build the log data object
 		$this->update( Log::from_array( $args ) );
@@ -186,6 +208,40 @@ class LogActionSubscriber {
 			$default_handler = apply_filters( $filter, $this->default_handler, $logger );
 			$default_handler instanceof HandlerInterface and $logger->pushHandler( $this->default_handler );
 		}
+	}
+
+	/**
+	 * @param string $current_filter
+	 *
+	 * @return int
+	 */
+	private function hook_level( $current_filter ) {
+
+		if ( $current_filter === 'wonolog.log' ) {
+			return 0;
+		}
+
+		$parts = explode( '.', $current_filter, 3 );
+		if ( isset( $parts[ 2 ] ) ) {
+			return $this->log_level->check_level( $parts[ 2 ] );
+		}
+
+		return Logger::DEBUG;
+	}
+
+	/**
+	 * @param int              $hook_level
+	 * @param LogDataInterface $log
+	 *
+	 * @return LogDataInterface
+	 */
+	private function maybe_raise_level( $hook_level, LogDataInterface $log ) {
+
+		if ( $hook_level > $log->level() ) {
+			return new Log( $log->message(), $hook_level, $log->channel(), $log->context() );
+		}
+
+		return $log;
 	}
 
 }
