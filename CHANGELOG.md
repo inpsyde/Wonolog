@@ -20,7 +20,7 @@ Changelog
 
 ### Fixed
 
-- Removed type-hint from `PhpErrorController::onFatal()` because it causes issues with PHP7ù
+- Removed type-hint from `PhpErrorController::onFatal()` because it causes issues with PHP7
 
 -------
 

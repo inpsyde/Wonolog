@@ -379,14 +379,14 @@ This could make logging actions calls more concise, even without relying in Wono
 
 There is one hook per each level, so we have:
 
-- `'wonolog.log.emergency`
-- `'wonolog.log.alert`
-- `'wonolog.log.critical`
-- `'wonolog.log.error`
-- `'wonolog.log.warning`
-- `'wonolog.log.notice`
-- `'wonolog.log.info`
-- `'wonolog.log.debug`
+- `'wonolog.log.emergency'`
+- `'wonolog.log.alert'`
+- `'wonolog.log.critical'`
+- `'wonolog.log.error'`
+- `'wonolog.log.warning'`
+- `'wonolog.log.notice'`
+- `'wonolog.log.info'`
+- `'wonolog.log.debug'`
 
 In case one of the above hook is used passing some data that also contain level information, the level with  higher severity wins.
 
