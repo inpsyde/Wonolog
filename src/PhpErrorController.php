@@ -48,9 +48,9 @@ class PhpErrorController {
 	 */
 	public function init() {
 
-		register_shutdown_function( [ $this, 'onFatal', ] );
-		set_error_handler( [ $this, 'onError', ] );
-		set_exception_handler( [ $this, 'onException', ] );
+		register_shutdown_function( [ $this, 'on_fatal', ] );
+		set_error_handler( [ $this, 'on_error', ] );
+		set_exception_handler( [ $this, 'on_exception', ] );
 	}
 
 	/**
@@ -64,7 +64,7 @@ class PhpErrorController {
 	 *
 	 * @return bool
 	 */
-	public function onError( $num, $str, $file, $line, $context = NULL ) {
+	public function on_error( $num, $str, $file, $line, $context = NULL ) {
 
 		$ext_context = array_merge( (array) $context, [ 'file' => $file, 'line' => $line ] );
 
@@ -83,7 +83,7 @@ class PhpErrorController {
 	 *
 	 * @throws \Exception
 	 */
-	public function onException( \Exception $e ) {
+	public function on_exception( \Exception $e ) {
 
 		do_action(
 			'wonolog.log',
@@ -108,7 +108,7 @@ class PhpErrorController {
 	/**
 	 * Checks for a fatal error, work-around for `set_error_handler` not working with fatal errors.
 	 */
-	public function onFatal() {
+	public function on_fatal() {
 
 		$error  = error_get_last();
 		$fatals = [
@@ -121,7 +121,7 @@ class PhpErrorController {
 		];
 
 		if ( in_array( $error[ 'type' ], $fatals, TRUE ) ) {
-			$this->onError( $error[ 'type' ], $error[ 'message' ], $error[ 'file' ], $error[ 'line' ] );
+			$this->on_error( $error[ 'type' ], $error[ 'message' ], $error[ 'file' ], $error[ 'line' ] );
 		}
 	}
 }

@@ -113,7 +113,7 @@ class PhpErrorHandlerTest extends TestCase {
 			throw new \RuntimeException( 'Exception!' );
 		}
 		catch ( \Exception $e ) {
-			$handler->onException( $e );
+			$handler->on_exception( $e );
 		}
 	}
 }
