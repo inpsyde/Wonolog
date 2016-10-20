@@ -14,8 +14,8 @@ use Monolog\Logger;
 use Inpsyde\Wonolog\Data\Log;
 
 /**
- * Handler for PHP core errors, used to log those errors mapping error types to log levels.
- *Monolog
+ * Handler for PHP core errors, used to log those errors mapping error types to Monolog log levels.
+ *
  *
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog

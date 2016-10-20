@@ -34,6 +34,7 @@ Wonolog (by Inpsyde)
   - [Wonolog core loggers and listeners](#wonolog-core-loggers-and-listeners)
     - [`CronDebugListener`](#crondebuglistener)
     - [`HttpApiListener`](#httpapilistener)
+    - [`MailerListener`](#mailerlistener)
     - [`DbErrorListener`](#dberrorlistener)
     - [`WpDieHandlerListener`](#wpdiehandlerlistener)
     - [`QueryErrorsListener`](#queryerrorslistener)
@@ -228,21 +229,17 @@ It still works because Wonolog will _kindly_ set them with defaults, but in real
 
 Every log event comes with some information:
 
-- a **"message"**, a string describing the event;
-- a **"channel"**,**°** a string that identifies the log channel. Every channel is handled by a different logger, 
-  which has different handlers, so depending on the channel Monolog will choose _how_ the event will be logged.
-- a **"level"**, a integer**°°** representing the event severity level;
-  Events with low levels might be discarded by some handlers and event with high level might trigger "emergency" handlers
-  that should not be triggered by standard events;
-- a **"context"**, an array of arbitrary data that gives context to the event. For example, an event regarding a post,
-  would probably have the post object as part of the context.
+| Data key   | Type      | Description |
+-------------|-----------|-------------|
+| "message"  | string    | Textual description of the log event. |
+| "channel"° | string    | Every channel is handled by a logger, which has different handlers, depending on the channel Monolog will choose _how_ the event will be logged. |
+| "level"    | integer°° | Severity of the event. Events with low levels might be discarded by some handlers and event with high level might trigger "emergency" handlers. |
+| "context"  | array     | Arbitrary data that gives context to the event. For example, an event regarding a post, would probably have the post object as part of the context. |
 
-----
-
-**°** _There are no default channels in Monolog, but there are some default channels in Wonolog.
-They are accessed via class constants of a `Channels` class. More on this below in this README._
+° _There are no default channels in Monolog, but there are some default channels in Wonolog.
+They are accessed via class constants of a `Channels` class. More on this below._
   
-**°°** _Log level is normally represented with an integer, that can be compared in order of severity
+°° _Log level is normally represented with an integer, that can be compared in order of severity
 with the levels defined by PSR-3, which assign to each of the eight log levels a name (as interface constant) and an 
 integer (as that constant value)._
 
@@ -682,6 +679,7 @@ Shipped listeners are:
 
 - `CronDebugListener`
 - `HttpApiListener`
+- `MailerListener`
 - `DbErrorListener`
 - `WpDieHandlerListener`
 - `QueryErrorsListener`
@@ -700,6 +698,16 @@ which pass the response as hook parameter.
 
 If response is erroneous, e.g. it is a `WP_Error` or it contains a `50x` response code, a log event is sent to the
 `Channels::HTTP` channel, with `Logger::ERROR` level.
+
+### `MailerListener`
+
+`MailerListener` listens to errors returned by `wp_mail` and logs them in the `Channels::HTTP` channel, with `Logger::ERROR` level.
+
+Moreover, it listen to _each_ email sent via `wp_mail` and logs sending debug events in the `Channels::HTTP` channel, 
+with `Logger::DEBUG` level.
+
+This latter logging activity might be prevented by other code that acts on `\PHPMailer`, because this class only supports
+a single debug callback that could be overridden by other code.
 
 ### `DbErrorListener`
 
