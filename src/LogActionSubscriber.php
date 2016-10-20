@@ -83,7 +83,7 @@ class LogActionSubscriber {
 		$hook_level    = $this->hook_level( current_filter() );
 
 		return
-			$this->log_undefined_error( $args )
+			$this->log_undefined_error( $args, $hook_level )
 			|| $this->log_data_from_string( $first_arg, $is_single_arg, $hook_level )
 			|| $this->log_objects_in_args( $args, $hook_level )
 			|| $this->log_wp_error( $first_arg, $args, $hook_level )
@@ -165,16 +165,17 @@ class LogActionSubscriber {
 	 * If no args was passed, log something very ambiguous and return;
 	 *
 	 * @param array $args
+	 * @param int   $hook_level
 	 *
 	 * @return bool
 	 */
-	private function log_undefined_error( array $args = [] ) {
+	private function log_undefined_error( array $args = [], $hook_level ) {
 
 		if ( $args ) {
 			return FALSE;
 		}
 
-		$log = new Debug( 'Unknown error.', Channels::DEBUG );
+		$log = new Log( 'Unknown error.', $hook_level ?: Logger::DEBUG, Channels::DEBUG );
 		$this->update( $log );
 
 		return TRUE;

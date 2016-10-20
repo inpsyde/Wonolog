@@ -105,6 +105,24 @@ class LogActionSubscriberTest extends TestCase {
 
 	}
 
+	public function test_listen_unknown_with_level_from_hook() {
+
+		do_action( 'wonolog.loaded' );
+
+		$subscriber = new LogActionSubscriber( $this->build_channels() );
+		
+		Functions::when( 'current_filter' )
+			->justReturn('wonolog.log.critical');
+
+		$subscriber->listen();
+
+		self::assertEquals(
+			[ 'level' => Logger::CRITICAL, 'message' => 'Unknown error.', 'context' => [] ],
+			$this->result
+		);
+
+	}
+
 	public function test_listen_log_log_object() {
 
 		do_action( 'wonolog.loaded' );
@@ -117,6 +135,26 @@ class LogActionSubscriberTest extends TestCase {
 
 		self::assertEquals(
 			[ 'level' => Logger::ALERT, 'message' => 'Hi!', 'context' => [ 'foo' => 'bar' ] ],
+			$this->result
+		);
+
+	}
+
+	public function test_listen_log_object_level_overridden_by_hook() {
+
+		do_action( 'wonolog.loaded' );
+
+		$log = new Log( 'Hi!', Logger::ALERT, 'FOO', [ 'foo' => 'bar' ] );
+
+		$subscriber = new LogActionSubscriber( $this->build_channels( 'FOO' ) );
+
+		Functions::when( 'current_filter' )
+			->justReturn('wonolog.log.emergency');
+
+		$subscriber->listen( 1, 2, $log );
+
+		self::assertEquals(
+			[ 'level' => Logger::EMERGENCY, 'message' => 'Hi!', 'context' => [ 'foo' => 'bar' ] ],
 			$this->result
 		);
 
