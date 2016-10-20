@@ -79,11 +79,11 @@ class PhpErrorController {
 	/**
 	 * Uncaught exception handler.
 	 *
-	 * @param  \Exception $e
+	 * @param  \Throwable $e
 	 *
-	 * @throws \Exception
+	 * @throws \Throwable
 	 */
-	public function onException( \Exception $e ) {
+	public function onException( $e ) {
 
 		do_action(
 			'wonolog.log',
