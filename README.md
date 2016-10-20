@@ -34,6 +34,7 @@ Wonolog (by Inpsyde)
   - [Wonolog core loggers and listeners](#wonolog-core-loggers-and-listeners)
     - [`CronDebugListener`](#crondebuglistener)
     - [`HttpApiListener`](#httpapilistener)
+    - [`MailerListener`](#mailerlistener)
     - [`DbErrorListener`](#dberrorlistener)
     - [`WpDieHandlerListener`](#wpdiehandlerlistener)
     - [`QueryErrorsListener`](#queryerrorslistener)
@@ -680,6 +681,7 @@ Shipped listeners are:
 
 - `CronDebugListener`
 - `HttpApiListener`
+- `MailerListener`
 - `DbErrorListener`
 - `WpDieHandlerListener`
 - `QueryErrorsListener`
@@ -698,6 +700,16 @@ which pass the response as hook parameter.
 
 If response is erroneous, e.g. it is a `WP_Error` or it contains a `50x` response code, a log event is sent to the
 `Channels::HTTP` channel, with `Logger::ERROR` level.
+
+### `MailerListener`
+
+`MailerListener` listens to errors returned by `wp_mail` and logs them in the `Channels::HTTP` channel, with `Logger::ERROR` level.
+
+Moreover, it listen to _each_ email sent via `wp_mail` and logs sending debug events in the `Channels::HTTP` channel, 
+with `Logger::DEBUG` level.
+
+This latter logging activity might be prevented by other code that acts on `\PHPMailer`, because this class only supports
+a single debug callback that could be overridden by other code.
 
 ### `DbErrorListener`
 
