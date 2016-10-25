@@ -1,6 +1,14 @@
 Changelog
 =========
 
+## [v0.2.1 (2016-10-20)](https://github.com/inpsyde/wonolog/releases/tag/0.2.1)
+
+### Fixed
+
+- Bug with custom default handler be ignored
+
+-------
+
 ## [v0.2.0 (2016-10-20)](https://github.com/inpsyde/wonolog/releases/tag/0.2.0)
 
 ### Added
