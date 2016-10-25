@@ -157,7 +157,7 @@ class LogActionSubscriber {
 			 * or even to discard default handler for the specific logger passed as second argument.
 			 */
 			$default_handler = apply_filters( $filter, $this->default_handler, $logger );
-			$default_handler instanceof HandlerInterface and $logger->pushHandler( $this->default_handler );
+			$default_handler instanceof HandlerInterface and $logger->pushHandler( $default_handler );
 		}
 	}
 
