@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## [v0.2.1 (2016-10-20)](https://github.com/inpsyde/wonolog/releases/tag/0.2.1)
+## [v0.2.1 (2016-10-25)](https://github.com/inpsyde/wonolog/releases/tag/0.2.1)
 
 ### Fixed
 
