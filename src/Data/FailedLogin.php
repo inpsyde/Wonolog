@@ -94,6 +94,8 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function message() {
 
+		NULL === $this->attempts and $this->attempts = $this->count_attempts( 300 );
+
 		if ( ! $this->attempts_data ) {
 			return '';
 		}

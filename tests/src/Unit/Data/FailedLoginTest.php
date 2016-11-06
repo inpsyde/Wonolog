@@ -91,4 +91,32 @@ class FailedLoginTest extends TestCase {
 			self::assertSame( $messages[ $i ], sprintf( $format, $n ) );
 		}
 	}
+
+	public function test_message() {
+
+		$transient = FALSE;
+
+		$callback = function ( $name, $value = NULL ) use ( &$transient ) {
+
+			if ( is_null( $value ) ) {
+				return $transient;
+			}
+
+			$transient = $value;
+
+			return TRUE;
+		};
+
+		Functions::when( 'get_site_transient' )
+			->alias( $callback );
+		Functions::when( 'set_site_transient' )
+			->alias( $callback );
+
+		$failed_login = new FailedLogin( 'h4ck3rb0y' );
+
+		$this->assertSame(
+			sprintf( "%d failed login attempts from username '%s' in last 5 minutes", 1, 'h4ck3rb0y' ),
+			$failed_login->message()
+		);
+	}
 }
