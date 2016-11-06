@@ -60,6 +60,7 @@ class FailedLoginTest extends TestCase {
 				self::assertSame( 'h4ck3rb0y', $context[ 'username' ] );
 				self::assertSame( Channels::SECURITY, $failed_login->channel() );
 			}
+			$failed_login = new FailedLogin( 'h4ck3rb0y' );
 		}
 
 		$expected_logged_levels = [
