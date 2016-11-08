@@ -30,22 +30,7 @@ final class Log implements LogDataInterface {
 	/**
 	 * @var string
 	 */
-	private $message;
-
-	/**
-	 * @var string
-	 */
-	private $channel;
-
-	/**
-	 * @var string
-	 */
 	private $level;
-
-	/**
-	 * @var array
-	 */
-	private $context;
 
 	/**
 	 * @param \WP_Error $error
