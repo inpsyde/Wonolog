@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## [v0.2.2 (2016-11-08)](https://github.com/inpsyde/wonolog/releases/tag/0.2.2)
+
+### Fixed
+
+- Strict standard error in PHP 5.* that criticize re-declaration of properties in classes previously declared by trait. See [#3](https://github.com/inpsyde/wonolog/issues/4)
+
 ## [v0.2.1 (2016-10-25)](https://github.com/inpsyde/wonolog/releases/tag/0.2.1)
 
 ### Fixed
