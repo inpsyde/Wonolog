@@ -14,6 +14,7 @@ use Brain\Monkey\Functions;
 use Brain\Monkey\WP\Filters;
 use Brain\Monkey\WP\Actions;
 use Inpsyde\Wonolog\Data\Debug;
+use Inpsyde\Wonolog\Data\NullLog;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Inpsyde\Wonolog\HookListeners\CronDebugListener;
 
@@ -23,6 +24,28 @@ use Inpsyde\Wonolog\HookListeners\CronDebugListener;
  * @license http://opensource.org/licenses/MIT MIT
  */
 class CronDebugListenerTest extends TestCase {
+
+	/**
+	 * @see CronDebugListener::listen_to()
+	 */
+	public function test_listen_to() {
+
+		$this->assertSame(
+			'wp_loaded',
+			( new CronDebugListener() )->listen_to()
+		);
+	}
+
+	/**
+	 * @see CronDebugListener::update()
+	 */
+	public function test_update() {
+
+		$this->assertInstanceOf(
+			NullLog::class,
+			( new CronDebugListener() )->update( [] )
+		);
+	}
 
 	/**
 	 * @runInSeparateProcess
