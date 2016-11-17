@@ -52,12 +52,14 @@ class LogActionSubscriber {
 	/**
 	 * @param Channels         $channels
 	 * @param HandlerInterface $default_handler
+	 * @param array            $processors
 	 */
-	public function __construct( Channels $channels, HandlerInterface $default_handler = NULL ) {
+	public function __construct( Channels $channels, HandlerInterface $default_handler = NULL, array $processors = [] ) {
 
 		$this->channels        = $channels;
 		$this->default_handler = $default_handler;
 		$this->log_level       = new LogLevel();
+		$this->processors      = $processors;
 	}
 
 	/**
@@ -113,10 +115,6 @@ class LogActionSubscriber {
 			}
 
 			$context = $log->context();
-			if ( did_action( 'init' ) ) {
-				$context[ 'user_logged' ] = is_user_logged_in() ? 'yes' : 'no';
-				$context[ 'user_id' ]     = get_current_user_id();
-			}
 
 			return $logger->addRecord( $log->level(), $log->message(), $context );
 
@@ -159,6 +157,19 @@ class LogActionSubscriber {
 			$default_handler = apply_filters( $filter, $this->default_handler, $logger );
 			$default_handler instanceof HandlerInterface and $logger->pushHandler( $default_handler );
 		}
+
+		$processors = apply_filters( 'wonolog.logger-processors', $this->processors, $logger );
+		$processors = array_filter( (array) $processors, 'is_callable' );
+
+		array_walk(
+			$processors,
+			function ( callable $processor, $index, Logger $logger ) {
+
+				$logger->pushProcessor( $processor );
+			},
+			$logger
+		);
+
 	}
 
 	/**
@@ -175,7 +186,7 @@ class LogActionSubscriber {
 			return FALSE;
 		}
 
-		$log = new Log( 'Unknown error.', $hook_level ?: Logger::DEBUG, Channels::DEBUG );
+		$log = new Log( 'Unknown error.', $hook_level ? : Logger::DEBUG, Channels::DEBUG );
 		$this->update( $log );
 
 		return TRUE;

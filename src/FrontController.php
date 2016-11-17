@@ -17,6 +17,7 @@ use Inpsyde\Wonolog\HookListeners\HookListenerInterface;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Processors\WpContextProcessor;
 
 /**
  * "Entry point" for package bootstrapping.
@@ -38,7 +39,7 @@ class FrontController {
 	public static function boot() {
 
 		$instance = new static();
-		$instance->setup();
+		$instance->setup( get_current_user_id() );
 	}
 
 	/**
@@ -53,18 +54,25 @@ class FrontController {
 
 	/**
 	 * Initialize the package object.
+	 *
+	 * @param int $site_id
 	 */
-	public function setup() {
+	public function setup( $site_id = NULL ) {
 
 		if ( did_action( 'wonolog.loaded' ) || ! apply_filters( 'wonolog.enable', TRUE ) ) {
 			return;
 		}
 
+		$site_id or $site_id = get_current_user_id();
+
 		do_action( 'wonolog.setup' );
 
 		$this->setup_php_error_handler();
 
-		$listener = [ new LogActionSubscriber( new Channels(), $this->setup_default_handler() ), 'listen' ];
+		$default_handler    = $this->setup_default_handler();
+		$default_processors = apply_filters( 'wonolog.default-processors', [ new WpContextProcessor( $site_id ) ] );
+
+		$listener = [ new LogActionSubscriber( new Channels(), $default_handler, $default_processors ), 'listen' ];
 
 		add_action( 'wonolog.log', $listener, 100, 9999 );
 
