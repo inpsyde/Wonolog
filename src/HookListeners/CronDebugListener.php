@@ -115,7 +115,7 @@ final class CronDebugListener implements FilterListenerInterface {
 
 			$duration = number_format( microtime( TRUE ) - $this->done[ $hook ][ 'start' ], 2 );
 
-			$this->done[ $hook ][ 'duration' ] = $duration . 'ms';
+			$this->done[ $hook ][ 'duration' ] = $duration . ' s';
 
 			do_action(
 				'wonolog.log',
