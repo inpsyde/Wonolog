@@ -10,8 +10,8 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
+use Inpsyde\Wonolog\Channels;
 use Brain\Monkey\Functions;
-use Brain\Monkey\WP\Filters;
 use Brain\Monkey\WP\Actions;
 use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\NullLog;
@@ -49,11 +49,13 @@ class CronDebugListenerTest extends TestCase {
 
 	/**
 	 * @runInSeparateProcess
+	 * @dataProvider update_registers_listeners
+	 * @see CronDebugListener::update()
+	 *
+	 * @param bool $is_cron
+	 * @param bool $is_cli
 	 */
-	public function test_log_done() {
-
-		$this->markTestSkipped( 'Under construction due to refactoring…' );
-		define( 'DOING_CRON', TRUE );
+	public function test_update_registers_listeners( $is_cron, $is_cli ) {
 
 		Functions::when( '_get_cron_array' )
 			->justReturn(
@@ -91,20 +93,72 @@ class CronDebugListenerTest extends TestCase {
 					self::assertInternalType( 'array', $context );
 					self::assertArrayHasKey( 'start', $context );
 					self::assertArrayHasKey( 'duration', $context );
+					self::assertSame(
+						Channels::DEBUG,
+						$debug->channel()
+					);
 				}
 			);
 
-		$listener = new CronDebugListener();
+		$listener = new CronDebugListener( $is_cli, $is_cron );
 
-		Filters::expectApplied( 'pre_transient_doing_cron' )
-			->once()
-			->andReturnUsing(
-				function () use ( $listener ) {
+		$this->assertInstanceOf(
+			NullLog::class,
+			$listener->update( [] )
+		);
+	}
 
-					return $listener->filter( func_get_args() );
-				}
-			);
+	/**
+	 * @see test_update_registers_listeners
+	 * @return array
+	 */
+	public function update_registers_listeners() {
 
-		self::assertFalse( apply_filters( $listener->listen_to(), FALSE ) );
+		return [
+			'is_cron' => [
+				TRUE,
+				NULL
+			],
+			'is_cli' => [
+				NULL,
+				TRUE
+			],
+			'is_cron_and_cli' => [
+				TRUE,
+				TRUE
+			]
+		];
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @see CronDebugListener::__construct()
+	 */
+	public function test_constructor_reads_wp_cli() {
+
+		define( 'WP_CLI', TRUE );
+		$testee = new CronDebugListener();
+		$is_cli = (new \ReflectionClass( $testee ) )->getProperty( 'is_cli' );
+		$is_cli->setAccessible( TRUE );
+
+		$this->assertTrue(
+			$is_cli->getValue( $testee )
+		);
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @see CronDebugListener::__construct()
+	 */
+	public function test_constructor_reads_doing_cron() {
+
+		define( 'DOING_CRON', TRUE );
+		$testee = new CronDebugListener();
+		$is_cron = ( new \ReflectionClass( $testee ) )->getProperty( 'is_cron' );
+		$is_cron->setAccessible( TRUE );
+
+		$this->assertTrue(
+			$is_cron->getValue( $testee )
+		);
 	}
 }

@@ -21,9 +21,33 @@ use Inpsyde\Wonolog\Data\NullLog;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class CronDebugListener implements FilterListenerInterface {
+final class CronDebugListener implements ActionListenerInterface {
 
+	/**
+	 * @var bool
+	 */
 	private static $ran = FALSE;
+
+	/**
+	 * @var bool
+	 */
+	private $is_cli = FALSE;
+
+	private $is_cron = FALSE;
+
+	/**
+	 * @param null $is_cli (Optional, by default WP_CLI constant is used)
+	 * @param null $is_cron (Optional, by default DOING_CRON constant is used)
+	 */
+	public function __construct( $is_cli = NULL, $is_cron = NULL ) {
+
+		$this->is_cli = NULL !== $is_cli
+			? (bool) $is_cli
+			: defined( 'WP_CLI' ) && WP_CLI;
+		$this->is_cron = NULL !== $is_cron
+			? (bool) $is_cron
+			: defined( 'DOING_CRON' ) && DOING_CRON;
+	}
 
 	/**
 	 * @var array
@@ -35,11 +59,14 @@ final class CronDebugListener implements FilterListenerInterface {
 	 */
 	public function listen_to() {
 
-		return 'pre_transient_doing_cron';
+		return 'wp_loaded';
 	}
 
+
 	/**
-	 * @wp-hook  pre_transient_doing_cron
+	 * Logs all the cron hook performed and their performance.
+	 *
+	 * @wp-hook  wp_loaded
 	 *
 	 * @param array $args
 	 *
@@ -47,30 +74,29 @@ final class CronDebugListener implements FilterListenerInterface {
 	 */
 	public function update( array $args ) {
 
+		if ( self::$ran ) {
+			return new NullLog();
+		}
+
+		if ( $this->is_cron || $this->is_cli ) {
+			$this->register_event_listener();
+		}
+
 		return new NullLog();
 	}
 
 	/**
 	 * Logs all the cron hook performed and their performance.
-	 *
-	 * @wp-hook  pre_transient_doing_cron
-	 *
-	 * @param array $args
-	 *
-	 * @return bool
 	 */
-	public function filter( array $args ) {
+	private function register_event_listener() {
 
-		$doing_cron = $args ? reset( $args ) : FALSE;
-
-		if ( ! defined( 'DOING_CRON' ) || ! DOING_CRON || self::$ran ) {
-			return $doing_cron;
+		$cron_array = _get_cron_array();
+		if ( ! $cron_array ) {
+			return;
 		}
 
-		self::$ran = TRUE;
-
 		$hooks = array_reduce(
-			_get_cron_array(),
+			$cron_array,
 			function ( $hooks, $crons ) {
 
 				return array_merge( $hooks, array_keys( $crons ) );
@@ -78,25 +104,19 @@ final class CronDebugListener implements FilterListenerInterface {
 			[]
 		);
 
-		if ( empty( $hooks ) ) {
-			return $doing_cron;
-		}
-
 		$profile_cb = function () {
-
 			$this->cron_action_profile();
 		};
 
 		array_walk(
 			$hooks,
 			function ( $hook ) use ( $profile_cb ) {
-
 				add_action( $hook, $profile_cb, '-' . PHP_INT_MAX );
 				add_action( $hook, $profile_cb, PHP_INT_MAX );
 			}
 		);
 
-		return $doing_cron;
+		self::$ran = TRUE;
 	}
 
 	/**
