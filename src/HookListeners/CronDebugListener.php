@@ -124,6 +124,8 @@ final class CronDebugListener implements ActionListenerInterface {
 	 */
 	private function cron_action_profile() {
 
+		//Todo: we have to check for DOING_CRON again here, as WP CLI defines it right before the action starts…
+
 		$hook = current_filter();
 		if ( ! isset( $this->done[ $hook ] ) ) {
 			$this->done[ $hook ][ 'start' ] = microtime( TRUE );
