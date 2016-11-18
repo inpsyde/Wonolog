@@ -23,6 +23,8 @@ use Inpsyde\Wonolog\Data\Log;
  */
 class PhpErrorController {
 
+	const CHANNEL = Channels::PHP_ERROR;
+
 	private static $errors_level_map = [
 		E_USER_ERROR        => Logger::ERROR,
 		E_USER_NOTICE       => Logger::NOTICE,
@@ -41,7 +43,19 @@ class PhpErrorController {
 		E_COMPILE_WARNING   => Logger::CRITICAL,
 	];
 
-	const CHANNEL = Channels::PHP_ERROR;
+	/**
+	 * @var array
+	 */
+	private static $super_globals_keys = [
+		'_REQUEST',
+		'_ENV',
+		'GLOBALS',
+		'_SERVER',
+		'_FILES',
+		'_COOKIE',
+		'_POST',
+		'_GET'
+	];
 
 	/**
 	 * Initialize the handler.
@@ -66,11 +80,19 @@ class PhpErrorController {
 	 */
 	public function on_error( $num, $str, $file, $line, $context = NULL ) {
 
-		$ext_context = array_merge( (array) $context, [ 'file' => $file, 'line' => $line ] );
+		$log_context = [];
+		if ( $context ) {
+			$skip_keys = array_merge( array_keys( $GLOBALS ), self::$super_globals_keys );
+			$skip      = array_fill_keys( $skip_keys, '' );
+			$log_context = array_filter( array_diff_key( (array) $context, $skip ) );
+		}
+
+		$log_context[ 'file' ] = $file;
+		$log_context[ 'line' ] = $line;
 
 		do_action(
 			'wonolog.log',
-			new Log( $str, self::$errors_level_map[ $num ], self::CHANNEL, $ext_context )
+			new Log( $str, self::$errors_level_map[ $num ], self::CHANNEL, $log_context )
 		);
 
 		return FALSE;
