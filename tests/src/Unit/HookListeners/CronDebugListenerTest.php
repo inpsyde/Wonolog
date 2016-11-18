@@ -51,11 +51,14 @@ class CronDebugListenerTest extends TestCase {
 	 * @runInSeparateProcess
 	 * @dataProvider update_registers_listeners
 	 * @see CronDebugListener::update()
+	 * @see CronDebugListener::cron_action_profile()
 	 *
 	 * @param bool $is_cron
 	 * @param bool $is_cli
 	 */
 	public function test_update_registers_listeners( $is_cron, $is_cli ) {
+
+		define( 'DOING_CRON', TRUE );
 
 		Functions::when( '_get_cron_array' )
 			->justReturn(
@@ -107,6 +110,45 @@ class CronDebugListenerTest extends TestCase {
 			NullLog::class,
 			$listener->update( [] )
 		);
+	}
+
+	/**
+	 * Test that action listener return early when in CLI context and DOING_CRON is not defined
+	 *
+	 * @see CronDebugListener::update()
+	 * @see CronDebugListener::cron_action_profile()
+	 */
+	public function test_listeners_doing_cron_guard() {
+
+		Functions::when( '_get_cron_array' )
+			->justReturn(
+				[
+					[ 'action_1' => 'do_something' ],
+					[ 'action_2' => 'do_something_else' ],
+				]
+			);
+
+		Actions::expectFired( 'wonolog.log' )
+			->never();
+		Actions::expectAdded( 'action_1' )
+			->twice()
+			->whenHappen(
+				function ( callable $callback ) {
+
+					$callback();
+				}
+			);
+		Actions::expectAdded( 'action_2' )
+			->twice()
+			->whenHappen(
+				function ( callable $callback ) {
+
+					$callback();
+				}
+			);
+
+		$listener = new CronDebugListener( TRUE );
+		$listener->update( [] );
 	}
 
 	/**
