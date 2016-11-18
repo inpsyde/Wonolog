@@ -84,6 +84,7 @@ class CronDebugListenerTest extends TestCase {
 			);
 
 		Actions::expectFired( 'wonolog.log' )
+			->once()
 			->with( Debug::class )
 			->whenHappen(
 				function ( Debug $debug ) {
