@@ -33,6 +33,9 @@ final class CronDebugListener implements ActionListenerInterface {
 	 */
 	private $is_cli = FALSE;
 
+	/**
+	 * @var bool
+	 */
 	private $is_cron = FALSE;
 
 	/**
