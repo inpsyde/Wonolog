@@ -14,6 +14,7 @@ use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\HookListeners\ActionListenerInterface;
 use Inpsyde\Wonolog\HookListeners\FilterListenerInterface;
 use Inpsyde\Wonolog\HookListeners\HookListenerInterface;
+use Inpsyde\Wonolog\HookListeners\HookPriorityInterface;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -191,9 +192,13 @@ class FrontController {
 			return $is_filter ? $listener->filter( $args ) : NULL;
 		};
 
+		$priority = PHP_INT_MAX - 10;
+		/* @var HookPriorityInterface $listener */
+		$listener instanceof HookPriorityInterface and $priority = (int) $listener->priority();
+
 		$is_filter
-			? add_filter( $hook, $callback, ( PHP_INT_MAX - 10 ), 9999 )
-			: add_action( $hook, $callback, ( PHP_INT_MAX - 10 ), 9999 );
+			? add_filter( $hook, $callback, $priority, 9999 )
+			: add_action( $hook, $callback, $priority, 9999 );
 	}
 
 }
