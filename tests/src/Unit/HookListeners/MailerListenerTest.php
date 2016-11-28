@@ -101,4 +101,28 @@ class MailerListenerTest extends TestCase {
 
 		do_action( 'wp_mail_failed', $error );
 	}
+
+	/**
+	 * Check for a consistent return type
+	 *
+	 * @see MailerListener::update()
+	 * @see MailerListener::on_mail_failed()
+	 */
+	public function test_on_mail_failed_return_type() {
+
+		$listener = new MailerListener();
+
+		Functions::expect( 'current_filter' )
+			->once()
+			->andReturn( 'wp_mail_failed' );
+
+		Functions::expect( 'is_wp_error' )
+			->once()
+			->andReturn( FALSE );
+
+		$this->assertInstanceOf(
+			LogDataInterface::class,
+			$listener->update( [] )
+		);
+	}
 }
