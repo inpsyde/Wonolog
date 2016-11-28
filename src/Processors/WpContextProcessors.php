@@ -58,7 +58,7 @@ class WpContextProcessor {
 		if ( is_multisite() ) {
 			$record[ 'extra' ][ 'wp' ][ 'ms_switched' ] = ms_is_switched();
 			$record[ 'extra' ][ 'wp' ][ 'site_id' ]     = get_current_blog_id();
-			$record[ 'extra' ][ 'wp' ][ 'network_id' ]  = get_main_network_id();
+			$record[ 'extra' ][ 'wp' ][ 'network_id' ]  = get_current_network_id();
 		}
 
 		return $record;
