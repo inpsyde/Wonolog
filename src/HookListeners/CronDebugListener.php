@@ -69,8 +69,14 @@ final class CronDebugListener implements FilterListenerInterface {
 
 		self::$ran = TRUE;
 
+		$cron_array = _get_cron_array();
+		
+		if (! $cron_array || ! is_array( $cron_array )) {
+			return $doing_cron;
+		}
+
 		$hooks = array_reduce(
-			_get_cron_array(),
+			$cron_array,
 			function ( $hooks, $crons ) {
 
 				return array_merge( $hooks, array_keys( $crons ) );
