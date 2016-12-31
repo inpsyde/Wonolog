@@ -73,10 +73,7 @@ class FrontController {
 			add_action( 'wonolog.log.' . strtolower( $level ), $listener, 100, 9999 );
 		}
 
-		$hook_listeners_registry = new HookListenersRegistry();
-		do_action( 'wonolog.register-listeners', $hook_listeners_registry );
-		$this->setup_hook_listeners( $hook_listeners_registry );
-		$hook_listeners_registry->flush();
+		$this->setup_hook_listeners();
 
 		do_action( 'wonolog.loaded' );
 	}
@@ -144,15 +141,18 @@ class FrontController {
 	}
 
 	/**
-	 * Setup registered hook listeners.
-	 *
-	 * @param HookListenersRegistry $listeners
+	 * Setup registered hook listeners using the hook registry.
 	 */
-	private function setup_hook_listeners( HookListenersRegistry $listeners ) {
+	private function setup_hook_listeners() {
 
-		$hook_listeners = $listeners->listeners();
+		$hook_listeners_registry = new HookListenersRegistry();
+		do_action( 'wonolog.register-listeners', $hook_listeners_registry );
+
+		$hook_listeners = $hook_listeners_registry->listeners();
 
 		array_walk( $hook_listeners, [ $this, 'setup_hook_listener' ] );
+
+		$hook_listeners_registry->flush();
 	}
 
 	/**
@@ -194,7 +194,7 @@ class FrontController {
 
 			return $is_filter ? $listener->filter( $args ) : NULL;
 		};
-		
+
 		$priority = $listener instanceof HookPriorityInterface ? (int) $listener->priority() : PHP_INT_MAX - 10;
 
 		$filtered_priority = apply_filters( 'wonolog.hook-listener-priority', $priority, $listener );
