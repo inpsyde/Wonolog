@@ -180,24 +180,25 @@ class FrontController {
 		/**
 		 * @return null
 		 *
-		 * @var FilterListenerInterface|ActionListenerInterface $listener
-		 * @var bool                                            $is_filter
+		 * @var FilterListenerInterface|ActionListenerInterface|HookPriorityInterface $listener
+		 * @var bool                                                                  $is_filter
 		 */
 		$callback = function () use ( $listener, $is_filter ) {
 
 			$args = func_get_args();
 
 			if ( ! $is_filter ) {
-				$log  = $listener->update( $args );
+				$log = $listener->update( $args );
 				$log instanceof LogDataInterface and do_action( 'wonolog.log', $log );
 			}
 
 			return $is_filter ? $listener->filter( $args ) : NULL;
 		};
+		
+		$priority = $listener instanceof HookPriorityInterface ? (int) $listener->priority() : PHP_INT_MAX - 10;
 
-		$priority = PHP_INT_MAX - 10;
-		/* @var HookPriorityInterface $listener */
-		$listener instanceof HookPriorityInterface and $priority = (int) $listener->priority();
+		$filtered_priority = apply_filters( 'wonolog.hook-listener-priority', $priority, $listener );
+		is_int( $filtered_priority ) and $priority = $filtered_priority;
 
 		$is_filter
 			? add_filter( $hook, $callback, $priority, 9999 )
