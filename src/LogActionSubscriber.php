@@ -97,7 +97,7 @@ class LogActionSubscriber {
 	 */
 	public function update( LogDataInterface $log ) {
 
-		if ( ! did_action( 'wonolog.loaded' ) || ! ( $log->level() > 0 ) ) {
+		if ( ! did_action( 'wonolog.loaded' ) || $log->level() < 1 ) {
 			return FALSE;
 		}
 
