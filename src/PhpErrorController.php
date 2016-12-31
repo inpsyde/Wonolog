@@ -54,23 +54,26 @@ class PhpErrorController {
 	}
 
 	/**
-	 * Error handler.
+	 * Errors handler.
 	 *
 	 * @param  int        $num
-	 * @param  string     $str
+	 * @param  string     $message
 	 * @param  string     $file
 	 * @param  int        $line
 	 * @param  array|null $context
 	 *
 	 * @return bool
 	 */
-	public function on_error( $num, $str, $file, $line, $context = NULL ) {
-
-		$ext_context = array_merge( (array) $context, [ 'file' => $file, 'line' => $line ] );
+	public function on_error( $num, $message, $file, $line, $context = NULL ) {
 
 		do_action(
 			'wonolog.log',
-			new Log( $str, self::$errors_level_map[ $num ], self::CHANNEL, $ext_context )
+			new Log(
+				$message,
+				self::$errors_level_map[ $num ],
+				self::CHANNEL,
+				array_merge( (array) $context, [ 'file' => $file, 'line' => $line ] )
+			)
 		);
 
 		return FALSE;
