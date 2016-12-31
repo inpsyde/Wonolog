@@ -10,7 +10,6 @@
 
 namespace Inpsyde\Wonolog;
 
-use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\Exception\InvalidChannelNameException;
