@@ -12,8 +12,6 @@ namespace Inpsyde\Wonolog\HookListeners;
 
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Error;
-use Inpsyde\Wonolog\Data\LogDataInterface;
-use Inpsyde\Wonolog\Data\NullLog;
 
 /**
  * Looks a wp_die() and try to find and log db errors.
@@ -29,19 +27,6 @@ final class WpDieHandlerListener implements FilterListenerInterface {
 	public function listen_to() {
 
 		return [ 'wp_die_ajax_handler', 'wp_die_xmlrpc_handler', 'wp_die_handler' ];
-	}
-
-	/**
-	 * @wp-hook wp_die_ajax_handler
-	 * @wp-hook wp_die_handler
-	 *
-	 * @param array $args
-	 *
-	 * @return LogDataInterface
-	 */
-	public function update( array $args ) {
-
-		return new NullLog();
 	}
 
 	/**

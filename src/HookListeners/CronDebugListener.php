@@ -39,18 +39,6 @@ final class CronDebugListener implements FilterListenerInterface {
 	}
 
 	/**
-	 * @wp-hook  pre_transient_doing_cron
-	 *
-	 * @param array $args
-	 *
-	 * @return NullLog
-	 */
-	public function update( array $args ) {
-
-		return new NullLog();
-	}
-
-	/**
 	 * Logs all the cron hook performed and their performance.
 	 *
 	 * @wp-hook  pre_transient_doing_cron

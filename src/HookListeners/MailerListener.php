@@ -54,7 +54,7 @@ class MailerListener implements ActionListenerInterface {
 	/**
 	 * @param array $args
 	 *
-	 * @return Log
+	 * @return LogDataInterface
 	 */
 	private function on_mail_failed( array $args ) {
 
@@ -63,6 +63,8 @@ class MailerListener implements ActionListenerInterface {
 
 			return Log::from_wp_error( $error, Logger::ERROR, Channels::HTTP );
 		}
+
+		return new NullLog();
 	}
 
 	/**
