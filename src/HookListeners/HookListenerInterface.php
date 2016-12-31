@@ -10,8 +10,6 @@
 
 namespace Inpsyde\Wonolog\HookListeners;
 
-use Inpsyde\Wonolog\Data\LogDataInterface;
-
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
@@ -23,12 +21,5 @@ interface HookListenerInterface {
 	 * @return string|string[]
 	 */
 	public function listen_to();
-
-	/**
-	 * @param array $args
-	 *
-	 * @return LogDataInterface
-	 */
-	public function update( array $args );
 
 }

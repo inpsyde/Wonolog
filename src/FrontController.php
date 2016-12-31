@@ -185,8 +185,11 @@ class FrontController {
 		$callback = function () use ( $listener, $is_filter ) {
 
 			$args = func_get_args();
-			$log  = $listener->update( $args );
-			$log instanceof LogDataInterface and do_action( 'wonolog.log', $log );
+
+			if ( ! $is_filter ) {
+				$log  = $listener->update( $args );
+				$log instanceof LogDataInterface and do_action( 'wonolog.log', $log );
+			}
 
 			return $is_filter ? $listener->filter( $args ) : NULL;
 		};
