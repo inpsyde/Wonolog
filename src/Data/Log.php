@@ -65,6 +65,38 @@ final class Log implements LogDataInterface {
 	}
 
 	/**
+	 * @param \Throwable|\Exception $throwable
+	 * @param string                $channel
+	 * @param int|string            $level
+	 * @param array                 $context
+	 *
+	 * @return Log
+	 */
+	public static function from_throwable( $throwable, $channel = '', $level = Logger::ERROR, array $context = [] ) {
+
+		// We can't do type hint to support both PHP 7 Throwable and PHP 5 Exception
+		if ( ! $throwable instanceof \Throwable && ! $throwable instanceof \Exception ) {
+			$throwable = new \InvalidArgumentException(
+				sprintf( '%s expects a throwable instance as first argument.', __METHOD__ )
+			);
+		}
+
+		$log_level = LogLevel::instance();
+		$level     = $log_level->check_level( $level ) ? : Logger::ERROR;
+
+		$channel or $channel = Channels::DEBUG;
+
+		$context[ 'throwable' ] = [
+			'class' => get_class( $throwable ),
+			'file'  => $throwable->getFile(),
+			'line'  => $throwable->getLine(),
+			'trace' => $throwable->getTrace(),
+		];
+
+		return new static( $throwable->getMessage(), $level, $channel, $context );
+	}
+
+	/**
 	 * @param array $log_data
 	 *
 	 * @return Log
