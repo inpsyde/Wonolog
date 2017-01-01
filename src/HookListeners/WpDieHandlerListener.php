@@ -62,7 +62,7 @@ final class WpDieHandlerListener implements FilterListenerInterface {
 	}
 
 	/**
-	 * @return bool
+	 * @return array
 	 */
 	private function stacktrace_has_db_error() {
 
