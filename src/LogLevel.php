@@ -23,6 +23,8 @@ use Monolog\Logger;
  */
 class LogLevel {
 
+	const FILTER_MIN_LEVEL = 'wonolog.default-min-level';
+
 	private static $min_level;
 
 	/**
@@ -60,7 +62,7 @@ class LogLevel {
 		 *
 		 * @param int $min_level
 		 */
-		$filtered = apply_filters( 'wonolog.default-min-level', $min_level );
+		$filtered = apply_filters( self::FILTER_MIN_LEVEL, $min_level );
 
 		self::$min_level = $this->check_level( $filtered, $levels ) ? : $min_level;
 

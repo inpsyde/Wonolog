@@ -81,7 +81,7 @@ class WpErrorChannelTest extends TestCase {
 
 	public function test_channel_guessed_filtered() {
 
-		Filters::expectApplied( 'wonolog.wp-error-channel' )
+		Filters::expectApplied( WpErrorChannel::FILTER_CHANNEL )
 			->once()
 			->with( Channels::SECURITY, \Mockery::type( 'WP_Error' ) )
 			->andReturn( 'BAR' );

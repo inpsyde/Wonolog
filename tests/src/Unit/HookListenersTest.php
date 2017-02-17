@@ -11,6 +11,7 @@
 namespace Inpsyde\Wonolog\Tests\Unit;
 
 use Andrew\Proxy;
+use Inpsyde\Wonolog\FrontController;
 use Inpsyde\Wonolog\HookListenersRegistry;
 use Inpsyde\Wonolog\HookListeners\HookListenerInterface;
 use Inpsyde\Wonolog\Tests\TestCase;
@@ -135,7 +136,7 @@ class HookListenersTest extends TestCase {
 		self::assertCount( 1, $proxy->factories );
 		self::assertCount( 1, $proxy->listeners );
 
-		do_action( 'wonolog.loaded' );
+		do_action( FrontController::ACTION_LOADED );
 
 		$listeners->flush();
 

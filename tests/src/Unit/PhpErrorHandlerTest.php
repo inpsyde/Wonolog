@@ -35,7 +35,7 @@ class PhpErrorHandlerTest extends TestCase {
 
 	public function test_on_error_notice() {
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( Mockery::type( LogDataInterface::class ) )
 			->whenHappen(
@@ -59,7 +59,7 @@ class PhpErrorHandlerTest extends TestCase {
 
 	public function test_on_error_fatal() {
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( Mockery::type( LogDataInterface::class ) )
 			->whenHappen(
@@ -87,7 +87,7 @@ class PhpErrorHandlerTest extends TestCase {
 	 */
 	public function test_on_exception() {
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( Mockery::type( LogDataInterface::class ) )
 			->whenHappen(

@@ -67,7 +67,7 @@ class PhpErrorController {
 	public function on_error( $num, $message, $file, $line, $context = NULL ) {
 
 		do_action(
-			'wonolog.log',
+			LOG,
 			new Log(
 				$message,
 				self::$errors_level_map[ $num ],
@@ -89,7 +89,7 @@ class PhpErrorController {
 	public function on_exception( $e ) {
 
 		do_action(
-			'wonolog.log',
+			LOG,
 			new Log(
 				$e->getMessage(),
 				Logger::CRITICAL,

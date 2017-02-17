@@ -114,7 +114,7 @@ final class CronDebugListener implements FilterListenerInterface {
 			$this->done[ $hook ][ 'duration' ] = $duration . ' s';
 
 			do_action(
-				'wonolog.log',
+				\Inpsyde\Wonolog\LOG,
 				new Debug( "Cron action \"{$hook}\" performed.", Channels::DEBUG, $this->done[ $hook ] )
 			);
 		}

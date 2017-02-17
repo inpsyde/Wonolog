@@ -28,6 +28,10 @@ use Monolog\Logger;
  */
 class FrontController {
 
+	const ACTION_LOADED = 'wonolog.loaded';
+	const ACTION_SETUP = 'wonolog.setup';
+	const FILTER_ENABLE = 'wonolog.enable';
+
 	/**
 	 * @var HandlerInterface
 	 */
@@ -59,26 +63,26 @@ class FrontController {
 	 */
 	public function setup( $priority = 100 ) {
 
-		if ( did_action( 'wonolog.loaded' ) || ! apply_filters( 'wonolog.enable', TRUE ) ) {
+		if ( did_action( self::ACTION_SETUP ) || ! apply_filters( self::FILTER_ENABLE, TRUE ) ) {
 			return;
 		}
 
-		do_action( 'wonolog.setup' );
+		do_action( self::ACTION_SETUP );
 
 		$this->setup_php_error_handler();
 
 		$listener = [ new LogActionSubscriber( new Channels(), $this->setup_default_handler() ), 'listen' ];
 
-		add_action( 'wonolog.log', $listener, $priority, PHP_INT_MAX );
+		add_action( LOG, $listener, $priority, PHP_INT_MAX );
 
 		foreach ( Logger::getLevels() as $level => $level_code ) {
 			// $level_code is from 100 (DEBUG) to 600 (EMERGENCY) this makes hook priority based on level priority
-			add_action( 'wonolog.log.' . strtolower( $level ), $listener, $priority + ( 601 - $level ), PHP_INT_MAX );
+			add_action( LOG . strtolower( $level ), $listener, $priority + ( 601 - $level ), PHP_INT_MAX );
 		}
 
 		$this->setup_hook_listeners();
 
-		do_action( 'wonolog.loaded' );
+		do_action( self::ACTION_LOADED );
 	}
 
 	/**
@@ -95,7 +99,7 @@ class FrontController {
 
 		// Ensure that CHANNEL_PHP_ERROR error is there
 		add_filter(
-			'wonolog.channels',
+			Channels::FILTER_CHANNELS,
 			function ( array $channels ) {
 
 				$channels[] = PhpErrorController::CHANNEL;
@@ -149,7 +153,7 @@ class FrontController {
 	private function setup_hook_listeners() {
 
 		$hook_listeners_registry = new HookListenersRegistry();
-		do_action( 'wonolog.register-listeners', $hook_listeners_registry );
+		do_action( HookListenersRegistry::ACTION_REGISTER, $hook_listeners_registry );
 
 		$hook_listeners = $hook_listeners_registry->listeners();
 
@@ -194,7 +198,7 @@ class FrontController {
 
 			if ( ! $is_filter ) {
 				$log = $listener->update( $args );
-				$log instanceof LogDataInterface and do_action( 'wonolog.log', $log );
+				$log instanceof LogDataInterface and do_action( LOG, $log );
 			}
 
 			return $is_filter ? $listener->filter( $args ) : NULL;
@@ -202,7 +206,7 @@ class FrontController {
 
 		$priority = $listener instanceof HookPriorityInterface ? (int) $listener->priority() : PHP_INT_MAX - 10;
 
-		$filtered_priority = apply_filters( 'wonolog.hook-listener-priority', $priority, $listener );
+		$filtered_priority = apply_filters( HookPriorityInterface::FILTER_PRIORITY, $priority, $listener );
 		is_int( $filtered_priority ) and $priority = $filtered_priority;
 
 		return $is_filter

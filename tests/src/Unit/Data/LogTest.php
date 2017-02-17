@@ -87,7 +87,7 @@ class LogTest extends TestCase {
 
 	public function test_from_numeric_array_wrong_order() {
 
-		Filters::expectApplied( 'wonolog.channels' )
+		Filters::expectApplied( Channels::FILTER_CHANNELS )
 			->andReturnUsing(
 				function ( array $channels ) {
 

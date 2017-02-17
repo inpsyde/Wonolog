@@ -41,7 +41,7 @@ class MailerListenerTest extends TestCase {
 				}
 			);
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->once()
 			->whenHappen(
 				function ( Debug $debug ) {

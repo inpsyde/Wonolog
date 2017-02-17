@@ -57,7 +57,7 @@ class CronActionListenerTest extends TestCase {
 				}
 			);
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->with( Debug::class )
 			->whenHappen(
 				function ( Debug $debug ) {

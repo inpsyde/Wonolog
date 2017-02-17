@@ -31,7 +31,7 @@ class HttpApiListenerTest extends TestCase {
 		Functions::when( 'is_wp_error' )
 			->justReturn( TRUE );
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->with( \Mockery::type( LogDataInterface::class ) )
 			->whenHappen(
 				function ( LogDataInterface $log ) {

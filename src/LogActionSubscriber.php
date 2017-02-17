@@ -17,7 +17,7 @@ use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
 
 /**
- * Main package objects, where "things happen".
+ * Main package object, where "things happen".
  *
  * It is the object that is used to listed to `wonolog.log` actions, build log data from received arguments and
  * pass them to Monolog for the actual logging.
@@ -27,6 +27,8 @@ use Monolog\Logger;
  * @license http://opensource.org/licenses/MIT MIT
  */
 class LogActionSubscriber {
+
+	const ACTION_LOGGER = 'wonolog.logger';
 
 	/**
 	 * @var Channels
@@ -72,7 +74,7 @@ class LogActionSubscriber {
 	 */
 	public function listen() {
 
-		if ( ! did_action( 'wonolog.loaded' ) ) {
+		if ( ! did_action( FrontController::ACTION_LOADED ) ) {
 			return FALSE;
 		}
 
@@ -97,7 +99,7 @@ class LogActionSubscriber {
 	 */
 	public function update( LogDataInterface $log ) {
 
-		if ( ! did_action( 'wonolog.loaded' ) || $log->level() < 1 ) {
+		if ( ! did_action( FrontController::ACTION_LOADED ) || $log->level() < 1 ) {
 			return FALSE;
 		}
 
@@ -122,7 +124,7 @@ class LogActionSubscriber {
 		}
 		catch ( InvalidChannelNameException $e ) {
 
-			do_action( 'wonolog.invalid-channel-name', $log );
+			do_action( Channels::ACTION_INVALID_CHANNEL_NAME, $log );
 
 			return FALSE;
 		}
@@ -141,7 +143,7 @@ class LogActionSubscriber {
 		 * Fires before a logger is used first time.
 		 * Can be used to setup the logger, for example adding handlers.
 		 */
-		do_action( 'wonolog.logger', $logger );
+		do_action( self::ACTION_LOGGER, $logger );
 
 		if (
 			$this->default_handler
@@ -295,7 +297,7 @@ class LogActionSubscriber {
 	 */
 	private function hook_level( $current_filter ) {
 
-		if ( $current_filter === 'wonolog.log' ) {
+		if ( $current_filter === LOG ) {
 			return 0;
 		}
 

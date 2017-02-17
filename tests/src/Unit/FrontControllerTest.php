@@ -19,6 +19,7 @@ use Inpsyde\Wonolog\FrontController;
 use Inpsyde\Wonolog\HookListeners\ActionListenerInterface;
 use Inpsyde\Wonolog\HookListeners\FilterListenerInterface;
 use Inpsyde\Wonolog\HookListeners\HookPriorityInterface;
+use Inpsyde\Wonolog\HookListenersRegistry;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Mockery;
 
@@ -31,10 +32,10 @@ class FrontControllerTest extends TestCase {
 
 	public function test_boot_do_nothing_if_disabled() {
 
-		Filters::expectApplied( 'wonolog.enable' )
+		Filters::expectApplied( FrontController::FILTER_ENABLE )
 			->andReturn( FALSE );
 
-		Actions::expectFired( 'wonolog.register-listeners' )
+		Actions::expectFired( HookListenersRegistry::ACTION_REGISTER )
 			->never();
 
 		$controller = new FrontController();

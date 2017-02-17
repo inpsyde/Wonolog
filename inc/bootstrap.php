@@ -14,11 +14,11 @@ namespace Inpsyde\Wonolog;
  * We want to load this file just once. Being loaded by Composer autoload, and being in WordPress context,
  * we have to put special care on this.
  */
-if ( defined( __NAMESPACE__ . '\\BOOTSTRAPPED' ) ) {
+if ( defined( __NAMESPACE__ . '\\LOG' ) ) {
 	return;
 }
 
-define( __NAMESPACE__ . '\\BOOTSTRAPPED', 1 );
+define( __NAMESPACE__ . '\\LOG', 'wonolog.log' );
 
 /**
  * When WP is loaded, we can bootstrap on 'muplugins_loaded' or immediately if that hook was already fired

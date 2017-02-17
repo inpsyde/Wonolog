@@ -17,6 +17,8 @@ namespace Inpsyde\Wonolog\HookListeners;
  */
 interface HookPriorityInterface {
 
+	const FILTER_PRIORITY = 'wonolog.hook-listener-priority';
+
 	/**
 	 * Returns the priority of the hook callback
 	 *

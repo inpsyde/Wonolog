@@ -21,6 +21,9 @@ use Inpsyde\Wonolog\HookListeners\HookListenerInterface;
  */
 class HookListenersRegistry {
 
+	const ACTION_REGISTER = 'wonolog.register-listeners';
+	const FILTER_ENABLED = 'wonolog.hook-listener-enabled';
+
 	private static $default_listeners = [
 		HookListeners\DbErrorListener::class,
 		HookListeners\FailedLoginListener::class,
@@ -101,7 +104,7 @@ class HookListenersRegistry {
 	 */
 	public function flush() {
 
-		if ( did_action( 'wonolog.loaded' ) ) {
+		if ( did_action( FrontController::ACTION_LOADED ) ) {
 			unset( $this->factories, $this->listeners );
 			$this->factories = [];
 			$this->listeners = [];
@@ -123,7 +126,7 @@ class HookListenersRegistry {
 		foreach ( self::$default_listeners as $class ) {
 			/** @var HookListenerInterface $listener */
 			$listener = new $class();
-			if ( apply_filters( 'wonolog.hook-listener-enabled', TRUE, $listener ) ) {
+			if ( apply_filters( self::FILTER_ENABLED, TRUE, $listener ) ) {
 				$this->register_listener( $listener );
 			}
 		}

@@ -25,7 +25,7 @@ class WpDieHandlerListenerTest extends TestCase {
 
 	public function test_log_done_on_bail() {
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( \Mockery::type( Error::class ) )
 			->whenHappen(
@@ -48,7 +48,7 @@ class WpDieHandlerListenerTest extends TestCase {
 
 	public function test_log_done_on_print_error() {
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( \Mockery::type( Error::class ) )
 			->whenHappen(

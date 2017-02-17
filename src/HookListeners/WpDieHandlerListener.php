@@ -57,7 +57,7 @@ final class WpDieHandlerListener implements FilterListenerInterface {
 			$context            = $args;
 			$context[ 'title' ] = $title;
 
-			do_action( 'wonolog.log', new Error( $msg, Channels::DB, $context ) );
+			do_action( \Inpsyde\Wonolog\LOG, new Error( $msg, Channels::DB, $context ) );
 
 			return $handler( $message, $title, $args );
 		};

@@ -93,7 +93,7 @@ class FrontControllerTest extends TestCase {
 		/** @var callable $listener */
 		$listener = NULL;
 
-		Actions::expectAdded( 'wonolog.log' )
+		Actions::expectAdded( \Inpsyde\Wonolog\LOG )
 			->once()
 			->whenHappen(
 				function ( callable $callback ) use ( &$listener ) {
@@ -135,7 +135,7 @@ class FrontControllerTest extends TestCase {
 		/** @var callable $listener */
 		$listener = NULL;
 
-		Actions::expectAdded( 'wonolog.log' )
+		Actions::expectAdded( \Inpsyde\Wonolog\LOG )
 			->once()
 			->whenHappen(
 				function ( callable $callback ) use ( &$listener ) {
@@ -144,7 +144,7 @@ class FrontControllerTest extends TestCase {
 				}
 			);
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->once()
 			->whenHappen(
 				function ( $log ) use ( &$listener ) {
@@ -155,7 +155,7 @@ class FrontControllerTest extends TestCase {
 
 		$this->bootstrap_package();
 
-		do_action( 'wonolog.log', new Error( 'Log via hook happened!', Channels::DB ) );
+		do_action( \Inpsyde\Wonolog\LOG, new Error( 'Log via hook happened!', Channels::DB ) );
 		$path = date( 'Y/m-d' ) . '.log';
 
 		self::assertTrue( $dir->hasChild( $path ) );
@@ -185,7 +185,7 @@ class FrontControllerTest extends TestCase {
 		/** @var callable $listener */
 		$listener = NULL;
 
-		Actions::expectAdded( 'wonolog.log' )
+		Actions::expectAdded( \Inpsyde\Wonolog\LOG )
 			->once()
 			->whenHappen(
 				function ( callable $callback ) use ( &$listener ) {
@@ -194,7 +194,7 @@ class FrontControllerTest extends TestCase {
 				}
 			);
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->once()
 			->whenHappen(
 				function ( $log ) use ( &$listener ) {
@@ -213,7 +213,7 @@ class FrontControllerTest extends TestCase {
 		$error->shouldReceive( 'get_error_data' )
 			->andReturn( [] );
 
-		do_action( 'wonolog.log', $error );
+		do_action( \Inpsyde\Wonolog\LOG, $error );
 
 		$path = date( 'Y/m-d' ) . '.log';
 
@@ -245,7 +245,7 @@ class FrontControllerTest extends TestCase {
 		/** @var callable $listener */
 		$listener = NULL;
 
-		Actions::expectAdded( 'wonolog.log' )
+		Actions::expectAdded( \Inpsyde\Wonolog\LOG )
 			->once()
 			->whenHappen(
 				function ( callable $callback ) use ( &$listener ) {
@@ -254,7 +254,7 @@ class FrontControllerTest extends TestCase {
 				}
 			);
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->once()
 			->whenHappen(
 				function ( $log ) use ( &$listener ) {
@@ -284,7 +284,7 @@ class FrontControllerTest extends TestCase {
 				}
 			);
 
-		Actions::expectFired( 'wonolog.register-listeners' )
+		Actions::expectFired( HookListenersRegistry::ACTION_REGISTER )
 			->once()
 			->whenHappen(
 				function ( HookListenersRegistry $registry ) {
