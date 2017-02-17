@@ -142,12 +142,15 @@ final class HttpApiListener implements ActionListenerInterface {
 	 */
 	private function log_http_error( $data, $context, $class, array $args = [], $url = '' ) {
 
-		$msg = 'WP HTTP API Error';
+		$msg      = 'WP HTTP API Error';
+		$response = is_array( $data ) && isset( $data[ 'response' ] ) && is_array( $data[ 'response' ] )
+			? shortcode_atts( [ 'message' => '', 'code' => '', ], $data[ 'response' ] )
+			: [ 'message' => '', 'code' => '', ];
 
 		if ( is_wp_error( $data ) ) {
 			$msg .= ': ' . $data->get_error_message();
-		} elseif ( ! empty( $data[ 'response' ][ 'message' ] ) && is_string( $data[ 'response' ][ 'message' ] ) ) {
-			$msg .= ': ' . $data[ 'response' ][ 'message' ];
+		} elseif ( is_string( $response[ 'message' ] ) && $response[ 'message' ] ) {
+			$msg .= ': ' . $response[ 'message' ];
 		}
 
 		$log_context = [
@@ -157,11 +160,11 @@ final class HttpApiListener implements ActionListenerInterface {
 			'url'        => $url,
 		];
 
-		if ( is_array( $data ) && isset( $data[ 'headers' ] ) ) {
-			$msg .= ' - Response code: ' . $data[ 'response' ][ 'code' ];
+		if ( is_array( $data ) && array_key_exists( 'headers', $data ) && is_scalar( $response[ 'code' ] ) ) {
+			$msg .= " - Response code: {$response[ 'code' ]}";
 			$log_context[ 'headers' ] = $data[ 'headers' ];
 		}
 
-		return new Error( "{$msg}.", Channels::HTTP, $log_context );
+		return new Error( rtrim( $msg, '.' ) . '.', Channels::HTTP, $log_context );
 	}
 }
