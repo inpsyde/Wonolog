@@ -146,8 +146,8 @@ final class HttpApiListener implements ActionListenerInterface {
 
 		$msg      = 'WP HTTP API Error';
 		$response = is_array( $data ) && isset( $data[ 'response' ] ) && is_array( $data[ 'response' ] )
-			? shortcode_atts( [ 'message' => '', 'code' => '', ], $data[ 'response' ] )
-			: [ 'message' => '', 'code' => '', ];
+			? shortcode_atts( [ 'message' => '', 'code' => '', 'body' => '' ], $data[ 'response' ] )
+			: [ 'message' => '', 'code' => '', 'body' => '' ];
 
 		if ( is_wp_error( $data ) ) {
 			$msg .= ': ' . $data->get_error_message();
@@ -161,6 +161,12 @@ final class HttpApiListener implements ActionListenerInterface {
 			'query_args' => $args,
 			'url'        => $url,
 		];
+
+		if ( $response[ 'body' ] && is_string( $response[ 'body' ] ) ) {
+			$log_context[ 'response_body' ] = strlen( $response[ 'body' ] ) <= 300
+				? $response[ 'body' ]
+				: substr( $response[ 'body' ], 0, 300 ) . '...';
+		}
 
 		if ( is_array( $data ) && array_key_exists( 'headers', $data ) && is_scalar( $response[ 'code' ] ) ) {
 			$msg .= " - Response code: {$response[ 'code' ]}";

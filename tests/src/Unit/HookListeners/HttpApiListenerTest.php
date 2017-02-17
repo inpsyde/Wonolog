@@ -86,11 +86,12 @@ class HttpApiListenerTest extends TestCase {
 			self::assertSame( 'WP HTTP API Error: Internal Server Error - Response code: 500.', $log->message() );
 			self::assertSame(
 				[
-					'transport'  => 'TestClass',
-					'context'    => 'response',
-					'query_args' => [],
-					'url'        => 'http://example.com',
-					'headers'    => [ 'foo' => 'bar' ]
+					'transport'     => 'TestClass',
+					'context'       => 'response',
+					'query_args'    => [],
+					'url'           => 'http://example.com',
+					'response_body' => 'Server died.',
+					'headers'       => [ 'foo' => 'bar' ],
 				],
 				$log->context()
 
@@ -108,7 +109,7 @@ class HttpApiListenerTest extends TestCase {
 			);
 
 		$response = [
-			'response' => [ 'code' => 500, 'message' => 'Internal Server Error' ],
+			'response' => [ 'code' => 500, 'message' => 'Internal Server Error', 'body' => 'Server died.' ],
 			'headers'  => [ 'foo' => 'bar' ]
 		];
 
