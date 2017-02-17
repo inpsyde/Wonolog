@@ -21,11 +21,24 @@ use Inpsyde\Wonolog\Data\NullLog;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class CronDebugListener implements FilterListenerInterface {
+final class CronDebugListener implements ActionListenerInterface {
 
 	use ListenerIdByClassNameTrait;
 
+	/**
+	 * @var bool
+	 */
 	private static $ran = FALSE;
+
+	/**
+	 * @var bool
+	 */
+	private $is_cli = FALSE;
+
+	/**
+	 * @var bool
+	 */
+	private $is_cron = FALSE;
 
 	/**
 	 * @var array
@@ -33,36 +46,53 @@ final class CronDebugListener implements FilterListenerInterface {
 	private $done = [];
 
 	/**
-	 * @return string|string[]
+	 * @param null $is_cli  (Optional, by default WP_CLI constant is used)
+	 * @param null $is_cron (Optional, by default DOING_CRON constant is used)
+	 */
+	public function __construct( $is_cli = NULL, $is_cron = NULL ) {
+
+		$this->is_cli  = is_null( $is_cli ) ? defined( 'WP_CLI' ) && WP_CLI : (bool) $is_cli;
+		$this->is_cron = is_null( $is_cron ) ? defined( 'DOING_CRON' ) && DOING_CRON : (bool) $is_cron;
+	}
+
+	/**
+	 * @return string
 	 */
 	public function listen_to() {
 
-		return 'pre_transient_doing_cron';
+		return 'wp_loaded';
 	}
 
 	/**
 	 * Logs all the cron hook performed and their performance.
 	 *
-	 * @wp-hook  pre_transient_doing_cron
+	 * @wp-hook  wp_loaded
 	 *
 	 * @param array $args
 	 *
-	 * @return bool
+	 * @return NullLog
 	 */
-	public function filter( array $args ) {
+	public function update( array $args ) {
 
-		$doing_cron = $args ? reset( $args ) : FALSE;
-
-		if ( ! defined( 'DOING_CRON' ) || ! DOING_CRON || self::$ran ) {
-			return $doing_cron;
+		if ( self::$ran ) {
+			return new NullLog();
 		}
 
-		self::$ran = TRUE;
+		if ( $this->is_cron || $this->is_cli ) {
+			$this->register_event_listener();
+		}
+
+		return new NullLog();
+	}
+
+	/**
+	 * Logs all the cron hook performed and their performance.
+	 */
+	private function register_event_listener() {
 
 		$cron_array = _get_cron_array();
-		
-		if (! $cron_array || ! is_array( $cron_array )) {
-			return $doing_cron;
+		if ( ! $cron_array ) {
+			return;
 		}
 
 		$hooks = array_reduce(
@@ -73,10 +103,6 @@ final class CronDebugListener implements FilterListenerInterface {
 			},
 			[]
 		);
-
-		if ( empty( $hooks ) ) {
-			return $doing_cron;
-		}
 
 		$profile_cb = function () {
 
@@ -92,13 +118,15 @@ final class CronDebugListener implements FilterListenerInterface {
 			}
 		);
 
-		return $doing_cron;
+		self::$ran = TRUE;
 	}
 
 	/**
 	 * Run before and after that any cron action ran, logging it and its performance.
 	 */
 	private function cron_action_profile() {
+
+		// TODO: we have to check for DOING_CRON again here, as WP CLI defines it right before the action starts…
 
 		$hook = current_filter();
 		if ( ! isset( $this->done[ $hook ] ) ) {
