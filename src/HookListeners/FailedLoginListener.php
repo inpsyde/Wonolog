@@ -21,6 +21,8 @@ use Inpsyde\Wonolog\Data\LogDataInterface;
  */
 final class FailedLoginListener implements ActionListenerInterface {
 
+	use ListenerIdByClassNameTrait;
+
 	/**
 	 * @inheritdoc
 	 */

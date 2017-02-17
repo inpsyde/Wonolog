@@ -23,6 +23,8 @@ use Inpsyde\Wonolog\Data\NullLog;
  */
 final class DbErrorListener implements ActionListenerInterface {
 
+	use ListenerIdByClassNameTrait;
+
 	/**
 	 * @inheritdoc
 	 */

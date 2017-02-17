@@ -10,6 +10,7 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit;
 
+use Andrew\Proxy;
 use Brain\Monkey;
 use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
@@ -43,43 +44,29 @@ class FrontControllerTest extends TestCase {
 	/**
 	 * @dataProvider listen_hook_priority_data
 	 *
-	 * @param array     $types
-	 * @param string    $hook
-	 * @param bool|int  $priority
+	 * @param array    $types
+	 * @param string   $hook
+	 * @param bool|int $priority
 	 */
 	public function test_listen_hook_priority( array $types, $hook, $priority ) {
 
-		$controller = new FrontController();
-
 		$listener = Mockery::mock( implode( ',', $types ) );
-		if ( in_array( HookPriorityInterface::class, $types ) ) {
-			$listener->shouldReceive( 'priority' )
-				->once()
-				->andReturn( $priority );
-		} else {
-			$listener->shouldReceive( 'priority' )
-				->never();
-		}
 
-		$priority or $priority = PHP_INT_MAX - 10; // Default priority
+		$listener->shouldReceive( 'priority' )
+			->times( in_array( HookPriorityInterface::class, $types ) ? 1 : 0 )
+			->andReturn( $priority );
 
-		$mock_builder = NULL;
-		in_array( ActionListenerInterface::class, $types ) and $mock_builder = Actions::class;
-		in_array( FilterListenerInterface::class, $types ) and $mock_builder = Filters::class;
-		$mock_builder or $this->markTestSkipped( "Invalid test data configuration" );
+		$mock_builder = in_array( ActionListenerInterface::class, $types )
+			? Monkey::actions()
+			: Monkey::filters();
 
 		$mock_builder::expectAdded( $hook )
 			->once()
-			->with( Mockery::type( 'Closure' ), $priority, 9999 );
+			->with( Mockery::type( 'Closure' ), $priority, PHP_INT_MAX );
 
-		/**
-		 * This is just a cheap hack, don't do this at home, kids!
-		 */
-		$reflection = new \ReflectionObject( $controller );
-		$method = $reflection->getMethod( 'listen_hook' );
-		$method->setAccessible( TRUE );
-
-		$method->invokeArgs( $controller, [ $hook, 0, $listener ] );
+		$proxy = new Proxy( new FrontController() );
+		/** @noinspection PhpUndefinedMethodInspection */
+		$proxy->listen_hook( $hook, 0, $listener );
 	}
 
 	/**
@@ -88,7 +75,7 @@ class FrontControllerTest extends TestCase {
 	 */
 	public function listen_hook_priority_data() {
 
-		$data = [];
+		$data                                  = [];
 		$data[ 'action_with_custom_priority' ] = [
 			[ ActionListenerInterface::class, HookPriorityInterface::class ],
 			'wp_loaded',
@@ -98,19 +85,19 @@ class FrontControllerTest extends TestCase {
 		$data[ 'filter_with_custom_priority' ] = [
 			[ FilterListenerInterface::class, HookPriorityInterface::class ],
 			'the_title',
-			-42
+			- 42
 		];
 
 		$data[ 'action_with_default_priority' ] = [
 			[ ActionListenerInterface::class ],
 			'the_title',
-			FALSE
+			PHP_INT_MAX - 10
 		];
 
 		$data[ 'filter_with_default_priority' ] = [
 			[ FilterListenerInterface::class ],
 			'the_title',
-			FALSE
+			PHP_INT_MAX - 10
 		];
 
 		return $data;

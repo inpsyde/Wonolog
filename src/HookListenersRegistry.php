@@ -53,9 +53,9 @@ class HookListenersRegistry {
 	 */
 	public function register_listener( HookListenerInterface $listener ) {
 
-		$class = get_class( $listener );
+		$id = (string) $listener->id();
 
-		array_key_exists( $class, $this->listeners ) or $this->listeners[ $class ] = $listener;
+		array_key_exists( $id, $this->listeners ) or $this->listeners[ $id ] = $listener;
 
 		return $this;
 	}

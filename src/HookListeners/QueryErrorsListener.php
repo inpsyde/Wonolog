@@ -22,6 +22,8 @@ use Inpsyde\Wonolog\Data\NullLog;
  */
 final class QueryErrorsListener implements ActionListenerInterface {
 
+	use ListenerIdByClassNameTrait;
+
 	/**
 	 * @inheritdoc
 	 */

@@ -24,6 +24,8 @@ use Monolog\Logger;
  */
 class MailerListener implements ActionListenerInterface {
 
+	use ListenerIdByClassNameTrait;
+
 	/**
 	 * @return string|string[]
 	 */

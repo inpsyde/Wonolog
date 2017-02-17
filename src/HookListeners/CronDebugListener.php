@@ -23,6 +23,8 @@ use Inpsyde\Wonolog\Data\NullLog;
  */
 final class CronDebugListener implements FilterListenerInterface {
 
+	use ListenerIdByClassNameTrait;
+
 	private static $ran = FALSE;
 
 	/**

@@ -21,6 +21,8 @@ use Inpsyde\Wonolog\Data\Error;
  */
 final class WpDieHandlerListener implements FilterListenerInterface {
 
+	use ListenerIdByClassNameTrait;
+
 	/**
 	 * @inheritdoc
 	 */

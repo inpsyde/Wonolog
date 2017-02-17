@@ -26,6 +26,8 @@ use Inpsyde\Wonolog\Data\NullLog;
  */
 final class HttpApiListener implements ActionListenerInterface {
 
+	use ListenerIdByClassNameTrait;
+
 	/**
 	 * @inheritdoc
 	 */
