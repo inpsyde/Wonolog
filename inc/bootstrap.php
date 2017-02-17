@@ -55,9 +55,7 @@ function load_plugin_file_and_load() {
 
 	global $wp_version;
 	$wp_version or @include ABSPATH . '/wp-includes/version.php';
-	$wp_ver = $wp_version ? : '0.0';
-	if ( version_compare( $wp_ver, '4.7' ) >= 0 ) {
-		unset( $wp_ver );
+	if ( version_compare( ( $wp_version ? : '0.0' ), '4.7', '>=' ) ) {
 		require_once ABSPATH . '/wp-includes/plugin.php';
 		add_action( 'muplugins_loaded', [ FrontController::class, 'boot' ], 20 );
 
