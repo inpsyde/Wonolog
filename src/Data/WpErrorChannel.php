@@ -41,7 +41,7 @@ class WpErrorChannel {
 
 		$instance        = new static;
 		$instance->error = $error;
-		$channel and $instance->channel = apply_filters( 'wonolog.wp-error-channel', $channel, $error );
+		$channel and $instance->channel = $channel;
 
 		return $instance;
 	}
