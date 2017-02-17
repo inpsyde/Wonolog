@@ -54,8 +54,10 @@ class FrontController {
 
 	/**
 	 * Initialize the package object.
+	 *
+	 * @param int $priority
 	 */
-	public function setup() {
+	public function setup( $priority = 100 ) {
 
 		if ( did_action( 'wonolog.loaded' ) || ! apply_filters( 'wonolog.enable', TRUE ) ) {
 			return;
@@ -67,10 +69,11 @@ class FrontController {
 
 		$listener = [ new LogActionSubscriber( new Channels(), $this->setup_default_handler() ), 'listen' ];
 
-		add_action( 'wonolog.log', $listener, 100, 9999 );
+		add_action( 'wonolog.log', $listener, $priority, PHP_INT_MAX );
 
 		foreach ( Logger::getLevels() as $level => $level_code ) {
-			add_action( 'wonolog.log.' . strtolower( $level ), $listener, 100, 9999 );
+			// $level_code is from 100 (DEBUG) to 600 (EMERGENCY) this makes hook priority based on level priority
+			add_action( 'wonolog.log.' . strtolower( $level ), $listener, $priority + ( 601 - $level ), PHP_INT_MAX );
 		}
 
 		$this->setup_hook_listeners();
@@ -169,12 +172,14 @@ class FrontController {
 	 * @param string                $hook
 	 * @param int                   $i
 	 * @param HookListenerInterface $listener
+	 *
+	 * @return bool
 	 */
 	private function listen_hook( $hook, $i, HookListenerInterface $listener ) {
 
 		$is_filter = $listener instanceof FilterListenerInterface;
 		if ( ! $is_filter && ! $listener instanceof ActionListenerInterface ) {
-			return;
+			return false;
 		}
 
 		/**
@@ -200,9 +205,9 @@ class FrontController {
 		$filtered_priority = apply_filters( 'wonolog.hook-listener-priority', $priority, $listener );
 		is_int( $filtered_priority ) and $priority = $filtered_priority;
 
-		$is_filter
-			? add_filter( $hook, $callback, $priority, 9999 )
-			: add_action( $hook, $callback, $priority, 9999 );
+		return $is_filter
+			? add_filter( $hook, $callback, $priority, PHP_INT_MAX )
+			: add_action( $hook, $callback, $priority, PHP_INT_MAX );
 	}
 
 }
