@@ -37,19 +37,6 @@ class WpErrorChannelTest extends TestCase {
 		self::assertSame( 'FOO', $channel );
 	}
 
-	public function test_channel_explicit_filtered() {
-
-		Filters::expectApplied( 'wonolog.wp-error-channel' )
-			->once()
-			->with( 'FOO', \Mockery::type( 'WP_Error' ) )
-			->andReturn( 'BAR' );
-
-		$instance = WpErrorChannel::for_error( \Mockery::mock( 'WP_Error' ), 'FOO' );
-		$channel  = $instance->channel();
-
-		self::assertSame( 'BAR', $channel );
-	}
-
 	public function test_channel_guessed_db() {
 
 		$error = \Mockery::mock( 'WP_Error' );
