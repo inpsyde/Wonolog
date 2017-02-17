@@ -3,6 +3,8 @@ Wonolog (by Inpsyde)
 
 > Monolog-based logger package for WordPress.
 
+![Wonolog](assets/images/banner.png)
+
 
 # TOC
 
