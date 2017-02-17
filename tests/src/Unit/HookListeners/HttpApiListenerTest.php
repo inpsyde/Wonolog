@@ -76,11 +76,14 @@ class HttpApiListenerTest extends TestCase {
 		Functions::when( 'is_wp_error' )
 			->justReturn( FALSE );
 
+		Functions::when( 'shortcode_atts' )
+			->alias( 'array_merge' );
+
 		$tester = function ( LogDataInterface $log ) {
 
 			self::assertSame( Channels::HTTP, $log->channel() );
 			self::assertSame( Logger::ERROR, $log->level() );
-			self::assertSame( 'WP HTTP API Error, Internal Server Error - Response code: 500', $log->message() );
+			self::assertSame( 'WP HTTP API Error: Internal Server Error - Response code: 500.', $log->message() );
 			self::assertSame(
 				[
 					'transport'  => 'TestClass',
