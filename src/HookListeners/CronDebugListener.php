@@ -25,20 +25,18 @@ final class CronDebugListener implements ActionListenerInterface {
 
 	use ListenerIdByClassNameTrait;
 
+	const RUN_AS_CLI = 1;
+	const FORCE_IS_CRON = 2;
+
 	/**
 	 * @var bool
 	 */
 	private static $ran = FALSE;
 
 	/**
-	 * @var bool
+	 * @var int
 	 */
-	private $is_cli = FALSE;
-
-	/**
-	 * @var bool
-	 */
-	private $is_cron = FALSE;
+	private $flags = 0;
 
 	/**
 	 * @var array
@@ -46,13 +44,11 @@ final class CronDebugListener implements ActionListenerInterface {
 	private $done = [];
 
 	/**
-	 * @param null $is_cli  (Optional, by default WP_CLI constant is used)
-	 * @param null $is_cron (Optional, by default DOING_CRON constant is used)
+	 * @param int $flags
 	 */
-	public function __construct( $is_cli = NULL, $is_cron = NULL ) {
+	public function __construct( $flags = 0 ) {
 
-		$this->is_cli  = is_null( $is_cli ) ? defined( 'WP_CLI' ) && WP_CLI : (bool) $is_cli;
-		$this->is_cron = is_null( $is_cron ) ? defined( 'DOING_CRON' ) && DOING_CRON : (bool) $is_cron;
+		$this->flags = is_int( $flags ) ? $flags : 0;
 	}
 
 	/**
@@ -61,6 +57,17 @@ final class CronDebugListener implements ActionListenerInterface {
 	public function listen_to() {
 
 		return 'wp_loaded';
+	}
+
+	public function is_cli() {
+		return ( $this->flags & self::RUN_AS_CLI ) || ( defined( 'WP_CLI' ) && WP_CLI );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function is_cron() {
+		return ( $this->flags & self::FORCE_IS_CRON ) || ( defined( 'DOING_CRON' ) && DOING_CRON );
 	}
 
 	/**
@@ -78,7 +85,7 @@ final class CronDebugListener implements ActionListenerInterface {
 			return new NullLog();
 		}
 
-		if ( $this->is_cron || $this->is_cli ) {
+		if ( $this->is_cron() || $this->is_cli() ) {
 			$this->register_event_listener();
 		}
 
@@ -126,7 +133,9 @@ final class CronDebugListener implements ActionListenerInterface {
 	 */
 	private function cron_action_profile() {
 
-		// TODO: we have to check for DOING_CRON again here, as WP CLI defines it right before the action starts…
+		if ( ! defined( 'DOING_CRON' ) || ! DOING_CRON ) {
+			return;
+		}
 
 		$hook = current_filter();
 		if ( ! isset( $this->done[ $hook ] ) ) {

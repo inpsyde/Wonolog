@@ -50,12 +50,11 @@ class CronDebugListenerTest extends TestCase {
 	/**
 	 * @runInSeparateProcess
 	 * @dataProvider update_registers_listeners
-	 * @see CronDebugListener::update()
+	 * @see          CronDebugListener::update()
 	 *
-	 * @param bool $is_cron
-	 * @param bool $is_cli
+	 * @param int $flags
 	 */
-	public function test_update_registers_listeners( $is_cron, $is_cli ) {
+	public function test_update_registers_listeners( $flags ) {
 
 		Functions::when( '_get_cron_array' )
 			->justReturn(
@@ -83,7 +82,7 @@ class CronDebugListenerTest extends TestCase {
 				}
 			);
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->with( Debug::class )
 			->whenHappen(
 				function ( Debug $debug ) {
@@ -100,12 +99,9 @@ class CronDebugListenerTest extends TestCase {
 				}
 			);
 
-		$listener = new CronDebugListener( $is_cli, $is_cron );
+		$listener = new CronDebugListener( $flags );
 
-		$this->assertInstanceOf(
-			NullLog::class,
-			$listener->update( [] )
-		);
+		$this->assertInstanceOf( NullLog::class, $listener->update( [] ) );
 	}
 
 	/**
@@ -115,18 +111,9 @@ class CronDebugListenerTest extends TestCase {
 	public function update_registers_listeners() {
 
 		return [
-			'is_cron' => [
-				TRUE,
-				NULL
-			],
-			'is_cli' => [
-				NULL,
-				TRUE
-			],
-			'is_cron_and_cli' => [
-				TRUE,
-				TRUE
-			]
+			'is_cron'         => [ CronDebugListener::FORCE_IS_CRON ],
+			'is_cli'          => [ CronDebugListener::RUN_AS_CLI ],
+			'is_cron_and_cli' => [ CronDebugListener::RUN_AS_CLI | CronDebugListener::FORCE_IS_CRON ]
 		];
 	}
 
@@ -137,13 +124,8 @@ class CronDebugListenerTest extends TestCase {
 	public function test_constructor_reads_wp_cli() {
 
 		define( 'WP_CLI', TRUE );
-		$testee = new CronDebugListener();
-		$is_cli = (new \ReflectionClass( $testee ) )->getProperty( 'is_cli' );
-		$is_cli->setAccessible( TRUE );
-
-		$this->assertTrue(
-			$is_cli->getValue( $testee )
-		);
+		$listener = new CronDebugListener();
+		$this->assertTrue( $listener->is_cli() );
 	}
 
 	/**
@@ -153,12 +135,8 @@ class CronDebugListenerTest extends TestCase {
 	public function test_constructor_reads_doing_cron() {
 
 		define( 'DOING_CRON', TRUE );
-		$testee = new CronDebugListener();
-		$is_cron = ( new \ReflectionClass( $testee ) )->getProperty( 'is_cron' );
-		$is_cron->setAccessible( TRUE );
+		$listener  = new CronDebugListener();
 
-		$this->assertTrue(
-			$is_cron->getValue( $testee )
-		);
+		$this->assertTrue( $listener->is_cron() );
 	}
 }
