@@ -111,9 +111,9 @@ class CronDebugListenerTest extends TestCase {
 	public function update_registers_listeners() {
 
 		return [
-			'is_cron'         => [ CronDebugListener::FORCE_IS_CRON ],
-			'is_cli'          => [ CronDebugListener::RUN_AS_CLI ],
-			'is_cron_and_cli' => [ CronDebugListener::RUN_AS_CLI | CronDebugListener::FORCE_IS_CRON ]
+			'is_cron'         => [ CronDebugListener::IS_CRON ],
+			'is_cli'          => [ CronDebugListener::IS_CLI ],
+			'is_cron_and_cli' => [ CronDebugListener::IS_CLI | CronDebugListener::IS_CRON ]
 		];
 	}
 

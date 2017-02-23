@@ -25,8 +25,8 @@ final class CronDebugListener implements ActionListenerInterface {
 
 	use ListenerIdByClassNameTrait;
 
-	const RUN_AS_CLI = 1;
-	const FORCE_IS_CRON = 2;
+	const IS_CLI = 1;
+	const IS_CRON = 2;
 
 	/**
 	 * @var bool
@@ -60,14 +60,16 @@ final class CronDebugListener implements ActionListenerInterface {
 	}
 
 	public function is_cli() {
-		return ( $this->flags & self::RUN_AS_CLI ) || ( defined( 'WP_CLI' ) && WP_CLI );
+
+		return ( $this->flags & self::IS_CLI ) || ( defined( 'WP_CLI' ) && WP_CLI );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function is_cron() {
-		return ( $this->flags & self::FORCE_IS_CRON ) || ( defined( 'DOING_CRON' ) && DOING_CRON );
+
+		return ( $this->flags & self::IS_CRON ) || ( defined( 'DOING_CRON' ) && DOING_CRON );
 	}
 
 	/**
