@@ -28,6 +28,26 @@ final class HttpApiListener implements ActionListenerInterface {
 
 	use ListenerIdByClassNameTrait;
 
+	private static $http_success_codes = [
+		200,
+		201,
+		202,
+		203,
+		204,
+		205,
+		206,
+		207,
+		300,
+		301,
+		302,
+		303,
+		304,
+		305,
+		306,
+		307,
+		308,
+	];
+
 	/**
 	 * @inheritdoc
 	 */
@@ -88,7 +108,7 @@ final class HttpApiListener implements ActionListenerInterface {
 
 		$code = (int) $response[ 'response' ][ 'code' ];
 
-		return ! in_array( $code, range( 200, 207 ), TRUE ) && ! in_array( $code, range( 300, 308 ), TRUE );
+		return ! in_array( $code, self::$http_success_codes );
 	}
 
 	/**
