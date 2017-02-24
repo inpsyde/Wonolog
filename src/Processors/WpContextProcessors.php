@@ -19,22 +19,9 @@ namespace Processors;
 class WpContextProcessor {
 
 	/**
-	 * @var int
-	 */
-	private $site_id;
-
-	/**
 	 * @var bool
 	 */
 	private $is_rest_request;
-
-	/**
-	 * @param int $site_id ID of the initializing WP site
-	 */
-	public function __construct( $site_id ) {
-
-		$this->site_id = (int) $site_id;
-	}
 
 	/**
 	 * @param array $record The complete log record containing 'message', 'context'
@@ -47,9 +34,15 @@ class WpContextProcessor {
 		$record[ 'extra' ][ 'wp' ] = [
 			'doing_cron' => defined( 'DOING_CRON' ) && DOING_CRON,
 			'doing_ajax' => defined( 'DOING_AJAX' ) && DOING_AJAX,
-			'doing_rest' => $this->doing_rest(),
 			'is_admin'   => is_admin(),
 		];
+
+		// When doing_rest() returns false before 'parse_request' we can't be sure request will not be recognized as a
+		// REST request later and so we don't say `doing_rest` is false if we are not sure about that.
+		$doing_rest = $this->doing_rest();
+		if ( $doing_rest || did_action( 'parse_request' ) ) {
+			$record[ 'extra' ][ 'wp' ][ 'doing_rest' ] = $doing_rest;
+		}
 
 		if ( did_action( 'init' ) ) {
 			$record[ 'extra' ][ 'wp' ][ 'user_id' ] = get_current_user_id();
@@ -79,10 +72,9 @@ class WpContextProcessor {
 			return TRUE;
 		}
 
-		$home_url_path   = rtrim( parse_url( get_home_url( $this->site_id, '/' ), PHP_URL_PATH ), '/' );
-		$rest_url_prefix = rest_get_url_prefix();
-
-		$this->is_rest_request = 0 === strpos( add_query_arg( [] ), "{$home_url_path}/{$rest_url_prefix}/" );
+		$rest_url              = set_url_scheme( get_rest_url() );
+		$current_url           = set_url_scheme( add_query_arg( [] ) );
+		$this->is_rest_request = strpos( $current_url, set_url_scheme( $rest_url ) ) === 0;
 
 		return $this->is_rest_request;
 	}
