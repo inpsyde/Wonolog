@@ -11,10 +11,10 @@
 namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\Data\LogDataInterface;
-use Inpsyde\Wonolog\HookListeners\ActionListenerInterface;
-use Inpsyde\Wonolog\HookListeners\FilterListenerInterface;
-use Inpsyde\Wonolog\HookListeners\HookListenerInterface;
-use Inpsyde\Wonolog\HookListeners\HookPriorityInterface;
+use Inpsyde\Wonolog\HookListener\ActionListenerInterface;
+use Inpsyde\Wonolog\HookListener\FilterListenerInterface;
+use Inpsyde\Wonolog\HookListener\HookListenerInterface;
+use Inpsyde\Wonolog\HookListener\HookPriorityInterface;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;

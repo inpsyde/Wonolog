@@ -13,7 +13,7 @@ namespace Inpsyde\Wonolog\Tests\Unit;
 use Andrew\Proxy;
 use Inpsyde\Wonolog\FrontController;
 use Inpsyde\Wonolog\HookListenersRegistry;
-use Inpsyde\Wonolog\HookListeners\HookListenerInterface;
+use Inpsyde\Wonolog\HookListener\HookListenerInterface;
 use Inpsyde\Wonolog\Tests\TestCase;
 
 /**

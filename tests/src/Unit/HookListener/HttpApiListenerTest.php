@@ -14,7 +14,7 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\Data\NullLog;
 use Inpsyde\Wonolog\Tests\TestCase;
-use Inpsyde\Wonolog\HookListeners\HttpApiListener;
+use Inpsyde\Wonolog\HookListener\HttpApiListener;
 use Brain\Monkey\Functions;
 use Brain\Monkey\WP\Actions;
 use Monolog\Logger;

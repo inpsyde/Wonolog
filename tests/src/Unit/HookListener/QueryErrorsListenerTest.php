@@ -14,7 +14,7 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\NullLog;
 use Inpsyde\Wonolog\Tests\TestCase;
-use Inpsyde\Wonolog\HookListeners\QueryErrorsListener;
+use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
 use Brain\Monkey\Functions;
 use Brain\Monkey\WP\Actions;
 

@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Processors;
+namespace Inpsyde\Wonolog\Processor;
 
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>

@@ -12,7 +12,7 @@ namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
 use Brain\Monkey\Functions;
 use Inpsyde\Wonolog\Data\FailedLogin;
-use Inpsyde\Wonolog\HookListeners\FailedLoginListener;
+use Inpsyde\Wonolog\HookListener\FailedLoginListener;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Brain\Monkey\WP\Actions;
 

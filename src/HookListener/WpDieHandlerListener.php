@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Inpsyde\Wonolog\HookListeners;
+namespace Inpsyde\Wonolog\HookListener;
 
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Error;

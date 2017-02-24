@@ -16,7 +16,7 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\Data\NullLog;
-use Inpsyde\Wonolog\HookListeners\MailerListener;
+use Inpsyde\Wonolog\HookListener\MailerListener;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Monolog\Logger;
 
