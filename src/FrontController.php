@@ -15,10 +15,10 @@ use Inpsyde\Wonolog\HookListener\ActionListenerInterface;
 use Inpsyde\Wonolog\HookListener\FilterListenerInterface;
 use Inpsyde\Wonolog\HookListener\HookListenerInterface;
 use Inpsyde\Wonolog\HookListener\HookPriorityInterface;
+use Inpsyde\Wonolog\Processor\WpContextProcessor;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use Processors\WpContextProcessor;
 
 /**
  * "Entry point" for package bootstrapping.
