@@ -27,6 +27,11 @@ final class Log implements LogDataInterface {
 
 	use LogDataTrait;
 
+	const MESSAGE = 'message';
+	const LEVEL = 'level';
+	const CHANNEL = 'channel';
+	const CONTEXT = 'context';
+
 	/**
 	 * @var string
 	 */
@@ -104,88 +109,27 @@ final class Log implements LogDataInterface {
 	public static function from_array( array $log_data ) {
 
 		$defaults = [
-			'message' => 'Unknown error',
-			'level'   => Logger::DEBUG,
-			'channel' => Channels::DEBUG,
-			'context' => []
+			self::MESSAGE => 'Unknown error',
+			self::LEVEL   => Logger::DEBUG,
+			self::CHANNEL => Channels::DEBUG,
+			self::CONTEXT => []
 		];
 
 		$log_level = LogLevel::instance();
 		$levels    = Logger::getLevels();
 
-		// $data is a numeric indexed array, try to "discover" arguments based on items value and type
-		if ( $log_data && ! array_filter( array_keys( $log_data ), 'is_string' ) ) {
-			$values   = $log_data;
-			$log_data = [];
-
-			$channels = Channels::all_channels();
-
-			$object_context = NULL;
-			$log_levels     = [];
-
-			foreach ( $values as $value ) {
-				if ( count( $log_data ) === 4 ) {
-					break;
-				}
-				if ( ! isset( $log_data[ 'channel' ] ) && is_string( $value ) && in_array( $value, $channels, TRUE ) ) {
-					$log_data[ 'channel' ] = $value;
-					continue;
-				}
-				if (
-					( is_string( $value ) || is_numeric( $value ) )
-					&& ( $min_level = $log_level->check_level( $value, $levels ) )
-				) {
-					$log_levels[] = $min_level;
-					continue;
-				}
-				if ( ! isset( $log_data[ 'message' ] ) && is_string( $value ) ) {
-					$log_data[ 'message' ] = $value;
-					continue;
-				}
-				if ( ! isset( $log_data[ 'context' ] ) && is_array( $value ) ) {
-					$log_data[ 'context' ] = $value;
-				}
-				if ( is_null( $object_context ) && is_object( $value ) ) {
-					$object_context = $value;
-				}
-			}
-
-			$log_levels and $log_data[ 'level' ] = max( $log_levels );
-
-			// If no message was found, but an object was passed as log data, we use its class name for the message.
-			if ( ! isset( $log_data[ 'message' ] ) && $object_context ) {
-				$log_data[ 'message' ] = 'Logged: ' . get_class( $object_context );
-			}
-
-			// If no array context was found, but an object was passed as log data, we use that for context
-			if ( ! isset( $log_data[ 'context' ] ) && $object_context ) {
-				switch ( TRUE ) {
-					case ( is_callable( [ $object_context, 'to_array' ] ) ) :
-						$log_data[ 'context' ] = $object_context->to_array();
-						break;
-					case ( is_callable( [ $object_context, 'as_array' ] ) ) :
-						$log_data[ 'context' ] = $object_context->as_array();
-						break;
-					case ( is_callable( [ $object_context, 'toArray' ] ) ) :
-						$log_data[ 'context' ] = $object_context->toArray();
-						break;
-					case ( is_callable( [ $object_context, 'asArray' ] ) ) :
-						$log_data[ 'context' ] = $object_context->asArray();
-						break;
-					default :
-						$log_data[ 'context' ] = get_object_vars( $object_context );
-				}
-			}
-		}
-
-		$log_data = array_change_key_case( $log_data, CASE_LOWER );
-		if ( isset( $log_data[ 'level' ] ) && is_string( $log_data[ 'level' ] ) ) {
+		if ( isset( $log_data[ self::LEVEL ] ) && is_string( $log_data[ self::LEVEL ] ) ) {
 			$log_data[ 'level' ] = $log_level->check_level( $log_data[ 'level' ], $levels );
 		}
 
 		$data = array_merge( $defaults, $log_data );
 
-		return new static( $data[ 'message' ], $data[ 'level' ], $data[ 'channel' ], $data[ 'context' ] );
+		return new static(
+			(string) $data[ self::MESSAGE ],
+			(int) $data[ self::LEVEL ],
+			(string) $data[ self::CHANNEL ],
+			(array) $data[ self::CONTEXT ]
+		);
 
 	}
 

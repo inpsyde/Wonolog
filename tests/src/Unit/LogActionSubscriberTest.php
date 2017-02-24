@@ -252,28 +252,6 @@ class LogActionSubscriberTest extends TestCase {
 
 	}
 
-	public function test_listen_log_array_variadic() {
-
-		do_action( FrontController::ACTION_LOADED );
-
-		$log = [
-			'message' => 'Hi!',
-			'level'   => Logger::ALERT,
-			'channel' => Channels::HTTP,
-			'context' => [ 'foo' => 'bar' ]
-		];
-
-		$subscriber = new LogActionSubscriber( $this->build_channels( Channels::HTTP ) );
-
-		$subscriber->listen( $log[ 'message' ], $log[ 'level' ], $log[ 'channel' ], $log[ 'context' ] );
-
-		self::assertEquals(
-			[ 'level' => Logger::ALERT, 'message' => 'Hi!', 'context' => [ 'foo' => 'bar' ] ],
-			$this->result
-		);
-
-	}
-
 	public function test_update_nothing_if_not_loaded() {
 
 		/** @var \Mockery\MockInterface|LogActionSubscriber $subscriber */

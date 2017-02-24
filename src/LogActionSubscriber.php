@@ -88,8 +88,7 @@ class LogActionSubscriber {
 			|| $this->log_data_from_string( $first_arg, $is_single_arg, $hook_level )
 			|| $this->log_objects_in_args( $args, $hook_level )
 			|| $this->log_wp_error( $first_arg, $args, $hook_level )
-			|| $this->log_data_from_array( $first_arg, $is_single_arg, $hook_level )
-			|| $this->log_data_from_variadic_array( $args, $hook_level );
+			|| $this->log_data_from_array( $first_arg, $is_single_arg, $hook_level );
 	}
 
 	/**
@@ -267,23 +266,6 @@ class LogActionSubscriber {
 
 		$level = array_key_exists( 'level', $array ) ? $array[ 'level' ] : 0;
 		$level < $hook_level and $first_arg[ 'level' ] = $hook_level;
-
-		$this->update( Log::from_array( $array ) );
-
-		return TRUE;
-	}
-
-	/**
-	 * If any other thing failed, let's build log data from all received arguments.
-	 *
-	 * @param array $array
-	 * @param int   $hook_level
-	 *
-	 * @return bool
-	 */
-	private function log_data_from_variadic_array( array $array, $hook_level ) {
-
-		$hook_level and $array[] = $hook_level;
 
 		$this->update( Log::from_array( $array ) );
 

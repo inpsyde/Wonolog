@@ -91,11 +91,15 @@ class LogLevel {
 			return 0;
 		}
 
-		is_string( $level ) and $level = strtoupper( trim( $level ) );
-
 		if ( is_numeric( $level ) ) {
 			return (int) $level > 0 ? (int) $level : 0;
 		}
+
+		if ( ! is_string( $level ) ) {
+			return 0;
+		}
+
+		$level = strtoupper( trim( $level ) );
 
 		$levels or $levels = Logger::getLevels();
 
