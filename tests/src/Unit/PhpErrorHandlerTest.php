@@ -82,6 +82,31 @@ class PhpErrorHandlerTest extends TestCase {
 
 	}
 
+	public function test_on_error_should_not_contain_globals() {
+		Actions::expectFired( 'wonolog.log' )
+			->once()
+			->with( Mockery::type( LogDataInterface::class ) )
+			->whenHappen(
+				function ( LogDataInterface $log ) {
+					self::assertSame( Channels::PHP_ERROR, $log->channel() );
+					self::assertSame( Logger::WARNING, $log->level() );
+					$context = $log->context();
+					self::assertArrayHasKey( 'line', $context );
+					self::assertArrayHasKey( 'file', $context );
+					self::assertSame( __FILE__, $context[ 'file' ] );
+					self::assertArrayHasKey( 'local_var', $context );
+					self::assertSame( 'I am local', $context[ 'local_var' ] );
+					self::assertArrayNotHasKey( 'wp_filter', $context );
+				}
+			);
+		$handler = new PhpErrorController();
+		$handler->init();
+		global $wp_filter;
+		$wp_filter = [ 'foo', 'bar' ];
+		$local_var = 'I am local';
+		@call_user_func_array( 'meh', [] );
+	}
+
 	/**
 	 * @expectedException \RuntimeException
 	 */
