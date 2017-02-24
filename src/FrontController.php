@@ -18,6 +18,7 @@ use Inpsyde\Wonolog\HookListeners\HookPriorityInterface;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Processors\WpContextProcessor;
 
 /**
  * "Entry point" for package bootstrapping.
@@ -71,7 +72,10 @@ class FrontController {
 
 		$this->setup_php_error_handler();
 
-		$listener = [ new LogActionSubscriber( new Channels(), $this->setup_default_handler() ), 'listen' ];
+		$default_handler    = $this->setup_default_handler();
+		$default_processors = apply_filters( 'wonolog.default-processors', [ new WpContextProcessor() ] );
+
+		$listener = [ new LogActionSubscriber( new Channels(), $default_handler, $default_processors ), 'listen' ];
 
 		add_action( LOG, $listener, $priority, PHP_INT_MAX );
 
