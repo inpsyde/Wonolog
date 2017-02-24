@@ -68,7 +68,7 @@ class CronDebugListenerTest extends TestCase {
 			->twice()
 			->whenHappen(
 				function ( callable $callback ) {
-
+					defined('DOING_CRON') or define('DOING_CRON', 1);
 					$callback();
 				}
 			);
@@ -77,13 +77,14 @@ class CronDebugListenerTest extends TestCase {
 			->twice()
 			->whenHappen(
 				function ( callable $callback ) {
-
+					defined('DOING_CRON') or define('DOING_CRON', 1);
 					$callback();
 				}
 			);
 
 		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->with( Debug::class )
+			->once()
 			->whenHappen(
 				function ( Debug $debug ) {
 
@@ -92,10 +93,7 @@ class CronDebugListenerTest extends TestCase {
 					self::assertInternalType( 'array', $context );
 					self::assertArrayHasKey( 'start', $context );
 					self::assertArrayHasKey( 'duration', $context );
-					self::assertSame(
-						Channels::DEBUG,
-						$debug->channel()
-					);
+					self::assertSame( Channels::DEBUG, $debug->channel() );
 				}
 			);
 
