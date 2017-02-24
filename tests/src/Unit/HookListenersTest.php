@@ -11,6 +11,7 @@
 namespace Inpsyde\Wonolog\Tests\Unit;
 
 use Andrew\Proxy;
+use Inpsyde\Wonolog\FrontController;
 use Inpsyde\Wonolog\HookListenersRegistry;
 use Inpsyde\Wonolog\HookListeners\HookListenerInterface;
 use Inpsyde\Wonolog\Tests\TestCase;
@@ -25,6 +26,10 @@ class HookListenersTest extends TestCase {
 	public function test_register_listener() {
 
 		$listener_1 = \Mockery::mock( HookListenerInterface::class );
+		$listener_1->shouldReceive('id')->andReturnUsing(function() {
+			return get_called_class();
+		});
+
 		$listener_2 = clone $listener_1;
 		$listener_3 = clone $listener_2;
 
@@ -54,6 +59,9 @@ class HookListenersTest extends TestCase {
 	public function test_register_listener_factory() {
 
 		$listener_1 = \Mockery::mock( HookListenerInterface::class );
+		$listener_1->shouldReceive('id')->andReturnUsing(function() {
+			return get_called_class();
+		});
 
 		$factory = function () use ( $listener_1 ) {
 
@@ -79,6 +87,9 @@ class HookListenersTest extends TestCase {
 	public function test_flush_do_nothing_id_not_loaded() {
 
 		$listener_1 = \Mockery::mock( HookListenerInterface::class );
+		$listener_1->shouldReceive('id')->andReturnUsing(function() {
+			return get_called_class();
+		});
 		$listener_2 = clone $listener_1;
 
 		$factory = function () use ( $listener_2 ) {
@@ -105,6 +116,9 @@ class HookListenersTest extends TestCase {
 	public function test_flush() {
 
 		$listener_1 = \Mockery::mock( HookListenerInterface::class );
+		$listener_1->shouldReceive('id')->andReturnUsing(function() {
+			return get_called_class();
+		});
 		$listener_2 = clone $listener_1;
 
 		$factory = function () use ( $listener_2 ) {
@@ -122,7 +136,7 @@ class HookListenersTest extends TestCase {
 		self::assertCount( 1, $proxy->factories );
 		self::assertCount( 1, $proxy->listeners );
 
-		do_action( 'wonolog.loaded' );
+		do_action( FrontController::ACTION_LOADED );
 
 		$listeners->flush();
 

@@ -12,8 +12,6 @@ namespace Inpsyde\Wonolog\HookListeners;
 
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Error;
-use Inpsyde\Wonolog\Data\LogDataInterface;
-use Inpsyde\Wonolog\Data\NullLog;
 
 /**
  * Looks a wp_die() and try to find and log db errors.
@@ -23,25 +21,14 @@ use Inpsyde\Wonolog\Data\NullLog;
  */
 final class WpDieHandlerListener implements FilterListenerInterface {
 
+	use ListenerIdByClassNameTrait;
+
 	/**
 	 * @inheritdoc
 	 */
 	public function listen_to() {
 
-		return [ 'wp_die_ajax_handler', 'wp_die_handler' ];
-	}
-
-	/**
-	 * @wp-hook wp_die_ajax_handler
-	 * @wp-hook wp_die_handler
-	 *
-	 * @param array $args
-	 *
-	 * @return LogDataInterface
-	 */
-	public function update( array $args ) {
-
-		return new NullLog();
+		return [ 'wp_die_ajax_handler', 'wp_die_xmlrpc_handler', 'wp_die_handler' ];
 	}
 
 	/**
@@ -60,7 +47,7 @@ final class WpDieHandlerListener implements FilterListenerInterface {
 
 		$handler = $args ? reset( $args ) : NULL;
 
-		if ( ! $handler || ! is_callable( $handler ) || ! $this->isDbError() ) {
+		if ( ! $handler || ! is_callable( $handler ) || ! $this->stacktrace_has_db_error() ) {
 			return $handler;
 		}
 
@@ -70,36 +57,33 @@ final class WpDieHandlerListener implements FilterListenerInterface {
 			$context            = $args;
 			$context[ 'title' ] = $title;
 
-			do_action( 'wonolog.log', new Error( $msg, Channels::DB, $context ) );
+			do_action( \Inpsyde\Wonolog\LOG, new Error( $msg, Channels::DB, $context ) );
 
-			return call_user_func_array( $handler, func_get_args() );
+			return $handler( $message, $title, $args );
 		};
 	}
 
 	/**
-	 * @return bool
+	 * @return array
 	 */
-	private function isDbError() {
+	private function stacktrace_has_db_error() {
 
 		$stacktrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 6 );
 
-		$lasts = array_slice( $stacktrace, 2 );
+		return array_filter( $stacktrace, [ $this, 'stacktrace_item_has_db_error' ] );
+	}
 
-		$is_error = function ( array $last ) {
+	/**
+	 * @param array $item
+	 *
+	 * @return bool
+	 */
+	private function stacktrace_item_has_db_error( $item ) {
 
-			return
-				isset( $last[ 'function' ] )
-				&& isset( $last[ 'class' ] )
-				&& ( $last[ 'function' ] === 'bail' || $last[ 'function' ] === 'print_error' )
-				&& $last[ 'class' ] === 'wpdb';
-		};
-
-		foreach ( $lasts as $last ) {
-			if ( $is_error( $last ) ) {
-				return TRUE;
-			}
-		}
-
-		return FALSE;
+		return
+			isset( $item[ 'function' ] )
+			&& isset( $item[ 'class' ] )
+			&& ( $item[ 'function' ] === 'bail' || $item[ 'function' ] === 'print_error' )
+			&& $item[ 'class' ] === 'wpdb';
 	}
 }

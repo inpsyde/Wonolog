@@ -19,7 +19,7 @@ use Monolog\Logger;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-class Error implements LogDataInterface {
+final class Error implements LogDataInterface {
 
 	use LogDataTrait;
 

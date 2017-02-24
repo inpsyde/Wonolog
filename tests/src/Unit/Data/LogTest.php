@@ -10,7 +10,6 @@
 
 namespace Data;
 
-use Brain\Monkey\WP\Filters;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\Tests\TestCase;
@@ -38,10 +37,10 @@ class LogTest extends TestCase {
 
 		$log = Log::from_array(
 			[
-				'message' => 'message',
-				'level'   => Logger::EMERGENCY,
-				'channel' => Channels::HTTP,
-				'context' => [ 'foo' ]
+				Log::MESSAGE => 'message',
+				Log::LEVEL   => Logger::EMERGENCY,
+				Log::CHANNEL => Channels::HTTP,
+				Log::CONTEXT => [ 'foo' ]
 			]
 		);
 
@@ -56,8 +55,8 @@ class LogTest extends TestCase {
 
 		$log = Log::from_array(
 			[
-				'MESSAGE' => 'message',
-				'ConTexT' => [ 'foo' ]
+				Log::MESSAGE => 'message',
+				Log::CONTEXT => [ 'foo' ]
 			]
 		);
 
@@ -66,72 +65,6 @@ class LogTest extends TestCase {
 		self::assertSame( [ 'foo' ], $log->context() );
 		self::assertSame( Logger::DEBUG, $log->level() );
 
-	}
-
-	public function test_from_numeric_array() {
-
-		$log = Log::from_array(
-			[
-				'Hi!',
-				Logger::ALERT,
-				Channels::HTTP,
-				[ 'foo' => 'bar' ],
-			]
-		);
-
-		self::assertSame( Channels::HTTP, $log->channel() );
-		self::assertSame( 'Hi!', $log->message() );
-		self::assertSame( [ 'foo' => 'bar' ], $log->context() );
-		self::assertSame( Logger::ALERT, $log->level() );
-	}
-
-	public function test_from_numeric_array_wrong_order() {
-
-		Filters::expectApplied( 'wonolog.channels' )
-			->andReturnUsing(
-				function ( array $channels ) {
-
-					$channels[] = Channels::PHP_ERROR;
-
-					return $channels;
-				}
-			);
-
-		$log = Log::from_array(
-			[
-				[ 'foo' ],
-				'critical',
-				'message',
-				'meh',
-				Channels::PHP_ERROR,
-			]
-		);
-
-		self::assertSame( Channels::PHP_ERROR, $log->channel() );
-		self::assertSame( 'message', $log->message() );
-		self::assertSame( [ 'foo' ], $log->context() );
-		self::assertSame( Logger::CRITICAL, $log->level() );
-	}
-
-	public function test_from_numeric_array_with_object() {
-
-		$thing = \Mockery::mock();
-		$thing->shouldReceive( 'to_array' )
-			->andReturn(
-				[ 'foo' => 'bar' ]
-			);
-
-		$log = Log::from_array(
-			[
-				$thing,
-				Channels::HTTP
-			]
-		);
-
-		self::assertSame( Channels::HTTP, $log->channel() );
-		self::assertContains( get_class( $thing ), $log->message() );
-		self::assertSame( [ 'foo' => 'bar' ], $log->context() );
-		self::assertSame( Logger::DEBUG, $log->level() );
 	}
 
 }

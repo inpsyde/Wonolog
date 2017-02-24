@@ -21,6 +21,8 @@ use Inpsyde\Wonolog\Channels;
  */
 class WpErrorChannel {
 
+	const FILTER_CHANNEL = 'wonolog.wp-error-channel';
+
 	/**
 	 * @var \WP_Error
 	 */
@@ -41,7 +43,7 @@ class WpErrorChannel {
 
 		$instance        = new static;
 		$instance->error = $error;
-		$channel and $instance->channel = apply_filters( 'wonolog.wp-error-channel', $channel, $error );
+		$channel and $instance->channel = $channel;
 
 		return $instance;
 	}
@@ -67,7 +69,7 @@ class WpErrorChannel {
 
 		$channel or $channel = Channels::DEBUG;
 
-		$filtered = apply_filters( 'wonolog.wp-error-channel', $channel, $this->error );
+		$filtered = apply_filters( self::FILTER_CHANNEL, $channel, $this->error );
 		is_string( $filtered ) and $channel = $filtered;
 		$this->channel = $channel;
 

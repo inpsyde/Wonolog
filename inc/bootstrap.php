@@ -14,11 +14,11 @@ namespace Inpsyde\Wonolog;
  * We want to load this file just once. Being loaded by Composer autoload, and being in WordPress context,
  * we have to put special care on this.
  */
-if ( defined( __NAMESPACE__ . '\\BOOTSTRAPPED' ) ) {
+if ( defined( __NAMESPACE__ . '\\LOG' ) ) {
 	return;
 }
 
-define( __NAMESPACE__ . '\\BOOTSTRAPPED', 1 );
+define( __NAMESPACE__ . '\\LOG', 'wonolog.log' );
 
 /**
  * When WP is loaded, we can bootstrap on 'muplugins_loaded' or immediately if that hook was already fired
@@ -55,9 +55,7 @@ function load_plugin_file_and_load() {
 
 	global $wp_version;
 	$wp_version or @include ABSPATH . '/wp-includes/version.php';
-	$wp_ver = $wp_version ? : '0.0';
-	if ( version_compare( $wp_ver, '4.7' ) >= 0 ) {
-		unset( $wp_ver );
+	if ( version_compare( ( $wp_version ? : '0.0' ), '4.7', '>=' ) ) {
 		require_once ABSPATH . '/wp-includes/plugin.php';
 		add_action( 'muplugins_loaded', [ FrontController::class, 'boot' ], 20 );
 

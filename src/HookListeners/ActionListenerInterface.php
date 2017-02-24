@@ -10,11 +10,20 @@
 
 namespace Inpsyde\Wonolog\HookListeners;
 
+use Inpsyde\Wonolog\Data\LogDataInterface;
+
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
 interface ActionListenerInterface extends HookListenerInterface {
+
+	/**
+	 * @param array $args
+	 *
+	 * @return LogDataInterface
+	 */
+	public function update( array $args );
 
 }

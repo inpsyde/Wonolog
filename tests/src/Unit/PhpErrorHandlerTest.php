@@ -35,7 +35,7 @@ class PhpErrorHandlerTest extends TestCase {
 
 	public function test_on_error_notice() {
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( Mockery::type( LogDataInterface::class ) )
 			->whenHappen(
@@ -59,7 +59,7 @@ class PhpErrorHandlerTest extends TestCase {
 
 	public function test_on_error_fatal() {
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( Mockery::type( LogDataInterface::class ) )
 			->whenHappen(
@@ -83,13 +83,11 @@ class PhpErrorHandlerTest extends TestCase {
 	}
 
 	public function test_on_error_should_not_contain_globals() {
-
 		Actions::expectFired( 'wonolog.log' )
 			->once()
 			->with( Mockery::type( LogDataInterface::class ) )
 			->whenHappen(
 				function ( LogDataInterface $log ) {
-
 					self::assertSame( Channels::PHP_ERROR, $log->channel() );
 					self::assertSame( Logger::WARNING, $log->level() );
 					$context = $log->context();
@@ -101,15 +99,11 @@ class PhpErrorHandlerTest extends TestCase {
 					self::assertArrayNotHasKey( 'wp_filter', $context );
 				}
 			);
-
 		$handler = new PhpErrorController();
 		$handler->init();
-
 		global $wp_filter;
 		$wp_filter = [ 'foo', 'bar' ];
-
 		$local_var = 'I am local';
-
 		@call_user_func_array( 'meh', [] );
 	}
 
@@ -118,7 +112,7 @@ class PhpErrorHandlerTest extends TestCase {
 	 */
 	public function test_on_exception() {
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( Mockery::type( LogDataInterface::class ) )
 			->whenHappen(

@@ -26,6 +26,28 @@ use Inpsyde\Wonolog\Data\NullLog;
  */
 final class HttpApiListener implements ActionListenerInterface {
 
+	use ListenerIdByClassNameTrait;
+
+	private static $http_success_codes = [
+		200,
+		201,
+		202,
+		203,
+		204,
+		205,
+		206,
+		207,
+		300,
+		301,
+		302,
+		303,
+		304,
+		305,
+		306,
+		307,
+		308,
+	];
+
 	/**
 	 * @inheritdoc
 	 */
@@ -54,12 +76,12 @@ final class HttpApiListener implements ActionListenerInterface {
 		$http_args = isset( $args[ 3 ] ) ? $args[ 3 ] : [];
 		$url       = isset( $args[ 4 ] ) ? $args[ 4 ] : '';
 
-		if ( $this->isError( $response ) ) {
-			return $this->logHttpError( $response, $context, $class, $http_args, $url );
+		if ( $this->is_error( $response ) ) {
+			return $this->log_http_error( $response, $context, $class, $http_args, $url );
 		}
 
-		if ( $this->isCron( $response, $url ) ) {
-			return $this->logCron( $response, $context, $class, $http_args, $url );
+		if ( $this->is_cron( $response, $url ) ) {
+			return $this->log_cron( $response, $context, $class, $http_args, $url );
 		}
 
 		return new NullLog();
@@ -70,18 +92,23 @@ final class HttpApiListener implements ActionListenerInterface {
 	 *
 	 * @return bool
 	 */
-	private function isError( $response ) {
+	private function is_error( $response ) {
 
-		return
-			is_wp_error( $response )
-			|| (
-				is_array( $response )
-				&& isset( $response[ 'response' ] )
-				&& is_array( $response[ 'response' ] )
-				&& isset( $response[ 'response' ][ 'code' ] )
-				&& is_numeric( $response[ 'response' ][ 'code' ] )
-				&& (int) $response[ 'response' ][ 'code' ] !== 200
-			);
+		if ( is_wp_error( $response ) ) {
+			return TRUE;
+		}
+
+		if ( ! isset( $response[ 'response' ][ 'code' ] ) ) {
+			return FALSE;
+		}
+
+		if ( ! is_numeric( $response[ 'response' ][ 'code' ] ) ) {
+			return TRUE;
+		}
+
+		$code = (int) $response[ 'response' ][ 'code' ];
+
+		return ! in_array( $code, self::$http_success_codes );
 	}
 
 	/**
@@ -90,7 +117,7 @@ final class HttpApiListener implements ActionListenerInterface {
 	 *
 	 * @return bool
 	 */
-	private function isCron( $response, $url ) {
+	private function is_cron( $response, $url ) {
 
 		return
 			is_array( $response )
@@ -100,7 +127,7 @@ final class HttpApiListener implements ActionListenerInterface {
 	/**
 	 * Log HTTP cron requests.
 	 *
-	 * @param \WP_Error|array $response
+	 * @param \WP_Error|array $data
 	 * @param string          $context
 	 * @param string          $class
 	 * @param array           $args
@@ -108,7 +135,7 @@ final class HttpApiListener implements ActionListenerInterface {
 	 *
 	 * @return Debug
 	 */
-	private function logCron( $response, $context, $class, array $args = [], $url = '' ) {
+	private function log_cron( $data, $context, $class, array $args = [], $url = '' ) {
 
 		$log_context = [
 			'transport'  => $class,
@@ -117,8 +144,8 @@ final class HttpApiListener implements ActionListenerInterface {
 			'url'        => $url,
 		];
 
-		if ( is_array( $response ) && isset( $response[ 'headers' ] ) ) {
-			$log_context[ 'headers' ] = $response[ 'headers' ];
+		if ( is_array( $data ) && isset( $data[ 'headers' ] ) ) {
+			$log_context[ 'headers' ] = $data[ 'headers' ];
 		}
 
 		return new Debug( 'Cron request', Channels::DEBUG, $log_context );
@@ -127,7 +154,7 @@ final class HttpApiListener implements ActionListenerInterface {
 	/**
 	 * Log any error for HTTP API.
 	 *
-	 * @param \WP_Error|array $response
+	 * @param \WP_Error|array $data
 	 * @param string          $context
 	 * @param string          $class
 	 * @param array           $args
@@ -135,17 +162,37 @@ final class HttpApiListener implements ActionListenerInterface {
 	 *
 	 * @return Error
 	 */
-	private function logHttpError( $response, $context, $class, array $args = [], $url = '' ) {
+	private function log_http_error( $data, $context, $class, array $args = [], $url = '' ) {
 
-		$msg = is_wp_error( $response ) ? $response->get_error_message() : $response[ 'response' ][ 'message' ];
+		$msg      = 'WP HTTP API Error';
+		$response = is_array( $data ) && isset( $data[ 'response' ] ) && is_array( $data[ 'response' ] )
+			? shortcode_atts( [ 'message' => '', 'code' => '', 'body' => '' ], $data[ 'response' ] )
+			: [ 'message' => '', 'code' => '', 'body' => '' ];
 
-		$log_context = [ 'transport' => $class, 'context' => $context, 'query_args' => $args, 'url' => $url, ];
-
-		if ( is_array( $response ) && isset( $response[ 'headers' ] ) ) {
-			$msg .= ' - Response code: ' . $response[ 'response' ][ 'code' ];
-			$log_context[ 'headers' ] = $response[ 'headers' ];
+		if ( is_wp_error( $data ) ) {
+			$msg .= ': ' . $data->get_error_message();
+		} elseif ( is_string( $response[ 'message' ] ) && $response[ 'message' ] ) {
+			$msg .= ': ' . $response[ 'message' ];
 		}
 
-		return new Error( "WP HTTP API Error, {$msg}", Channels::HTTP, $log_context );
+		$log_context = [
+			'transport'  => $class,
+			'context'    => $context,
+			'query_args' => $args,
+			'url'        => $url,
+		];
+
+		if ( $response[ 'body' ] && is_string( $response[ 'body' ] ) ) {
+			$log_context[ 'response_body' ] = strlen( $response[ 'body' ] ) <= 300
+				? $response[ 'body' ]
+				: substr( $response[ 'body' ], 0, 300 ) . '...';
+		}
+
+		if ( is_array( $data ) && array_key_exists( 'headers', $data ) && is_scalar( $response[ 'code' ] ) ) {
+			$msg .= " - Response code: {$response[ 'code' ]}";
+			$log_context[ 'headers' ] = $data[ 'headers' ];
+		}
+
+		return new Error( rtrim( $msg, '.' ) . '.', Channels::HTTP, $log_context );
 	}
 }

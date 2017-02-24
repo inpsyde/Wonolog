@@ -23,34 +23,20 @@ use Inpsyde\Wonolog\Data\NullLog;
  */
 final class CronDebugListener implements ActionListenerInterface {
 
+	use ListenerIdByClassNameTrait;
+
+	const IS_CLI = 1;
+	const IS_CRON = 2;
+
 	/**
 	 * @var bool
 	 */
 	private static $ran = FALSE;
 
 	/**
-	 * @var bool
+	 * @var int
 	 */
-	private $is_cli = FALSE;
-
-	/**
-	 * @var bool
-	 */
-	private $is_cron = FALSE;
-
-	/**
-	 * @param null $is_cli (Optional, by default WP_CLI constant is used)
-	 * @param null $is_cron (Optional, by default DOING_CRON constant is used)
-	 */
-	public function __construct( $is_cli = NULL, $is_cron = NULL ) {
-
-		$this->is_cli = NULL !== $is_cli
-			? (bool) $is_cli
-			: defined( 'WP_CLI' ) && WP_CLI;
-		$this->is_cron = NULL !== $is_cron
-			? (bool) $is_cron
-			: defined( 'DOING_CRON' ) && DOING_CRON;
-	}
+	private $flags = 0;
 
 	/**
 	 * @var array
@@ -58,13 +44,33 @@ final class CronDebugListener implements ActionListenerInterface {
 	private $done = [];
 
 	/**
-	 * @return string|string[]
+	 * @param int $flags
+	 */
+	public function __construct( $flags = 0 ) {
+
+		$this->flags = is_int( $flags ) ? $flags : 0;
+	}
+
+	/**
+	 * @return string
 	 */
 	public function listen_to() {
 
 		return 'wp_loaded';
 	}
 
+	public function is_cli() {
+
+		return ( $this->flags & self::IS_CLI ) || ( defined( 'WP_CLI' ) && WP_CLI );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function is_cron() {
+
+		return ( $this->flags & self::IS_CRON ) || ( defined( 'DOING_CRON' ) && DOING_CRON );
+	}
 
 	/**
 	 * Logs all the cron hook performed and their performance.
@@ -81,7 +87,7 @@ final class CronDebugListener implements ActionListenerInterface {
 			return new NullLog();
 		}
 
-		if ( $this->is_cron || $this->is_cli ) {
+		if ( $this->is_cron() || $this->is_cli() ) {
 			$this->register_event_listener();
 		}
 
@@ -108,12 +114,14 @@ final class CronDebugListener implements ActionListenerInterface {
 		);
 
 		$profile_cb = function () {
+
 			$this->cron_action_profile();
 		};
 
 		array_walk(
 			$hooks,
 			function ( $hook ) use ( $profile_cb ) {
+
 				add_action( $hook, $profile_cb, '-' . PHP_INT_MAX );
 				add_action( $hook, $profile_cb, PHP_INT_MAX );
 			}
@@ -127,8 +135,7 @@ final class CronDebugListener implements ActionListenerInterface {
 	 */
 	private function cron_action_profile() {
 
-		//we have to check for DOING_CRON again here, as WP CLI defines it right before the action starts…
-		if ( $this->is_cli && ( ! defined( 'DOING_CRON' ) || ! DOING_CRON ) ) {
+		if ( ! defined( 'DOING_CRON' ) || ! DOING_CRON ) {
 			return;
 		}
 
@@ -146,7 +153,7 @@ final class CronDebugListener implements ActionListenerInterface {
 			$this->done[ $hook ][ 'duration' ] = $duration . ' s';
 
 			do_action(
-				'wonolog.log',
+				\Inpsyde\Wonolog\LOG,
 				new Debug( "Cron action \"{$hook}\" performed.", Channels::DEBUG, $this->done[ $hook ] )
 			);
 		}

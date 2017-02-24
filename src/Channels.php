@@ -31,6 +31,9 @@ class Channels {
 	const SECURITY = 'SECURITY';
 	const DEBUG = 'DEBUG';
 
+	const FILTER_CHANNELS = 'wonolog.channels';
+	const ACTION_INVALID_CHANNEL_NAME = 'wonolog.invalid-channel-name';
+
 	private static $default_channels = [
 		Channels::HTTP,
 		Channels::DB,
@@ -54,7 +57,7 @@ class Channels {
 	public static function all_channels() {
 
 		$default_channels = self::$default_channels;
-		$channels         = apply_filters( 'wonolog.channels', $default_channels );
+		$channels         = apply_filters( self::FILTER_CHANNELS, $default_channels );
 
 		return is_array( $channels ) ? array_unique( array_filter( $channels, 'is_string' ) ) : [];
 	}

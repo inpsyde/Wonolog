@@ -54,7 +54,7 @@ class FailedLoginListenerTest extends TestCase {
 		Functions::when( 'set_site_transient' )
 			->justReturn( FALSE );
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->never();
 
 		$listener = new FailedLoginListener();

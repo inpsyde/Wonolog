@@ -11,20 +11,19 @@
 namespace Inpsyde\Wonolog\HookListeners;
 
 /**
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
+ * Interface PrioritizedHookListenerInterface
+ *
+ * @package Inpsyde\Wonolog\HookListeners
  */
-interface HookListenerInterface {
+interface HookPriorityInterface {
+
+	const FILTER_PRIORITY = 'wonolog.hook-listener-priority';
 
 	/**
-	 * @return string
+	 * Returns the priority of the hook callback
+	 *
+	 * @return int
 	 */
-	public function id();
-
-	/**
-	 * @return string|string[]
-	 */
-	public function listen_to();
+	public function priority();
 
 }

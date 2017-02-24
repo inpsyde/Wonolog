@@ -15,6 +15,7 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\Exception\InvalidChannelNameException;
+use Inpsyde\Wonolog\FrontController;
 use Inpsyde\Wonolog\LogActionSubscriber;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Monolog\Logger;
@@ -92,7 +93,7 @@ class LogActionSubscriberTest extends TestCase {
 
 	public function test_listen_log_unknown_error_if_no_args() {
 
-		do_action( 'wonolog.loaded' );
+		do_action( FrontController::ACTION_LOADED );
 
 		$subscriber = new LogActionSubscriber( $this->build_channels() );
 
@@ -107,12 +108,12 @@ class LogActionSubscriberTest extends TestCase {
 
 	public function test_listen_unknown_with_level_from_hook() {
 
-		do_action( 'wonolog.loaded' );
+		do_action( FrontController::ACTION_LOADED );
 
 		$subscriber = new LogActionSubscriber( $this->build_channels() );
 		
 		Functions::when( 'current_filter' )
-			->justReturn('wonolog.log.critical');
+			->justReturn( \Inpsyde\Wonolog\LOG . '.critical');
 
 		$subscriber->listen();
 
@@ -125,7 +126,7 @@ class LogActionSubscriberTest extends TestCase {
 
 	public function test_listen_log_log_object() {
 
-		do_action( 'wonolog.loaded' );
+		do_action( FrontController::ACTION_LOADED );
 
 		$log = new Log( 'Hi!', Logger::ALERT, 'FOO', [ 'foo' => 'bar' ] );
 
@@ -142,14 +143,14 @@ class LogActionSubscriberTest extends TestCase {
 
 	public function test_listen_log_object_level_overridden_by_hook() {
 
-		do_action( 'wonolog.loaded' );
+		do_action( FrontController::ACTION_LOADED );
 
 		$log = new Log( 'Hi!', Logger::ALERT, 'FOO', [ 'foo' => 'bar' ] );
 
 		$subscriber = new LogActionSubscriber( $this->build_channels( 'FOO' ) );
 
 		Functions::when( 'current_filter' )
-			->justReturn('wonolog.log.emergency');
+			->justReturn( \Inpsyde\Wonolog\LOG . '.emergency');
 
 		$subscriber->listen( 1, 2, $log );
 
@@ -162,7 +163,7 @@ class LogActionSubscriberTest extends TestCase {
 
 	public function test_listen_log_wp_error_no_level() {
 
-		do_action( 'wonolog.loaded' );
+		do_action( FrontController::ACTION_LOADED );
 
 		$log = \Mockery::mock( 'WP_Error' );
 		$log->shouldReceive( 'get_error_codes' )
@@ -185,7 +186,7 @@ class LogActionSubscriberTest extends TestCase {
 
 	public function test_listen_log_wp_error_custom_level() {
 
-		do_action( 'wonolog.loaded' );
+		do_action( FrontController::ACTION_LOADED );
 
 		$log = \Mockery::mock( 'WP_Error' );
 		$log->shouldReceive( 'get_error_codes' )
@@ -208,7 +209,7 @@ class LogActionSubscriberTest extends TestCase {
 
 	public function test_listen_log_wp_error_custom_level_ignored_if_lower() {
 
-		do_action( 'wonolog.loaded' );
+		do_action( FrontController::ACTION_LOADED );
 
 		$log = \Mockery::mock( 'WP_Error' );
 		$log->shouldReceive( 'get_error_codes' )
@@ -231,7 +232,7 @@ class LogActionSubscriberTest extends TestCase {
 
 	public function test_listen_log_array() {
 
-		do_action( 'wonolog.loaded' );
+		do_action( FrontController::ACTION_LOADED );
 
 		$log = [
 			'message' => 'Hi!',
@@ -243,28 +244,6 @@ class LogActionSubscriberTest extends TestCase {
 		$subscriber = new LogActionSubscriber( $this->build_channels( 'Test_Channel' ) );
 
 		$subscriber->listen( $log );
-
-		self::assertEquals(
-			[ 'level' => Logger::ALERT, 'message' => 'Hi!', 'context' => [ 'foo' => 'bar' ] ],
-			$this->result
-		);
-
-	}
-
-	public function test_listen_log_array_variadic() {
-
-		do_action( 'wonolog.loaded' );
-
-		$log = [
-			'message' => 'Hi!',
-			'level'   => Logger::ALERT,
-			'channel' => Channels::HTTP,
-			'context' => [ 'foo' => 'bar' ]
-		];
-
-		$subscriber = new LogActionSubscriber( $this->build_channels( Channels::HTTP ) );
-
-		$subscriber->listen( $log[ 'message' ], $log[ 'level' ], $log[ 'channel' ], $log[ 'context' ] );
 
 		self::assertEquals(
 			[ 'level' => Logger::ALERT, 'message' => 'Hi!', 'context' => [ 'foo' => 'bar' ] ],
@@ -285,7 +264,7 @@ class LogActionSubscriberTest extends TestCase {
 
 	public function test_update_nothing_if_channel_not_found() {
 
-		do_action( 'wonolog.loaded' );
+		do_action( FrontController::ACTION_LOADED );
 
 		$channels = \Mockery::mock( Channels::class );
 
@@ -310,7 +289,7 @@ class LogActionSubscriberTest extends TestCase {
 
 	public function test_update_nothing_if_no_level() {
 
-		do_action( 'wonolog.loaded' );
+		do_action( FrontController::ACTION_LOADED );
 
 		$channels = \Mockery::mock( Channels::class );
 

@@ -10,7 +10,6 @@
 
 namespace Inpsyde\Wonolog;
 
-use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\Exception\InvalidChannelNameException;
@@ -18,7 +17,7 @@ use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
 
 /**
- * Main package objects, where "things happen".
+ * Main package object, where "things happen".
  *
  * It is the object that is used to listed to `wonolog.log` actions, build log data from received arguments and
  * pass them to Monolog for the actual logging.
@@ -28,6 +27,8 @@ use Monolog\Logger;
  * @license http://opensource.org/licenses/MIT MIT
  */
 class LogActionSubscriber {
+
+	const ACTION_LOGGER = 'wonolog.logger';
 
 	/**
 	 * @var Channels
@@ -52,12 +53,14 @@ class LogActionSubscriber {
 	/**
 	 * @param Channels         $channels
 	 * @param HandlerInterface $default_handler
+	 * @param array            $processors
 	 */
-	public function __construct( Channels $channels, HandlerInterface $default_handler = NULL ) {
+	public function __construct( Channels $channels, HandlerInterface $default_handler = NULL, array $processors = [] ) {
 
 		$this->channels        = $channels;
 		$this->default_handler = $default_handler;
 		$this->log_level       = new LogLevel();
+		$this->processors      = $processors;
 	}
 
 	/**
@@ -73,7 +76,7 @@ class LogActionSubscriber {
 	 */
 	public function listen() {
 
-		if ( ! did_action( 'wonolog.loaded' ) ) {
+		if ( ! did_action( FrontController::ACTION_LOADED ) ) {
 			return FALSE;
 		}
 
@@ -87,8 +90,7 @@ class LogActionSubscriber {
 			|| $this->log_data_from_string( $first_arg, $is_single_arg, $hook_level )
 			|| $this->log_objects_in_args( $args, $hook_level )
 			|| $this->log_wp_error( $first_arg, $args, $hook_level )
-			|| $this->log_data_from_array( $first_arg, $is_single_arg, $hook_level )
-			|| $this->log_data_from_variadic_array( $args, $hook_level );
+			|| $this->log_data_from_array( $first_arg, $is_single_arg, $hook_level );
 	}
 
 	/**
@@ -98,7 +100,7 @@ class LogActionSubscriber {
 	 */
 	public function update( LogDataInterface $log ) {
 
-		if ( ! did_action( 'wonolog.loaded' ) || ! ( $log->level() > 0 ) ) {
+		if ( ! did_action( FrontController::ACTION_LOADED ) || $log->level() < 1 ) {
 			return FALSE;
 		}
 
@@ -113,17 +115,13 @@ class LogActionSubscriber {
 			}
 
 			$context = $log->context();
-			if ( did_action( 'init' ) ) {
-				$context[ 'user_logged' ] = is_user_logged_in() ? 'yes' : 'no';
-				$context[ 'user_id' ]     = get_current_user_id();
-			}
 
 			return $logger->addRecord( $log->level(), $log->message(), $context );
 
 		}
 		catch ( InvalidChannelNameException $e ) {
 
-			do_action( 'wonolog.invalid-channel-name', $log );
+			do_action( Channels::ACTION_INVALID_CHANNEL_NAME, $log );
 
 			return FALSE;
 		}
@@ -142,7 +140,7 @@ class LogActionSubscriber {
 		 * Fires before a logger is used first time.
 		 * Can be used to setup the logger, for example adding handlers.
 		 */
-		do_action( 'wonolog.logger', $logger );
+		do_action( self::ACTION_LOGGER, $logger );
 
 		if (
 			$this->default_handler
@@ -159,6 +157,17 @@ class LogActionSubscriber {
 			$default_handler = apply_filters( $filter, $this->default_handler, $logger );
 			$default_handler instanceof HandlerInterface and $logger->pushHandler( $default_handler );
 		}
+
+		$processors = (array) apply_filters( 'wonolog.logger-processors', $this->processors, $logger );
+
+		array_walk(
+			$processors,
+			function ( $processor ) use ( $logger ) {
+
+				is_callable( $processor ) and $logger->pushProcessor( $processor );
+			}
+		);
+
 	}
 
 	/**
@@ -175,7 +184,7 @@ class LogActionSubscriber {
 			return FALSE;
 		}
 
-		$log = new Log( 'Unknown error.', $hook_level ?: Logger::DEBUG, Channels::DEBUG );
+		$log = new Log( 'Unknown error.', $hook_level ? : Logger::DEBUG, Channels::DEBUG );
 		$this->update( $log );
 
 		return TRUE;
@@ -273,30 +282,13 @@ class LogActionSubscriber {
 	}
 
 	/**
-	 * If any other thing failed, let's build log data from all received arguments.
-	 *
-	 * @param array $array
-	 * @param int   $hook_level
-	 *
-	 * @return bool
-	 */
-	private function log_data_from_variadic_array( array $array, $hook_level ) {
-
-		$hook_level and $array[] = $hook_level;
-
-		$this->update( Log::from_array( $array ) );
-
-		return TRUE;
-	}
-
-	/**
 	 * @param string $current_filter
 	 *
 	 * @return int
 	 */
 	private function hook_level( $current_filter ) {
 
-		if ( $current_filter === 'wonolog.log' ) {
+		if ( $current_filter === LOG ) {
 			return 0;
 		}
 

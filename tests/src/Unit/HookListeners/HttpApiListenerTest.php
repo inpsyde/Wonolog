@@ -31,7 +31,7 @@ class HttpApiListenerTest extends TestCase {
 		Functions::when( 'is_wp_error' )
 			->justReturn( TRUE );
 
-		Actions::expectFired( 'wonolog.log' )
+		Actions::expectFired( \Inpsyde\Wonolog\LOG )
 			->with( \Mockery::type( LogDataInterface::class ) )
 			->whenHappen(
 				function ( LogDataInterface $log ) {
@@ -76,18 +76,22 @@ class HttpApiListenerTest extends TestCase {
 		Functions::when( 'is_wp_error' )
 			->justReturn( FALSE );
 
+		Functions::when( 'shortcode_atts' )
+			->alias( 'array_merge' );
+
 		$tester = function ( LogDataInterface $log ) {
 
 			self::assertSame( Channels::HTTP, $log->channel() );
 			self::assertSame( Logger::ERROR, $log->level() );
-			self::assertSame( 'WP HTTP API Error, Internal Server Error - Response code: 500', $log->message() );
+			self::assertSame( 'WP HTTP API Error: Internal Server Error - Response code: 500.', $log->message() );
 			self::assertSame(
 				[
-					'transport'  => 'TestClass',
-					'context'    => 'response',
-					'query_args' => [],
-					'url'        => 'http://example.com',
-					'headers'    => [ 'foo' => 'bar' ]
+					'transport'     => 'TestClass',
+					'context'       => 'response',
+					'query_args'    => [],
+					'url'           => 'http://example.com',
+					'response_body' => 'Server died.',
+					'headers'       => [ 'foo' => 'bar' ],
 				],
 				$log->context()
 
@@ -105,7 +109,7 @@ class HttpApiListenerTest extends TestCase {
 			);
 
 		$response = [
-			'response' => [ 'code' => 500, 'message' => 'Internal Server Error' ],
+			'response' => [ 'code' => 500, 'message' => 'Internal Server Error', 'body' => 'Server died.' ],
 			'headers'  => [ 'foo' => 'bar' ]
 		];
 

@@ -23,6 +23,8 @@ use Monolog\Logger;
  */
 class LogLevel {
 
+	const FILTER_MIN_LEVEL = 'wonolog.default-min-level';
+
 	private static $min_level;
 
 	/**
@@ -60,7 +62,7 @@ class LogLevel {
 		 *
 		 * @param int $min_level
 		 */
-		$filtered = apply_filters( 'wonolog.default-min-level', $min_level );
+		$filtered = apply_filters( self::FILTER_MIN_LEVEL, $min_level );
 
 		self::$min_level = $this->check_level( $filtered, $levels ) ? : $min_level;
 
@@ -68,22 +70,36 @@ class LogLevel {
 	}
 
 	/**
+	 * In Monolog/Wonolog are 2 ways to indicate a logger level: an numeric value and level "names".
+	 * Names are defined in the PSR-3 spec, integers are used in Monolog and allow for severity comparison.
+	 * This method always return a numerical representation of a log level.
+	 *
+	 * When a name is provided, the numeric value is obtained looking into a provided array of levels.
+	 * If that array is not provided `Monolog\Logger::getLevels()` is used.
+	 *
+	 * If there's no way to resolve the given level, `0` is returned. Any code that use this method should check that
+	 * returned value is a positive number before us it.
+	 *
 	 * @param int|string $level
 	 * @param array      $levels
 	 *
 	 * @return int
 	 */
-	public function check_level( $level, $levels = [] ) {
+	public function check_level( $level, array $levels = [] ) {
 
 		if ( ! $level ) {
 			return 0;
 		}
 
-		is_string( $level ) and $level = strtoupper( trim( $level ) );
-
 		if ( is_numeric( $level ) ) {
 			return (int) $level > 0 ? (int) $level : 0;
 		}
+
+		if ( ! is_string( $level ) ) {
+			return 0;
+		}
+
+		$level = strtoupper( trim( $level ) );
 
 		$levels or $levels = Logger::getLevels();
 

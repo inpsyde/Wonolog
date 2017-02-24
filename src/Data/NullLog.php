@@ -21,12 +21,14 @@ namespace Inpsyde\Wonolog\Data;
  */
 final class NullLog implements LogDataInterface {
 
+	const LOG_LEVEL = -1;
+
 	/**
 	 * @return int
 	 */
 	public function level() {
 
-		return - 1;
+		return self::LOG_LEVEL;
 	}
 
 	/**

@@ -14,9 +14,11 @@ use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\HookListeners\ActionListenerInterface;
 use Inpsyde\Wonolog\HookListeners\FilterListenerInterface;
 use Inpsyde\Wonolog\HookListeners\HookListenerInterface;
+use Inpsyde\Wonolog\HookListeners\HookPriorityInterface;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Processors\WpContextProcessor;
 
 /**
  * "Entry point" for package bootstrapping.
@@ -26,6 +28,10 @@ use Monolog\Logger;
  * @license http://opensource.org/licenses/MIT MIT
  */
 class FrontController {
+
+	const ACTION_LOADED = 'wonolog.loaded';
+	const ACTION_SETUP = 'wonolog.setup';
+	const FILTER_ENABLE = 'wonolog.enable';
 
 	/**
 	 * @var HandlerInterface
@@ -53,31 +59,34 @@ class FrontController {
 
 	/**
 	 * Initialize the package object.
+	 *
+	 * @param int $priority
 	 */
-	public function setup() {
+	public function setup( $priority = 100 ) {
 
-		if ( did_action( 'wonolog.loaded' ) || ! apply_filters( 'wonolog.enable', TRUE ) ) {
+		if ( did_action( self::ACTION_SETUP ) || ! apply_filters( self::FILTER_ENABLE, TRUE ) ) {
 			return;
 		}
 
-		do_action( 'wonolog.setup' );
+		do_action( self::ACTION_SETUP );
 
 		$this->setup_php_error_handler();
 
-		$listener = [ new LogActionSubscriber( new Channels(), $this->setup_default_handler() ), 'listen' ];
+		$default_handler    = $this->setup_default_handler();
+		$default_processors = apply_filters( 'wonolog.default-processors', [ new WpContextProcessor() ] );
 
-		add_action( 'wonolog.log', $listener, 100, 9999 );
+		$listener = [ new LogActionSubscriber( new Channels(), $default_handler, $default_processors ), 'listen' ];
+
+		add_action( LOG, $listener, $priority, PHP_INT_MAX );
 
 		foreach ( Logger::getLevels() as $level => $level_code ) {
-			add_action( 'wonolog.log.' . strtolower( $level ), $listener, 100, 9999 );
+			// $level_code is from 100 (DEBUG) to 600 (EMERGENCY) this makes hook priority based on level priority
+			add_action( LOG . strtolower( $level ), $listener, $priority + ( 601 - $level ), PHP_INT_MAX );
 		}
 
-		$hook_listeners_registry = new HookListenersRegistry();
-		do_action( 'wonolog.register-listeners', $hook_listeners_registry );
-		$this->setup_hook_listeners( $hook_listeners_registry );
-		$hook_listeners_registry->flush();
+		$this->setup_hook_listeners();
 
-		do_action( 'wonolog.loaded' );
+		do_action( self::ACTION_LOADED );
 	}
 
 	/**
@@ -94,7 +103,7 @@ class FrontController {
 
 		// Ensure that CHANNEL_PHP_ERROR error is there
 		add_filter(
-			'wonolog.channels',
+			Channels::FILTER_CHANNELS,
 			function ( array $channels ) {
 
 				$channels[] = PhpErrorController::CHANNEL;
@@ -143,15 +152,18 @@ class FrontController {
 	}
 
 	/**
-	 * Setup registered hook listeners.
-	 *
-	 * @param HookListenersRegistry $listeners
+	 * Setup registered hook listeners using the hook registry.
 	 */
-	private function setup_hook_listeners( HookListenersRegistry $listeners ) {
+	private function setup_hook_listeners() {
 
-		$hook_listeners = $listeners->listeners();
+		$hook_listeners_registry = new HookListenersRegistry();
+		do_action( HookListenersRegistry::ACTION_REGISTER, $hook_listeners_registry );
+
+		$hook_listeners = $hook_listeners_registry->listeners();
 
 		array_walk( $hook_listeners, [ $this, 'setup_hook_listener' ] );
+
+		$hook_listeners_registry->flush();
 	}
 
 	/**
@@ -168,32 +180,42 @@ class FrontController {
 	 * @param string                $hook
 	 * @param int                   $i
 	 * @param HookListenerInterface $listener
+	 *
+	 * @return bool
 	 */
 	private function listen_hook( $hook, $i, HookListenerInterface $listener ) {
 
 		$is_filter = $listener instanceof FilterListenerInterface;
 		if ( ! $is_filter && ! $listener instanceof ActionListenerInterface ) {
-			return;
+			return false;
 		}
 
 		/**
 		 * @return null
 		 *
-		 * @var FilterListenerInterface|ActionListenerInterface $listener
-		 * @var bool                                            $is_filter
+		 * @var FilterListenerInterface|ActionListenerInterface|HookPriorityInterface $listener
+		 * @var bool                                                                  $is_filter
 		 */
 		$callback = function () use ( $listener, $is_filter ) {
 
 			$args = func_get_args();
-			$log  = $listener->update( $args );
-			$log instanceof LogDataInterface and do_action( 'wonolog.log', $log );
+
+			if ( ! $is_filter ) {
+				$log = $listener->update( $args );
+				$log instanceof LogDataInterface and do_action( LOG, $log );
+			}
 
 			return $is_filter ? $listener->filter( $args ) : NULL;
 		};
 
-		$is_filter
-			? add_filter( $hook, $callback, ( PHP_INT_MAX - 10 ), 9999 )
-			: add_action( $hook, $callback, ( PHP_INT_MAX - 10 ), 9999 );
+		$priority = $listener instanceof HookPriorityInterface ? (int) $listener->priority() : PHP_INT_MAX - 10;
+
+		$filtered_priority = apply_filters( HookPriorityInterface::FILTER_PRIORITY, $priority, $listener );
+		is_int( $filtered_priority ) and $priority = $filtered_priority;
+
+		return $is_filter
+			? add_filter( $hook, $callback, $priority, PHP_INT_MAX )
+			: add_action( $hook, $callback, $priority, PHP_INT_MAX );
 	}
 
 }

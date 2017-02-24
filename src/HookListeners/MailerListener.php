@@ -24,6 +24,8 @@ use Monolog\Logger;
  */
 class MailerListener implements ActionListenerInterface {
 
+	use ListenerIdByClassNameTrait;
+
 	/**
 	 * @return string|string[]
 	 */
@@ -80,7 +82,7 @@ class MailerListener implements ActionListenerInterface {
 		$mailer->SMTPDebug   = 2;
 		$mailer->Debugoutput = function ( $message ) {
 
-			do_action( 'wonolog.log', new Debug( $message, Channels::HTTP ) );
+			do_action( \Inpsyde\Wonolog\LOG, new Debug( $message, Channels::HTTP ) );
 		};
 	}
 }

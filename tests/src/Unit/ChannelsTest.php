@@ -25,7 +25,7 @@ class ChannelsTest extends TestCase {
 
 	public function test_channels_filtered() {
 
-		Filters::expectApplied( 'wonolog.channels' )
+		Filters::expectApplied( Channels::FILTER_CHANNELS )
 			->andReturnUsing(
 				function ( array $channels ) {
 
@@ -45,7 +45,7 @@ class ChannelsTest extends TestCase {
 
 	public function test_channels_filtered_empty() {
 
-		Filters::expectApplied( 'wonolog.channels' )
+		Filters::expectApplied( Channels::FILTER_CHANNELS )
 			->andReturnUsing(
 				function () {
 
