@@ -8,23 +8,20 @@
  * file that was distributed with this source code.
  */
 
-namespace Inpsyde\Wonolog\HookListeners;
+namespace Inpsyde\Wonolog\HookListener;
 
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-interface HookListenerInterface {
+interface FilterListenerInterface extends HookListenerInterface {
 
 	/**
-	 * @return string
+	 * @param array $args
+	 *
+	 * @return mixed
 	 */
-	public function id();
-
-	/**
-	 * @return string|string[]
-	 */
-	public function listen_to();
+	public function filter( array $args );
 
 }

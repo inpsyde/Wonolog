@@ -17,7 +17,7 @@ use Inpsyde\Wonolog\Data\Critical;
 use Inpsyde\Wonolog\Data\Error;
 use Inpsyde\Wonolog\Data\Info;
 use Inpsyde\Wonolog\FrontController;
-use Inpsyde\Wonolog\HookListeners\ActionListenerInterface;
+use Inpsyde\Wonolog\HookListener\ActionListenerInterface;
 use Inpsyde\Wonolog\HookListenersRegistry;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Monolog\Logger;

@@ -16,7 +16,7 @@ use Brain\Monkey\WP\Actions;
 use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\NullLog;
 use Inpsyde\Wonolog\Tests\TestCase;
-use Inpsyde\Wonolog\HookListeners\CronDebugListener;
+use Inpsyde\Wonolog\HookListener\CronDebugListener;
 
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>

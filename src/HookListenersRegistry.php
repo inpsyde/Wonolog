@@ -10,7 +10,7 @@
 
 namespace Inpsyde\Wonolog;
 
-use Inpsyde\Wonolog\HookListeners\HookListenerInterface;
+use Inpsyde\Wonolog\HookListener\HookListenerInterface;
 
 /**
  * Registry for hook listeners.
@@ -25,13 +25,13 @@ class HookListenersRegistry {
 	const FILTER_ENABLED = 'wonolog.hook-listener-enabled';
 
 	private static $default_listeners = [
-		HookListeners\DbErrorListener::class,
-		HookListeners\FailedLoginListener::class,
-		HookListeners\HttpApiListener::class,
-		HookListeners\MailerListener::class,
-		HookListeners\QueryErrorsListener::class,
-		HookListeners\CronDebugListener::class,
-		HookListeners\WpDieHandlerListener::class,
+		HookListener\DbErrorListener::class,
+		HookListener\FailedLoginListener::class,
+		HookListener\HttpApiListener::class,
+		HookListener\MailerListener::class,
+		HookListener\QueryErrorsListener::class,
+		HookListener\CronDebugListener::class,
+		HookListener\WpDieHandlerListener::class,
 	];
 
 	/**
@@ -78,7 +78,7 @@ class HookListenersRegistry {
 	/**
 	 * Return all registered listeners, maybe constructing them from factories.
 	 *
-	 * @return HookListeners\HookListenerInterface[]
+	 * @return HookListener\HookListenerInterface[]
 	 */
 	public function listeners() {
 

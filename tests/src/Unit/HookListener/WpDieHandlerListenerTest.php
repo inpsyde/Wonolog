@@ -13,7 +13,7 @@ namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 use Brain\Monkey\WP\Actions;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Error;
-use Inpsyde\Wonolog\HookListeners\WpDieHandlerListener;
+use Inpsyde\Wonolog\HookListener\WpDieHandlerListener;
 use Inpsyde\Wonolog\Tests\TestCase;
 
 /**
