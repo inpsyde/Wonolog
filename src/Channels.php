@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -11,15 +11,17 @@
 namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\Exception\InvalidChannelNameException;
+use Inpsyde\Wonolog\Handler\HandlersRegistry;
+use Inpsyde\Wonolog\Processor\ProcessorsRegistry;
+use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
 
 /**
- * Class that as a sort of service provider for loggers, creating them first time or just returning on subsequent
+ * Class that acts as a sort of service provider for loggers, creating them first time or just returning on subsequent
  * requests.
+ * We don't use Monolog registry to be able to register handle here as constants the list of Wonolog default channels
+ * and to initialize via hooks the logger the first time is retrieved.
  *
- * It also holds in class constants the list of Wonolog default channels.
- *
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
@@ -32,7 +34,9 @@ class Channels {
 	const DEBUG = 'DEBUG';
 
 	const FILTER_CHANNELS = 'wonolog.channels';
-	const ACTION_INVALID_CHANNEL_NAME = 'wonolog.invalid-channel-name';
+	const ACTION_LOGGER = 'wonolog.logger';
+	const FILTER_USE_DEFAULT_HANDLER = 'wonolog.use-default-handler';
+	const FILTER_USE_DEFAULT_PROCESSOR = 'wonolog.use-default-processor';
 
 	private static $default_channels = [
 		Channels::HTTP,
@@ -42,14 +46,29 @@ class Channels {
 	];
 
 	/**
+	 * @var HandlersRegistry
+	 */
+	private $handlers_registry;
+
+	/**
+	 * @var ProcessorsRegistry
+	 */
+	private $processors_registry;
+
+	/**
 	 * @var Logger[]
 	 */
 	private $loggers = [];
 
 	/**
-	 * @var array
+	 * @var string[]
 	 */
 	private $channels = [];
+
+	/**
+	 * @var string[]
+	 */
+	private $channels_initialized = [];
 
 	/**
 	 * @return string[]
@@ -63,21 +82,29 @@ class Channels {
 	}
 
 	/**
-	 * Channels constructor.
+	 * @param HandlersRegistry   $handlers
+	 * @param ProcessorsRegistry $processors
 	 */
-	public function __construct() {
+	public function __construct( HandlersRegistry $handlers, ProcessorsRegistry $processors ) {
 
-		$this->channels = self::all_channels();
+		$this->channels            = self::all_channels();
+		$this->handlers_registry   = $handlers;
+		$this->processors_registry = $processors;
 	}
 
 	/**
 	 * @param string $channel
 	 *
-	 * @return Logger
+	 * @return bool
+	 * @throws InvalidChannelNameException
 	 */
-	public function has_logger( $channel ) {
+	public function has_channel( $channel ) {
 
-		return array_key_exists( $channel, $this->loggers );
+		if ( ! is_string( $channel ) ) {
+			throw InvalidChannelNameException::for_invalid_type( $channel );
+		}
+
+		return in_array( $channel, $this->channels );
 	}
 
 	/**
@@ -89,17 +116,83 @@ class Channels {
 	 */
 	public function logger( $channel ) {
 
-		if ( ! in_array( $channel, $this->channels ) ) {
-			throw new InvalidChannelNameException(
-				sprintf( '%s is not a registered channel. Use "" to register custom channels', $channel )
-			);
+		if ( ! $this->has_channel( $channel ) ) {
+			throw InvalidChannelNameException::for_unregistered_channel( $channel );
 		}
 
-		if ( ! $this->has_logger( $channel ) ) {
+		if ( ! array_key_exists( $channel, $this->loggers ) ) {
 			$this->loggers[ $channel ] = new Logger( $channel );
 		}
 
+		if ( ! in_array( $channel, $this->channels_initialized, TRUE ) ) {
+			$this->channels_initialized[] = $channel;
+
+			return $this->initialize_logger( $this->loggers[ $channel ] );
+		}
+
 		return $this->loggers[ $channel ];
+	}
+
+	/**
+	 * @param Logger $logger
+	 *
+	 * @return Logger
+	 */
+	private function initialize_logger( Logger $logger ) {
+
+		$default_handler = $this->use_default_handler( $logger );
+		$default_handler and $logger = $logger->pushHandler( $default_handler );
+
+		$default_processor = $this->use_default_processor( $logger );
+		$default_processor and $logger = $logger->pushProcessor( $default_processor );
+
+		/**
+		 * Fire before a logger is used first time.
+		 * Can be used to setup the logger, for example adding handlers or processors.
+		 */
+		do_action( self::ACTION_LOGGER, $logger, $this->handlers_registry, $this->processors_registry );
+
+		return $logger;
+	}
+
+	/**
+	 * @param $logger
+	 *
+	 * @return HandlerInterface|null
+	 */
+	private function use_default_handler( $logger ) {
+
+		$handler = $this->handlers_registry->find( HandlersRegistry::DEFAULT_NAME );
+
+		if (
+			$handler instanceof HandlerInterface
+			&& (bool) apply_filters( self::FILTER_USE_DEFAULT_HANDLER, TRUE, $logger, $handler )
+		) {
+
+			return $handler;
+		}
+
+		return NULL;
+	}
+
+	/**
+	 * @param $logger
+	 *
+	 * @return callable|null
+	 */
+	private function use_default_processor( $logger ) {
+
+		$processor = $this->processors_registry->find( ProcessorsRegistry::DEFAULT_NAME );
+
+		if (
+			is_callable( $processor )
+			&& (bool) apply_filters( self::FILTER_USE_DEFAULT_PROCESSOR, TRUE, $logger, $processor )
+		) {
+
+			return $processor;
+		}
+
+		return NULL;
 	}
 
 }
