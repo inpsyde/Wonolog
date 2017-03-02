@@ -11,7 +11,6 @@
 namespace Inpsyde\Wonolog\Data;
 
 use Inpsyde\Wonolog\Channels;
-use Inpsyde\Wonolog\LogLevel;
 use Monolog\Logger;
 
 /**
@@ -19,19 +18,6 @@ use Monolog\Logger;
  * @license http://opensource.org/licenses/MIT MIT
  */
 class HookLogFactory {
-
-	/**
-	 * @var LogLevel|NULL
-	 */
-	private $log_level;
-
-	/**
-	 * @param LogLevel|NULL $log_level
-	 */
-	public function __construct( LogLevel $log_level = NULL ) {
-
-		$this->log_level = $log_level;
-	}
 
 	/**
 	 * @param array $arguments
