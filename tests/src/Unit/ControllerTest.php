@@ -133,8 +133,8 @@ class ControllerTest extends TestCase {
 		/** @var HandlerInterface $handler */
 		$handler = \Mockery::mock( HandlerInterface::class );
 
-		self::assertSame( $controller, $controller->use_handler( 'foo', $handler ) );
-		self::assertSame( $controller, $controller->use_handler( 'foo', $handler ) );
+		self::assertSame( $controller, $controller->use_handler( $handler ) );
+		self::assertSame( $controller, $controller->use_handler( $handler ) );
 	}
 
 	/**

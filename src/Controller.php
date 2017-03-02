@@ -137,13 +137,13 @@ class Controller {
 	 * Tell Wonolog to make given handler available to loggers with given id. If one or more channels are passed,
 	 * the handler will be attached to related Monolog loggers.
 	 *
-	 * @param string           $handler_id
 	 * @param HandlerInterface $handler
 	 * @param string[]         $channels
+	 * @param string|NULL      $handler_id
 	 *
 	 * @return Controller
 	 */
-	public function use_handler( $handler_id, HandlerInterface $handler, array $channels = [] ) {
+	public function use_handler( HandlerInterface $handler, array $channels = [], $handler_id = NULL ) {
 
 		add_action(
 			HandlersRegistry::ACTION_REGISTER,
@@ -153,6 +153,8 @@ class Controller {
 			},
 			1
 		);
+
+		is_null( $handler_id ) and $handler_id = $handler;
 
 		add_action(
 			Channels::ACTION_LOGGER,
