@@ -59,7 +59,7 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function level() {
 
-		$this->attempts = $this->count_attempts( 300 );
+		$this->count_attempts( 300 );
 
 		switch ( TRUE ) {
 			case ( $this->attempts > 2 && $this->attempts <= 100 ) :
@@ -95,7 +95,7 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function message() {
 
-		$this->attempts = $this->count_attempts( 300 );
+		$this->count_attempts( 300 );
 
 		if ( ! $this->attempts_data ) {
 			return '';
@@ -158,13 +158,11 @@ final class FailedLogin implements LogDataInterface {
 	 * Use a site transient to count them.
 	 *
 	 * @param int $ttl transient time to live in seconds
-	 *
-	 * @return int
 	 */
 	private function count_attempts( $ttl = 300 ) {
 
 		if ( isset( $this->attempts ) ) {
-			return $this->attempts;
+			return;
 		}
 
 		list( $ip ) = $this->sniff_ip();
@@ -177,14 +175,7 @@ final class FailedLogin implements LogDataInterface {
 		}
 
 		$attempts[ $ip ][ 'count' ] ++;
-
-		// A couple of failed login attempts in 5 minutes are not a big deal.
-		if ( $attempts[ $ip ][ 'count' ] < 3 ) {
-			set_site_transient( self::TRANSIENT_NAME, $attempts, $ttl );
-			$this->attempts_data = $attempts;
-
-			return 0;
-		}
+		$this->attempts_data = $attempts;
 
 		$count       = $attempts[ $ip ][ 'count' ];
 		$last_logged = $attempts[ $ip ][ 'last_logged' ];
@@ -200,22 +191,14 @@ final class FailedLogin implements LogDataInterface {
 		 */
 
 		$do_log =
-			( $last_logged === 0 )
+			$count === 3
 			|| ( $count < 100 && ( $count - $last_logged ) === 20 )
 			|| ( $count < 1000 && ( $count - $last_logged ) === 100 )
 			|| ( ( $count - $last_logged ) === 200 );
 
-		if ( ! $do_log ) {
-			set_site_transient( self::TRANSIENT_NAME, $attempts, $ttl );
-
-			return 0;
-		}
-
-		$attempts[ $ip ][ 'last_logged' ] = $count;
-
+		$do_log and $attempts[ $ip ][ 'last_logged' ] = $count;
 		set_site_transient( self::TRANSIENT_NAME, $attempts, $ttl );
-		$this->attempts_data = $attempts;
 
-		return $count;
+		$this->attempts = $do_log ? $count : 0;
 	}
 }
