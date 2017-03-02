@@ -19,6 +19,8 @@ use Monolog\Logger;
  */
 final class FailedLogin implements LogDataInterface {
 
+	const TRANSIENT_NAME = 'wonolog.failed-login-count';
+
 	/**
 	 * @var string
 	 */
@@ -46,7 +48,7 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function __construct( $username ) {
 
-		$this->username = $username;
+		$this->username = is_scalar( $username ) ? (string) $username : 'N/A';
 	}
 
 	/**
@@ -57,7 +59,7 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function level() {
 
-		NULL === $this->attempts and $this->attempts = $this->count_attempts( 300 );
+		isset( $this->attempts ) or $this->attempts = $this->count_attempts( 300 );
 
 		switch ( TRUE ) {
 			case ( $this->attempts > 2 && $this->attempts <= 100 ) :
@@ -93,7 +95,7 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function message() {
 
-		NULL === $this->attempts and $this->attempts = $this->count_attempts( 300 );
+		isset( $this->attempts ) or $this->attempts = $this->count_attempts( 300 );
 
 		if ( ! $this->attempts_data ) {
 			return '';
@@ -163,7 +165,7 @@ final class FailedLogin implements LogDataInterface {
 
 		list( $ip ) = $this->sniff_ip();
 
-		$attempts = get_site_transient( 'wonolog.failed-login-count' ) ? : [];
+		$attempts = get_site_transient( self::TRANSIENT_NAME ) ? : [];
 
 		// Seems the first time a failed attempt for this IP
 		if ( ! $attempts || ! array_key_exists( $ip, $attempts ) ) {
@@ -174,7 +176,7 @@ final class FailedLogin implements LogDataInterface {
 
 		// A couple of failed login attempts in 5 minutes are not a big deal.
 		if ( $attempts[ $ip ][ 'count' ] < 3 ) {
-			set_site_transient( 'wonolog.failed-login-count', $attempts, $ttl );
+			set_site_transient( self::TRANSIENT_NAME, $attempts, $ttl );
 			$this->attempts_data = $attempts;
 
 			return 0;
@@ -200,14 +202,14 @@ final class FailedLogin implements LogDataInterface {
 			|| ( ( $count - $last_logged ) === 200 );
 
 		if ( ! $do_log ) {
-			set_site_transient( 'wonolog.failed-login-count', $attempts, $ttl );
+			set_site_transient( self::TRANSIENT_NAME, $attempts, $ttl );
 
 			return 0;
 		}
 
 		$attempts[ $ip ][ 'last_logged' ] = $count;
 
-		set_site_transient( 'wonolog.failed-login-count', $attempts, $ttl );
+		set_site_transient( self::TRANSIENT_NAME, $attempts, $ttl );
 		$this->attempts_data = $attempts;
 
 		return $count;
