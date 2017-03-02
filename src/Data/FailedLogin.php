@@ -59,7 +59,7 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function level() {
 
-		isset( $this->attempts ) or $this->attempts = $this->count_attempts( 300 );
+		$this->attempts = $this->count_attempts( 300 );
 
 		switch ( TRUE ) {
 			case ( $this->attempts > 2 && $this->attempts <= 100 ) :
@@ -95,7 +95,7 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function message() {
 
-		isset( $this->attempts ) or $this->attempts = $this->count_attempts( 300 );
+		$this->attempts = $this->count_attempts( 300 );
 
 		if ( ! $this->attempts_data ) {
 			return '';
@@ -162,6 +162,10 @@ final class FailedLogin implements LogDataInterface {
 	 * @return int
 	 */
 	private function count_attempts( $ttl = 300 ) {
+
+		if ( isset( $this->attempts ) ) {
+			return $this->attempts;
+		}
 
 		list( $ip ) = $this->sniff_ip();
 
