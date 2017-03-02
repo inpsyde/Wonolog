@@ -37,6 +37,11 @@ final class FailedLogin implements LogDataInterface {
 	private $attempts_data;
 
 	/**
+	 * @var int
+	 */
+	private $attempts;
+
+	/**
 	 * @param string $username Username used for the failed login attempt
 	 */
 	public function __construct( $username ) {
@@ -52,16 +57,16 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function level() {
 
-		$attempts = $this->count_attempts( 300 );
+		NULL === $this->attempts and $this->attempts = $this->count_attempts( 300 );
 
 		switch ( TRUE ) {
-			case ( $attempts > 2 && $attempts <= 100 ) :
+			case ( $this->attempts > 2 && $this->attempts <= 100 ) :
 				return Logger::NOTICE;
-			case ( $attempts > 100 && $attempts <= 590 ) :
+			case ( $this->attempts > 100 && $this->attempts <= 590 ) :
 				return Logger::WARNING;
-			case ( $attempts > 590 && $attempts <= 990 ) :
+			case ( $this->attempts > 590 && $this->attempts <= 990 ) :
 				return Logger::ERROR;
-			case ( $attempts > 990 ) :
+			case ( $this->attempts > 990 ) :
 				return Logger::CRITICAL;
 		}
 
@@ -87,6 +92,8 @@ final class FailedLogin implements LogDataInterface {
 	 * @inheritdoc
 	 */
 	public function message() {
+
+		NULL === $this->attempts and $this->attempts = $this->count_attempts( 300 );
 
 		if ( ! $this->attempts_data ) {
 			return '';
