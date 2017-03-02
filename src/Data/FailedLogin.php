@@ -81,11 +81,11 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function context() {
 
-		list( $ip, $from ) = $this->sniff_ip();
+		$this->sniff_ip();
 
 		return [
-			'ip'       => $ip,
-			'ip_from'  => $from,
+			'ip'       => $this->ip_data[ 0 ],
+			'ip_from'  => $this->ip_data[ 1 ],
 			'username' => $this->username
 		];
 	}
@@ -101,20 +101,16 @@ final class FailedLogin implements LogDataInterface {
 			return '';
 		}
 
-		list( $ip ) = $this->sniff_ip();
-		if ( ! isset( $this->attempts_data[ $ip ][ 'count' ] ) ) {
+		$this->sniff_ip();
+		if ( ! isset( $this->attempts_data[ $this->ip_data[ 0 ] ][ 'count' ] ) ) {
 			return '';
 		}
 
-		$message = sprintf(
+		return sprintf(
 			"%d failed login attempts from username '%s' in last 5 minutes",
-			$this->attempts_data[ $ip ][ 'count' ],
+			$this->attempts_data[ $this->ip_data[ 0 ] ][ 'count' ],
 			$this->username
 		);
-
-		$this->attempts_data[ $ip ] = [];
-
-		return $message;
 	}
 
 	/**
@@ -127,30 +123,22 @@ final class FailedLogin implements LogDataInterface {
 
 	/**
 	 * Try to sniff the current client IP.
-	 *
-	 * @return array
 	 */
 	private function sniff_ip() {
 
 		if ( $this->ip_data ) {
-			return $this->ip_data;
+			return;
 		}
 
 		if ( PHP_SAPI === 'cli' ) {
 			$this->ip_data = [ '127.0.0.1', 'CLI' ];
 
-			return $this->ip_data;
+			return;
 		}
 
-		foreach ( [ 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'REMOTE_ADDR' ] as $key ) {
-			if ( array_key_exists( $key, $_SERVER ) ) {
-				$this->ip_data = [ $_SERVER[ $key ], $key ];
-			}
-		}
-
-		$this->ip_data or $this->ip_data = [ '0.0.0.0', 'Hidden IP' ];
-
-		return $this->ip_data;
+		$ip_server_keys = [ 'REMOTE_ADDR' => '', 'HTTP_CLIENT_IP' => '', 'HTTP_X_FORWARDED_FOR' => '',  ];
+		$ips            = array_intersect_key( $_SERVER, $ip_server_keys );
+		$this->ip_data  = $ips ? [ reset( $ips ), key( $ips ) ] : [ '0.0.0.0', 'Hidden IP' ];
 	}
 
 	/**
@@ -165,7 +153,8 @@ final class FailedLogin implements LogDataInterface {
 			return;
 		}
 
-		list( $ip ) = $this->sniff_ip();
+		$this->sniff_ip();
+		$ip = $this->ip_data[ 0 ];
 
 		$attempts = get_site_transient( self::TRANSIENT_NAME ) ? : [];
 

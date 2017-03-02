@@ -111,11 +111,16 @@ class FailedLoginTest extends TestCase {
 		Functions::when( 'set_site_transient' )
 			->alias( $callback );
 
-		$failed_login = new FailedLogin( 'h4ck3rb0y' );
+		$expected_msg_format = "%d failed login attempts from username '%s' in last 5 minutes";
 
-		$this->assertSame(
-			sprintf( "%d failed login attempts from username '%s' in last 5 minutes", 1, 'h4ck3rb0y' ),
-			$failed_login->message()
-		);
+		$first_failed_login  = new FailedLogin( 'h4ck3rb0y' );
+		$second_failed_login = new FailedLogin( 'h4ck3rb0y' );
+
+		$this->assertSame( sprintf( $expected_msg_format, 1, 'h4ck3rb0y' ), $first_failed_login->message() );
+		$this->assertSame( sprintf( $expected_msg_format, 1, 'h4ck3rb0y' ), $first_failed_login->message() );
+		$this->assertSame( sprintf( $expected_msg_format, 1, 'h4ck3rb0y' ), $first_failed_login->message() );
+
+		$this->assertSame( sprintf( $expected_msg_format, 2, 'h4ck3rb0y' ), $second_failed_login->message() );
+		$this->assertSame( sprintf( $expected_msg_format, 2, 'h4ck3rb0y' ), $second_failed_login->message() );
 	}
 }
