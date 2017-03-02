@@ -11,8 +11,6 @@
 namespace Inpsyde\Wonolog\Processor;
 
 /**
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
- * @author  David Naber <kontakt@dnaber.de>
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */

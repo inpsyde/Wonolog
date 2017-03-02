@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -15,11 +15,10 @@ use Inpsyde\Wonolog\LogLevel;
 use Monolog\Logger;
 
 /**
- * The generic log data object.
+ * Generic log data object.
  *
  * It is a value object used to pass data to wonolog.
  *
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
@@ -71,13 +70,18 @@ final class Log implements LogDataInterface {
 
 	/**
 	 * @param \Throwable|\Exception $throwable
-	 * @param string                $channel
 	 * @param int|string            $level
+	 * @param string                $channel
 	 * @param array                 $context
 	 *
 	 * @return Log
 	 */
-	public static function from_throwable( $throwable, $channel = '', $level = Logger::ERROR, array $context = [] ) {
+	public static function from_throwable(
+		$throwable,
+		$level = Logger::ERROR,
+		$channel = Channels::DEBUG,
+		array $context = []
+	) {
 
 		// We can't do type hint to support both PHP 7 Throwable and PHP 5 Exception
 		if ( ! $throwable instanceof \Throwable && ! $throwable instanceof \Exception ) {

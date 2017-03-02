@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -16,7 +16,6 @@ use Inpsyde\Wonolog\Data\Error;
 /**
  * Looks a wp_die() and try to find and log db errors.
  *
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
  */
 final class WpDieHandlerListener implements FilterListenerInterface {

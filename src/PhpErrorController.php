@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -17,13 +17,10 @@ use Inpsyde\Wonolog\Data\Log;
  * Handler for PHP core errors, used to log those errors mapping error types to Monolog log levels.
  *
  *
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
 class PhpErrorController {
-
-	const CHANNEL = Channels::PHP_ERROR;
 
 	private static $errors_level_map = [
 		E_USER_ERROR        => Logger::ERROR,
@@ -58,16 +55,6 @@ class PhpErrorController {
 	];
 
 	/**
-	 * Initialize the handler.
-	 */
-	public function init() {
-
-		register_shutdown_function( [ $this, 'on_fatal', ] );
-		set_error_handler( [ $this, 'on_error', ] );
-		set_exception_handler( [ $this, 'on_exception', ] );
-	}
-
-	/**
 	 * Error handler.
 	 *
 	 * @param  int        $num
@@ -82,8 +69,8 @@ class PhpErrorController {
 
 		$log_context = [];
 		if ( $context ) {
-			$skip_keys = array_merge( array_keys( $GLOBALS ), self::$super_globals_keys );
-			$skip      = array_fill_keys( $skip_keys, '' );
+			$skip_keys   = array_merge( array_keys( $GLOBALS ), self::$super_globals_keys );
+			$skip        = array_fill_keys( $skip_keys, '' );
 			$log_context = array_filter( array_diff_key( (array) $context, $skip ) );
 		}
 
@@ -91,8 +78,8 @@ class PhpErrorController {
 		$log_context[ 'line' ] = $line;
 
 		do_action(
-			'wonolog.log',
-			new Log( $str, self::$errors_level_map[ $num ], self::CHANNEL, $log_context )
+			\Inpsyde\Wonolog\LOG,
+			new Log( $str, self::$errors_level_map[ $num ], Channels::PHP_ERROR, $log_context )
 		);
 
 		return FALSE;
@@ -108,11 +95,11 @@ class PhpErrorController {
 	public function on_exception( $e ) {
 
 		do_action(
-			'wonolog.log',
+			\Inpsyde\Wonolog\LOG,
 			new Log(
 				$e->getMessage(),
 				Logger::CRITICAL,
-				self::CHANNEL,
+				Channels::PHP_ERROR,
 				[
 					'exception' => get_class( $e ),
 					'file'      => $e->getFile(),
@@ -132,7 +119,8 @@ class PhpErrorController {
 	 */
 	public function on_fatal() {
 
-		$error  = error_get_last();
+		$error = array_merge( [ 'type' => -1, 'message' => '', 'file' => '', 'line' => 0 ], error_get_last() );
+
 		$fatals = [
 			E_ERROR,
 			E_PARSE,
@@ -146,4 +134,5 @@ class PhpErrorController {
 			$this->on_error( $error[ 'type' ], $error[ 'message' ], $error[ 'file' ], $error[ 'line' ] );
 		}
 	}
+
 }
