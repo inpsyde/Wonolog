@@ -187,7 +187,7 @@ final class HttpApiListener implements ActionListenerInterface {
 				: substr( $response[ 'body' ], 0, 300 ) . '...';
 		}
 
-		if ( is_array( $data ) && array_key_exists( 'headers', $data ) && is_scalar( $response[ 'code' ] ) ) {
+		if ( is_array( $data ) && array_key_exists( 'code', $response ) && is_scalar( $response[ 'code' ] ) ) {
 			$msg .= " - Response code: {$response[ 'code' ]}";
 			$log_context[ 'headers' ] = $data[ 'headers' ];
 		}
