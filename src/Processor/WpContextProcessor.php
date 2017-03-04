@@ -70,6 +70,13 @@ class WpContextProcessor {
 			return TRUE;
 		}
 
+		if ( get_option( 'permalink_structure' ) && empty( $GLOBALS[ 'wp_rewrite' ] ) ) {
+			// Rewrites are used, but it's too early for global rewrites be there.
+			// Let's instantiate it, or `get_rest_url()` will fail.
+			// This is exactly how WP does it, so it will do nothing bad. In worst case, WP will override it.
+			$GLOBALS[ 'wp_rewrite' ] = new \WP_Rewrite();
+		}
+
 		$rest_url              = set_url_scheme( get_rest_url() );
 		$current_url           = set_url_scheme( add_query_arg( [] ) );
 		$this->is_rest_request = strpos( $current_url, set_url_scheme( $rest_url ) ) === 0;
