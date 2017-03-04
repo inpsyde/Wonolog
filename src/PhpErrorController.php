@@ -119,7 +119,12 @@ class PhpErrorController {
 	 */
 	public function on_fatal() {
 
-		$error = array_merge( [ 'type' => -1, 'message' => '', 'file' => '', 'line' => 0 ], error_get_last() );
+		$last_error = error_get_last();
+		if ( ! $last_error ) {
+			return;
+		}
+
+		$error = array_merge( [ 'type' => -1, 'message' => '', 'file' => '', 'line' => 0 ], $last_error );
 
 		$fatals = [
 			E_ERROR,
