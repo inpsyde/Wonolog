@@ -16,6 +16,11 @@ namespace Inpsyde\Wonolog\Data;
  */
 interface LogDataInterface {
 
+	const MESSAGE = 'message';
+	const LEVEL = 'level';
+	const CHANNEL = 'channel';
+	const CONTEXT = 'context';
+
 	/**
 	 * @return int
 	 */

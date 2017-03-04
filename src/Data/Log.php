@@ -26,10 +26,15 @@ final class Log implements LogDataInterface {
 
 	use LogDataTrait;
 
-	const MESSAGE = 'message';
-	const LEVEL = 'level';
-	const CHANNEL = 'channel';
-	const CONTEXT = 'context';
+	/**
+	 * @var array
+	 */
+	private static $filters = [
+		self::MESSAGE => FILTER_SANITIZE_STRING,
+		self::LEVEL   => FILTER_SANITIZE_NUMBER_INT,
+		self::CHANNEL => FILTER_SANITIZE_STRING,
+		self::CONTEXT => [ 'filter' => FILTER_UNSAFE_RAW, 'flags' => FILTER_REQUIRE_ARRAY ],
+	];
 
 	/**
 	 * @var string
@@ -126,6 +131,8 @@ final class Log implements LogDataInterface {
 			$log_data[ 'level' ] = $log_level->check_level( $log_data[ 'level' ], $levels );
 		}
 
+		$log_data = array_filter( filter_var_array( $log_data, self::$filters ) );
+
 		$data = array_merge( $defaults, $log_data );
 
 		return new static(
@@ -134,7 +141,6 @@ final class Log implements LogDataInterface {
 			(string) $data[ self::CHANNEL ],
 			(array) $data[ self::CONTEXT ]
 		);
-
 	}
 
 	/**
@@ -154,6 +160,55 @@ final class Log implements LogDataInterface {
 		$this->message = $message;
 		$this->channel = $channel;
 		$this->context = $context;
+	}
+
+	/**
+	 * @param array $log_data
+	 *
+	 * @return Log
+	 */
+	public function merge_array( array $log_data ) {
+
+		$base = [
+			self::MESSAGE => $this->message(),
+			self::LEVEL   => $this->level(),
+			self::CHANNEL => $this->channel(),
+			self::CONTEXT => $this->context()
+		];
+
+		return self::from_array( shortcode_atts( $base, $log_data ) );
+	}
+
+	/**
+	 * @param LogDataInterface $log
+	 *
+	 * @return Log
+	 */
+	public function merge( LogDataInterface $log ) {
+
+		$log_data = [
+			self::MESSAGE => $log->message(),
+			self::LEVEL   => $log->level(),
+			self::CHANNEL => $log->channel(),
+			self::CONTEXT => $log->context()
+		];
+
+		return $this->merge_array( $log_data );
+	}
+
+	/**
+	 * @param string $key
+	 * @param mixed $value
+	 *
+	 * @return Log
+	 */
+	public function with( $key, $value ) {
+
+		if ( ! is_string( $key ) || ! array_key_exists( $key, self::$filters ) ) {
+			throw new \InvalidArgumentException( 'Invalid Log key.' );
+		}
+
+		return $this->merge_array( [ $key => $value ] );
 	}
 
 	/**

@@ -20,6 +20,13 @@ use Inpsyde\Wonolog\Tests\TestCase;
  */
 class WpContextProcessorTest extends TestCase {
 
+	protected function setUp() {
+
+		parent::setUp();
+		Functions::when( 'get_option' )
+			->justReturn();
+	}
+
 	public function test_admin_before_init_single_site() {
 
 		Functions::when( 'is_admin' )
