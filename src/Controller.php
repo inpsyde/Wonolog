@@ -70,9 +70,11 @@ class Controller {
 	/**
 	 * Tell Wonolog to use the PHP errors handler.
 	 *
+	 * @param int|null $error_types bitmask of error types constants, default to E_ALL | E_STRICT
+	 *
 	 * @return Controller
 	 */
-	public function log_php_errors() {
+	public function log_php_errors( $error_types = NULL ) {
 
 		static $done = FALSE;
 		if ( $done ) {
@@ -80,10 +82,11 @@ class Controller {
 		}
 
 		$done = TRUE;
+		is_int( $error_types ) or $error_types = E_ALL | E_STRICT;
 
 		$controller = new PhpErrorController();
 		register_shutdown_function( [ $controller, 'on_fatal', ] );
-		set_error_handler( [ $controller, 'on_error', ] );
+		set_error_handler( [ $controller, 'on_error' ], $error_types );
 		set_exception_handler( [ $controller, 'on_exception', ] );
 
 		// Ensure that channel Channels::PHP_ERROR error is there
