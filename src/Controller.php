@@ -178,9 +178,11 @@ class Controller {
 	/**
 	 * Tell Wonolog to use default log processor.
 	 *
+	 * @param callable $processor
+	 *
 	 * @return Controller
 	 */
-	public function use_default_processor() {
+	public function use_default_processor( callable $processor = null ) {
 
 		static $done = FALSE;
 		if ( $done ) {
@@ -191,9 +193,10 @@ class Controller {
 
 		add_action(
 			ProcessorsRegistry::ACTION_REGISTER,
-			function ( ProcessorsRegistry $registry ) {
+			function ( ProcessorsRegistry $registry ) use ($processor) {
+				$processor or $processor = new WpContextProcessor();
 
-				$registry->add_processor( new WpContextProcessor(), ProcessorsRegistry::DEFAULT_NAME );
+				$registry->add_processor( $processor, ProcessorsRegistry::DEFAULT_NAME );
 			}
 		);
 
