@@ -29,7 +29,7 @@ class Controller {
 
 	const ACTION_LOADED = 'wonolog.loaded';
 	const ACTION_SETUP = 'wonolog.setup';
-	const FILTER_ENABLE = 'wonolog.enable';
+	const FILTER_DISABLE = 'wonolog.disable';
 
 	/**
 	 * Initialize Wonolog.
@@ -40,9 +40,10 @@ class Controller {
 	 */
 	public function setup( $priority = 100 ) {
 
+		// We use WONOLOG_DISABLE instead of WONOLOG_ENABLE so that not defined (default) means enabled.
 		$disable_by_env = filter_var( getenv( 'WONOLOG_DISABLE' ), FILTER_VALIDATE_BOOLEAN );
 
-		if ( did_action( self::ACTION_SETUP ) || ! apply_filters( self::FILTER_ENABLE, ! $disable_by_env ) ) {
+		if ( did_action( self::ACTION_SETUP ) || apply_filters( self::FILTER_DISABLE, $disable_by_env ) ) {
 			return $this;
 		}
 
