@@ -100,7 +100,7 @@ class DefaultHandlerFactory {
 	 */
 	private function handler_folder() {
 
-		$folder = getenv( 'WONOLOG_DEFAULT_HANDLER_FILE_DIR' );
+		$folder = getenv( 'WONOLOG_DEFAULT_HANDLER_ROOT_DIR' );
 
 		if ( ! $folder && defined( 'WP_CONTENT_DIR' ) ) {
 			$folder = rtrim( WP_CONTENT_DIR, '\\/' ) . '/wonolog';
@@ -113,6 +113,8 @@ class DefaultHandlerFactory {
 			$folder = rtrim( wp_normalize_path( $folder ), '/' );
 			wp_mkdir_p( $folder ) or $folder = '';
 		}
+
+		$this->maybe_create_htaccess( $folder );
 
 		return $folder;
 	}
@@ -128,6 +130,61 @@ class DefaultHandlerFactory {
 		is_string( $filename_format ) and $filename_format = ltrim( $filename_format, '\\/' );
 
 		return [ $filename_format, $date_format ];
+	}
+
+	/**
+	 * When the log root folder is inside WordPress content folder, the logs are going to be publicly accessible, and
+	 * that is in best case a privacy leakage issue, in worst case a security threat.
+	 * We try to write an .htaccess file to prevent access to them.
+	 * This guarantees nothing, because .htaccess can be ignored depending web server in use and its configuration,
+	 * but at least we tried.
+	 * To configure a custom log folder outside content folder is also highly recommended in documentation.
+	 *
+	 * @param string $folder
+	 *
+	 * @return string
+	 */
+	private function maybe_create_htaccess( $folder ) {
+
+		if (
+			! $folder
+			|| ! is_dir( $folder )
+			|| ! is_writable( $folder )
+			|| file_exists( "{$folder}/.htaccess" )
+			|| ! defined( 'WP_CONTENT_DIR' )
+		) {
+			return $folder;
+		}
+
+		$target_dir  = realpath( $folder );
+		$content_dir = realpath( WP_CONTENT_DIR );
+
+		// Sorry, we can't allow logs to be put straight in content folder. That's too dangerous.
+		if ( $target_dir === $content_dir ) {
+			$target_dir .= DIRECTORY_SEPARATOR . 'wonolog';
+		}
+
+		// If target dir is outside content dir, its security is up to user.
+		if ( strpos( $target_dir, $content_dir ) !== 0 ) {
+			return $target_dir;
+		}
+
+		// Let's disable error reporting: too much file operations which might fail, nothing can log them, and package
+		// is fully functional even if failing happens. Silence looks like best option here.
+		set_error_handler( '__return_true' );
+
+		$handle = fopen( "{$folder}/.htaccess", 'w' );
+
+		if ( $handle && flock( $handle, LOCK_EX ) && fwrite( $handle, "Deny from all\n" ) ) {
+			flock( $handle, LOCK_UN );
+			chmod( "{$folder}/.htaccess", 0444 );
+		}
+
+		fclose( $handle );
+
+		restore_error_handler();
+
+		return $target_dir;
 	}
 
 }

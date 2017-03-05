@@ -46,7 +46,7 @@ class DefaultHandlerLoggingTest extends FunctionalTestCase {
 
 		$dir = vfsStream::setup( 'TestDir' );
 		$url = $dir->url();
-		putenv( "WONOLOG_DEFAULT_HANDLER_FILE_DIR={$url}" );
+		putenv( "WONOLOG_DEFAULT_HANDLER_ROOT_DIR={$url}" );
 
 		Wonolog\bootstrap();
 
@@ -71,7 +71,7 @@ class DefaultHandlerLoggingTest extends FunctionalTestCase {
 
 		$dir = vfsStream::setup( 'TestDir' );
 		$url = $dir->url();
-		putenv( "WONOLOG_DEFAULT_HANDLER_FILE_DIR={$url}" );
+		putenv( "WONOLOG_DEFAULT_HANDLER_ROOT_DIR={$url}" );
 
 		Wonolog\bootstrap();
 
@@ -106,7 +106,7 @@ class DefaultHandlerLoggingTest extends FunctionalTestCase {
 
 		$dir = vfsStream::setup( 'TestDir' );
 		$url = $dir->url();
-		putenv( "WONOLOG_DEFAULT_HANDLER_FILE_DIR={$url}" );
+		putenv( "WONOLOG_DEFAULT_HANDLER_ROOT_DIR={$url}" );
 
 		Wonolog\bootstrap( NULL, Wonolog\USE_DEFAULT_NONE );
 
@@ -131,7 +131,7 @@ class DefaultHandlerLoggingTest extends FunctionalTestCase {
 
 		$dir = vfsStream::setup( 'TestDir' );
 		$url = $dir->url();
-		putenv( "WONOLOG_DEFAULT_HANDLER_FILE_DIR={$url}" );
+		putenv( "WONOLOG_DEFAULT_HANDLER_ROOT_DIR={$url}" );
 
 		Wonolog\bootstrap( NULL, Wonolog\USE_DEFAULT_HANDLER )
 			->use_hook_listener( new HookListener\MailerListener() );

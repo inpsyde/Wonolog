@@ -49,7 +49,7 @@ class DefaultHandlerFactoryTest extends TestCase {
 
 	protected function tearDown() {
 
-		putenv( 'WONOLOG_DEFAULT_HANDLER_FILE_DIR' );
+		putenv( 'WONOLOG_DEFAULT_HANDLER_ROOT_DIR' );
 		parent::tearDown();
 	}
 
@@ -73,7 +73,7 @@ class DefaultHandlerFactoryTest extends TestCase {
 	public function test_default_handler_with_dir_from_env() {
 
 		$dir = str_replace( '\\', '/', __DIR__ );
-		putenv( 'WONOLOG_DEFAULT_HANDLER_FILE_DIR=' . $dir );
+		putenv( 'WONOLOG_DEFAULT_HANDLER_ROOT_DIR=' . $dir );
 
 		$factory = DefaultHandlerFactory::with_default_handler();
 
@@ -106,7 +106,7 @@ class DefaultHandlerFactoryTest extends TestCase {
 			->andReturn( 'foo' );
 
 		$dir = str_replace( '\\', '/', __DIR__ );
-		putenv( 'WONOLOG_DEFAULT_HANDLER_FILE_DIR=' . $dir );
+		putenv( 'WONOLOG_DEFAULT_HANDLER_ROOT_DIR=' . $dir );
 
 		$factory = DefaultHandlerFactory::with_default_handler();
 
@@ -122,7 +122,7 @@ class DefaultHandlerFactoryTest extends TestCase {
 			->andReturn( 'meeeee' );
 
 		$dir = str_replace( '\\', '/', __DIR__ );
-		putenv( 'WONOLOG_DEFAULT_HANDLER_FILE_DIR=' . $dir );
+		putenv( 'WONOLOG_DEFAULT_HANDLER_ROOT_DIR=' . $dir );
 
 		$factory = DefaultHandlerFactory::with_default_handler();
 
