@@ -12,7 +12,11 @@ Wonolog
 
 # Table of contents
 
+
+
 [TOC]
+
+
 
 # Introduction
 
@@ -38,7 +42,6 @@ When installed for development, via Composer, Wonolog also requires:
 - "brain/monkey" (MIT)
 - "gmazzap/andrew" (MIT)
 - "mikey179/vfsStream": (BSD-3-Clause)
-
 
 
 
@@ -973,21 +976,13 @@ Wonolog\bootstrap()
 
 The snippet above first adds two handlers, the first for all channels, the second only for security channel, finally it adds a processor to be used for those two handlers, referencing them by id.
 
-If the handler id is not provided as part of `use_handler()` arguments, it will not be possible to assign processors to specific handlers by using `use_processor_for_handlers()` but note that being handler Monolog objects, it is also possible to directly using Monolog API for the scope.
 
-For example, the same result of snippet above can be obtained with:
 
-```php
-$some_handler->push_processor( 'My\App\custom_processor' );
-$another_handler->push_processor( 'My\App\custom_processor' );
+###### Processors id
 
-Wonolog\bootstrap()
-  ->use_handler( $some_handler, [] )
-  ->use_handler( $another_handler, [ Wonolog\Channels::SECURITY ] )
-);
-```
+Both `use_processor()` and  `use_processor_for_handlers()` methods accept as third argument an unique id for the processor.
 
-This is a bit more verbose, especially if there are more than 2 handlers we want to target, but surely works. 
+This will be passed as argument by some hooks triggered by Wonolog, and allows to distinguish processors inside hook callbacks. More on this in the [Configure handlers via hooks](#configure-handlers-via-hooks]) section.
 
 
 
@@ -1026,17 +1021,17 @@ To make this work, it is necessary that code to be logged, fires hooks when "mea
 
 Let's clarify with an example.
 
-Let's assume there's a plugin that handle upload and download of files for logged-in WordPress users.
+Let's assume there's a plugin named "MyFiles" that handle upload and download of files for logged-in WordPress users.
 
 This plugin will fire some hooks:
 
 ```php
 // somewhere in the plugin code...
-do_action( 'prefix_file_uploaded', $file_info, $uploader_user_id );
+do_action( 'myfiles_file_uploaded', $file_info, $uploader_user_id );
 // ...
-do_action( 'prefix_file_upload_failed', $file_info, $failing_reson, $uploader_user_id );
+do_action( 'myfiles_file_upload_failed', $file_info, $failing_reson, $uploader_user_id );
 // ...
-do_action( 'prefix_file_downloaded', $file_name, $downloader_user_id );
+do_action( 'myfiles_file_downloaded', $file_name, $downloader_user_id );
 ```
 
 For the website where this plugin is installed, we can write a Wonolog hook listeners that will look more or less like this (the following code is PHP 5.6+):
@@ -1044,16 +1039,19 @@ For the website where this plugin is installed, we can write a Wonolog hook list
 ```php
 namespace MyWebiste;
 
-use Inpsyde\Wonolog\HookListener\ActionListenerInterface
+use Inpsyde\Wonolog\HookListener\ActionListenerInterface;
+use Inpsyde\Wonolog\Data;
 
-class UploadsAndDownloadListener implements ActionListenerInterface {
+class MyFilesListener implements ActionListenerInterface {
+  
+  const TARGET_CHANNEL_NAME = 'MyFilesPlugin';
   
   public function id() {
-    return __CLASS__;
+    return 'MyFiles Listener';
   }
   
   public function listen_to() {
-    return [ 'prefix_file_uploaded', 'prefix_file_upload_failed', 'prefix_file_downloaded', ];
+    return [ 'myfiles_file_uploaded', 'myfiles_file_upload_failed', 'myfiles_file_downloaded', ];
   }  
   
   public function update( array $args ) {
@@ -1063,30 +1061,267 @@ class UploadsAndDownloadListener implements ActionListenerInterface {
     }
   }  
   
-  private function prefix_file_uploaded( $file_info, $uploader_user_id ) {
-    $message = "The file {$file_info}"
+  private function myfiles_file_uploaded( $file_info, $user_id ) {
+    return new Data\Debug(
+      'A file has been uploaded.',      // message
+      self::TARGET_CHANNEL_NAME,        // channel
+      compact( 'file_info', 'user_id' ) // context
+    );
   }
   
-  private function prefix_file_upload_failed( $file_info, $failing_reson, $uploader_user_id ) {
-    
+  private function myfiles_file_upload_failed( $file_info, $reason, $user_id ) {
+     return new Data\Error(
+      "A file download failed because: {$reason}.",
+      self::TARGET_CHANNEL_NAME,
+      compact( 'file_info', 'user_id' )
+    );
   }
   
-  private function prefix_file_downloaded( $file_name, $downloader_user_id ) {
-    
+  private function myfiles_file_downloaded( $file_name, $user_id ) {
+    return new Data\Debug(
+      'A file has been downloaded',
+      self::TARGET_CHANNEL_NAME,
+      compact( 'file_name', 'user_id' )
+    );
   }
   
 }
 ```
 
+Things to note in code above:
 
+`listen_to()` returns the list of all actions the listener targets
+
+`update()` method is called when each of those listened hooks is fired, and all the arguments passed to the hook are passed as array to the method. Based on the actual hook, a different private method is then called, passing received hook arguments in order (thanks to PHP 5.6 variadic arguments)
+
+Each argument returns an instance of Wonolog log object, that will be handled by Wonolog according to its configuration (handlers, processors, channels...)
+
+All the log objects, uses a custom channel, 'MyFilesPlugin'. Being a custom channel, Wonolog will be able to handle it only if it knows about it. See [Wonolog channels](#wonolog-channels) section for the how to.
+
+
+
+###### Using the custom listener
+
+When the lister above is available, we still have to tell Wonolog to use it.
+
+The mu-plugin code to do that could be something like this:
+
+```php
+use Inpsyde\Wonolog;
+use Monolog\Handler\NativeMailerHandler;
+use Monolog\Logger;
+use MyWebiste\MyFilesListener;
+
+if ( ! defined('Inpsyde\Wonolog\LOG') ) {
+  return;
+}
+
+// add the custom channel to Wonolog
+add_filter( 'wonolog.channels', function( array $channels ) {  
+  $channels[] = MyFilesListener::TARGET_CHANNEL_NAME;
+  
+  return $channels;
+} );
+
+Wonolog\bootstrap()->use_hook_listener( new MyFilesListener() );
+```
+
+
+
+###### What about filters?
+
+When possible it is preferable to use actions to trigger log records. Because filter needs to have a return value and very likely we don't want that doing a log changes the return value.
+
+However, especially if the code we want to log is not under our control or we don't want to edit it for any reason, it could be necessary to use filters in hook listeners.
+
+This is why Wonolog ships  with a `FilterListenerInterface`, it can be used instead of or alongside `ActionListenerInterface` if listened hooks are filters.
+
+Considering that callbacks attached to filters must return something in WordPress, and considering that  `update()` method returns null or log data objects, `FilterListenerInterface`  has an additional method `filter()` that receives all the arguments passed to filter as array (just like `update()`) and have to return the filter return value.
+
+If you don't want the hook listener to affect result, something like:
+
+```php
+   public function filter( array $args ) {
+     return $args[0];
+   }
+```
+
+will do.
+
+
+
+###### Custom hook priority
+
+Neither `ActionListenerInterface` or `FilterListenerInterface`  provide a way to specify the priority that Wonolog has to use to listen to hooks.
+
+By default Wonolog uses a very late  priority, which is fine in most cases.
+
+But we know that there are always edge cases.
+
+For this reason, there's an additional interface: `HookPriorityInterface`.
+
+This interface have `priority()` method that has to return the priority to use (the returned value will be used when Wonolog calls `add_action()` / `add_filter()` for the listened hooks).
+
+The value returned by `priority()` will be used for **all** the listened hooks. To control the priority on a per-hook basis, without creating a different hook listener, Wonolog provides a filter: `'wonolog.listened-hook-priority'` that can be used for the scope.
+
+This filter will pass to callbacks the current priority as first argument, and the hook as second, allowing to change priority on a per-hook basis. The first hook argument is initially set to default priority used by Wonolog or to the priority returned by `priority()` for listeners implementing `HookPriorityInterface`.
+
+ It means that priority can be customized even without implementing `HookPriorityInterface` but only hooking `'wonolog.listened-hook-priority'`.
+
+For example, the `MyFilesListener`  class above could do something like this:
+
+```php
+class MyFilesListener implements ActionListenerInterface {
+ 
+   // ...
+  
+  public function listen_to() {
+    
+    $target_hooks = [
+      'myfiles_file_uploaded'      => 0,
+      'myfiles_file_upload_failed' => 20,
+      'myfiles_file_downloaded'    => 999,
+    ]
+    
+    add_filter( 'wonolog.listened-hook-priority', function( $priority, $hook  ) use( $target_hooks ) {
+      return isset( $target_hooks[$hook] ) ? $target_hooks[$hook] : $priority;
+    }, 10, 2 );
+    
+    return array_keys( $listened_hooks );
+  }
+  
+   // ...
+}
+```
 
 
 
 ## Handlers and processors hooks
 
-### Loggers hooks
+The controller API should provide a way to setup Wonolog in any desired way.
 
-### Handlers hooks
+However, the controller API is accessible only in the mu-plugin that bootstraps Wonolog. 
+
+If for any reason some further configuration for handlers and processors is necessary, Wonolog provides some hooks that allows loggers,  handlers and processors configuration.
+
+
+
+### Configure loggers via hooks
+
+In the sections above explained how `use_handler()`, `use_processor()` and `use_processor_for_handlers` controller method scan be used to add more handlers and processors to be used by Wonolog. 
+
+The same operations can be done by using the hook **'wonolog.logger'**.
+
+It is triggered just before the first time a logger is used, and  pass the logger as as argument. By exposing the Monolog object, it is possible to use [Monolog API](https://github.com/Seldaek/monolog/blob/master/src/Monolog/Logger.php) (`Logger::push_handler()`, `Logger::push_processor()`) to add handlers to the logger.
+
+`Logger::getName()` method can be used to access the channel name inside hook callbacks, being allowed to add handlers and processors only for loggers of specific channels.
+
+For example:
+
+```php
+add_action( 'wonolog.logger', function( Monolog\Logger $logger ) {
+  
+     $loggers_processor = 'My\App\loggers_processor';   // a processor for all loggets
+     $handlers_processor = 'My\App\handlers_processor'; // a for handlers instantiated below
+       
+     $some_handler = // instantiate an handler here... 
+     $some_handler->pushProcessor( $handlers_processor ); // add handler processor
+     
+     // add handler and processor to logger
+     $logger
+       ->pushHandler( $some_handler );
+       ->pushProcessor( $loggers_processor );
+     
+     // only for the security logger...
+     if ( $logger->getName() === Channels::SECURITY ) {
+       
+       $security_handler = // instantiate another handler here... 
+       $security_handler->pushProcessor( $some_processor ); // add handler processor
+       
+       $logger->pushHandler( $security_handler );  // add security handler to the logger
+     }
+} );
+```
+
+
+
+The snippet above has the exact same effect of doing:
+
+```php
+$some_handler = // instantiate an handler here... 
+$security_handler = // instantiate another handler here... 
+
+Wonolog\bootstrap()
+  ->use_handler( $some_handler, [], 'some_handler' )
+  ->use_handler( $security_handler, [ Wonolog\Channels::SECURITY ], 'security_handler' )
+  ->use_processor( 'My\App\loggers_processor' )
+  ->use_processor_for_handlers( 'My\App\handlers_processor', ['some_handler', 'security_handler'] );
+```
+
+
+
+Latter snippet is surely more concise and probably preferable, but can only be done in the mu-plugin that bootstraps Wonolog.
+
+Moreover, the controller API method necessitate the security handler to be instantiated on bootstrap, no matter if it will be used or not. This is not an issue if instantiation of the object is trivial (as it probably should be), but if that's not the case, the **'wonolog.logger'** hook can be used to perform just in time logger configuration.
+
+
+
+### Configure handlers via hooks
+
+When using `use_handler()`, when Wonolog is bootstrapped there's the possibility to configure the handler as necessary. 
+
+But there might be cases in which we need to configure an handler that was added using `use_handler()` but outside the plugin that bootstrap Wonolog.
+
+That's possible thanks to the **'wonolog.handler-setup'**  hook.
+
+This hook is triggered by Wonolog just before the first time an handler is used.
+
+The handler is passed as hook first argument, and can be configured as needed. 
+
+The hook passes as second argument the handler id that was used with `use_handler()` . If no id was used, as it is optional, the second argument will contain an id calculated via `spl_object_hash() ` that guarantees uniqueness but unfortunately is not predicable.
+
+Finally the hook passes as third argument an instance of a class named `ProcessorsRegistry`. This object allows to "find" processors that where added via controller methods `use_processor()` and `use_processor_for_handlers()`.
+
+For example, if Wonolog bootstrapping was something like:
+
+```php
+Wonolog\bootstrap()
+  ->use_handler( $some_handler, [], 'some_handler' )
+  ->use_handler( $another_handler, [], 'another_handler' )
+  ->use_processor_for_handlers(
+     [ MyApp\CustomProcessor(), 'process' ],
+     [ 'some_handler' ],
+     'my_custom_processor'
+   );
+```
+
+There are two handlers added, and a processor added to only one of them identified by its id (`'some_handler'`).
+
+Now let's assume that we want to add the same processor also for the handler with id `'another_handler'` but for some reason we can't or don't want to edit the MU plugin where code above is located.
+
+In some other place, we could leverage  **'wonolog.handler-setup'**  hook for the scope, like this:
+
+```php
+add_action(
+  'wonolog.handler-setup',
+  function( HandlerInterface $handler, $handler_id, ProcessorsRegistry $processors ) {
+    if ( $handler_id === 'another_handler' ) {
+      $handler->pushProcessor( $processor->find( 'my_custom_processor' ) );
+    }
+  },
+  10,
+  3
+);
+```
+
+The code above push the same processors that was added via `use_processor_for_handlers()` finding it by its id, that is what was passed as third argument to `use_processor_for_handlers()`.
+
+This relies on the fact that the the processor id argument was used (it is optional). Worth noting, however that is some cases it could be possible to guess the processor id even when it was not passed to `use_processor_for_handlers()` .
+
+In fact, processors are PHP `callable`, which can be strings (function names), arrays (static or dynamic object methods) or objects (closures, invokable objects).
+When processors are functions, their processor id, if not provided, is assumed by Wonolog to be the function name itself. 
+When processors are static methods, their processor id, if not provided, is assumed by Wonolog to be the a string  in the form `'Fully\Qualified\ProcessorClassName::methodName'`.
+When processors are dynamic methods, if processor id was not provided, it is calculated by Wonolog using `spl_object_hash()` that is not predictable and so in those cases the only chance to find the registered processor inside **'wonolog.handler-setup'** is that a custom predicate id was passed as third argument to  `use_processor` or `use_processor_for_handlers`.
 
 
 
