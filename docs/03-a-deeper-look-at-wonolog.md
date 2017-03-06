@@ -1,26 +1,12 @@
-# A Deeper look at Wonolog
+# A deeper look at Wonolog
 
 ## Table of contents
 
-- [A deeper look into Wonolog](#a-deeper-look-into-wonolog)
+- [A deeper look at Wonolog](#a-deeper-look-into-wonolog)
 - [Wonolog channels](#wonolog-channels)
 - [Wonolog PHP error handler](#wonolog-php-error-handler)
 - [Default handler minimum log level](#default-handler-minimum-log-level)
 - [The "logging dilemma"](#the-logging-dilemma")
-
-
-## A deeper look into Wonolog
-
-Monolog is an awesome piece of software also thanks to its flexibility. However, it needs some "configuration" and "bootstrap code" to work.
-
-Wonolog uses some defaults to provide out-of-the-box functionalities in WordPress context with almost zero effort.
-
-In this section you'll learn about some assumptions, some defaults and some objects Wonolog uses to do its job.
-
-Even if some defaults may sound quite opinionated, most (if not all) of them are deeply configurable.
-
-Refers to [Wonolog customization](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/05-wonolog-customization.md) to learn how.
-
 
 
 ## Wonolog channels
