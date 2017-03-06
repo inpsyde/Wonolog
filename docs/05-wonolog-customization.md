@@ -450,7 +450,7 @@ but of course it is possible only use just the desired listeners.
 
 Note that the `use_hook_listener()` is also the method that needs to be used to tell Wonolog to use **custom listeners **.
 
-In the file ["Custom hook Listeners"](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/06-custom-hook-listeners.md)
+In the file ["Custom hook Listeners"](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/06-custom-hook-listeners.md)
 there's a complete example of a custom hook listener implementation and its integration in Wonolog.
 
 
@@ -603,15 +603,15 @@ is that a custom processor id was passed as third argument to  `use_processor` o
 
 Read next:
 
-- [06 - Custom hook listeners](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/06-custom-hook-listeners.md)
+- [06 - Custom hook listeners](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/06-custom-hook-listeners.md)
 
 Read previous: 
 
-- [04 - Hook listeners](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/04-hook-listeners.md)
-- [03 - A Deeper look at Wonolog](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/03-a-deeper-look-at-wonolog.md)
-- [02 - Basic Wonolog concepts](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/02-basic-wonolog-concepts.md)
-- [01 - Monolog Primer](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/01-monolog-primer.md)
+- [04 - Hook listeners](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/04-hook-listeners.md)
+- [03 - A Deeper look at Wonolog](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/03-a-deeper-look-at-wonolog.md)
+- [02 - Basic Wonolog concepts](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/02-basic-wonolog-concepts.md)
+- [01 - Monolog Primer](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/01-monolog-primer.md)
 
 -------
 
-[< Back to index](#https://github.com/inpsyde/wonolog/)
+[< Back to index](https://github.com/inpsyde/wonolog/)

@@ -20,7 +20,7 @@ This task is done by specialized objects, called "hook listeners".
 Technically speaking, an hook listener is an object implementing `Inpsyde\Wonolog\HookListener\HookListenerInterface`.
 
 Conceptually, an hook listener is an object that "listens to" one or more hooks to be triggered and based on some internal 
-logic, returns object implementing of `LogDataInterface` (see ["Log record data as Wonolog objects"](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/02-basic-wonolog-concepts#log-record-data-as-wonolog-objects)).
+logic, returns object implementing of `LogDataInterface` (see ["Log record data as Wonolog objects"](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/02-basic-wonolog-concepts#log-record-data-as-wonolog-objects)).
 
 When this happen, the returned objects are logged.
 
@@ -54,16 +54,16 @@ at a complete implementation of a custom hook listener and its integration with 
 
 Read next:
 
-- [05 - Wonolog customization](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/05-wonolog-customization.md)
-- [06 - Custom hook listeners](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/06-custom-hook-listeners.md)
+- [05 - Wonolog customization](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/05-wonolog-customization.md)
+- [06 - Custom hook listeners](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/06-custom-hook-listeners.md)
 
 Read previous: 
 
-- [03 - A Deeper look at Wonolog](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/03-a-deeper-look-at-wonolog.md)
-- [02 - Basic Wonolog concepts](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/02-basic-wonolog-concepts.md)
-- [01 - Monolog Primer](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/01-monolog-primer.md)
+- [03 - A Deeper look at Wonolog](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/03-a-deeper-look-at-wonolog.md)
+- [02 - Basic Wonolog concepts](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/02-basic-wonolog-concepts.md)
+- [01 - Monolog Primer](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/01-monolog-primer.md)
 
 -------
 
-[< Back to index](#https://github.com/inpsyde/wonolog/)
+[< Back to index](https://github.com/inpsyde/wonolog/)
 

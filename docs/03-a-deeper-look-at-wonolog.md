@@ -127,7 +127,7 @@ putenv("WONOLOG_DEFAULT_MIN_LEVEL=CRITICAL");
 putenv("WONOLOG_DEFAULT_MIN_LEVEL=500");
 ```
 
-Refers to [Wonolog customization](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/05-wonolog-customization.md), to see 
+Refers to [Wonolog customization](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/05-wonolog-customization.md), to see 
 how Wonolog allows to replace its default handler with a custom one.
 
 When a custom handler is in use, its minimum level is out of Wonolog control, and so the `WP_DEBUG_LOG` or the 
@@ -176,15 +176,15 @@ Learn more about [hook listeners](https://github.com/inpsyde/wonolog/blob/front-
 
 Read next:
 
-- [04 - Hook listeners](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/04-hook-listeners.md)
-- [05 - Wonolog customization](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/05-wonolog-customization.md)
-- [06 - Custom hook listeners](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/06-custom-hook-listeners.md)
+- [04 - Hook listeners](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/04-hook-listeners.md)
+- [05 - Wonolog customization](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/05-wonolog-customization.md)
+- [06 - Custom hook listeners](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/06-custom-hook-listeners.md)
 
 Read previous: 
 
-- [02 - Basic Wonolog concepts](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/02-basic-wonolog-concepts.md)
-- [01 - Monolog Primer](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/01-monolog-primer.md)
+- [02 - Basic Wonolog concepts](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/02-basic-wonolog-concepts.md)
+- [01 - Monolog Primer](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/01-monolog-primer.md)
 
 -------
 
-[< Back to index](#https://github.com/inpsyde/wonolog/)
+[< Back to index](https://github.com/inpsyde/wonolog/)

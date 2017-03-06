@@ -105,17 +105,17 @@ Documentation of Wonolog features, defaults, configuration and ways to extends i
 
 See:
 
-- [Monolog Primer](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/01-monolog-primer.md) to learn a bit more about
+- [Monolog Primer](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/01-monolog-primer.md) to learn a bit more about
   Monolog core concepts
-- [Basic Wonolog concepts](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/02-basic-wonolog-concepts.md) to learn the
+- [Basic Wonolog concepts](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/02-basic-wonolog-concepts.md) to learn the
   basis of logging with Wonolog
-- [A deeper look at Wonolog](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/03-deeper-look-at-wonolog.md) to learn 
+- [A deeper look at Wonolog](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/03-deeper-look-at-wonolog.md) to learn 
   more advanced concepts and features of Wonolog
-- [Hook listeners](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/04-hook-listeners.md) to read about "Hook listeners"
+- [Hook listeners](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/04-hook-listeners.md) to read about "Hook listeners"
   the powerful feature of Wonolog that allows logging any WordPress code
-- [Wonolog customization](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/05-wonolog-customization.md) for a deep
+- [Wonolog customization](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/05-wonolog-customization.md) for a deep
   travel through all the possible configurations available for any aspect of the package
-- [Custom hook listeners](#https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/06-custom-hook-listeners.md) to see a complete
+- [Custom hook listeners](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/06-custom-hook-listeners.md) to see a complete
   example of a custom hook listener, its integration in Wonolog and all the things that are needed to know to write reusable 
   Wonolog extensions.
   
