@@ -22,6 +22,7 @@ class HookListenersRegistry {
 
 	const ACTION_REGISTER = 'wonolog.register-listeners';
 	const FILTER_ENABLED = 'wonolog.hook-listener-enabled';
+	const FILTER_PRIORITY = 'wonolog.listened-hook-priority';
 
 	/**
 	 * @var HookListenerInterface[]
@@ -72,6 +73,7 @@ class HookListenersRegistry {
 	 * @return HookListenerInterface[]
 	 */
 	public function listeners() {
+
 		return array_values( $this->listeners );
 	}
 
@@ -93,6 +95,9 @@ class HookListenersRegistry {
 		$callback = $this->hook_callback( $listener, $is_filter );
 
 		$priority = $listener instanceof HookPriorityInterface ? (int) $listener->priority() : PHP_INT_MAX - 10;
+
+		$filtered = apply_filters( self::FILTER_PRIORITY, $priority, $hook );
+		is_numeric( $filtered ) and $priority = (int) $filtered;
 
 		return $is_filter
 			? add_filter( $hook, $callback, $priority, PHP_INT_MAX )
