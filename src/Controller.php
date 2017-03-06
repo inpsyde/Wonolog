@@ -224,25 +224,24 @@ class Controller {
 			}
 		);
 
-		if ( $channels ) {
-			is_null( $processor_id ) and $processor_id = $processor;
-			add_action(
-				Channels::ACTION_LOGGER,
-				function (
-					Logger $logger,
-					HandlersRegistry $handlers,
-					ProcessorsRegistry $processors
-				) use ( $processor_id, $channels ) {
+		is_null( $processor_id ) and $processor_id = $processor;
 
-					if ( $channels === [] || in_array( $logger->getName(), $channels, TRUE ) ) {
+		add_action(
+			Channels::ACTION_LOGGER,
+			function (
+				Logger $logger,
+				HandlersRegistry $handlers,
+				ProcessorsRegistry $processors
+			) use ( $processor_id, $channels ) {
 
-						$logger->pushProcessor( $processors->find( $processor_id ) );
-					}
-				},
-				10,
-				3
-			);
-		}
+				if ( $channels === [] || in_array( $logger->getName(), $channels, TRUE ) ) {
+
+					$logger->pushProcessor( $processors->find( $processor_id ) );
+				}
+			},
+			10,
+			3
+		);
 
 		return $this;
 	}
@@ -257,7 +256,7 @@ class Controller {
 	 *
 	 * @return Controller
 	 */
-	public function use_processor_for_handlers( callable $processor, array $handlers, $processor_id = NULL ) {
+	public function use_processor_for_handlers( callable $processor, array $handlers = [], $processor_id = NULL ) {
 
 		add_action(
 			ProcessorsRegistry::ACTION_REGISTER,
@@ -266,10 +265,6 @@ class Controller {
 				$registry->add_processor( $processor, $processor_id );
 			}
 		);
-
-		if ( ! $handlers ) {
-			return $this;
-		}
 
 		is_null( $processor_id ) and $processor_id = $processor;
 
@@ -281,7 +276,7 @@ class Controller {
 				ProcessorsRegistry $processors
 			) use ( $processor_id, $handlers ) {
 
-				if ( in_array( $handler_id, $handlers, TRUE ) ) {
+				if ( $handlers === [] || in_array( $handler_id, $handlers, TRUE ) ) {
 					$handler->pushProcessor( $processors->find( $processor_id ) );
 				}
 			},
