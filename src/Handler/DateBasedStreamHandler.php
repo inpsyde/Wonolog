@@ -32,7 +32,7 @@ final class DateBasedStreamHandler extends AbstractProcessingHandler {
 	private $handlers = [];
 
 	/**
-	 * @var string
+	 * @var string|callable
 	 */
 	private $file_format;
 
@@ -47,11 +47,11 @@ final class DateBasedStreamHandler extends AbstractProcessingHandler {
 	private $locking;
 
 	/**
-	 * @param string   $file_format
-	 * @param string   $date_format
-	 * @param bool|int $level
-	 * @param bool     $bubble
-	 * @param bool     $locking
+	 * @param string|callable $file_format
+	 * @param string          $date_format
+	 * @param bool|int        $level
+	 * @param bool            $bubble
+	 * @param bool            $locking
 	 */
 	public function __construct( $file_format, $date_format, $level = Logger::DEBUG, $bubble = TRUE, $locking = TRUE ) {
 
@@ -74,7 +74,7 @@ final class DateBasedStreamHandler extends AbstractProcessingHandler {
 	 */
 	public function stream_handler_for_record( array $record ) {
 
-		list( $filename, $file_permissions ) = $this->file_name_for_record( $this->record_timestamp( $record ) );
+		list( $filename, $file_permissions ) = $this->file_name_for_record( $record );
 
 		if ( isset( $this->handlers[ $filename ] ) ) {
 			return $this->handlers[ $filename ];
@@ -127,6 +127,10 @@ final class DateBasedStreamHandler extends AbstractProcessingHandler {
 	 */
 	private function check_file_format( $file_format ) {
 
+		if ( is_callable( $file_format ) ) {
+			return TRUE;
+		}
+
 		return
 			is_string( $file_format )
 			&& filter_var( $file_format, FILTER_SANITIZE_URL ) === $file_format
@@ -156,13 +160,23 @@ final class DateBasedStreamHandler extends AbstractProcessingHandler {
 	}
 
 	/**
-	 * @param int $timestamp
+	 * @param array $record
 	 *
 	 * @return array
 	 */
-	private function file_name_for_record( $timestamp ) {
+	private function file_name_for_record( array $record ) {
 
-		$filename = str_replace( '{date}', date( $this->date_format, $timestamp ), $this->file_format );
+		$file_format = $this->file_format;
+
+		if ( is_callable( $file_format ) ) {
+			$file_format = $file_format( $record );
+			is_callable( $file_format ) and $file_format = NULL;
+			$this->check_file_format( $file_format ) or $file_format = '{date}.log';
+		}
+
+		$timestamp = $this->record_timestamp( $record );
+
+		$filename = str_replace( '{date}', date( $this->date_format, $timestamp ), $file_format );
 		if ( ! filter_var( filter_var( $filename, FILTER_SANITIZE_URL ), FILTER_SANITIZE_URL ) ) {
 			throw new \InvalidArgumentException( 'Invalid file name format or date format for ' . __CLASS__ );
 		}

@@ -11,9 +11,11 @@
 namespace Inpsyde\Wonolog\Tests\Unit\Handler;
 
 use Brain\Monkey\Functions;
+use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Handler\DateBasedStreamHandler;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 /**
  * @package wonolog\tests
@@ -76,6 +78,34 @@ class DateBasedStreamHandlerTest extends TestCase {
 
 		self::assertInstanceOf( StreamHandler::class, $stream_handler );
 		self::assertSame( '/etc/logs/' . date( 'd/m/Y', $timestamp ) . '.log', $stream_handler->getUrl() );
+	}
+
+	public function test_stream_handler_for_record_with_callback() {
+
+		$file_format = function ( array $record ) {
+
+			if ( empty( $record[ 'channel' ] ) || ! is_string( $record[ 'channel' ] ) ) {
+				return '/etc/logs/{date}.log';
+			}
+
+			return '/etc/logs/' . strtolower( $record[ 'channel' ] ) . '/{date}.log';
+		};
+
+		$handler = new DateBasedStreamHandler( $file_format, 'd/m/Y' );
+
+		$timestamp = time();
+
+		$record = [
+			'message'  => 'Hello',
+			'level'    => Logger::DEBUG,
+			'channel'  => 'DEBUG',
+			'datetime' => ( new \DateTime() )->setTimestamp( $timestamp )
+		];
+
+		$stream_handler = $handler->stream_handler_for_record( $record );
+
+		self::assertInstanceOf( StreamHandler::class, $stream_handler );
+		self::assertSame( '/etc/logs/debug/' . date( 'd/m/Y', $timestamp ) . '.log', $stream_handler->getUrl() );
 	}
 
 	/**
