@@ -156,7 +156,7 @@ class ControllerTest extends TestCase {
 			->twice();
 
 		Actions::expectAdded( Channels::ACTION_LOGGER )
-			->never();
+			->twice();
 
 		$controller = new Controller();
 		self::assertSame( $controller, $controller->use_processor( 'strtolower' ) );
