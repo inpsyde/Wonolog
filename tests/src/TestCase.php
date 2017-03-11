@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -13,7 +13,8 @@ use PHPUnit_Framework_TestCase;
 use Brain\Monkey;
 
 /**
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
+ * @package wonolog\tests
+ * @license http://opensource.org/licenses/MIT MIT
  */
 class TestCase extends PHPUnit_Framework_TestCase {
 

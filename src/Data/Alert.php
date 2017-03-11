@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -15,7 +15,6 @@ use Monolog\Logger;
 /**
  * A log event with predefined level set to ALERT.
  *
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */

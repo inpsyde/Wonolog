@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -17,8 +17,7 @@ use Brain\Monkey\Functions;
 use Monolog\Logger;
 
 /**
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
- * @package wonolog
+ * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
 class FailedLoginTest extends TestCase {
@@ -60,6 +59,7 @@ class FailedLoginTest extends TestCase {
 				self::assertSame( 'h4ck3rb0y', $context[ 'username' ] );
 				self::assertSame( Channels::SECURITY, $failed_login->channel() );
 			}
+			$failed_login = new FailedLogin( 'h4ck3rb0y' );
 		}
 
 		$expected_logged_levels = [
@@ -89,5 +89,38 @@ class FailedLoginTest extends TestCase {
 		foreach ( array_keys( $expected_logged_levels ) as $i => $n ) {
 			self::assertSame( $messages[ $i ], sprintf( $format, $n ) );
 		}
+	}
+
+	public function test_message() {
+
+		$transient = FALSE;
+
+		$callback = function ( $name, $value = NULL ) use ( &$transient ) {
+
+			if ( is_null( $value ) ) {
+				return $transient;
+			}
+
+			$transient = $value;
+
+			return TRUE;
+		};
+
+		Functions::when( 'get_site_transient' )
+			->alias( $callback );
+		Functions::when( 'set_site_transient' )
+			->alias( $callback );
+
+		$expected_msg_format = "%d failed login attempts from username '%s' in last 5 minutes";
+
+		$first_failed_login  = new FailedLogin( 'h4ck3rb0y' );
+		$second_failed_login = new FailedLogin( 'h4ck3rb0y' );
+
+		$this->assertSame( sprintf( $expected_msg_format, 1, 'h4ck3rb0y' ), $first_failed_login->message() );
+		$this->assertSame( sprintf( $expected_msg_format, 1, 'h4ck3rb0y' ), $first_failed_login->message() );
+		$this->assertSame( sprintf( $expected_msg_format, 1, 'h4ck3rb0y' ), $first_failed_login->message() );
+
+		$this->assertSame( sprintf( $expected_msg_format, 2, 'h4ck3rb0y' ), $second_failed_login->message() );
+		$this->assertSame( sprintf( $expected_msg_format, 2, 'h4ck3rb0y' ), $second_failed_login->message() );
 	}
 }

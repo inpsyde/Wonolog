@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of theInpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -19,8 +19,7 @@ use Mockery;
 use Monolog\Logger;
 
 /**
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
- * @package wonolog
+ * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
 class PhpErrorHandlerTest extends TestCase {
@@ -51,8 +50,8 @@ class PhpErrorHandlerTest extends TestCase {
 				}
 			);
 
-		$handler = new PhpErrorController();
-		$handler->init();
+		$controller  = new PhpErrorController();
+		$this->initialize_error_controller( $controller );
 
 		@trigger_error( 'Meh!', E_USER_NOTICE );
 	}
@@ -75,8 +74,8 @@ class PhpErrorHandlerTest extends TestCase {
 				}
 			);
 
-		$handler = new PhpErrorController();
-		$handler->init();
+		$controller  = new PhpErrorController();
+		$this->initialize_error_controller( $controller );
 
 		@trigger_error( 'Warning!', E_USER_WARNING );
 
@@ -99,8 +98,8 @@ class PhpErrorHandlerTest extends TestCase {
 					self::assertArrayNotHasKey( 'wp_filter', $context );
 				}
 			);
-		$handler = new PhpErrorController();
-		$handler->init();
+		$controller  = new PhpErrorController();
+		$this->initialize_error_controller( $controller );
 		global $wp_filter;
 		$wp_filter = [ 'foo', 'bar' ];
 		$local_var = 'I am local';
@@ -131,14 +130,20 @@ class PhpErrorHandlerTest extends TestCase {
 				}
 			);
 
-		$handler = new PhpErrorController();
-		$handler->init();
+		$controller  = new PhpErrorController();
+		$this->initialize_error_controller( $controller );
 
 		try {
 			throw new \RuntimeException( 'Exception!' );
 		}
 		catch ( \Exception $e ) {
-			$handler->on_exception( $e );
+			$controller->on_exception( $e );
 		}
+	}
+
+	private function initialize_error_controller( PhpErrorController $controller ) {
+		register_shutdown_function( [ $controller, 'on_fatal', ] );
+		set_error_handler( [ $controller, 'on_error', ] );
+		set_exception_handler( [ $controller, 'on_exception', ] );
 	}
 }

@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -20,7 +20,6 @@ use Inpsyde\Wonolog\Data\NullLog;
  *
  * Differentiate between WP cron requests and other HTTP requests.
  *
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
@@ -188,9 +187,9 @@ final class HttpApiListener implements ActionListenerInterface {
 				: substr( $response[ 'body' ], 0, 300 ) . '...';
 		}
 
-		if ( is_array( $data ) && array_key_exists( 'headers', $data ) && is_scalar( $response[ 'code' ] ) ) {
+		if ( array_key_exists( 'code', $response ) && is_scalar( $response[ 'code' ] ) ) {
 			$msg .= " - Response code: {$response[ 'code' ]}";
-			$log_context[ 'headers' ] = $data[ 'headers' ];
+			( is_array( $data ) && ! empty( $data[ 'headers' ] ) ) and $log_context[ 'headers' ] = $data[ 'headers' ];
 		}
 
 		return new Error( rtrim( $msg, '.' ) . '.', Channels::HTTP, $log_context );
