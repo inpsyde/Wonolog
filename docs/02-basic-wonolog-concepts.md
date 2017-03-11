@@ -1,194 +1,184 @@
-# Basic Wonolog concepts
+# Basic Wonolog Concepts
 
 ## Table of contents
 
-- [Wonolog main logging hook](#wonolog-main-logging-hook)
-- [Log record data](#log-record-data)
-- [Log record data as Wonolog objects](#log-record-data-as-wonolog-objects)
-- [Log record data from `WP_Error` object](#log-record-data-from-wp_error-object)
-- [Log record data from exceptions](#log-record-data-from-exceptions)
-- [Level-rich log hooks](#level-rich-log-hooks)
+- [Wonolog Main Logging Hook](#wonolog-main-logging-hook)
+- [Log Record Data](#log-record-data)
+- [Log Record Data as Wonolog Objects](#log-record-data-as-wonolog-objects)
+- [Log Record Data from `WP_Error` Objects](#log-record-data-from-wp_error-objects)
+- [Log Record Data from Exceptions](#log-record-data-from-exceptions)
+- [Level-rich Log Hooks](#level-rich-log-hooks)
 
 
-## Wonolog main logging hook
+## Wonolog Main Logging Hook
 
-One of the aim of Wonolog is to allow plugins and themes to be compatible with it, without requiring it as a dependency.
+One of the goals of Wonolog is to allow for plugins and themes to be compatible with it, without requiring it as a dependency.
 
 For this reason, logging in Wonolog is done via a WordPress function: `do_action()`.
 
-The main hook to use for the scope is **`wonolog.log`**.
+The main hook to use for the scope is `'wonolog.log'`.
 
-A bare-minimum example of logging with Wonolog could be:
+A bare-minimum example of logging with Wonolog could look like so:
 
 ```php
-do_action( 'wonolog.log', 'Something happen.' );
+do_action( 'wonolog.log', 'Something happened.' );
 ```
 
-This is nice and easy, however there are a few thing missing, the most important are:
+This is nice and easy, however, there are a few thing missing, the most important ones being the *channel* and the *level* of the log event.
 
-- the "channel" of the log event
-- the "level" of the log event
-
-It still works because Wonolog will _kindly_ set them with defaults, but in real world is better to have control on this.
+It still works because Wonolog will _kindly_ set them according to defaults, but in general it is better to take control over this.
 
 
+## Log Record Data
 
-## Log record data
+In Monolog (and Wonolog), every log record comes with the following information:
 
-In Monolog (and Wonolog) every log record comes with some information:
-
-| Data key     | Type    | Description                              |
+| Data Key     | Type    | Description                              |
 | ------------ | ------- | ---------------------------------------- |
-| `"message"`  | string  | Textual description of the log event     |
-| `"channel"`° | string  | The name of the logger to use. Every logger will handle the log differently |
-| `"level"`°°  | integer | "Severity" of the event.                 |
-| `"context"`  | array   | Arbitrary data that gives context to the log record. |
+| `'message'`  | string  | Textual description of the event.     |
+| `'channel'`° | string  | The name of the logger to use. Every logger will handle the log differently. |
+| `'level'`°°  | integer | "Severity" of the event.                 |
+| `'context'`  | array   | Arbitrary data providing context to the log record. |
 
-° *There are no default channels in Monolog, but there are some default channels in Wonolog. They are accessed via class constants of a `Channels` class. More on this below.*
+° *There are no default channels in Monolog, but there are some default channels in Wonolog. These are accessible via class constants on the `Channels` class. More on this below.*
 
-°° *Log level is normally represented with an integer, that can be compared in order of severity with the levels defined by PSR-3, which assign to each of the eight log levels a name (as interface constant) and an integer (as that constant value).*
+°° *The log level is normally represented by an integer, that can be compared in order of severity with the levels defined by PSR-3, which assign to each of the eight log levels a name (as interface constant) and an integer (as constant value).*
 
-An example of logging an array of data with Wonolog could be:
+An example of logging an array of data with Wonolog could be this:
 
 ```php
-do_action(
-	'wonolog.log',
-	[
-		'message' => 'Something happen.',
-		'channel' => 'DEBUG',
-		'level'   => 100,
-		'context' => [],
-	]
-);
+do_action( 'wonolog.log', [
+    'message' => 'Something happened.',
+    'channel' => 'DEBUG',
+    'level'   => 100,
+    'context' => [],
+] );
 ```
 
-By using arrays as format to contain log data and `do_action` to trigger the log record, Wonolog allows plugins and 
-themes to be compatible with Wonolog without requiring it as a dependency: if such code is ran when Wonolog is not available, nothing bad happen.
+By using arrays containing log data, and `do_action()` to trigger the actual logging, Wonolog allows plugins and themes to be compatible without requiring Wonolog as a dependency.
+If code like the above is executed without Wonolog being available, nothing (bad) happens.
 
-Moreover, at any point it would be possible to hook the log event with some other logging package being able to log data in a different ways without changing any code.
+Moreover, at any point it would be possible to hook the log event with some other logging package, being able to log data in a different way without changing any code.
 
 
+## Log Record Data as Wonolog Objects
 
-## Log record data as Wonolog objects
+Even if arrays are a good way to make code to be logged not dependent on Wonolog, there are cases when it is desirable to write code that is dependent on Wonolog _on purpose_ (e.g., when you are developing a Wonolog extension).
 
-Even if arrays are a good way to make code to be logged not dependant from Wonolog, there are cases when is desirable to write code that is dependant on Wonolog _on purpose_ (e.g. when we write some Wonolog extensions). 
+In those cases, it's important to know that, internally, Wonolog handles log data in the form of objects implementing `Inpsyde\Wonolog\Data\LogDatainterface`.
 
-In those cases, it's important to know that internally Wonolog handles log data with objects implementing 
-`Inpsyde\Wonolog\Data\LogDatainterface`.
-
-There are a few of them. The most simple is `Inpsyde\Wonolog\Data\Log` whose constructor signature is:
+There are a few of them.
+The simplest one is `Inpsyde\Wonolog\Data\Log`, whose constructor signature is the following:
 
 ```php
 public function __construct(
-  $message = '',
-  $level = Logger::DEBUG,
-  $channel = Channels::DEBUG,
-  array $context = []
+    $message = '',
+    $level = Logger::DEBUG,
+    $channel = Channels::DEBUG,
+    array $context = []
 )
 ```
 
-By using this object, a log event that does the same of the array example above is:
+By using this object, a log event that does the same as the array example from above looks like so:
 
 ```php
-do_action( 'wonolog.log', new Data\Log( 'Something happen.', Logger::CRITICAL ) );
+do_action( 'wonolog.log', new Data\Log( 'Something happened.', Logger::CRITICAL ) );
 ```
 
-Wonolog also ships with a series of objects that represent specific error levels, making the triggering of events 
-less verbose. All the objects are in the `Inpsyde\Wonolog\Data` namespace and there's an object for each log level.
+Wonolog also ships with a series of objects that represent specific error levels, making the triggering of events less verbose.
+All the objects are in the `Inpsyde\Wonolog\Data` namespace, and there's an object for each log level.
 
-The constructor of those objects is the same of `Inpsyde\Wonolog\Data\Log` except that they don't take any `$level` as it is specific per object.
+The constructor of those objects is the same as `Inpsyde\Wonolog\Data\Log`, except that they don't take any `$level`, as it is specific per object.
 
-For example, the same result of the example above could be obtained with:
+For example, the same result of the example above could be obtained with this:
 
 ```php
-do_action( 'wonolog.log', new Data\Critical( 'Something happen.' ) );
+do_action( 'wonolog.log', new Data\Critical( 'Something happened.' ) );
 ```
 
 
-## Log record data from `WP_Error` object
+## Log Record Data from `WP_Error` Objects
 
-When dealing with WordPress code it's easy to encounter functions / methods that return `WP_Error` instances 
-when something goes wrong.
+When dealing with WordPress code, it's easy to encounter functions that return `WP_Error` instances when something goes wrong.
 
-To make integration with such code easier, Wonolog supports log record data to be passed via `WP_Error` objects.
+To integrate with such code easier, Wonolog supports log record data to be passed as `WP_Error` objects.
 
-The log message will be taken from `WP_Error` (via `WP_Error::get_error_message()`) as well as log context 
-(via `WP_Error::get_error_data()`).
+The log record will include both the message and context of the `WP_Error` object, taken via `WP_Error::get_error_message()` and `WP_Error::get_error_data()`, respectively.
 
-Regarding channel and level, they could be passed explicitly or Wonolog will try to guess them from the error code.
+Both the channel and level can be passed explicitly, or Wonolog will try to guess them from the error code.
 
-This "guessing" has higher chances to work with `WP_Error` instances returned by core, could not work well with custom error objects.
+While this _guessing_ has higher chances to work with `WP_Error` instances returned by WordPress core, it could not work that well with custom error objects.
 
 For example, assuming a `WP_Error` like this:
 
 ```php
 global $wpdb;
-$wp_error = new \WP_Error( $wpdb->last_error, 'wpdb_error', ['query' => $wpdb->last_query ] );
+
+$wp_error = new \WP_Error( $wpdb->last_error, 'wpdb_error', [ 'query' => $wpdb->last_query ] );
 ```
 
-it is possible to do:
+With this, it is possible to do the following:
 
 ```php
 do_action( 'wonolog.log', $wp_error );
 ```
 
-And Wonolog will be recognize the message, the context, the channel (`Channels::DB`) and will set the
-level to `Logger::ERROR`.
+Wonolog will recognize the message, the context, the channel (`Channels::DB`), and it will set the level to `Logger::ERROR`.
 
-The level can also be set explicitly sending a second parameter with `do_action`, like:
+The level can also be set explicitly including a second argument in the `do_action` call, like so:
 
 ```php
 do_action( 'wonolog.log', $wp_error, Logger::CRITICAL );
 ```
 
-and channel can be be set explicitly sending a third parameter with `do_action`, like:
+Also, the channel can be set explicitly, providing a third argument:
 
 ```php
 do_action( 'wonolog.log', $wp_error, Logger::WARNING, Channels::DEBUG );
 ```
 
 
-## Log record data from exceptions
+## Log Record Data from Exceptions
 
-Another common use case is to log something when an exception is thrown during execution of code.
+Another common use case is to log an exception thrown during execution of code.
 
-Worth nothing that uncaught exceptions will be logged by Wonolog automatically (by default) but, hopefully, your code catches any thrown exception and might be desirable to log them.
+While it might be worth noting that **uncaught exceptions** will be logged by Wonolog automatically (by default), your code, hopefully, catches any thrown exception, and hence you might want to log them manually.
 
-An example usage could be:
+An example usage could be like the following:
 
 ```php
 try {
-	...do somethig here
-      
+    // Do somethig here.
 } catch( \Exception $exception ) {
+    // Log the exception, by directly passing it to Wonolog.
+    do_action( 'wonolog.log', $exception );
 
-	// Log exception
-	do_action( 'wonolog.log', $exception );
-	
-	// when debug is on, we want to see this popping up
-	if ( defined('WP_DEBUG') && WP_DEBUG ) {
-		throw $e;
-	}
-	
-	// Debug is off, silence is golden in production...
+    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+        // When in debugging mode, we want to see this popping up.
+        throw $exception;
+    }
+
+    // Debugging is turned off, silence is golden in production.
 }
 ```
 
-Note that Wonolog works well with PHP 7+ `\Throwable`.
+Note that Wonolog also works well with PHP 7+ `\Throwable`.
 
-When the only argument passed to `wonolog.log` hook is the exception instance, the level of the log event is assumed to be `LogLevel::ERROR`, and the channel `Channels::DEBUG`, but it is possible to explicitly pass error level and error channel:
+When the only argument passed to the `wonolog.log` action is the exception instance, the level of the log event is assumed to be `LogLevel::ERROR`, and the channel `Channels::DEBUG`.
+However, it is possible to explicitly pass error level and error channel, like this:
 
 ```php
 do_action( 'wonolog.log', $exception, Logger::CRITICAL, Channels::DB );
 ```
 
-## Level-rich log hooks
 
-As of now, we seen only one Wonolog log hook, **`'wonolog.log'`**.
+## Level-rich Log Hooks
 
-However, there are more hooks that can be used to log data.
+So far, we only used a single Wonolog action: **`'wonolog.log'`**.
 
-These are hooks **who embeds error level** in them.
+However, there are more action hooks that can be used to log data.
+
+These are hooks that **embed error level**.
 
 For example, the following log code:
 
@@ -196,15 +186,15 @@ For example, the following log code:
 do_action( 'wonolog.log', [ 'message' => 'Please log me!', 'level' => 'INFO' ] );
 ```
 
-can be also rewritten like so:
+can also be written like so:
 
 ```php
 do_action( 'wonolog.log.info', [ 'message' => 'Please log me!' ] );
 ```
 
-This could make logging actions calls more concise, even without relying in Wonolog objects (and thus not making code using these hooks dependant on Wonolog).
+This could make logging action calls more concise, even without relying on Wonolog objects (and thus not making code using these hooks dependent on Wonolog).
 
-There is one hook per each PSR-3 log level, so we have:
+There is one hook for each of the PSR-3 log levels, so we have:
 
 - `'wonolog.log.emergency'`
 - `'wonolog.log.alert'`
@@ -215,41 +205,42 @@ There is one hook per each PSR-3 log level, so we have:
 - `'wonolog.log.info'`
 - `'wonolog.log.debug'`
 
-In case one of the above hook is used passing some data that *also* contains hook level information, the level with  higher severity *wins*.
+In case one of the above hook is used passing some data that *also* contains hook level information, the **level with higher severity _wins_**.
 
-For example:
+Let's have some examples:
 
 ```php
-// In this case the logged level will be "ERROR", because it has higher severity than "DEBUG"
+// In this case, the logged level will be "ERROR", because it has a higher severity than "DEBUG".
 do_action( 'wonolog.log.debug', [ 'message' => 'Please log me!', 'level' => 'ERROR' ] );
 
-// In this case the logged level will be "CRITICAL", because it has higher severity than "ERROR"
+// In this case, the logged level will be "CRITICAL", because it has higher severity than "ERROR".
 do_action( 'wonolog.log.critical', [ 'message' => 'Please log me!', 'level' => 'ERROR' ] );
 ```
 
-The same applies if the data is done with Wonolog log data objects:
+The same applies if the data is provided as Wonolog log data object:
 
 ```php
-// In this case the logged level will be "ERROR", because it has higher severity than "DEBUG"
-do_action( 'wonolog.log.error', new Debug( 'message' => 'Please log me!' ));
+// In this case, the logged level will be "ERROR", because it has higher severity than "DEBUG".
+do_action( 'wonolog.log.error', new Data\Debug( 'Please log me!' ) );
 
-// In this case the logged level will be "CRITICAL", because it has higher severity than "ERROR"
-do_action( 'wonolog.log.critical', new Log( 'Please log me!', Logger::ERROR ) );
+// In this case, the logged level will be "CRITICAL", because it has higher severity than "ERROR".
+do_action( 'wonolog.log.critical', new Data\Error( 'Please log me!' ) );
 ```
+
 
 ----
 
 Read next:
 
-- [03 - A deeper look at Wonolog](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/03-a-deeper-look-at-wonolog.md)
-- [04 - Hook listeners](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/04-hook-listeners.md)
-- [05 - Wonolog customization](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/05-wonolog-customization.md)
-- [06 - Custom hook listeners](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/06-custom-hook-listeners.md)
+- [03 - A Deeper Look at Wonolog](03-a-deeper-look-at-wonolog.md) to learn more advanced concepts and features of Wonolog.
+- [04 - Hook Listeners](04-hook-listeners.md) to read about hook listeners, the powerful feature of Wonolog that allows for logging any WordPress code.
+- [05 - Wonolog Customization](05-wonolog-customization.md) for a deep travel through all the possible configurations available for any aspect of the package.
+- [06 - Custom Hook Listeners](06-custom-hook-listeners.md) to see a complete example of a custom hook listener, its integration in Wonolog, and all the things that you need to know in order to write reusable Wonolog extensions.
 
 Read previous: 
 
-- [01 - Monolog Primer](https://github.com/inpsyde/wonolog/blob/front-controller-refactoring/docs/01-monolog-primer.md)
+- [01 - Monolog Primer](01-monolog-primer.md) to learn a bit more about Monolog core concepts.
 
 -------
 
-[< Back to index](https://github.com/inpsyde/wonolog/)
+[< Back to Index](https://github.com/inpsyde/wonolog/)
