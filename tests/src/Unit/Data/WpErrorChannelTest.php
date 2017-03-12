@@ -1,26 +1,35 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
- * (c) Giuseppe Mazzapica
+ * (c) Inpsyde GmbH
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Data;
+namespace Inpsyde\Wonolog\Tests\Unit\Data;
 
+use Brain\Monkey\Functions;
 use Brain\Monkey\WP\Filters;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\WpErrorChannel;
 use Inpsyde\Wonolog\Tests\TestCase;
 
 /**
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
- * @package wonolog
+ * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
 class WpErrorChannelTest extends TestCase {
+
+	protected function setUp() {
+		
+		Functions::when( 'is_wp_error' )->alias( function($thing) {
+			return $thing instanceof \WP_Error;
+		});
+
+		parent::setUp();
+	}
 
 	public function test_for_error() {
 

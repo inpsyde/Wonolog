@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of theInpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -15,25 +15,27 @@ use Inpsyde\Wonolog\Tests\TestCase;
 use Monolog\Logger;
 
 /**
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
- * @package wonolog
+ * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
+ *
+ * @runTestsInSeparateProcesses
  */
 class LogLevelTest extends TestCase {
 
-	protected function setUp() {
+	protected function tearDown() {
 
 		putenv( 'WONOLOG_DEFAULT_MIN_LEVEL' );
-		parent::setUp();
+		parent::tearDown();
 	}
 
 	public function test_default_level_by_env_string() {
 
+		define('DIE', 1);
 		putenv( 'WONOLOG_DEFAULT_MIN_LEVEL=CRITICAL' );
 
 		$log_level = new LogLevel();
 
-		self::assertSame( Logger::CRITICAL, $log_level->default_level() );
+		self::assertSame( Logger::CRITICAL, $log_level->default_min_level() );
 	}
 
 	public function test_default_level_by_env_num() {
@@ -42,14 +44,14 @@ class LogLevelTest extends TestCase {
 
 		$log_level = new LogLevel();
 
-		self::assertSame( Logger::CRITICAL, $log_level->default_level() );
+		self::assertSame( Logger::CRITICAL, $log_level->default_min_level() );
 	}
 
 	public function test_default_level_by_constant_none() {
 
 		$log_level = new LogLevel();
 
-		self::assertSame( Logger::ERROR, $log_level->default_level() );
+		self::assertSame( Logger::ERROR, $log_level->default_min_level() );
 	}
 
 	public function test_check_level_accepts_positive_numbers() {
@@ -86,7 +88,7 @@ class LogLevelTest extends TestCase {
 
 		$log_level = new LogLevel();
 
-		self::assertSame( Logger::DEBUG, $log_level->default_level() );
+		self::assertSame( Logger::DEBUG, $log_level->default_min_level() );
 	}
 
 	/**
@@ -99,7 +101,7 @@ class LogLevelTest extends TestCase {
 		$log_level = new LogLevel();
 
 		self::assertFalse( defined( 'WP_DEBUG_LOG' ) );
-		self::assertSame( Logger::DEBUG, $log_level->default_level() );
+		self::assertSame( Logger::DEBUG, $log_level->default_min_level() );
 	}
 
 	/**
@@ -112,7 +114,7 @@ class LogLevelTest extends TestCase {
 
 		$log_level = new LogLevel();
 
-		self::assertSame( Logger::ERROR, $log_level->default_level() );
+		self::assertSame( Logger::ERROR, $log_level->default_min_level() );
 	}
 
 	/**
@@ -126,7 +128,7 @@ class LogLevelTest extends TestCase {
 
 		$log_level = new LogLevel();
 
-		self::assertSame( Logger::EMERGENCY, $log_level->default_level() );
+		self::assertSame( Logger::EMERGENCY, $log_level->default_min_level() );
 	}
 
 }

@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -17,7 +17,6 @@ use Inpsyde\Wonolog\Data\NullLog;
 /**
  * Looks at fronted requests and to find and log any errors.
  *
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
  */
 final class QueryErrorsListener implements ActionListenerInterface {

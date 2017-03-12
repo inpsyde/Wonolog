@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-use Inpsyde\Wonolog\HookListeners\WpDieHandlerListener;
+use Inpsyde\Wonolog\HookListener\WpDieHandlerListener;
 
 if ( class_exists( 'wpdb' ) ) {
 	return;
@@ -28,10 +28,11 @@ class wpdb {
 
 	/**
 	 * @param string $message
+	 * @param string $error_code
 	 *
 	 * @return string
 	 */
-	public function bail( $message ) {
+	public function bail( $message, $error_code = '500' ) {
 
 		$handler = $this->execute_die_listener( $message );
 
@@ -43,7 +44,7 @@ class wpdb {
 	 *
 	 * @return string
 	 */
-	public function print_error( $message ) {
+	public function print_error( $message = '' ) {
 
 		$handler = $this->execute_die_listener( $message );
 

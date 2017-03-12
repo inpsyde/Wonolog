@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -14,11 +14,12 @@ use Inpsyde\Wonolog\Channels;
 use Monolog\Logger;
 
 /**
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
 final class FailedLogin implements LogDataInterface {
+
+	const TRANSIENT_NAME = 'wonolog.failed-login-count';
 
 	/**
 	 * @var string
@@ -38,11 +39,16 @@ final class FailedLogin implements LogDataInterface {
 	private $attempts_data;
 
 	/**
+	 * @var int
+	 */
+	private $attempts;
+
+	/**
 	 * @param string $username Username used for the failed login attempt
 	 */
 	public function __construct( $username ) {
 
-		$this->username = $username;
+		$this->username = is_scalar( $username ) ? (string) $username : 'N/A';
 	}
 
 	/**
@@ -53,16 +59,16 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function level() {
 
-		$attempts = $this->count_attempts( 300 );
+		$this->count_attempts( 300 );
 
 		switch ( TRUE ) {
-			case ( $attempts > 2 && $attempts <= 100 ) :
+			case ( $this->attempts > 2 && $this->attempts <= 100 ) :
 				return Logger::NOTICE;
-			case ( $attempts > 100 && $attempts <= 590 ) :
+			case ( $this->attempts > 100 && $this->attempts <= 590 ) :
 				return Logger::WARNING;
-			case ( $attempts > 590 && $attempts <= 990 ) :
+			case ( $this->attempts > 590 && $this->attempts <= 990 ) :
 				return Logger::ERROR;
-			case ( $attempts > 990 ) :
+			case ( $this->attempts > 990 ) :
 				return Logger::CRITICAL;
 		}
 
@@ -75,11 +81,11 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function context() {
 
-		list( $ip, $from ) = $this->sniff_ip();
+		$this->sniff_ip();
 
 		return [
-			'ip'       => $ip,
-			'ip_from'  => $from,
+			'ip'       => $this->ip_data[ 0 ],
+			'ip_from'  => $this->ip_data[ 1 ],
 			'username' => $this->username
 		];
 	}
@@ -89,24 +95,22 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function message() {
 
+		$this->count_attempts( 300 );
+
 		if ( ! $this->attempts_data ) {
 			return '';
 		}
 
-		list( $ip ) = $this->sniff_ip();
-		if ( ! isset( $this->attempts_data[ $ip ][ 'count' ] ) ) {
+		$this->sniff_ip();
+		if ( ! isset( $this->attempts_data[ $this->ip_data[ 0 ] ][ 'count' ] ) ) {
 			return '';
 		}
 
-		$message = sprintf(
+		return sprintf(
 			"%d failed login attempts from username '%s' in last 5 minutes",
-			$this->attempts_data[ $ip ][ 'count' ],
+			$this->attempts_data[ $this->ip_data[ 0 ] ][ 'count' ],
 			$this->username
 		);
-
-		$this->attempts_data[ $ip ] = [];
-
-		return $message;
 	}
 
 	/**
@@ -119,30 +123,22 @@ final class FailedLogin implements LogDataInterface {
 
 	/**
 	 * Try to sniff the current client IP.
-	 *
-	 * @return array
 	 */
 	private function sniff_ip() {
 
 		if ( $this->ip_data ) {
-			return $this->ip_data;
+			return;
 		}
 
 		if ( PHP_SAPI === 'cli' ) {
 			$this->ip_data = [ '127.0.0.1', 'CLI' ];
 
-			return $this->ip_data;
+			return;
 		}
 
-		foreach ( [ 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'REMOTE_ADDR' ] as $key ) {
-			if ( array_key_exists( $key, $_SERVER ) ) {
-				$this->ip_data = [ $_SERVER[ $key ], $key ];
-			}
-		}
-
-		$this->ip_data or $this->ip_data = [ '0.0.0.0', 'Hidden IP' ];
-
-		return $this->ip_data;
+		$ip_server_keys = [ 'REMOTE_ADDR' => '', 'HTTP_CLIENT_IP' => '', 'HTTP_X_FORWARDED_FOR' => '',  ];
+		$ips            = array_intersect_key( $_SERVER, $ip_server_keys );
+		$this->ip_data  = $ips ? [ reset( $ips ), key( $ips ) ] : [ '0.0.0.0', 'Hidden IP' ];
 	}
 
 	/**
@@ -150,14 +146,17 @@ final class FailedLogin implements LogDataInterface {
 	 * Use a site transient to count them.
 	 *
 	 * @param int $ttl transient time to live in seconds
-	 *
-	 * @return int
 	 */
 	private function count_attempts( $ttl = 300 ) {
 
-		list( $ip ) = $this->sniff_ip();
+		if ( isset( $this->attempts ) ) {
+			return;
+		}
 
-		$attempts = get_site_transient( 'wonolog.failed-login-count' ) ? : [];
+		$this->sniff_ip();
+		$ip = $this->ip_data[ 0 ];
+
+		$attempts = get_site_transient( self::TRANSIENT_NAME ) ? : [];
 
 		// Seems the first time a failed attempt for this IP
 		if ( ! $attempts || ! array_key_exists( $ip, $attempts ) ) {
@@ -165,14 +164,7 @@ final class FailedLogin implements LogDataInterface {
 		}
 
 		$attempts[ $ip ][ 'count' ] ++;
-
-		// A couple of failed login attempts in 5 minutes are not a big deal.
-		if ( $attempts[ $ip ][ 'count' ] < 3 ) {
-			set_site_transient( 'wonolog.failed-login-count', $attempts, $ttl );
-			$this->attempts_data = $attempts;
-
-			return 0;
-		}
+		$this->attempts_data = $attempts;
 
 		$count       = $attempts[ $ip ][ 'count' ];
 		$last_logged = $attempts[ $ip ][ 'last_logged' ];
@@ -188,22 +180,14 @@ final class FailedLogin implements LogDataInterface {
 		 */
 
 		$do_log =
-			( $last_logged === 0 )
+			$count === 3
 			|| ( $count < 100 && ( $count - $last_logged ) === 20 )
 			|| ( $count < 1000 && ( $count - $last_logged ) === 100 )
 			|| ( ( $count - $last_logged ) === 200 );
 
-		if ( ! $do_log ) {
-			set_site_transient( 'wonolog.failed-login-count', $attempts, $ttl );
+		$do_log and $attempts[ $ip ][ 'last_logged' ] = $count;
+		set_site_transient( self::TRANSIENT_NAME, $attempts, $ttl );
 
-			return 0;
-		}
-
-		$attempts[ $ip ][ 'last_logged' ] = $count;
-
-		set_site_transient( 'wonolog.failed-login-count', $attempts, $ttl );
-		$this->attempts_data = $attempts;
-
-		return $count;
+		$this->attempts = $do_log ? $count : 0;
 	}
 }

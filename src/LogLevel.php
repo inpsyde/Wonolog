@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -17,14 +17,14 @@ use Monolog\Logger;
  *
  * It also has a method to check the validity of a value as level identifier.
  *
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
- * @package Inpsyde GmbH
+ * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
 class LogLevel {
 
-	const FILTER_MIN_LEVEL = 'wonolog.default-min-level';
-
+	/**
+	 * @var int
+	 */
 	private static $min_level;
 
 	/**
@@ -43,7 +43,11 @@ class LogLevel {
 	 *
 	 * @return int
 	 */
-	public function default_level() {
+	public function default_min_level() {
+
+		if ( isset( self::$min_level ) ) {
+			return self::$min_level;
+		}
 
 		$env_level = getenv( 'WONOLOG_DEFAULT_MIN_LEVEL' );
 		$min_level = $env_level === FALSE ? 0 : $env_level;
@@ -56,15 +60,7 @@ class LogLevel {
 			$min_level = ( defined( $const ) && constant( $const ) ) ? $min_level = Logger::DEBUG : Logger::ERROR;
 		}
 
-		/**
-		 * Filters the default minimum log level.
-		 * Any non-numeric value returned is ignored and the value before filters is used.
-		 *
-		 * @param int $min_level
-		 */
-		$filtered = apply_filters( self::FILTER_MIN_LEVEL, $min_level );
-
-		self::$min_level = $this->check_level( $filtered, $levels ) ? : $min_level;
+		self::$min_level = $min_level;
 
 		return $min_level;
 	}

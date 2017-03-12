@@ -1,3 +1,26 @@
+# Backups
+*~
+*.DS_Store
+*.out
+*.so
+*.swp
+
+# Logs
+logs
+*.log
+
+# Composer
 composer.phar
-vendor/
-/phpunit.xml
+composer.lock
+vendor
+
+# PhpStorm
+.idea
+
+# PHPUnit
+coverage.xml
+phpunit.xml
+
+
+# Git
+!.gitkeep

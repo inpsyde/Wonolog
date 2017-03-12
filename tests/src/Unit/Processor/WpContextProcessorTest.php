@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the Inpsyde wonolog package.
+ * This file is part of the Inpsyde Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
@@ -8,18 +8,24 @@
  * file that was distributed with this source code.
  */
 
-namespace Inpsyde\Wonolog\Tests\Unit\HookListener\Processor;
+namespace Inpsyde\Wonolog\Tests\Unit\Processor;
 
 use Brain\Monkey\Functions;
 use Inpsyde\Wonolog\Processor\WpContextProcessor;
 use Inpsyde\Wonolog\Tests\TestCase;
 
 /**
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
- * @package wonolog
+ * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
 class WpContextProcessorTest extends TestCase {
+
+	protected function setUp() {
+
+		parent::setUp();
+		Functions::when( 'get_option' )
+			->justReturn();
+	}
 
 	public function test_admin_before_init_single_site() {
 
