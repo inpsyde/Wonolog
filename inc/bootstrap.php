@@ -16,7 +16,6 @@ use Monolog\Handler\HandlerInterface;
  * We want to load this file just once. Being loaded by Composer autoload, and being in WordPress context,
  * we have to put special care on this.
  */
-
 if ( defined( __NAMESPACE__ . '\\LOG' ) ) {
 	return;
 }
@@ -59,7 +58,7 @@ function bootstrap(
 		$controller->use_default_hook_listeners();
 	}
 
-	if ( ( $flags & USE_DEFAULT_HANDLER ) || $default_handler ) {
+	if ( $default_handler || ( $flags & USE_DEFAULT_HANDLER ) ) {
 		$controller->use_default_handler( $default_handler );
 	}
 
