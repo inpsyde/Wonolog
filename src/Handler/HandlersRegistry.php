@@ -88,8 +88,7 @@ class HandlersRegistry implements \Countable {
 			do_action( self::ACTION_REGISTER, $this );
 		}
 
-		$name instanceof HandlerInterface and $name = spl_object_hash( $name );
-		$name = (string) $name;
+		$name = $name instanceof HandlerInterface ? spl_object_hash( $name ) : (string) $name;
 
 		if ( ! $this->has_handler( $name ) ) {
 			return NULL;
