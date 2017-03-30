@@ -64,7 +64,6 @@ final class DateBasedStreamHandler extends AbstractProcessingHandler {
 		$this->locking     = (bool) $locking;
 
 		parent::__construct( $level, $bubble );
-
 	}
 
 	/**
@@ -224,5 +223,4 @@ final class DateBasedStreamHandler extends AbstractProcessingHandler {
 		return $timestamp_now;
 
 	}
-
 }
