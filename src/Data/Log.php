@@ -121,7 +121,7 @@ final class Log implements LogDataInterface {
 			self::MESSAGE => 'Unknown error',
 			self::LEVEL   => Logger::DEBUG,
 			self::CHANNEL => Channels::DEBUG,
-			self::CONTEXT => []
+			self::CONTEXT => [],
 		];
 
 		$log_level = LogLevel::instance();
@@ -173,7 +173,7 @@ final class Log implements LogDataInterface {
 			self::MESSAGE => $this->message(),
 			self::LEVEL   => $this->level(),
 			self::CHANNEL => $this->channel(),
-			self::CONTEXT => $this->context()
+			self::CONTEXT => $this->context(),
 		];
 
 		return self::from_array( shortcode_atts( $base, $log_data ) );
@@ -190,7 +190,7 @@ final class Log implements LogDataInterface {
 			self::MESSAGE => $log->message(),
 			self::LEVEL   => $log->level(),
 			self::CHANNEL => $log->channel(),
-			self::CONTEXT => $log->context()
+			self::CONTEXT => $log->context(),
 		];
 
 		return $this->merge_array( $log_data );
