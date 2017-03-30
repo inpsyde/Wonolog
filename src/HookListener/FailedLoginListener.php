@@ -43,7 +43,7 @@ final class FailedLoginListener implements ActionListenerInterface {
 	 */
 	public function update( array $args ) {
 
-		$username = $args ? reset( $args ) : 'Unknown';
+		$username = $args ? reset( $args ) : 'Unknown user';
 
 		return new FailedLogin( $username );
 	}

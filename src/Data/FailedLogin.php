@@ -48,12 +48,12 @@ final class FailedLogin implements LogDataInterface {
 	 */
 	public function __construct( $username ) {
 
-		$this->username = is_scalar( $username ) ? (string) $username : 'N/A';
+		$this->username = is_scalar( $username ) ? (string) $username : 'Unknown user';
 	}
 
 	/**
 	 * Determine severity of the error based on the number of login attempts in
-	 * las 5 minutes.
+	 * last 5 minutes.
 	 *
 	 * @return int
 	 */
