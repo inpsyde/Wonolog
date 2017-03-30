@@ -338,5 +338,4 @@ class Controller {
 
 		return $this;
 	}
-
 }
