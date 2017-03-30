@@ -42,14 +42,12 @@ class MailerListener implements ActionListenerInterface {
 
 		switch ( current_filter() ) {
 			case 'phpmailer_init' :
-				$this->on_mailer_init( $args );
-				break;
+				return $this->on_mailer_init( $args );
 			case 'wp_mail_failed' :
 				return $this->on_mail_failed( $args );
 		}
 
 		return new NullLog();
-
 	}
 
 	/**
@@ -70,18 +68,20 @@ class MailerListener implements ActionListenerInterface {
 
 	/**
 	 * @param array $args
+	 *
+	 * @return LogDataInterface
 	 */
 	private function on_mailer_init( array $args ) {
 
 		$mailer = $args ? reset( $args ) : NULL;
-		if ( ! $mailer instanceof \PHPMailer ) {
-			return;
+		if ( $mailer instanceof \PHPMailer ) {
+			$mailer->SMTPDebug   = 2;
+			$mailer->Debugoutput = function ( $message ) {
+
+				do_action( \Inpsyde\Wonolog\LOG, new Debug( $message, Channels::HTTP ) );
+			};
 		}
 
-		$mailer->SMTPDebug   = 2;
-		$mailer->Debugoutput = function ( $message ) {
-
-			do_action( \Inpsyde\Wonolog\LOG, new Debug( $message, Channels::HTTP ) );
-		};
+		return new NullLog();
 	}
 }
