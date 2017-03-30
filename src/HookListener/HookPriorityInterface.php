@@ -25,5 +25,4 @@ interface HookPriorityInterface {
 	 * @return int
 	 */
 	public function priority();
-
 }
