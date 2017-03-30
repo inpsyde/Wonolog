@@ -25,5 +25,4 @@ interface HookListenerInterface {
 	 * @return string|string[]
 	 */
 	public function listen_to();
-
 }
