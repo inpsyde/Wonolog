@@ -58,6 +58,9 @@ final class CronDebugListener implements ActionListenerInterface {
 		return 'wp_loaded';
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function is_cli() {
 
 		return ( $this->flags & self::IS_CLI ) || ( defined( 'WP_CLI' ) && WP_CLI );
