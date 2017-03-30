@@ -22,5 +22,4 @@ interface FilterListenerInterface extends HookListenerInterface {
 	 * @return mixed
 	 */
 	public function filter( array $args );
-
 }
