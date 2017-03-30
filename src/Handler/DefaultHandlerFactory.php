@@ -87,8 +87,7 @@ class DefaultHandlerFactory {
 				isset( $stat[ 'mode' ] ) ? ( $stat[ 'mode' ] & 0007777 ) : 0755,
 				apply_filters( self::FILTER_USE_LOCKING, TRUE )
 			);
-		}
-		catch ( \Exception $e ) {
+		} catch ( \Exception $e ) {
 			$handler = new NullHandler();
 		}
 
@@ -186,5 +185,4 @@ class DefaultHandlerFactory {
 
 		return $target_dir;
 	}
-
 }
