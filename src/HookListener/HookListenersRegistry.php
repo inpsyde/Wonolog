@@ -123,6 +123,5 @@ class HookListenersRegistry {
 
 			return $is_filter ? $listener->filter( $args ) : NULL;
 		};
-
 	}
 }
