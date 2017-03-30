@@ -51,7 +51,7 @@ class PhpErrorController {
 		'_FILES',
 		'_COOKIE',
 		'_POST',
-		'_GET'
+		'_GET',
 	];
 
 	/**
@@ -104,7 +104,7 @@ class PhpErrorController {
 					'exception' => get_class( $e ),
 					'file'      => $e->getFile(),
 					'line'      => $e->getLine(),
-					'trace'     => $e->getTraceAsString()
+					'trace'     => $e->getTraceAsString(),
 				]
 			)
 		);
@@ -139,5 +139,4 @@ class PhpErrorController {
 			$this->on_error( $error[ 'type' ], $error[ 'message' ], $error[ 'file' ], $error[ 'line' ] );
 		}
 	}
-
 }
