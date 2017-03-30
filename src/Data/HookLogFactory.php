@@ -132,5 +132,4 @@ class HookLogFactory {
 
 		return [ $level, $channel ];
 	}
-
 }
