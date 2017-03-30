@@ -45,16 +45,17 @@ class LogLevel {
 	 */
 	public function default_min_level() {
 
-		if ( isset( self::$min_level ) ) {
+		if ( self::$min_level !== null ) {
 			return self::$min_level;
 		}
 
 		$env_level = getenv( 'WONOLOG_DEFAULT_MIN_LEVEL' );
-		$min_level = intval( $env_level );
+		// here $min_level is a string (raw env vars are always strings) or false
+		$min_level = $env_level;
 
-		$levels    = Logger::getLevels();
+		$levels = Logger::getLevels();
 		$min_level = $this->check_level( $min_level, $levels );
-
+		// Now here $min_level is surely a integer, but could be 0, and in that case we set it from WP constants
 		if ( ! $min_level ) {
 			$const     = defined( 'WP_DEBUG_LOG' ) ? 'WP_DEBUG_LOG' : 'WP_DEBUG';
 			$min_level = ( defined( $const ) && constant( $const ) ) ? Logger::DEBUG : Logger::ERROR;

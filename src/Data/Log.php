@@ -42,9 +42,10 @@ final class Log implements LogDataInterface {
 	private $level;
 
 	/**
-	 * @param \WP_Error $error
-	 * @param int       $level
-	 * @param string    $channel
+	 * @param \WP_Error  $error
+	 * @param string|int $level   A string representing the level, e.g. `"NOTICE"` or an integer, very likely via Logger
+	 *                            constants, e.g. `Logger::NOTICE`
+	 * @param string     $channel Channel name
 	 *
 	 * @return Log
 	 */
@@ -74,8 +75,9 @@ final class Log implements LogDataInterface {
 	}
 
 	/**
-	 * @param \Throwable|\Exception $throwable
-	 * @param int|string            $level
+	 * @param \Throwable $throwable
+	 * @param int|string $level     A string representing the level, e.g. `"NOTICE"` or an integer, very likely
+	 *                              via Logger constants, e.g. `Logger::NOTICE`
 	 * @param string                $channel
 	 * @param array                 $context
 	 *
@@ -128,7 +130,7 @@ final class Log implements LogDataInterface {
 		$levels    = Logger::getLevels();
 
 		if ( isset( $log_data[ self::LEVEL ] ) && is_string( $log_data[ self::LEVEL ] ) ) {
-			$log_data[ 'level' ] = $log_level->check_level( $log_data[ 'level' ], $levels );
+			$log_data[ self::LEVEL ] = $log_level->check_level( $log_data[ self::LEVEL ], $levels );
 		}
 
 		$log_data = array_filter( filter_var_array( $log_data, self::$filters ) );
@@ -136,18 +138,18 @@ final class Log implements LogDataInterface {
 		$data = array_merge( $defaults, $log_data );
 
 		return new static(
-			(string) $data[ self::MESSAGE ],
-			(int) $data[ self::LEVEL ],
-			(string) $data[ self::CHANNEL ],
-			(array) $data[ self::CONTEXT ]
+			$data[ self::MESSAGE ],
+			$data[ self::LEVEL ],
+			$data[ self::CHANNEL ],
+			$data[ self::CONTEXT ]
 		);
 	}
 
 	/**
-	 * @param string $message
-	 * @param int    $level
-	 * @param string $channel
-	 * @param array  $context
+	 * @param string     $message
+	 * @param int|string $level
+	 * @param string     $channel
+	 * @param array      $context
 	 */
 	public function __construct(
 		$message = '',
@@ -198,9 +200,10 @@ final class Log implements LogDataInterface {
 
 	/**
 	 * @param string $key
-	 * @param mixed $value
+	 * @param mixed  $value
 	 *
 	 * @return Log
+	 * @throws \InvalidArgumentException
 	 */
 	public function with( $key, $value ) {
 
