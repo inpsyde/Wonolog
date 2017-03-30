@@ -73,7 +73,6 @@ final class FailedLogin implements LogDataInterface {
 		}
 
 		return 0;
-
 	}
 
 	/**
@@ -86,7 +85,7 @@ final class FailedLogin implements LogDataInterface {
 		return [
 			'ip'       => $this->ip_data[ 0 ],
 			'ip_from'  => $this->ip_data[ 1 ],
-			'username' => $this->username
+			'username' => $this->username,
 		];
 	}
 
@@ -156,7 +155,8 @@ final class FailedLogin implements LogDataInterface {
 		$this->sniff_ip();
 		$ip = $this->ip_data[ 0 ];
 
-		$attempts = get_site_transient( self::TRANSIENT_NAME ) ? : [];
+		$attempts = get_site_transient( self::TRANSIENT_NAME );
+		is_array( $attempts ) or $attempts = [];
 
 		// Seems the first time a failed attempt for this IP
 		if ( ! $attempts || ! array_key_exists( $ip, $attempts ) ) {
@@ -178,7 +178,6 @@ final class FailedLogin implements LogDataInterface {
 		 * - every 100 when total attempts are > 182 && < 1182 (183rd, 283rd...)
 		 * - every 200 when total attempts are > 1182 (1183rd, 1383rd...)
 		 */
-
 		$do_log =
 			$count === 3
 			|| ( $count < 100 && ( $count - $last_logged ) === 20 )
