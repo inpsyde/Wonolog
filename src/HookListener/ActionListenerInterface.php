@@ -24,5 +24,4 @@ interface ActionListenerInterface extends HookListenerInterface {
 	 * @return LogDataInterface
 	 */
 	public function update( array $args );
-
 }
