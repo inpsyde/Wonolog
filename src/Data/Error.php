@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the Inpsyde Wonolog package.
+ * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
  *

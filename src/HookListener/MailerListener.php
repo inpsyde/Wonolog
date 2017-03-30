@@ -1,6 +1,6 @@
 <?php # -*- coding: utf-8 -*-
 /*
- * This file is part of the wonolog package.
+ * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
  *
