@@ -37,7 +37,7 @@ final class Log implements LogDataInterface {
 	];
 
 	/**
-	 * @var string
+	 * @var int
 	 */
 	private $level;
 
@@ -156,9 +156,9 @@ final class Log implements LogDataInterface {
 		array $context = []
 	) {
 
-		$this->level   = $level;
-		$this->message = $message;
-		$this->channel = $channel;
+		$this->level   = (int) $level;
+		$this->message = (string) $message;
+		$this->channel = (string) $channel;
 		$this->context = $context;
 	}
 

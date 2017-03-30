@@ -116,6 +116,7 @@ class Channels {
 	 */
 	public function logger( $channel ) {
 
+		$channel = (string) $channel;
 		if ( ! $this->has_channel( $channel ) ) {
 			throw InvalidChannelNameException::for_unregistered_channel( $channel );
 		}

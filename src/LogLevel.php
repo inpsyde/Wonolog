@@ -50,14 +50,14 @@ class LogLevel {
 		}
 
 		$env_level = getenv( 'WONOLOG_DEFAULT_MIN_LEVEL' );
-		$min_level = $env_level === FALSE ? 0 : $env_level;
+		$min_level = intval( $env_level );
 
 		$levels    = Logger::getLevels();
 		$min_level = $this->check_level( $min_level, $levels );
 
 		if ( ! $min_level ) {
 			$const     = defined( 'WP_DEBUG_LOG' ) ? 'WP_DEBUG_LOG' : 'WP_DEBUG';
-			$min_level = ( defined( $const ) && constant( $const ) ) ? $min_level = Logger::DEBUG : Logger::ERROR;
+			$min_level = ( defined( $const ) && constant( $const ) ) ? Logger::DEBUG : Logger::ERROR;
 		}
 
 		self::$min_level = $min_level;

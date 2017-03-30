@@ -42,7 +42,7 @@ class WpErrorChannel {
 
 		$instance        = new static;
 		$instance->error = $error;
-		$channel and $instance->channel = $channel;
+		$channel and $instance->channel = (string) $channel;
 
 		return $instance;
 	}

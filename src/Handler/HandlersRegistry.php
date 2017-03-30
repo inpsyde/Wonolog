@@ -77,7 +77,7 @@ class HandlersRegistry implements \Countable {
 	}
 
 	/**
-	 * @param string $name
+	 * @param string|HandlerInterface $name
 	 *
 	 * @return HandlerInterface|null
 	 */
@@ -89,6 +89,7 @@ class HandlersRegistry implements \Countable {
 		}
 
 		$name instanceof HandlerInterface and $name = spl_object_hash( $name );
+		$name = (string) $name;
 
 		if ( ! $this->has_handler( $name ) ) {
 			return NULL;

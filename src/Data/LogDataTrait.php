@@ -38,9 +38,9 @@ trait LogDataTrait {
 	 */
 	public function __construct( $message, $channel, array $context = [] ) {
 
-		$this->message = $message;
+		$this->message = (string) $message;
+		$this->channel = (string) $channel;
 		$this->context = $context;
-		$this->channel = $channel;
 	}
 
 	/**

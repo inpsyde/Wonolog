@@ -38,7 +38,7 @@ final class CronDebugListener implements ActionListenerInterface {
 	private $flags = 0;
 
 	/**
-	 * @var array
+	 * @var array[]
 	 */
 	private $done = [];
 

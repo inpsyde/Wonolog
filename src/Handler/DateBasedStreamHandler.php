@@ -60,7 +60,7 @@ final class DateBasedStreamHandler extends AbstractProcessingHandler {
 		}
 
 		$this->file_format = $file_format;
-		$this->date_format = $date_format;
+		$this->date_format = (string) $date_format;
 		$this->locking     = (bool) $locking;
 
 		parent::__construct( $level, $bubble );
@@ -116,6 +116,7 @@ final class DateBasedStreamHandler extends AbstractProcessingHandler {
 			}
 		);
 
+		unset( $this->handlers );
 		$this->handlers = [];
 	}
 
