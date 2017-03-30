@@ -86,14 +86,12 @@ class LogActionSubscriber {
 				->logger( $log->channel() )
 				->addRecord( $log->level(), $log->message(), $log->context() );
 
-		}
-		catch ( \Throwable $e ) {
+		} catch ( \Throwable $e ) {
 
 			do_action( self::ACTION_LOGGER_ERROR, $log, $e );
 
 			return FALSE;
-		}
-		catch ( \Exception $e ) {
+		} catch ( \Exception $e ) {
 
 			do_action( self::ACTION_LOGGER_ERROR, $log, $e );
 
@@ -119,5 +117,4 @@ class LogActionSubscriber {
 
 		return Logger::DEBUG;
 	}
-
 }
