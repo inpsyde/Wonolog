@@ -194,5 +194,4 @@ class Channels {
 
 		return NULL;
 	}
-
 }
