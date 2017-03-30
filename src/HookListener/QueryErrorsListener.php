@@ -52,18 +52,18 @@ final class QueryErrorsListener implements ActionListenerInterface {
 		isset( $wp->query_vars[ 'error' ] ) and $error[] = $wp->query_vars[ 'error' ];
 		is_404() and $error[] = '404 Page not found';
 
-		if ( ! empty( $error ) ) {
-			$url     = filter_var( add_query_arg( [] ), FILTER_SANITIZE_URL );
-			$message = "Error on frontend request for url {$url}.";
-			$context = [
-				'error'        => $error,
-				'query_vars'   => $wp->query_vars,
-				'matched_rule' => $wp->matched_rule,
-			];
-
-			return new Debug( $message, Channels::HTTP, $context );
+		if ( empty( $error ) ) {
+			return new NullLog();
 		}
 
-		return new NullLog();
+		$url     = filter_var( add_query_arg( [] ), FILTER_SANITIZE_URL );
+		$message = "Error on frontend request for url {$url}.";
+		$context = [
+			'error'        => $error,
+			'query_vars'   => $wp->query_vars,
+			'matched_rule' => $wp->matched_rule,
+		];
+
+		return new Debug( $message, Channels::HTTP, $context );
 	}
 }
