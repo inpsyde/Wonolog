@@ -48,5 +48,4 @@ class InvalidChannelNameException extends \Exception {
 			)
 		);
 	}
-
 }
