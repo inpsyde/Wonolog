@@ -130,5 +130,4 @@ class WpErrorChannel {
 
 		return '';
 	}
-
 }
