@@ -16,8 +16,11 @@ namespace Inpsyde\Wonolog\HookListener;
  */
 trait ListenerIdByClassNameTrait {
 
+	/**
+	 * @return string
+	 */
 	public function id() {
+
 		return __CLASS__;
 	}
-
 }
