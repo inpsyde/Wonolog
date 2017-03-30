@@ -112,5 +112,4 @@ class ProcessorsRegistry implements \Countable {
 
 		return "{$class}::{$callable[1]}";
 	}
-
 }
