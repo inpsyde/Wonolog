@@ -56,6 +56,7 @@ final class WpDieHandlerListener implements FilterListenerInterface {
 			$context            = $args;
 			$context[ 'title' ] = $title;
 
+			// Log the wp_die() error message.
 			do_action( \Inpsyde\Wonolog\LOG, new Error( $msg, Channels::DB, $context ) );
 
 			return $handler( $message, $title, $args );

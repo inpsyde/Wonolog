@@ -87,12 +87,17 @@ class LogActionSubscriber {
 				->addRecord( $log->level(), $log->message(), $log->context() );
 
 		} catch ( \Throwable $e ) {
-
+			/**
+			 * Fires when the logger encounters an error.
+			 *
+			 * @param LogDataInterface      $log
+			 * @param \Exception|\Throwable $e
+			 */
 			do_action( self::ACTION_LOGGER_ERROR, $log, $e );
 
 			return FALSE;
 		} catch ( \Exception $e ) {
-
+			/** This action is documented in src/LogActionSubscriber.php */
 			do_action( self::ACTION_LOGGER_ERROR, $log, $e );
 
 			return FALSE;

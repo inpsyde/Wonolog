@@ -38,6 +38,9 @@ class Channels {
 	const FILTER_USE_DEFAULT_HANDLER = 'wonolog.use-default-handler';
 	const FILTER_USE_DEFAULT_PROCESSOR = 'wonolog.use-default-processor';
 
+	/**
+	 * @var string[]
+	 */
 	private static $default_channels = [
 		Channels::HTTP,
 		Channels::DB,
@@ -75,8 +78,12 @@ class Channels {
 	 */
 	public static function all_channels() {
 
-		$default_channels = self::$default_channels;
-		$channels         = apply_filters( self::FILTER_CHANNELS, $default_channels );
+		/**
+		 * Filters the channels to use.
+		 *
+		 * @param string[] $channels
+		 */
+		$channels = apply_filters( self::FILTER_CHANNELS, self::$default_channels );
 
 		return is_array( $channels ) ? array_unique( array_filter( $channels, 'is_string' ) ) : [];
 	}
@@ -148,8 +155,13 @@ class Channels {
 		$default_processor and $logger = $logger->pushProcessor( $default_processor );
 
 		/**
-		 * Fire before a logger is used first time.
-		 * Can be used to setup the logger, for example adding handlers or processors.
+		 * Fires right before a logger is used for the first time.
+		 *
+		 * Hook here to set up the logger (e.g., add handlers or processors).
+		 *
+		 * @param Logger             $logger
+		 * @param HandlersRegistry   $handlers_registry
+		 * @param ProcessorsRegistry $processors_registry
 		 */
 		do_action( self::ACTION_LOGGER, $logger, $this->handlers_registry, $this->processors_registry );
 
@@ -157,23 +169,29 @@ class Channels {
 	}
 
 	/**
-	 * @param $logger
+	 * @param Logger $logger
 	 *
 	 * @return HandlerInterface|null
 	 */
-	private function use_default_handler( $logger ) {
+	private function use_default_handler( Logger $logger ) {
 
 		$handler = $this->handlers_registry->find( HandlersRegistry::DEFAULT_NAME );
-
-		if (
-			$handler instanceof HandlerInterface
-			&& (bool) apply_filters( self::FILTER_USE_DEFAULT_HANDLER, TRUE, $logger, $handler )
-		) {
-
-			return $handler;
+		if ( ! $handler instanceof HandlerInterface ) {
+			return NULL;
 		}
 
-		return NULL;
+		/**
+		 * Filters whether to use the default handler.
+		 *
+		 * @param bool             $use_default_handler
+		 * @param Logger           $logger
+		 * @param HandlerInterface $handler
+		 */
+		if ( ! apply_filters( self::FILTER_USE_DEFAULT_HANDLER, TRUE, $logger, $handler ) ) {
+			return NULL;
+		}
+
+		return $handler;
 	}
 
 	/**
@@ -184,12 +202,19 @@ class Channels {
 	private function use_default_processor( $logger ) {
 
 		$processor = $this->processors_registry->find( ProcessorsRegistry::DEFAULT_NAME );
+		if ( ! is_callable( $processor ) ) {
 
-		if (
-			is_callable( $processor )
-			&& (bool) apply_filters( self::FILTER_USE_DEFAULT_PROCESSOR, TRUE, $logger, $processor )
-		) {
+			return NULL;
+		}
 
+		/**
+		 * Filters whether to use the default processor.
+		 *
+		 * @param bool     $use_default_processor
+		 * @param Logger   $logger
+		 * @param callable $processor
+		 */
+		if ( apply_filters( self::FILTER_USE_DEFAULT_PROCESSOR, TRUE, $logger, $processor ) ) {
 			return $processor;
 		}
 

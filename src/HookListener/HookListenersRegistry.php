@@ -36,12 +36,23 @@ class HookListenersRegistry {
 
 		$instance = new static();
 
+		/**
+		 * Fires right before hook listeners are registered.
+		 *
+		 * @param HookListenersRegistry $registry
+		 */
 		do_action( self::ACTION_REGISTER, $instance );
 
 		array_walk(
 			$instance->listeners,
 			function ( HookListenerInterface $listener ) use ( $instance ) {
 
+				/**
+				 * Filters whether to enable the hook listener.
+				 *
+				 * @param bool                  $enable
+				 * @param HookListenerInterface $listener
+				 */
 				if ( apply_filters( self::FILTER_ENABLED, TRUE, $listener ) ) {
 					$hooks = (array) $listener->listen_to();
 					array_walk( $hooks, [ $instance, 'listen_hook' ], $listener );
@@ -96,6 +107,12 @@ class HookListenersRegistry {
 
 		$priority = $listener instanceof HookPriorityInterface ? (int) $listener->priority() : PHP_INT_MAX - 10;
 
+		/**
+		 * Filters the hook listener priority.
+		 *
+		 * @param int    $priority
+		 * @param string $hook
+		 */
 		$filtered = apply_filters( self::FILTER_PRIORITY, $priority, $hook );
 		is_numeric( $filtered ) and $priority = (int) $filtered;
 
@@ -118,7 +135,10 @@ class HookListenersRegistry {
 
 			if ( ! $is_filter ) {
 				$log = $listener->update( $args );
-				$log instanceof LogDataInterface and do_action( \Inpsyde\Wonolog\LOG, $log );
+				if ( $log instanceof LogDataInterface ) {
+					// Log the udate result.
+					do_action( \Inpsyde\Wonolog\LOG, $log );
+				}
 			}
 
 			return $is_filter ? $listener->filter( $args ) : NULL;

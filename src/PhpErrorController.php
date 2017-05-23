@@ -77,6 +77,7 @@ class PhpErrorController {
 		$log_context[ 'file' ] = $file;
 		$log_context[ 'line' ] = $line;
 
+		// Log the PHP error.
 		do_action(
 			\Inpsyde\Wonolog\LOG,
 			new Log( $str, self::$errors_level_map[ $num ], Channels::PHP_ERROR, $log_context )
@@ -94,6 +95,7 @@ class PhpErrorController {
 	 */
 	public function on_exception( $e ) {
 
+		// Log the PHP exception.
 		do_action(
 			\Inpsyde\Wonolog\LOG,
 			new Log(

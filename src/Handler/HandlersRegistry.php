@@ -85,6 +85,12 @@ class HandlersRegistry implements \Countable {
 
 		if ( ! is_array( $this->initialized ) ) {
 			$this->initialized = [];
+
+			/**
+			 * Fires right before the first handler is to be registered.
+			 *
+			 * @param HandlersRegistry $handlers_registry
+			 */
 			do_action( self::ACTION_REGISTER, $this );
 		}
 
@@ -98,6 +104,14 @@ class HandlersRegistry implements \Countable {
 
 		if ( ! in_array( $name, $this->initialized, TRUE ) ) {
 			$this->initialized[] = $name;
+
+			/**
+			 * Fires right after a handler has been registered.
+			 *
+			 * @param HandlerInterface   $handler
+			 * @param string             $name
+			 * @param ProcessorsRegistry $processors_registry
+			 */
 			do_action( self::ACTION_SETUP, $handler, $name, $this->processors_registry );
 		}
 

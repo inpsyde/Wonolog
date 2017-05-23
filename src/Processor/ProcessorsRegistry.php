@@ -71,6 +71,12 @@ class ProcessorsRegistry implements \Countable {
 
 		if ( ! $this->initialized ) {
 			$this->initialized = TRUE;
+
+			/**
+			 * Fires right before the first processor is to be registered.
+			 *
+			 * @param ProcessorsRegistry $processors_registry
+			 */
 			do_action( self::ACTION_REGISTER, $this );
 		}
 

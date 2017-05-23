@@ -79,13 +79,28 @@ class DefaultHandlerFactory {
 		$stat      = @stat( $folder );
 
 		try {
+			/**
+			 * Filters whether messages bubble up the stack.
+			 *
+			 * @param bool $bubble
+			 */
+			$bubble = (bool) apply_filters( self::FILTER_BUBBLE, TRUE );
+
+			/**
+			 * Filters whether to try to lock the log file before writing.
+			 *
+			 * @param bool $use_locking
+			 */
+			$use_locking = apply_filters( self::FILTER_USE_LOCKING, TRUE );
+
 			$handler = new DateBasedStreamHandler(
 				"{$folder}/{$filename_format}",
 				$date_format,
 				$log_level->default_min_level(),
-				apply_filters( self::FILTER_BUBBLE, TRUE ),
+				$bubble,
+				// TODO: Remove next line (and stat() call above)!?
 				isset( $stat[ 'mode' ] ) ? ( $stat[ 'mode' ] & 0007777 ) : 0755,
-				apply_filters( self::FILTER_USE_LOCKING, TRUE )
+				$use_locking
 			);
 		} catch ( \Exception $e ) {
 			$handler = new NullHandler();
@@ -105,6 +120,11 @@ class DefaultHandlerFactory {
 			$folder = rtrim( WP_CONTENT_DIR, '\\/' ) . '/wonolog';
 		}
 
+		/**
+		 * Filters the handler folder to use.
+		 *
+		 * @param string $folder
+		 */
 		$folder = apply_filters( self::FILTER_FOLDER, $folder );
 		is_string( $folder ) or $folder = '';
 
@@ -123,10 +143,20 @@ class DefaultHandlerFactory {
 	 */
 	private function handler_file_info() {
 
+		/**
+		 * Filters the handler filename format to use.
+		 *
+		 * @param string $format
+		 */
 		$filename_format = apply_filters( self::FILTER_FILENAME, '{date}.log' );
-		$date_format     = apply_filters( self::FILTER_DATE_FORMAT, 'Y/m/d' );
-
 		is_string( $filename_format ) and $filename_format = ltrim( $filename_format, '\\/' );
+
+		/**
+		 * Filters the handler date format to use.
+		 *
+		 * @param string $format
+		 */
+		$date_format = apply_filters( self::FILTER_DATE_FORMAT, 'Y/m/d' );
 
 		return [ $filename_format, $date_format ];
 	}

@@ -68,9 +68,15 @@ class WpErrorChannel {
 
 		$channel or $channel = Channels::DEBUG;
 
+		/**
+		 * Filters the WordPress error channel.
+		 *
+		 * @param string         $channel
+		 * @param \WP_Error|null $error
+		 */
 		$filtered = apply_filters( self::FILTER_CHANNEL, $channel, $this->error );
-		is_string( $filtered ) and $channel = $filtered;
-		$this->channel = $channel;
+
+		$this->channel = is_string( $filtered ) ? $filtered : $channel;
 
 		return $this->channel;
 	}

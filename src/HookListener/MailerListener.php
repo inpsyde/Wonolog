@@ -78,6 +78,7 @@ class MailerListener implements ActionListenerInterface {
 			$mailer->SMTPDebug   = 2;
 			$mailer->Debugoutput = function ( $message ) {
 
+				// Log the mailer debug message.
 				do_action( \Inpsyde\Wonolog\LOG, new Debug( $message, Channels::HTTP ) );
 			};
 		}

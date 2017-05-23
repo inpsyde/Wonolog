@@ -40,13 +40,25 @@ class Controller {
 	 */
 	public function setup( $priority = 100 ) {
 
-		// We use WONOLOG_DISABLE instead of WONOLOG_ENABLE so that not defined (default) means enabled.
-		$disable_by_env = filter_var( getenv( 'WONOLOG_DISABLE' ), FILTER_VALIDATE_BOOLEAN );
-
-		if ( did_action( self::ACTION_SETUP ) || apply_filters( self::FILTER_DISABLE, $disable_by_env ) ) {
+		if ( did_action( self::ACTION_SETUP ) ) {
 			return $this;
 		}
 
+		// We use WONOLOG_DISABLE instead of WONOLOG_ENABLE so that not defined (default) means enabled.
+		$disable_by_env = filter_var( getenv( 'WONOLOG_DISABLE' ), FILTER_VALIDATE_BOOLEAN );
+
+		/**
+		 * Filters whether to completely disable Wonolog.
+		 *
+		 * @param bool $disable
+		 */
+		if ( apply_filters( self::FILTER_DISABLE, $disable_by_env ) ) {
+			return $this;
+		}
+
+		/**
+		 * Fires right before Wonolog is set up.
+		 */
 		do_action( self::ACTION_SETUP );
 
 		$processor_registry = new ProcessorsRegistry();
@@ -63,6 +75,9 @@ class Controller {
 
 		add_action( 'muplugins_loaded', [ HookListenersRegistry::class, 'initialize' ], PHP_INT_MAX );
 
+		/**
+		 * Fires right after Wonolog has been set up.
+		 */
 		do_action( self::ACTION_LOADED );
 
 		return $this;

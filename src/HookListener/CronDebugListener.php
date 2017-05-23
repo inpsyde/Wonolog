@@ -154,6 +154,7 @@ final class CronDebugListener implements ActionListenerInterface {
 
 			$this->done[ $hook ][ 'duration' ] = $duration . ' s';
 
+			// Log the cron action performed.
 			do_action(
 				\Inpsyde\Wonolog\LOG,
 				new Debug( "Cron action \"{$hook}\" performed.", Channels::DEBUG, $this->done[ $hook ] )
