@@ -110,10 +110,11 @@ class HookListenersRegistry {
 		/**
 		 * Filters the hook listener priority.
 		 *
-		 * @param int    $priority
-		 * @param string $hook
+		 * @param int                   $priority
+		 * @param string                $hook
+		 * @param HookListenerInterface $listener
 		 */
-		$filtered = apply_filters( self::FILTER_PRIORITY, $priority, $hook );
+		$filtered = apply_filters( self::FILTER_PRIORITY, $priority, $hook, $listener );
 		is_numeric( $filtered ) and $priority = (int) $filtered;
 
 		return $is_filter
