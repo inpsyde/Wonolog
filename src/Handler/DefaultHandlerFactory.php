@@ -76,7 +76,6 @@ class DefaultHandlerFactory {
 		list( $filename_format, $date_format ) = $this->handler_file_info();
 
 		$log_level = LogLevel::instance();
-		$stat      = @stat( $folder );
 
 		try {
 			/**
@@ -98,8 +97,6 @@ class DefaultHandlerFactory {
 				$date_format,
 				$log_level->default_min_level(),
 				$bubble,
-				// TODO: Remove next line (and stat() call above)!?
-				isset( $stat[ 'mode' ] ) ? ( $stat[ 'mode' ] & 0007777 ) : 0755,
 				$use_locking
 			);
 		} catch ( \Exception $e ) {
