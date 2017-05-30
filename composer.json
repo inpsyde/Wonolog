@@ -1,9 +1,10 @@
 {
   "name": "inpsyde/wonolog",
-  "description": "Monolog-based logger package for WordPress",
+  "description": "Monolog-based logging package for WordPress.",
   "keywords": [
     "debug",
     "debugging",
+    "log",
     "logger",
     "logging",
     "monolog",

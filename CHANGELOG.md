@@ -1,11 +1,19 @@
 Changelog
 =========
 
+## [v1.0.0 (2017-06-XX)](https://github.com/inpsyde/wonolog/releases/tag/1.0.0)
+
+_First **public** release._
+
+-------
+
 ## [v0.2.2 (2016-11-08)](https://github.com/inpsyde/wonolog/releases/tag/0.2.2)
 
 ### Fixed
 
-- Strict standard error in PHP 5.* that criticize re-declaration of properties in classes previously declared by trait. See [#3](https://github.com/inpsyde/wonolog/issues/4)
+- Strict standard error in PHP 5.* that criticize re-declaration of properties in classes previously declared by trait, see [#4](https://github.com/inpsyde/wonolog/issues/4)
+
+-------
 
 ## [v0.2.1 (2016-10-25)](https://github.com/inpsyde/wonolog/releases/tag/0.2.1)
 
@@ -24,7 +32,7 @@ Changelog
 
 ### Changed
 
-- Changed `PhpErrorController` method names to use snake_case.
+- Changed `PhpErrorController` method names to use snake_case
 - Refactoring of bootstrap file, delay of bootstrap routine to priority 20 of "muplugins_loaded"
 - Updated README with info on new and changed features
 
@@ -40,4 +48,4 @@ Changelog
 
 ## [v0.1.0 (2016-10-18)](https://github.com/inpsyde/wonolog/releases/tag/0.1.0)
 
-_First release_
+_First release._
