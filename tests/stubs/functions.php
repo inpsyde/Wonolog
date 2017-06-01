@@ -95,7 +95,7 @@ if ( ! function_exists( 'get_current_blog_id' ) ) {
 	}
 }
 
-if ( ! function_exists( 'get_current_blog_id' ) ) {
+if ( ! function_exists( 'get_current_network_id' ) ) {
 	function get_current_network_id() {
 
 		return 1;
