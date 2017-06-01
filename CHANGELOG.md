@@ -1,21 +1,21 @@
 Changelog
 =========
 
-## [v1.0.0 (2017-06-XX)](https://github.com/inpsyde/wonolog/releases/tag/1.0.0)
+## [v1.0.0 (2017-06-01)](https://github.com/inpsyde/Wonolog/releases/tag/1.0.0)
 
 _First **public** release._
 
 -------
 
-## [v0.2.2 (2016-11-08)](https://github.com/inpsyde/wonolog/releases/tag/0.2.2)
+## [v0.2.2 (2016-11-08)](https://github.com/inpsyde/Wonolog/releases/tag/0.2.2)
 
 ### Fixed
 
-- Strict standard error in PHP 5.* that criticize re-declaration of properties in classes previously declared by trait, see [#4](https://github.com/inpsyde/wonolog/issues/4)
+- Strict standard error in PHP 5.* that criticize re-declaration of properties in classes previously declared by trait, see [#4](https://github.com/inpsyde/Wonolog/issues/4)
 
 -------
 
-## [v0.2.1 (2016-10-25)](https://github.com/inpsyde/wonolog/releases/tag/0.2.1)
+## [v0.2.1 (2016-10-25)](https://github.com/inpsyde/Wonolog/releases/tag/0.2.1)
 
 ### Fixed
 
@@ -23,7 +23,7 @@ _First **public** release._
 
 -------
 
-## [v0.2.0 (2016-10-20)](https://github.com/inpsyde/wonolog/releases/tag/0.2.0)
+## [v0.2.0 (2016-10-20)](https://github.com/inpsyde/Wonolog/releases/tag/0.2.0)
 
 ### Added
 
@@ -38,7 +38,7 @@ _First **public** release._
 
 -------
 
-## [v0.1.1 (2016-10-20)](https://github.com/inpsyde/wonolog/releases/tag/0.1.1)
+## [v0.1.1 (2016-10-20)](https://github.com/inpsyde/Wonolog/releases/tag/0.1.1)
 
 ### Fixed
 
@@ -46,6 +46,6 @@ _First **public** release._
 
 -------
 
-## [v0.1.0 (2016-10-18)](https://github.com/inpsyde/wonolog/releases/tag/0.1.0)
+## [v0.1.0 (2016-10-18)](https://github.com/inpsyde/Wonolog/releases/tag/0.1.0)
 
 _First release._
