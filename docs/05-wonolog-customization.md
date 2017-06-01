@@ -551,4 +551,4 @@ Read previous:
 
 -------
 
-[< Back to Index](https://github.com/inpsyde/wonolog/)
+[< Back to Index](https://github.com/inpsyde/Wonolog/)

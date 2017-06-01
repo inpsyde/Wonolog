@@ -23,7 +23,7 @@ if ( ! defined( 'PHPUNIT_COMPOSER_INSTALL' ) ) {
 
 /**
  * Make sure strict standards are reported
- * @link https://github.com/inpsyde/wonolog/issues/4
+ * @link https://github.com/inpsyde/Wonolog/issues/4
  */
 error_reporting( E_ALL );
 
