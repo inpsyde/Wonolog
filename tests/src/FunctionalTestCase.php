@@ -7,6 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace Inpsyde\Wonolog\Tests;
 
 use Brain\Monkey;
@@ -46,7 +47,7 @@ class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
 		parent::tearDown();
 	}
 
-	private function mock_hook_functions(  ) {
+	private function mock_hook_functions() {
 
 		Functions::when( 'add_action' )
 			->alias(
@@ -99,6 +100,10 @@ class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
 				}
 			);
 
+		Functions::expect( 'get_option' )
+			->with( 'permalink_structure' )
+			->andReturn( FALSE );
+
 	}
 
 	/**
@@ -144,6 +149,7 @@ class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
 				array_walk(
 					$callbacks,
 					function ( callable $callback ) use ( &$args, $filter, $hook ) {
+
 						$value = call_user_func_array( $callback, $args );
 						$filter and $args[ 0 ] = $value;
 					}
