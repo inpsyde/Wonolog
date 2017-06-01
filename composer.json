@@ -26,6 +26,11 @@
       "role": "Developer"
     }
   ],
+  "support": {
+    "issues": "https://github.com/inpsyde/Wonolog/issues",
+    "source": "https://github.com/inpsyde/Wonolog",
+    "docs": "https://inpsyde.github.io/Wonolog/"
+  },
   "minimum-stability": "stable",
   "require": {
     "php": ">=5.6",
@@ -38,7 +43,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Inpsyde\\Wonolog\\": "src/"
+      "Inpsyde\\Wonolog\\": "src"
     },
     "files": [
       "inc/bootstrap.php"
@@ -46,7 +51,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Inpsyde\\Wonolog\\Tests\\": "tests/src/"
+      "Inpsyde\\Wonolog\\Tests\\": "tests/src"
     }
   },
   "config": {
