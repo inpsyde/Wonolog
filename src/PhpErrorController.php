@@ -83,7 +83,7 @@ class PhpErrorController {
 			new Log( $str, self::$errors_level_map[ $num ], Channels::PHP_ERROR, $log_context )
 		);
 
-		return FALSE;
+		return (bool) apply_filters( 'wonolog.php-error-handler-return', FALSE, [ $num, $str, $file, $line ] );
 	}
 
 	/**
