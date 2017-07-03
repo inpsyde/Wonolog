@@ -57,15 +57,15 @@ class PhpErrorController {
 	/**
 	 * Error handler.
 	 *
-	 * @param  int        $num
-	 * @param  string     $str
+	 * @param  int        $type
+	 * @param  string     $message
 	 * @param  string     $file
 	 * @param  int        $line
 	 * @param  array|null $context
 	 *
 	 * @return bool
 	 */
-	public function on_error( $num, $str, $file, $line, $context = NULL ) {
+	public function on_error( $type, $message, $file, $line, $context = NULL ) {
 
 		$log_context = [];
 		if ( $context ) {
@@ -80,10 +80,23 @@ class PhpErrorController {
 		// Log the PHP error.
 		do_action(
 			\Inpsyde\Wonolog\LOG,
-			new Log( $str, self::$errors_level_map[ $num ], Channels::PHP_ERROR, $log_context )
+			new Log( $message, self::$errors_level_map[ $type ], Channels::PHP_ERROR, $log_context )
 		);
 
-		return (bool) apply_filters( 'wonolog.php-error-handler-return', FALSE, [ $num, $str, $file, $line ] );
+		/**
+		 * Filters the return value for error handler.
+		 *
+		 * By default `false`. Returning `true` prevents any further processing from PHP default handler.
+		 *
+		 * @param bool  $return_value
+		 * @param array $last_error   Associative array describing the last error with keys "type", "message", "file"
+		 *                            and "line". Similar to what `error_get_last()` returns.
+		 */
+		return (bool) apply_filters(
+			'wonolog.php-error-handler-return',
+			FALSE,
+			compact( 'type', 'message', 'file', 'line' )
+		);
 	}
 
 	/**
