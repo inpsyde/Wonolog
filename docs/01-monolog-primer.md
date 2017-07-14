@@ -21,7 +21,7 @@ It is strongly suggested to read the [Monolog documentation about its core conce
 
 The main objects in Monolog are *loggers*. 
 
-Every logger as a *channel* and one or more *handlers*.
+Every logger has a *channel* and one or more *handlers*.
 
 The channel is just a name for the logger, and it let's you identify the _kind_ of events that the logger handles.
 
