@@ -10,8 +10,8 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit;
 
-use Brain\Monkey\WP\Actions;
-use Brain\Monkey\WP\Filters;
+use Brain\Monkey\Actions;
+use Brain\Monkey\Filters;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Controller;
 use Inpsyde\Wonolog\Handler\HandlersRegistry;
@@ -36,7 +36,7 @@ class ControllerTest extends TestCase {
 	public function test_setup_disabled_via_env() {
 
 		putenv( "WONOLOG_DISABLE=1" );
-		Actions::expectFired( Controller::ACTION_SETUP )
+		Actions\expectDone( Controller::ACTION_SETUP )
 			->never();
 
 		$controller = new Controller();
@@ -48,7 +48,7 @@ class ControllerTest extends TestCase {
 		do_action( Controller::ACTION_SETUP );
 
 		putenv( "WONOLOG_DISABLE=1" );
-		Actions::expectFired( Controller::ACTION_SETUP )
+		Actions\expectDone( Controller::ACTION_SETUP )
 			->never();
 
 		$controller = new Controller();
@@ -57,10 +57,10 @@ class ControllerTest extends TestCase {
 
 	public function test_setup_add_hooks_once() {
 
-		Actions::expectFired( Controller::ACTION_SETUP )
+		Actions\expectDone( Controller::ACTION_SETUP )
 			->once();
 
-		Actions::expectAdded( \Inpsyde\Wonolog\LOG )
+		Actions\expectAdded( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( \Mockery::type( 'callable' ), 123, PHP_INT_MAX );
 
@@ -76,16 +76,16 @@ class ControllerTest extends TestCase {
 		);
 
 		foreach ( $levels as $level => $severity ) {
-			Actions::expectAdded( \Inpsyde\Wonolog\LOG . $level )
+			Actions\expectAdded( \Inpsyde\Wonolog\LOG . $level )
 				->once()
 				->with( \Mockery::type( 'callable' ), 123 + ( 601 - $severity ), PHP_INT_MAX );
 		}
 
-		Actions::expectAdded( 'muplugins_loaded' )
+		Actions\expectAdded( 'muplugins_loaded' )
 			->once()
 			->with( [ HookListenersRegistry::class, 'initialize' ], PHP_INT_MAX );
 
-		Actions::expectFired( Controller::ACTION_LOADED )
+		Actions\expectDone( Controller::ACTION_LOADED )
 			->once();
 
 		$controller = new Controller();
@@ -99,7 +99,7 @@ class ControllerTest extends TestCase {
 	 */
 	public function test_log_php_errors_run_once() {
 
-		Filters::expectAdded( Channels::FILTER_CHANNELS )
+		Filters\expectAdded( Channels::FILTER_CHANNELS )
 			->once();
 
 		$controller = new Controller();
@@ -113,7 +113,7 @@ class ControllerTest extends TestCase {
 	 */
 	public function test_use_default_handler_add_hook_once() {
 
-		Actions::expectAdded( HandlersRegistry::ACTION_REGISTER )
+		Actions\expectAdded( HandlersRegistry::ACTION_REGISTER )
 			->once();
 
 		$controller = new Controller();
@@ -123,10 +123,10 @@ class ControllerTest extends TestCase {
 
 	public function test_use_handler_add_hooks() {
 
-		Actions::expectAdded( HandlersRegistry::ACTION_REGISTER )
+		Actions\expectAdded( HandlersRegistry::ACTION_REGISTER )
 			->twice();
 
-		Actions::expectAdded( Channels::ACTION_LOGGER )
+		Actions\expectAdded( Channels::ACTION_LOGGER )
 			->twice();
 
 		$controller = new Controller();
@@ -142,7 +142,7 @@ class ControllerTest extends TestCase {
 	 */
 	public function test_use_default_processor_add_hook_once() {
 
-		Actions::expectAdded( ProcessorsRegistry::ACTION_REGISTER )
+		Actions\expectAdded( ProcessorsRegistry::ACTION_REGISTER )
 			->once();
 
 		$controller = new Controller();
@@ -152,10 +152,10 @@ class ControllerTest extends TestCase {
 
 	public function test_use_processor_no_channels_add_hook() {
 
-		Actions::expectAdded( ProcessorsRegistry::ACTION_REGISTER )
+		Actions\expectAdded( ProcessorsRegistry::ACTION_REGISTER )
 			->twice();
 
-		Actions::expectAdded( Channels::ACTION_LOGGER )
+		Actions\expectAdded( Channels::ACTION_LOGGER )
 			->twice();
 
 		$controller = new Controller();
@@ -165,10 +165,10 @@ class ControllerTest extends TestCase {
 
 	public function test_use_processor_with_channels_add_hooks() {
 
-		Actions::expectAdded( ProcessorsRegistry::ACTION_REGISTER )
+		Actions\expectAdded( ProcessorsRegistry::ACTION_REGISTER )
 			->twice();
 
-		Actions::expectAdded( Channels::ACTION_LOGGER )
+		Actions\expectAdded( Channels::ACTION_LOGGER )
 			->twice();
 
 		$controller = new Controller();
@@ -178,10 +178,10 @@ class ControllerTest extends TestCase {
 
 	public function test_use_processor_for_handlers_add_hooks_if_handlers() {
 
-		Actions::expectAdded( ProcessorsRegistry::ACTION_REGISTER )
+		Actions\expectAdded( ProcessorsRegistry::ACTION_REGISTER )
 			->twice();
 
-		Actions::expectAdded( HandlersRegistry::ACTION_SETUP )
+		Actions\expectAdded( HandlersRegistry::ACTION_SETUP )
 			->twice();
 
 		$controller = new Controller();
@@ -194,7 +194,7 @@ class ControllerTest extends TestCase {
 	 */
 	public function test_use_default_hook_listeners_add_hook_once() {
 
-		Actions::expectAdded( HookListenersRegistry::ACTION_REGISTER )
+		Actions\expectAdded( HookListenersRegistry::ACTION_REGISTER )
 			->once();
 
 		$controller = new Controller();
@@ -208,7 +208,7 @@ class ControllerTest extends TestCase {
 	 */
 	public function test_use_hook_listener_add_hook() {
 
-		Actions::expectAdded( HookListenersRegistry::ACTION_REGISTER )
+		Actions\expectAdded( HookListenersRegistry::ACTION_REGISTER )
 			->twice();
 
 		$controller = new Controller();

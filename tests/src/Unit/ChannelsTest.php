@@ -10,8 +10,8 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit;
 
-use Brain\Monkey\WP\Actions;
-use Brain\Monkey\WP\Filters;
+use Brain\Monkey\Actions;
+use Brain\Monkey\Filters;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Handler\HandlersRegistry;
 use Inpsyde\Wonolog\Processor\ProcessorsRegistry;
@@ -41,7 +41,7 @@ class ChannelsTest extends TestCase {
 
 	public function test_all_channels_allow_filter() {
 
-		Filters::expectApplied( Channels::FILTER_CHANNELS )
+		Filters\expectApplied( Channels::FILTER_CHANNELS )
 			->once()
 			->andReturn( [ 'foo', 1, [] ] );
 
@@ -96,17 +96,17 @@ class ChannelsTest extends TestCase {
 			->with( ProcessorsRegistry::DEFAULT_NAME )
 			->andReturn( 'strtolower' );
 
-		Filters::expectApplied( Channels::FILTER_USE_DEFAULT_HANDLER )
+		Filters\expectApplied( Channels::FILTER_USE_DEFAULT_HANDLER )
 			->once()
 			->with( TRUE, \Mockery::type( Logger::class ), $default_handler )
 			->andReturn( TRUE );
 
-		Filters::expectApplied( Channels::FILTER_USE_DEFAULT_PROCESSOR )
+		Filters\expectApplied( Channels::FILTER_USE_DEFAULT_PROCESSOR )
 			->once()
 			->with( TRUE, \Mockery::type( Logger::class ), 'strtolower' )
 			->andReturn( TRUE );
 
-		Actions::expectFired( Channels::ACTION_LOGGER )
+		Actions\expectDone( Channels::ACTION_LOGGER )
 			->once()
 			->with( \Mockery::type( Logger::class ), $handlers, $processors );
 
@@ -140,12 +140,12 @@ class ChannelsTest extends TestCase {
 			->with( ProcessorsRegistry::DEFAULT_NAME )
 			->andReturn( 'strtolower' );
 
-		Filters::expectApplied( Channels::FILTER_USE_DEFAULT_HANDLER )
+		Filters\expectApplied( Channels::FILTER_USE_DEFAULT_HANDLER )
 			->once()
 			->with( TRUE, \Mockery::type( Logger::class ), $default_handler )
 			->andReturn( FALSE );
 
-		Filters::expectApplied( Channels::FILTER_USE_DEFAULT_PROCESSOR )
+		Filters\expectApplied( Channels::FILTER_USE_DEFAULT_PROCESSOR )
 			->once()
 			->with( TRUE, \Mockery::type( Logger::class ), 'strtolower' )
 			->andReturn( FALSE );
@@ -153,7 +153,7 @@ class ChannelsTest extends TestCase {
 		/** @var $custom_handler HandlerInterface $handler */
 		$custom_handler = \Mockery::mock( HandlerInterface::class );
 
-		Actions::expectFired( Channels::ACTION_LOGGER )
+		Actions\expectDone( Channels::ACTION_LOGGER )
 			->once()
 			->with( \Mockery::type( Logger::class ), $handlers, $processors )
 			->whenHappen(

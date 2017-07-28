@@ -10,7 +10,7 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
-use Brain\Monkey\WP\Actions;
+use Brain\Monkey\Actions;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Error;
 use Inpsyde\Wonolog\HookListener\WpDieHandlerListener;
@@ -24,7 +24,7 @@ class WpDieHandlerListenerTest extends TestCase {
 
 	public function test_log_done_on_bail() {
 
-		Actions::expectFired( \Inpsyde\Wonolog\LOG )
+		Actions\expectDone( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( \Mockery::type( Error::class ) )
 			->whenHappen(
@@ -47,7 +47,7 @@ class WpDieHandlerListenerTest extends TestCase {
 
 	public function test_log_done_on_print_error() {
 
-		Actions::expectFired( \Inpsyde\Wonolog\LOG )
+		Actions\expectDone( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( \Mockery::type( Error::class ) )
 			->whenHappen(

@@ -10,7 +10,7 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit\Processor;
 
-use Brain\Monkey\WP\Actions;
+use Brain\Monkey\Actions;
 use Inpsyde\Wonolog\Processor\ProcessorsRegistry;
 use Inpsyde\Wonolog\Tests\TestCase;
 
@@ -60,7 +60,7 @@ class ProcessorsRegistryTest extends TestCase {
 
 		$registry = new ProcessorsRegistry();
 
-		Actions::expectFired( ProcessorsRegistry::ACTION_REGISTER )
+		Actions\expectDone( ProcessorsRegistry::ACTION_REGISTER )
 			->once()
 			->with( $registry );
 
@@ -75,7 +75,7 @@ class ProcessorsRegistryTest extends TestCase {
 
 		$registry = new ProcessorsRegistry();
 
-		Actions::expectFired( ProcessorsRegistry::ACTION_REGISTER )
+		Actions\expectDone( ProcessorsRegistry::ACTION_REGISTER )
 			->once()
 			->with( $registry )
 			->whenHappen(

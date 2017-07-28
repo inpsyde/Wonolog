@@ -11,7 +11,6 @@
 namespace Inpsyde\Wonolog\Tests\Unit\Handler;
 
 use Brain\Monkey\Functions;
-use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Handler\DateBasedStreamHandler;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Monolog\Handler\StreamHandler;
@@ -25,7 +24,7 @@ class DateBasedStreamHandlerTest extends TestCase {
 
 	protected function setUp() {
 
-		Functions::when( 'wp_normalize_path' )
+		Functions\when( 'wp_normalize_path' )
 			->alias(
 				function ( $str ) {
 
@@ -33,7 +32,7 @@ class DateBasedStreamHandlerTest extends TestCase {
 				}
 			);
 
-		Functions::when( 'wp_mkdir_p' )
+		Functions\when( 'wp_mkdir_p' )
 			->alias(
 				function ( $str ) {
 

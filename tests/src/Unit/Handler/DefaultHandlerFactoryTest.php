@@ -10,8 +10,8 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit\Handler;
 
+use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
-use Brain\Monkey\WP\Filters;
 use Inpsyde\Wonolog\Handler\DefaultHandlerFactory;
 use Inpsyde\Wonolog\Handler\DateBasedStreamHandler;
 use Inpsyde\Wonolog\Tests\TestCase;
@@ -26,7 +26,7 @@ class DefaultHandlerFactoryTest extends TestCase {
 
 	protected function setUp() {
 
-		Functions::when( 'wp_normalize_path' )
+		Functions\when( 'wp_normalize_path' )
 			->alias(
 				function ( $str ) {
 
@@ -34,7 +34,7 @@ class DefaultHandlerFactoryTest extends TestCase {
 				}
 			);
 
-		Functions::when( 'wp_mkdir_p' )
+		Functions\when( 'wp_mkdir_p' )
 			->alias(
 				function ( $str ) {
 
@@ -101,7 +101,7 @@ class DefaultHandlerFactoryTest extends TestCase {
 
 	public function test_default_handler_is_null_if_invalid_file_format_from_hooks() {
 
-		Filters::expectApplied( DefaultHandlerFactory::FILTER_FILENAME )
+		Filters\expectApplied( DefaultHandlerFactory::FILTER_FILENAME )
 			->once()
 			->andReturn( 'foo' );
 
@@ -117,7 +117,7 @@ class DefaultHandlerFactoryTest extends TestCase {
 
 	public function test_default_handler_is_null_if_invalid_date_format_from_hooks() {
 
-		Filters::expectApplied( DefaultHandlerFactory::FILTER_DATE_FORMAT )
+		Filters\expectApplied( DefaultHandlerFactory::FILTER_DATE_FORMAT )
 			->once()
 			->andReturn( 'meeeee' );
 
@@ -133,15 +133,15 @@ class DefaultHandlerFactoryTest extends TestCase {
 
 	public function test_default_handler_custom_path_from_hooks() {
 
-		Filters::expectApplied( DefaultHandlerFactory::FILTER_DATE_FORMAT )
+		Filters\expectApplied( DefaultHandlerFactory::FILTER_DATE_FORMAT )
 			->once()
 			->andReturn( 'mYd' );
 
-		Filters::expectApplied( DefaultHandlerFactory::FILTER_FILENAME )
+		Filters\expectApplied( DefaultHandlerFactory::FILTER_FILENAME )
 			->once()
 			->andReturn( 'wonolog/{date}.text' );
 
-		Filters::expectApplied( DefaultHandlerFactory::FILTER_FOLDER )
+		Filters\expectApplied( DefaultHandlerFactory::FILTER_FOLDER )
 			->once()
 			->andReturn( '/etc/logs/' );
 

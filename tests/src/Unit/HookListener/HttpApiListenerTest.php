@@ -15,8 +15,8 @@ use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\Data\NullLog;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Inpsyde\Wonolog\HookListener\HttpApiListener;
+use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
-use Brain\Monkey\WP\Actions;
 use Monolog\Logger;
 
 /**
@@ -27,10 +27,10 @@ class HttpApiListenerTest extends TestCase {
 
 	public function test_log_done_on_wp_error() {
 
-		Functions::when( 'is_wp_error' )
+		Functions\when( 'is_wp_error' )
 			->justReturn( TRUE );
 
-		Actions::expectFired( \Inpsyde\Wonolog\LOG )
+		Actions\expectDone( \Inpsyde\Wonolog\LOG )
 			->with( \Mockery::type( LogDataInterface::class ) )
 			->whenHappen(
 				function ( LogDataInterface $log ) {
@@ -59,7 +59,7 @@ class HttpApiListenerTest extends TestCase {
 
 		$listener = new HttpApiListener();
 
-		Actions::expectFired( 'http_api_debug' )
+		Actions\expectDone( 'http_api_debug' )
 			->whenHappen(
 				function () use ( $listener ) {
 
@@ -72,10 +72,10 @@ class HttpApiListenerTest extends TestCase {
 
 	public function test_log_done_on_bad_response() {
 
-		Functions::when( 'is_wp_error' )
+		Functions\when( 'is_wp_error' )
 			->justReturn( FALSE );
 
-		Functions::when( 'shortcode_atts' )
+		Functions\when( 'shortcode_atts' )
 			->alias( 'array_merge' );
 
 		$tester = function ( LogDataInterface $log ) {
@@ -99,7 +99,7 @@ class HttpApiListenerTest extends TestCase {
 
 		$listener = new HttpApiListener();
 
-		Actions::expectFired( 'http_api_debug' )
+		Actions\expectDone( 'http_api_debug' )
 			->whenHappen(
 				function () use ( $listener, $tester ) {
 
@@ -117,12 +117,12 @@ class HttpApiListenerTest extends TestCase {
 
 	public function test_log_not_done_on_good_response() {
 
-		Functions::when( 'is_wp_error' )
+		Functions\when( 'is_wp_error' )
 			->justReturn( FALSE );
 
 		$listener = new HttpApiListener();
 
-		Actions::expectFired( 'http_api_debug' )
+		Actions\expectDone( 'http_api_debug' )
 			->whenHappen(
 				function () use ( $listener ) {
 
@@ -141,7 +141,7 @@ class HttpApiListenerTest extends TestCase {
 
 	public function test_log_cron() {
 
-		Functions::when( 'is_wp_error' )
+		Functions\when( 'is_wp_error' )
 			->justReturn( FALSE );
 
 		$tester = function ( LogDataInterface $log ) {
@@ -169,7 +169,7 @@ class HttpApiListenerTest extends TestCase {
 
 		$listener = new HttpApiListener();
 
-		Actions::expectFired( 'http_api_debug' )
+		Actions\expectDone( 'http_api_debug' )
 			->whenHappen(
 				function () use ( $listener, $tester ) {
 

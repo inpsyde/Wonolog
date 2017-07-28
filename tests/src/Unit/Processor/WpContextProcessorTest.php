@@ -23,25 +23,25 @@ class WpContextProcessorTest extends TestCase {
 	protected function setUp() {
 
 		parent::setUp();
-		Functions::when( 'get_option' )
+		Functions\when( 'get_option' )
 			->justReturn();
 	}
 
 	public function test_admin_before_init_single_site() {
 
-		Functions::when( 'is_admin' )
+		Functions\when( 'is_admin' )
 			->justReturn( TRUE );
 
-		Functions::when( 'is_multisite' )
+		Functions\when( 'is_multisite' )
 			->justReturn( FALSE );
 
-		Functions::when( 'set_url_scheme' )
+		Functions\when( 'set_url_scheme' )
 			->returnArg();
 
-		Functions::when( 'get_rest_url' )
+		Functions\when( 'get_rest_url' )
 			->justReturn( 'https://example.com/wp-json' );
 
-		Functions::when( 'add_query_arg' )
+		Functions\when( 'add_query_arg' )
 			->justReturn( 'https://example.com' );
 
 		$processor = new WpContextProcessor();
@@ -63,19 +63,19 @@ class WpContextProcessorTest extends TestCase {
 
 	public function test_frontend_before_init_single_site() {
 
-		Functions::when( 'is_admin' )
+		Functions\when( 'is_admin' )
 			->justReturn( FALSE );
 
-		Functions::when( 'is_multisite' )
+		Functions\when( 'is_multisite' )
 			->justReturn( FALSE );
 
-		Functions::when( 'set_url_scheme' )
+		Functions\when( 'set_url_scheme' )
 			->returnArg();
 
-		Functions::when( 'get_rest_url' )
+		Functions\when( 'get_rest_url' )
 			->justReturn( 'https://example.com/wp-json' );
 
-		Functions::when( 'add_query_arg' )
+		Functions\when( 'add_query_arg' )
 			->justReturn( 'https://example.com' );
 
 		$processor = new WpContextProcessor();
@@ -99,22 +99,22 @@ class WpContextProcessorTest extends TestCase {
 
 		do_action( 'init' );
 
-		Functions::when( 'is_admin' )
+		Functions\when( 'is_admin' )
 			->justReturn( TRUE );
 
-		Functions::when( 'get_current_user_id' )
+		Functions\when( 'get_current_user_id' )
 			->justReturn( 1 );
 
-		Functions::when( 'is_multisite' )
+		Functions\when( 'is_multisite' )
 			->justReturn( FALSE );
 
-		Functions::when( 'set_url_scheme' )
+		Functions\when( 'set_url_scheme' )
 			->returnArg();
 
-		Functions::when( 'get_rest_url' )
+		Functions\when( 'get_rest_url' )
 			->justReturn( 'https://example.com/wp-json' );
 
-		Functions::when( 'add_query_arg' )
+		Functions\when( 'add_query_arg' )
 			->justReturn( 'https://example.com' );
 
 		$processor = new WpContextProcessor();
@@ -139,16 +139,16 @@ class WpContextProcessorTest extends TestCase {
 
 		do_action( 'init' );
 
-		Functions::when( 'is_admin' )
+		Functions\when( 'is_admin' )
 			->justReturn( FALSE );
 
-		Functions::when( 'get_current_user_id' )
+		Functions\when( 'get_current_user_id' )
 			->justReturn( 1 );
 
-		Functions::when( 'is_multisite' )
+		Functions\when( 'is_multisite' )
 			->justReturn( FALSE );
 
-		Functions::when( 'set_url_scheme' )
+		Functions\when( 'set_url_scheme' )
 			->alias(
 				function ( $str ) {
 
@@ -156,10 +156,10 @@ class WpContextProcessorTest extends TestCase {
 				}
 			);
 
-		Functions::when( 'get_rest_url' )
+		Functions\when( 'get_rest_url' )
 			->justReturn( 'https://example.com/wp-json' );
 
-		Functions::when( 'add_query_arg' )
+		Functions\when( 'add_query_arg' )
 			->justReturn( 'http://example.com/wp-json/foo/bar' );
 
 		$processor = new WpContextProcessor();
@@ -186,22 +186,22 @@ class WpContextProcessorTest extends TestCase {
 		do_action( 'init' );
 		do_action( 'parse_request' );
 
-		Functions::when( 'is_admin' )
+		Functions\when( 'is_admin' )
 			->justReturn( FALSE );
 
-		Functions::when( 'get_current_user_id' )
+		Functions\when( 'get_current_user_id' )
 			->justReturn( 1 );
 
-		Functions::when( 'is_multisite' )
+		Functions\when( 'is_multisite' )
 			->justReturn( FALSE );
 
-		Functions::when( 'set_url_scheme' )
+		Functions\when( 'set_url_scheme' )
 			->returnArg();
 
-		Functions::when( 'get_rest_url' )
+		Functions\when( 'get_rest_url' )
 			->justReturn( 'https://example.com/wp-json' );
 
-		Functions::when( 'add_query_arg' )
+		Functions\when( 'add_query_arg' )
 			->justReturn( 'https://example.com/foo' );
 
 		$processor = new WpContextProcessor();
@@ -228,31 +228,31 @@ class WpContextProcessorTest extends TestCase {
 		do_action( 'init' );
 		do_action( 'parse_request' );
 
-		Functions::when( 'is_admin' )
+		Functions\when( 'is_admin' )
 			->justReturn( FALSE );
 
-		Functions::when( 'get_current_user_id' )
+		Functions\when( 'get_current_user_id' )
 			->justReturn( 1 );
 
-		Functions::when( 'is_multisite' )
+		Functions\when( 'is_multisite' )
 			->justReturn( TRUE );
 
-		Functions::when( 'set_url_scheme' )
+		Functions\when( 'set_url_scheme' )
 			->returnArg();
 
-		Functions::when( 'get_rest_url' )
+		Functions\when( 'get_rest_url' )
 			->justReturn( 'https://example.com/wp-json' );
 
-		Functions::when( 'add_query_arg' )
+		Functions\when( 'add_query_arg' )
 			->justReturn( 'https://example.com/foo' );
 
-		Functions::when( 'ms_is_switched' )
+		Functions\when( 'ms_is_switched' )
 			->justReturn( TRUE );
 
-		Functions::when( 'get_current_blog_id' )
+		Functions\when( 'get_current_blog_id' )
 			->justReturn( 2 );
 
-		Functions::when( 'get_current_network_id' )
+		Functions\when( 'get_current_network_id' )
 			->justReturn( 3 );
 
 		$processor = new WpContextProcessor();

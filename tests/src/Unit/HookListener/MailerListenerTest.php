@@ -10,8 +10,8 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
+use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
-use Brain\Monkey\WP\Actions;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\LogDataInterface;
@@ -30,7 +30,7 @@ class MailerListenerTest extends TestCase {
 
 		$listener = new MailerListener();
 
-		Actions::expectFired( 'phpmailer_init' )
+		Actions\expectDone( 'phpmailer_init' )
 			->once()
 			->whenHappen(
 				function ( \PHPMailer $mailer ) use ( $listener ) {
@@ -40,7 +40,7 @@ class MailerListenerTest extends TestCase {
 				}
 			);
 
-		Actions::expectFired( \Inpsyde\Wonolog\LOG )
+		Actions\expectDone( \Inpsyde\Wonolog\LOG )
 			->once()
 			->whenHappen(
 				function ( Debug $debug ) {
@@ -68,7 +68,7 @@ class MailerListenerTest extends TestCase {
 
 		$listener = new MailerListener();
 
-		Functions::when( 'is_wp_error' )
+		Functions\when( 'is_wp_error' )
 			->alias(
 				function ( $thing ) {
 
@@ -76,7 +76,7 @@ class MailerListenerTest extends TestCase {
 				}
 			);
 
-		Actions::expectFired( 'wp_mail_failed' )
+		Actions\expectDone( 'wp_mail_failed' )
 			->once()
 			->whenHappen(
 				function ( \WP_Error $error ) use ( $listener ) {
@@ -111,11 +111,11 @@ class MailerListenerTest extends TestCase {
 
 		$listener = new MailerListener();
 
-		Functions::expect( 'current_filter' )
+		Functions\expect( 'current_filter' )
 			->once()
 			->andReturn( 'wp_mail_failed' );
 
-		Functions::expect( 'is_wp_error' )
+		Functions\expect( 'is_wp_error' )
 			->once()
 			->andReturn( FALSE );
 

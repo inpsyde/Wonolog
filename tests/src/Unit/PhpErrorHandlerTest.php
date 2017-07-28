@@ -13,7 +13,7 @@ namespace Inpsyde\Wonolog\Tests\Unit;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\PhpErrorController;
-use Brain\Monkey\WP\Actions;
+use Brain\Monkey\Actions;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Mockery;
 use Monolog\Logger;
@@ -34,7 +34,7 @@ class PhpErrorHandlerTest extends TestCase {
 
 	public function test_on_error_notice() {
 
-		Actions::expectFired( \Inpsyde\Wonolog\LOG )
+		Actions\expectDone( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( Mockery::type( LogDataInterface::class ) )
 			->whenHappen(
@@ -58,7 +58,7 @@ class PhpErrorHandlerTest extends TestCase {
 
 	public function test_on_error_fatal() {
 
-		Actions::expectFired( \Inpsyde\Wonolog\LOG )
+		Actions\expectDone( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( Mockery::type( LogDataInterface::class ) )
 			->whenHappen(
@@ -82,7 +82,7 @@ class PhpErrorHandlerTest extends TestCase {
 	}
 
 	public function test_on_error_should_not_contain_globals() {
-		Actions::expectFired( 'wonolog.log' )
+		Actions\expectDone( 'wonolog.log' )
 			->once()
 			->with( Mockery::type( LogDataInterface::class ) )
 			->whenHappen(
@@ -111,7 +111,7 @@ class PhpErrorHandlerTest extends TestCase {
 	 */
 	public function test_on_exception() {
 
-		Actions::expectFired( \Inpsyde\Wonolog\LOG )
+		Actions\expectDone( \Inpsyde\Wonolog\LOG )
 			->once()
 			->with( Mockery::type( LogDataInterface::class ) )
 			->whenHappen(

@@ -10,8 +10,8 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit;
 
+use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
-use Brain\Monkey\WP\Actions;
 use Inpsyde\Wonolog;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Controller;
@@ -46,7 +46,7 @@ class LogActionSubscriberTest extends TestCase {
 	 */
 	public function test_listen_call_update() {
 
-		Functions::when( 'current_filter' )
+		Functions\when( 'current_filter' )
 			->justReturn( Wonolog\LOG );
 
 		$log = \Mockery::mock( LogDataInterface::class );
@@ -114,7 +114,7 @@ class LogActionSubscriberTest extends TestCase {
 			->with( Channels::DEBUG )
 			->andReturn( $logger );
 
-		Actions::expectFired( LogActionSubscriber::ACTION_LOGGER_ERROR )
+		Actions\expectDone( LogActionSubscriber::ACTION_LOGGER_ERROR )
 			->once()
 			->with( $log, \Mockery::type( \Exception::class ) );
 

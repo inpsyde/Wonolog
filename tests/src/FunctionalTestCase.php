@@ -35,7 +35,7 @@ class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
 		}
 
 		parent::setUp();
-		Monkey::setUp();
+		Monkey\setUp();
 		$this->mock_hook_functions();
 	}
 
@@ -43,13 +43,13 @@ class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
 
 		$this->callbacks   = [];
 		$this->did_actions = [];
-		Monkey::tearDown();
+		Monkey\tearDown();
 		parent::tearDown();
 	}
 
 	private function mock_hook_functions() {
 
-		Functions::when( 'add_action' )
+		Functions\when( 'add_action' )
 			->alias(
 				function ( $hook, callable $callback, $priority = 10 ) {
 
@@ -57,7 +57,7 @@ class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
 				}
 			);
 
-		Functions::when( 'add_filter' )
+		Functions\when( 'add_filter' )
 			->alias(
 				function ( $hook, callable $callback, $priority = 10 ) {
 
@@ -65,7 +65,7 @@ class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
 				}
 			);
 
-		Functions::when( 'do_action' )
+		Functions\when( 'do_action' )
 			->alias(
 				function () {
 
@@ -74,7 +74,7 @@ class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
 				}
 			);
 
-		Functions::when( 'apply_filters' )
+		Functions\when( 'apply_filters' )
 			->alias(
 				function () {
 
@@ -84,7 +84,7 @@ class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
 				}
 			);
 
-		Functions::when( 'did_action' )
+		Functions\when( 'did_action' )
 			->alias(
 				function ( $action ) {
 
@@ -92,7 +92,7 @@ class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
 				}
 			);
 
-		Functions::when( 'current_filter' )
+		Functions\when( 'current_filter' )
 			->alias(
 				function () {
 
@@ -100,7 +100,7 @@ class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
 				}
 			);
 
-		Functions::expect( 'get_option' )
+		Functions\expect( 'get_option' )
 			->with( 'permalink_structure' )
 			->andReturn( FALSE );
 

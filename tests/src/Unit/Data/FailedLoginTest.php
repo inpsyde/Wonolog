@@ -37,9 +37,9 @@ class FailedLoginTest extends TestCase {
 			return TRUE;
 		};
 
-		Functions::when( 'get_site_transient' )
+		Functions\when( 'get_site_transient' )
 			->alias( $callback );
-		Functions::when( 'set_site_transient' )
+		Functions\when( 'set_site_transient' )
 			->alias( $callback );
 
 		$failed_login = new FailedLogin( 'h4ck3rb0y' );
@@ -106,9 +106,9 @@ class FailedLoginTest extends TestCase {
 			return TRUE;
 		};
 
-		Functions::when( 'get_site_transient' )
+		Functions\when( 'get_site_transient' )
 			->alias( $callback );
-		Functions::when( 'set_site_transient' )
+		Functions\when( 'set_site_transient' )
 			->alias( $callback );
 
 		$expected_msg_format = "%d failed login attempts from username '%s' in last 5 minutes";

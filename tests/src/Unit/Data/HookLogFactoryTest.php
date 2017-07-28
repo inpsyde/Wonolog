@@ -25,7 +25,7 @@ class HookLogFactoryTest extends TestCase {
 
 	protected function setUp() {
 
-		Functions::when( 'is_wp_error' )
+		Functions\when( 'is_wp_error' )
 			->alias(
 				function ( $thing ) {
 

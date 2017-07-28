@@ -11,8 +11,8 @@
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
 use Inpsyde\Wonolog\Channels;
+use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
-use Brain\Monkey\WP\Actions;
 use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\NullLog;
 use Inpsyde\Wonolog\Tests\TestCase;
@@ -55,7 +55,7 @@ class CronDebugListenerTest extends TestCase {
 	 */
 	public function test_update_registers_listeners( $flags ) {
 
-		Functions::when( '_get_cron_array' )
+		Functions\when( '_get_cron_array' )
 			->justReturn(
 				[
 					[ 'action_1' => 'do_something' ],
@@ -63,7 +63,7 @@ class CronDebugListenerTest extends TestCase {
 				]
 			);
 
-		Actions::expectAdded( 'action_1' )
+		Actions\expectAdded( 'action_1' )
 			->twice()
 			->whenHappen(
 				function ( callable $callback ) {
@@ -72,7 +72,7 @@ class CronDebugListenerTest extends TestCase {
 				}
 			);
 
-		Actions::expectAdded( 'action_2' )
+		Actions\expectAdded( 'action_2' )
 			->twice()
 			->whenHappen(
 				function ( callable $callback ) {
@@ -81,7 +81,7 @@ class CronDebugListenerTest extends TestCase {
 				}
 			);
 
-		Actions::expectFired( \Inpsyde\Wonolog\LOG )
+		Actions\expectDone( \Inpsyde\Wonolog\LOG )
 			->with( Debug::class )
 			->once()
 			->whenHappen(

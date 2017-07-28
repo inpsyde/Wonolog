@@ -10,7 +10,7 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit\Handler;
 
-use Brain\Monkey\WP\Actions;
+use Brain\Monkey\Actions;
 use Inpsyde\Wonolog\Handler\HandlersRegistry;
 use Inpsyde\Wonolog\Processor\ProcessorsRegistry;
 use Inpsyde\Wonolog\Tests\TestCase;
@@ -70,7 +70,7 @@ class HandlersRegistryTest extends TestCase {
 		$processors_registry = \Mockery::mock( ProcessorsRegistry::class );
 		$registry            = new HandlersRegistry( $processors_registry );
 
-		Actions::expectFired( HandlersRegistry::ACTION_REGISTER )
+		Actions\expectDone( HandlersRegistry::ACTION_REGISTER )
 			->once()
 			->with( $registry );
 
@@ -91,7 +91,7 @@ class HandlersRegistryTest extends TestCase {
 		$handler_a = \Mockery::mock( HandlerInterface::class );
 		$handler_b = clone $handler_a;
 
-		Actions::expectFired( HandlersRegistry::ACTION_REGISTER )
+		Actions\expectDone( HandlersRegistry::ACTION_REGISTER )
 			->once()
 			->with( $registry )
 			->whenHappen(
@@ -102,11 +102,11 @@ class HandlersRegistryTest extends TestCase {
 				}
 			);
 
-		Actions::expectFired( HandlersRegistry::ACTION_SETUP )
+		Actions\expectDone( HandlersRegistry::ACTION_SETUP )
 			->once()
 			->with( $handler_a, 'a', $processors_registry );
 
-		Actions::expectFired( HandlersRegistry::ACTION_SETUP )
+		Actions\expectDone( HandlersRegistry::ACTION_SETUP )
 			->once()
 			->with( $handler_b, 'b', $processors_registry );
 

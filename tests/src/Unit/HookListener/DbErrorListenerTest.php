@@ -15,7 +15,7 @@ use Inpsyde\Wonolog\Data\Error;
 use Inpsyde\Wonolog\Data\NullLog;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Inpsyde\Wonolog\HookListener\DbErrorListener;
-use Brain\Monkey\WP\Actions;
+use Brain\Monkey\Actions;
 
 /**
  * @package wonolog\tests
@@ -46,7 +46,7 @@ class DbErrorListenerTest extends TestCase {
 
 		$listener = new DbErrorListener();
 
-		Actions::expectFired( 'shutdown' )
+		Actions\expectDone( 'shutdown' )
 			->once()
 			->whenHappen(
 				function () use ( $listener, $tester ) {

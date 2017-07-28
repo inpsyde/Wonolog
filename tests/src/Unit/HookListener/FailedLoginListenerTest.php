@@ -10,11 +10,11 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
+use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
 use Inpsyde\Wonolog\Data\FailedLogin;
 use Inpsyde\Wonolog\HookListener\FailedLoginListener;
 use Inpsyde\Wonolog\Tests\TestCase;
-use Brain\Monkey\WP\Actions;
 
 /**
  * @package wonolog\tests
@@ -24,15 +24,15 @@ class FailedLoginListenerTest extends TestCase {
 
 	public function test_log_done() {
 
-		Functions::when( 'get_site_transient' )
+		Functions\when( 'get_site_transient' )
 			->justReturn( [ '127.0.0.1' => [ 'count' => 2, 'last_logged' => 0, ] ] );
 
-		Functions::when( 'set_site_transient' )
+		Functions\when( 'set_site_transient' )
 			->justReturn( FALSE );
 
 		$listener = new FailedLoginListener();
 
-		Actions::expectFired( 'wp_login_failed' )
+		Actions\expectDone( 'wp_login_failed' )
 			->once()
 			->whenHappen(
 				function () use ( $listener ) {
@@ -47,18 +47,18 @@ class FailedLoginListenerTest extends TestCase {
 
 	public function test_log_not_done_if_no_level() {
 
-		Functions::when( 'get_site_transient' )
+		Functions\when( 'get_site_transient' )
 			->justReturn( [ '127.0.0.1' => [ 'count' => 5, 'last_logged' => 3, ] ] );
 
-		Functions::when( 'set_site_transient' )
+		Functions\when( 'set_site_transient' )
 			->justReturn( FALSE );
 
-		Actions::expectFired( \Inpsyde\Wonolog\LOG )
+		Actions\expectDone( \Inpsyde\Wonolog\LOG )
 			->never();
 
 		$listener = new FailedLoginListener();
 
-		Actions::expectFired( 'wp_login_failed' )
+		Actions\expectDone( 'wp_login_failed' )
 			->once()
 			->whenHappen(
 				function () use ( $listener ) {

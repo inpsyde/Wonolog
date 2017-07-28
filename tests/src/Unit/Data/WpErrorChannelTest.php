@@ -10,8 +10,8 @@
 
 namespace Inpsyde\Wonolog\Tests\Unit\Data;
 
+use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
-use Brain\Monkey\WP\Filters;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\WpErrorChannel;
 use Inpsyde\Wonolog\Tests\TestCase;
@@ -23,8 +23,8 @@ use Inpsyde\Wonolog\Tests\TestCase;
 class WpErrorChannelTest extends TestCase {
 
 	protected function setUp() {
-		
-		Functions::when( 'is_wp_error' )->alias( function($thing) {
+
+		Functions\when( 'is_wp_error' )->alias( function($thing) {
 			return $thing instanceof \WP_Error;
 		});
 
@@ -90,7 +90,7 @@ class WpErrorChannelTest extends TestCase {
 
 	public function test_channel_guessed_filtered() {
 
-		Filters::expectApplied( WpErrorChannel::FILTER_CHANNEL )
+		Filters\expectApplied( WpErrorChannel::FILTER_CHANNEL )
 			->once()
 			->with( Channels::SECURITY, \Mockery::type( 'WP_Error' ) )
 			->andReturn( 'BAR' );

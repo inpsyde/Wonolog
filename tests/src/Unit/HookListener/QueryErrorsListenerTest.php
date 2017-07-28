@@ -15,8 +15,8 @@ use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\NullLog;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
+use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
-use Brain\Monkey\WP\Actions;
 
 /**
  * @package wonolog\tests
@@ -26,10 +26,10 @@ class QueryErrorsListenerTest extends TestCase {
 
 	public function test_log_done() {
 
-		Functions::when( 'is_404' )
+		Functions\when( 'is_404' )
 			->justReturn( TRUE );
 
-		Functions::when( 'add_query_arg' )
+		Functions\when( 'add_query_arg' )
 			->justReturn( '/meh' );
 
 		$tester = function ( Debug $log ) {
@@ -54,7 +54,7 @@ class QueryErrorsListenerTest extends TestCase {
 
 		$listener = new QueryErrorsListener();
 
-		Actions::expectFired( 'wp' )
+		Actions\expectDone( 'wp' )
 			->whenHappen(
 				function () use ( $listener, $tester ) {
 
@@ -67,10 +67,10 @@ class QueryErrorsListenerTest extends TestCase {
 
 	public function test_log_not_done_if_wrong_arg() {
 
-		Functions::when( 'is_404' )
+		Functions\when( 'is_404' )
 			->justReturn( TRUE );
 
-		Functions::when( 'add_query_arg' )
+		Functions\when( 'add_query_arg' )
 			->justReturn( '/meh' );
 
 		$wp               = new \stdClass();
@@ -79,7 +79,7 @@ class QueryErrorsListenerTest extends TestCase {
 
 		$listener = new QueryErrorsListener();
 
-		Actions::expectFired( 'wp' )
+		Actions\expectDone( 'wp' )
 			->whenHappen(
 				function () use ( $listener ) {
 
