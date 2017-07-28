@@ -124,7 +124,8 @@ final class CronDebugListener implements ActionListenerInterface {
 			$hooks,
 			function ( $hook ) use ( $profile_cb ) {
 
-				add_action( $hook, $profile_cb, '-' . PHP_INT_MAX );
+				// Please note that "(int) ( PHP_INT_MAX + 1 )" is the lowest possible integer.
+				add_action( $hook, $profile_cb, (int) ( PHP_INT_MAX + 1 ) );
 				add_action( $hook, $profile_cb, PHP_INT_MAX );
 			}
 		);
