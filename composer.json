@@ -37,9 +37,11 @@
     "monolog/monolog": "@stable"
   },
   "require-dev": {
-    "phpunit/phpunit": "~4.8|~5.7",
-    "brain/monkey": "~1.4.2",
-    "mikey179/vfsStream": "~1.6.0"
+    "phpunit/phpunit": "^5.7.21",
+    "brain/monkey": "^2.0.2",
+    "mikey179/vfsStream": "~1.6.4",
+
+    "doctrine/instantiator": "1.0.5"
   },
   "autoload": {
     "psr-4": {
