@@ -1,6 +1,19 @@
 Changelog
 =========
 
+## [Unreleased](https://github.com/inpsyde/Wonolog)
+
+### Changed
+
+- Improve generated `.htaccess` file to make it work with Apache 2.3+, see [#23](https://github.com/inpsyde/Wonolog/issues/23), props @chesio.
+
+### Fixed
+
+- Fix typo in documentation, see [#24](https://github.com/inpsyde/Wonolog/pull/24), props @chesio.
+- Fix strict type issue when running tests in PHP 7.1+.
+
+-------
+
 ## [v1.0.0 (2017-06-01)](https://github.com/inpsyde/Wonolog/releases/tag/1.0.0)
 
 _First **public** release._
