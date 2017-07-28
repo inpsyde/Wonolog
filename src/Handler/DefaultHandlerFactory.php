@@ -201,9 +201,20 @@ class DefaultHandlerFactory {
 
 		$handle = fopen( "{$folder}/.htaccess", 'w' );
 
-		if ( $handle && flock( $handle, LOCK_EX ) && fwrite( $handle, "Deny from all\n" ) ) {
-			flock( $handle, LOCK_UN );
-			chmod( "{$folder}/.htaccess", 0444 );
+		if ( $handle && flock( $handle, LOCK_EX ) ) {
+			$htaccess = <<<'HTACCESS'
+<IfModule mod_authz_core.c>
+	Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+	Deny from all
+</IfModule>
+HTACCESS;
+
+			if ( fwrite( $handle, $htaccess ) ) {
+				flock( $handle, LOCK_UN );
+				chmod( "{$folder}/.htaccess", 0444 );
+			}
 		}
 
 		fclose( $handle );
