@@ -75,7 +75,7 @@ final class HttpApiListener implements ActionListenerInterface {
 		$http_args = isset( $args[ 3 ] ) ? $args[ 3 ] : [];
 		$url       = isset( $args[ 4 ] ) ? $args[ 4 ] : '';
 
-		if ( $this->is_error( $response ) ) {
+		if ( $this->is_error( $response, (array) $http_args ) ) {
 			return $this->log_http_error( $response, $context, $class, $http_args, $url );
 		}
 
@@ -88,16 +88,21 @@ final class HttpApiListener implements ActionListenerInterface {
 
 	/**
 	 * @param array|\WP_Error $response
+	 * @param array           $http_args
 	 *
 	 * @return bool
 	 */
-	private function is_error( $response ) {
+	private function is_error( $response, array $http_args = [] ) {
 
 		if ( is_wp_error( $response ) ) {
 			return TRUE;
 		}
 
 		if ( ! isset( $response[ 'response' ][ 'code' ] ) ) {
+			return FALSE;
+		}
+
+		if ( array_key_exists( 'blocking', $http_args ) && ! $http_args[ 'blocking' ] ) {
 			return FALSE;
 		}
 
