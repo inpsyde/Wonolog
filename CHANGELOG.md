@@ -11,6 +11,7 @@ Changelog
 
 - Fix typo in documentation, see [#24](https://github.com/inpsyde/Wonolog/pull/24), props @chesio.
 - Fix strict type issue when running tests in PHP 7.1+.
+- Fix HTTP API Listener triggering a false-positive error for all non-blocking requests, see [#26](https://github.com/inpsyde/Wonolog/issues/26).
 
 -------
 
