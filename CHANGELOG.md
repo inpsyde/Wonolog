@@ -1,11 +1,16 @@
 Changelog
 =========
 
-## [Unreleased](https://github.com/inpsyde/Wonolog)
+## [v1.0.1 (2018-02-08)](https://github.com/inpsyde/Wonolog/releases/tag/1.0.0)
+
+### Added
+
+- CI tests for PHP 7.2
 
 ### Changed
 
 - Improve generated `.htaccess` file to make it work with Apache 2.3+, see [#23](https://github.com/inpsyde/Wonolog/issues/23), props @chesio.
+- Update some dev-dependencies (Brain Monkey) and adjust tests accordingly.
 
 ### Fixed
 
