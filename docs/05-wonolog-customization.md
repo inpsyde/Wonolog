@@ -7,7 +7,7 @@
 - [Bootstrap Configuration](#bootstrap-configuration)
     - [Wonolog Default Handler](#wonolog-default-handler)
         - [Default Handler Filter Hooks](#default-handler-filter-hooks)
-        - [Replacing the Default Gandler](#replacing-the-default-handler)
+        - [Replacing the Default Handler](#replacing-the-default-handler)
     - [Bootstrap Flags](#bootstrap-flags)
 - [The `Controller` API](#the-controller-api)
     - [Logging PHP Errors](#logging-php-errors)
