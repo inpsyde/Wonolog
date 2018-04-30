@@ -11,7 +11,7 @@
 namespace Inpsyde\Wonolog\HookListener;
 
 use Inpsyde\Wonolog\Channels;
-use Inpsyde\Wonolog\Data\Debug;
+use Inpsyde\Wonolog\Data\Info;
 use Inpsyde\Wonolog\Data\NullLog;
 
 /**
@@ -158,7 +158,7 @@ final class CronDebugListener implements ActionListenerInterface {
 			// Log the cron action performed.
 			do_action(
 				\Inpsyde\Wonolog\LOG,
-				new Debug( "Cron action \"{$hook}\" performed.", Channels::DEBUG, $this->done[ $hook ] )
+				new Info( "Cron action \"{$hook}\" performed.", Channels::DEBUG, $this->done[ $hook ] )
 			);
 		}
 	}
