@@ -1,6 +1,9 @@
 Changelog
 =========
 
+## Unreleased
+* Raised severity of cron events to `INFO` (Fixes #34)
+
 ## [v1.0.1 (2018-02-08)](https://github.com/inpsyde/Wonolog/releases/tag/1.0.0)
 
 ### Added
