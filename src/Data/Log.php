@@ -55,7 +55,7 @@ final class Log implements LogDataInterface {
 		$level     = $log_level->check_level( $level ) ? : Logger::NOTICE;
 
 		$message = $error->get_error_message();
-		$context = $error->get_error_data();
+		$context = $error->get_error_data() ?: [];
 
 		if ( $channel ) {
 			return new static( $message, $level, $channel, $context );
