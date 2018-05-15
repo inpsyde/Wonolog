@@ -35,7 +35,7 @@ class QueryErrorsListenerTest extends TestCase {
 		$tester = function ( Debug $log ) {
 
 			self::assertSame( Channels::HTTP, $log->channel() );
-			self::assertSame( "Error on frontend request for url /meh.", $log->message() );
+			self::assertSame( 'Error on frontend request for url /meh.', $log->message() );
 			self::assertSame(
 				[
 					'error'        => [ '404 Page not found' ],

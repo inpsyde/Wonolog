@@ -28,7 +28,7 @@ class FailedLoginTest extends TestCase {
 
 		$callback = function ( $name, $value = NULL ) use ( &$transient ) {
 
-			if ( is_null( $value ) ) {
+			if ( $value === null ) {
 				return $transient;
 			}
 
@@ -97,7 +97,7 @@ class FailedLoginTest extends TestCase {
 
 		$callback = function ( $name, $value = NULL ) use ( &$transient ) {
 
-			if ( is_null( $value ) ) {
+			if ( $value === null ) {
 				return $transient;
 			}
 

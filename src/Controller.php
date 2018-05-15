@@ -173,7 +173,7 @@ class Controller {
 			1
 		);
 
-		is_null( $handler_id ) and $handler_id = $handler;
+		( $handler_id === null ) and $handler_id = $handler;
 
 		add_action(
 			Channels::ACTION_LOGGER,
@@ -239,7 +239,7 @@ class Controller {
 			}
 		);
 
-		is_null( $processor_id ) and $processor_id = $processor;
+		( $processor_id === null ) and $processor_id = $processor;
 
 		add_action(
 			Channels::ACTION_LOGGER,
@@ -281,7 +281,7 @@ class Controller {
 			}
 		);
 
-		is_null( $processor_id ) and $processor_id = $processor;
+		( $processor_id === null ) and $processor_id = $processor;
 
 		add_action(
 			HandlersRegistry::ACTION_SETUP,

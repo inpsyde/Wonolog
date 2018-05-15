@@ -35,7 +35,7 @@ class HookLogFactoryTest extends TestCase {
 		parent::setUp();
 	}
 
-	function test_logs_from_arguments_returns_default_if_no_arguments() {
+	public function test_logs_from_arguments_returns_default_if_no_arguments() {
 
 		$factory = new HookLogFactory();
 		$logs    = $factory->logs_from_hook_arguments( [] );
@@ -53,7 +53,7 @@ class HookLogFactoryTest extends TestCase {
 
 	}
 
-	function test_logs_from_arguments_returns_given_log_data() {
+	public function test_logs_from_arguments_returns_given_log_data() {
 
 		$first = \Mockery::mock( LogDataInterface::class );
 		$first->shouldReceive( 'level' )
@@ -86,7 +86,7 @@ class HookLogFactoryTest extends TestCase {
 		self::assertSame( $logs[ 3 ], $fourth );
 	}
 
-	function test_logs_from_arguments_returns_given_log_data_with_raised_level() {
+	public function test_logs_from_arguments_returns_given_log_data_with_raised_level() {
 
 		/** @var LogDataInterface $first */
 		$first = \Mockery::mock( LogDataInterface::class );

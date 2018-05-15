@@ -24,7 +24,7 @@ class HookListenersTest extends TestCase {
 
 		$listener_1 = \Mockery::mock( HookListenerInterface::class );
 		$listener_1->shouldReceive('id')->andReturnUsing(function() {
-			return get_called_class();
+			return __CLASS__;
 		});
 
 		$listener_2 = clone $listener_1;

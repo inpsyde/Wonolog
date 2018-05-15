@@ -85,7 +85,7 @@ class LogTest extends TestCase {
 		$exception = new \Exception('Fail!, Fail!', 123);
 
 		$log = Log::from_throwable( $exception );
-		self::assertInstanceof( Log::class, $log );
+		self::assertInstanceOf( Log::class, $log );
 
 		$context = $log->context();
 		self::assertInternalType( 'array', $context );
@@ -105,7 +105,7 @@ class LogTest extends TestCase {
 		$exception = new \Exception('Fail!, Fail!', 123);
 
 		$log = Log::from_throwable( $exception, Logger::DEBUG );
-		self::assertInstanceof( Log::class, $log );
+		self::assertInstanceOf( Log::class, $log );
 
 		$context = $log->context();
 		self::assertInternalType( 'array', $context );
@@ -125,7 +125,7 @@ class LogTest extends TestCase {
 		$exception = new \Exception('Fail!, Fail!', 123);
 
 		$log = Log::from_throwable( $exception, Logger::NOTICE, Channels::HTTP );
-		self::assertInstanceof( Log::class, $log );
+		self::assertInstanceOf( Log::class, $log );
 
 		$context = $log->context();
 		self::assertInternalType( 'array', $context );

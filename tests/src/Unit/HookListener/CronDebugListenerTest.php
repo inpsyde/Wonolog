@@ -13,7 +13,6 @@ namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 use Inpsyde\Wonolog\Channels;
 use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
-use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\Info;
 use Inpsyde\Wonolog\Data\NullLog;
 use Inpsyde\Wonolog\Tests\TestCase;

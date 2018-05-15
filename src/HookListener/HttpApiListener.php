@@ -112,7 +112,7 @@ final class HttpApiListener implements ActionListenerInterface {
 
 		$code = (int) $response[ 'response' ][ 'code' ];
 
-		return ! in_array( $code, self::$http_success_codes );
+		return ! in_array( $code, self::$http_success_codes, true );
 	}
 
 	/**

@@ -121,7 +121,7 @@ class DateBasedStreamHandlerTest extends TestCase {
 		$last_year->setTimestamp( strtotime( '1 year ago' ) );
 
 		return [
-			[ (int) $time, $time ],
+			[ $time, $time ],
 			[ (string) $time, $time ],
 			[ 'yesterday', strtotime( 'yesterday' ) ],
 			[ '2 weeks ago', strtotime( '2 weeks ago' ) ],

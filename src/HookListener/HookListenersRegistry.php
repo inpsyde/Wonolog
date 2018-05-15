@@ -137,7 +137,7 @@ class HookListenersRegistry {
 			if ( ! $is_filter ) {
 				$log = $listener->update( $args );
 				if ( $log instanceof LogDataInterface ) {
-					// Log the udate result.
+					// Log the update result.
 					do_action( \Inpsyde\Wonolog\LOG, $log );
 				}
 			}

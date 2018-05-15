@@ -54,7 +54,7 @@ class HandlersRegistry implements \Countable {
 	 */
 	public function add_handler( HandlerInterface $handler, $name = NULL ) {
 
-		is_null( $name ) and $name = spl_object_hash( $handler );
+		( $name === null ) and $name = spl_object_hash( $handler );
 		if ( ! is_string( $name ) || array_key_exists( $name, $this->handlers ) ) {
 			return $this;
 		}

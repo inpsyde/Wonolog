@@ -29,13 +29,13 @@ class ControllerTest extends TestCase {
 
 	protected function tearDown() {
 
-		putenv( "WONOLOG_DISABLE" );
+		putenv( 'WONOLOG_DISABLE' );
 		parent::tearDown();
 	}
 
 	public function test_setup_disabled_via_env() {
 
-		putenv( "WONOLOG_DISABLE=1" );
+		putenv( 'WONOLOG_DISABLE=1' );
 		Actions\expectDone( Controller::ACTION_SETUP )
 			->never();
 
@@ -47,7 +47,7 @@ class ControllerTest extends TestCase {
 
 		do_action( Controller::ACTION_SETUP );
 
-		putenv( "WONOLOG_DISABLE=1" );
+		putenv( 'WONOLOG_DISABLE=1' );
 		Actions\expectDone( Controller::ACTION_SETUP )
 			->never();
 

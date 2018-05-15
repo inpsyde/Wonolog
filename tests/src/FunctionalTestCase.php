@@ -148,7 +148,7 @@ class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
 
 				array_walk(
 					$callbacks,
-					function ( callable $callback ) use ( &$args, $filter, $hook ) {
+					function ( callable $callback ) use ( &$args, $filter ) {
 
 						$value = call_user_func_array( $callback, $args );
 						$filter and $args[ 0 ] = $value;

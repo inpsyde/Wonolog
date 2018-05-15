@@ -38,7 +38,7 @@ class ProcessorsRegistry implements \Countable {
 	 */
 	public function add_processor( callable $processor, $name = NULL ) {
 
-		is_null( $name ) and $name = $this->build_name( $processor );
+		( $name === null ) and $name = $this->build_name( $processor );
 		if ( ! is_string( $name ) || array_key_exists( $name, $this->processors ) ) {
 			return $this;
 		}

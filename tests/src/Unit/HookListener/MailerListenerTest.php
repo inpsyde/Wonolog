@@ -90,7 +90,7 @@ class MailerListenerTest extends TestCase {
 				}
 			);
 
-		$error = \Mockery::mock( '\WP_Error' );
+		$error = \Mockery::mock( \WP_Error::class );
 		$error->shouldReceive( 'get_error_message' )
 			->andReturn( 'Something when wrong!' );
 		$error->shouldReceive( 'get_error_codes' )
