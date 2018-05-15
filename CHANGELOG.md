@@ -1,11 +1,18 @@
 Changelog
 =========
 
-## Unreleased
-- Raised severity of cron events to `INFO` (Fixes #34)
-- Fix log creation from `\WP_Error` without data (Fixes #36)
+## [v1.0.2 (2018-05-15)](https://github.com/inpsyde/Wonolog/releases/tag/1.0.2)
 
-## [v1.0.1 (2018-02-08)](https://github.com/inpsyde/Wonolog/releases/tag/1.0.0)
+### Changed
+- Raised severity of cron events to `INFO` (See #34)
+- Update dev requirements in `composer.json`
+
+### Fixed
+- Broken tests after latest changes
+- Log creation from `\WP_Error` without data (See #36)
+- CS fix and other minor changes
+
+## [v1.0.1 (2018-02-08)](https://github.com/inpsyde/Wonolog/releases/tag/1.0.1)
 
 ### Added
 
