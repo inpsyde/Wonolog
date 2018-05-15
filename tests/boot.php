@@ -11,14 +11,14 @@
 putenv( 'TESTS_PATH=' . __DIR__ );
 putenv( 'LIBRARY_PATH=' . dirname( __DIR__ ) );
 
-$vendor = dirname( dirname( __FILE__ ) ) . '/vendor/';
+$vendor = dirname( __DIR__ ) . '/vendor';
 
 if ( ! realpath( $vendor ) ) {
 	die( 'Please install via Composer before running tests.' );
 }
 
 if ( ! defined( 'PHPUNIT_COMPOSER_INSTALL' ) ) {
-	define( 'PHPUNIT_COMPOSER_INSTALL', $vendor . 'autoload.php' );
+	define( 'PHPUNIT_COMPOSER_INSTALL', "{$vendor}/autoload.php" );
 }
 
 /**
@@ -27,7 +27,7 @@ if ( ! defined( 'PHPUNIT_COMPOSER_INSTALL' ) ) {
  */
 error_reporting( E_ALL );
 
-require_once $vendor . '/antecedent/patchwork/Patchwork.php';
-require_once $vendor . 'autoload.php';
+require_once "{$vendor}/antecedent/patchwork/Patchwork.php";
+require_once "{$vendor}/autoload.php";
 
 unset( $vendor );

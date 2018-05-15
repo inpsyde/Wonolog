@@ -14,6 +14,7 @@ use Inpsyde\Wonolog\Channels;
 use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
 use Inpsyde\Wonolog\Data\Debug;
+use Inpsyde\Wonolog\Data\Info;
 use Inpsyde\Wonolog\Data\NullLog;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Inpsyde\Wonolog\HookListener\CronDebugListener;
@@ -82,17 +83,17 @@ class CronDebugListenerTest extends TestCase {
 			);
 
 		Actions\expectDone( \Inpsyde\Wonolog\LOG )
-			->with( Debug::class )
+			->with( Info::class )
 			->once()
 			->whenHappen(
-				function ( Debug $debug ) {
+				function ( Info $info ) {
 
-					$context = $debug->context();
+					$context = $info->context();
 
 					self::assertInternalType( 'array', $context );
 					self::assertArrayHasKey( 'start', $context );
 					self::assertArrayHasKey( 'duration', $context );
-					self::assertSame( Channels::DEBUG, $debug->channel() );
+					self::assertSame( Channels::DEBUG, $info->channel() );
 				}
 			);
 
