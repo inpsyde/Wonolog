@@ -74,9 +74,11 @@ class PhpErrorController {
 		$report_silenced = apply_filters(
 			'wonolog.report-silenced-errors',
 			error_reporting() >= 0,
-			$errorMessage,
-			$errorFile,
-			$errorLine
+			$num,
+			$str,
+			$file,
+			$line,
+			$context
 		);
 
 		if ( $level === NULL || ! $report_silenced ) {
