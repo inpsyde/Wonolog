@@ -77,8 +77,7 @@ class PhpErrorController {
 			$num,
 			$str,
 			$file,
-			$line,
-			$context
+			$line
 		);
 
 		if ( $level === NULL || ! $report_silenced ) {
