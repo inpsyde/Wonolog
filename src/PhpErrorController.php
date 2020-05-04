@@ -67,6 +67,22 @@ class PhpErrorController {
 	 */
 	public function on_error( $num, $str, $file, $line, $context = NULL ) {
 
+		$level = isset( self::$errors_level_map[ $num ] )
+			? self::$errors_level_map[ $num ]
+			: NULL;
+
+		$report_silenced = apply_filters(
+			'wonolog.report-silenced-errors',
+			error_reporting() >= 0,
+			$errorMessage,
+			$errorFile,
+			$errorLine
+		);
+
+		if ( $level === NULL || ! $report_silenced ) {
+			return FALSE;
+		}
+
 		$log_context = [];
 		if ( $context ) {
 			$skip_keys   = array_merge( array_keys( $GLOBALS ), self::$super_globals_keys );
@@ -80,7 +96,7 @@ class PhpErrorController {
 		// Log the PHP error.
 		do_action(
 			\Inpsyde\Wonolog\LOG,
-			new Log( $str, self::$errors_level_map[ $num ], Channels::PHP_ERROR, $log_context )
+			new Log( $str, $level, Channels::PHP_ERROR, $log_context )
 		);
 
 		return FALSE;
