@@ -47,7 +47,7 @@ Please keep in mind that such customization **must be done in an MU plugin**, be
 
 ## Wonolog PHP Error Handler
 
-As mentioned before, by default, Wonolog logs all kinds of PHP errors.
+As mentioned before, by default, Wonolog logs all kinds of PHP errors. It does not log silenced PHP errors.
 
 This is possible because Wonolog registers custom error and exception handlers.
 
@@ -76,6 +76,10 @@ The **log channel** used for these events is `Channels::PHP_ERROR`, and the **lo
 
 Refer to [Wonolog Customization](05-wonolog-customization.md) to learn how to customize or even disable this PHP error handler.
 
+If you want to log also silenced PHP errors you can do so with a filter:
+```
+add_filter('wonolog.report-silenced-errors', '__return_true');
+```
 
 ## Default Handler Minimum Log Level
 
