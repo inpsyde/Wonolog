@@ -216,7 +216,6 @@ class ControllerTest extends TestCase
      */
     public function testUseDefaultHookListenersAddHookOnce()
     {
-
         Actions\expectAdded(HookListenersRegistry::ACTION_REGISTER)
             ->once();
 
@@ -230,7 +229,6 @@ class ControllerTest extends TestCase
      */
     public function testUseHookListenerAddHook()
     {
-
         Actions\expectAdded(HookListenersRegistry::ACTION_REGISTER)
             ->twice();
 

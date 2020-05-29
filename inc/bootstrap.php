@@ -55,19 +55,19 @@ function bootstrap(
     is_int($flags) or $flags = USE_DEFAULT_NONE;
 
     if ($flags & LOG_PHP_ERRORS) {
-        $controller->log_php_errors();
+        $controller->logPhpErrors();
     }
 
     if ($flags & USE_DEFAULT_HOOK_LISTENERS) {
-        $controller->use_default_hook_listeners();
+        $controller->useDefaultHookListeners();
     }
 
     if ($defaultHandler || ($flags & USE_DEFAULT_HANDLER)) {
-        $controller->use_default_handler($defaultHandler);
+        $controller->useDefaultHandler($defaultHandler);
     }
 
     if ($flags & USE_DEFAULT_PROCESSOR) {
-        $controller->use_default_processor();
+        $controller->useDefaultProcessor();
     }
 
     return $controller->setup($logHookPriority);

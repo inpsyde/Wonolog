@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -19,116 +22,121 @@ use Monolog\Logger;
  * @license http://opensource.org/licenses/MIT MIT
  *
  * @runTestsInSeparateProcesses
+ *
+ * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv
  */
-class LogLevelTest extends TestCase {
+class LogLevelTest extends TestCase
+{
+    protected function tearDown(): void
+    {
+        putenv('WONOLOG_DEFAULT_MIN_LEVEL');
+        parent::tearDown();
+    }
 
-	protected function tearDown() {
+    public function testDefaultLevelByEnvString()
+    {
+        putenv('WONOLOG_DEFAULT_MIN_LEVEL=CRITICAL');
 
-		putenv( 'WONOLOG_DEFAULT_MIN_LEVEL' );
-		parent::tearDown();
-	}
+        $logLevel = new LogLevel();
 
-	public function test_default_level_by_env_string() {
+        self::assertSame(Logger::CRITICAL, $logLevel->defaultMinLevel());
+    }
 
-		define('DIE', 1);
-		putenv( 'WONOLOG_DEFAULT_MIN_LEVEL=CRITICAL' );
+    public function testDefaultLevelByEnvNum()
+    {
+        putenv('WONOLOG_DEFAULT_MIN_LEVEL=500');
 
-		$log_level = new LogLevel();
+        $logLevel = new LogLevel();
 
-		self::assertSame( Logger::CRITICAL, $log_level->defaultMinLevel() );
-	}
+        self::assertSame(Logger::CRITICAL, $logLevel->defaultMinLevel());
+    }
 
-	public function test_default_level_by_env_num() {
+    public function testDefaultLevelByConstantNone()
+    {
 
-		putenv( 'WONOLOG_DEFAULT_MIN_LEVEL=500' );
+        $logLevel = new LogLevel();
 
-		$log_level = new LogLevel();
+        self::assertSame(Logger::ERROR, $logLevel->defaultMinLevel());
+    }
+    /**
+     * @runInSeparateProcess
+     */
+    public function testDefaultLevelByConstantLog()
+    {
 
-		self::assertSame( Logger::CRITICAL, $log_level->defaultMinLevel() );
-	}
+        define('WP_DEBUG_LOG', true);
 
-	public function test_default_level_by_constant_none() {
+        $logLevel = new LogLevel();
 
-		$log_level = new LogLevel();
+        self::assertSame(Logger::DEBUG, $logLevel->defaultMinLevel());
+    }
 
-		self::assertSame( Logger::ERROR, $log_level->defaultMinLevel() );
-	}
+    /**
+     * @runInSeparateProcess
+     */
+    public function testDefaultLevelByConstantDebug()
+    {
+        define('WP_DEBUG', true);
 
-	public function test_check_level_accepts_positive_numbers() {
+        $logLevel = new LogLevel();
 
-		$log_level = new LogLevel();
+        self::assertFalse(defined('WP_DEBUG_LOG'));
+        self::assertSame(Logger::DEBUG, $logLevel->defaultMinLevel());
+    }
 
-		self::assertSame( 0, $log_level->check_level( 0 ) );
-		self::assertSame( 27, $log_level->check_level( 27 ) );
-		self::assertSame( 42, $log_level->check_level( 42 ) );
-		self::assertSame( 0, $log_level->check_level( - 10 ) );
-	}
+    /**
+     * @runInSeparateProcess
+     */
+    public function testDefaultLevelByConstantLogFalse()
+    {
 
-	public function test_check_level_accepts_defined_level_strings() {
+        define('WP_DEBUG_LOG', false);
+        define('WP_DEBUG', true);
 
-		$log_level = new LogLevel();
+        $logLevel = new LogLevel();
 
-		self::assertSame( Logger::CRITICAL, $log_level->check_level( 'CRITICAL' ) );
-		self::assertSame( Logger::ERROR, $log_level->check_level( 'error' ) );
-		self::assertSame( Logger::DEBUG, $log_level->check_level( 'Debug' ) );
-		self::assertSame( Logger::ALERT, $log_level->check_level( 'aLeRt' ) );
-		self::assertSame( Logger::EMERGENCY, $log_level->check_level( 'emeRGEncy' ) );
-		self::assertSame( Logger::INFO, $log_level->check_level( ' INFO ' ) );
-		self::assertSame( Logger::NOTICE, $log_level->check_level( ' nOtiCE' ) );
-		self::assertSame( Logger::WARNING, $log_level->check_level( 'Warning ' ) );
-		self::assertSame( 0, $log_level->check_level( 'MEH' ) );
-	}
+        self::assertSame(Logger::ERROR, $logLevel->defaultMinLevel());
+    }
 
-	/**
-	 * @runInSeparateProcess
-	 */
-	public function test_default_level_by_constant_log() {
+    /**
+     * @runInSeparateProcess
+     */
+    public function testDefaultLevelByEnvOverConstants()
+    {
 
-		define( 'WP_DEBUG_LOG', TRUE );
+        putenv('WONOLOG_DEFAULT_MIN_LEVEL=EMERGENCY');
+        define('WP_DEBUG_LOG', false);
+        define('WP_DEBUG', true);
 
-		$log_level = new LogLevel();
+        $logLevel = new LogLevel();
 
-		self::assertSame( Logger::DEBUG, $log_level->defaultMinLevel() );
-	}
+        self::assertSame(Logger::EMERGENCY, $logLevel->defaultMinLevel());
+    }
 
-	/**
-	 * @runInSeparateProcess
-	 */
-	public function test_default_level_by_constant_debug() {
+    public function testCheckLevelAcceptsPositiveNumbers()
+    {
 
-		define( 'WP_DEBUG', TRUE );
+        $logLevel = new LogLevel();
 
-		$log_level = new LogLevel();
+        self::assertSame(0, $logLevel->checkLevel(0));
+        self::assertSame(27, $logLevel->checkLevel(27));
+        self::assertSame(42, $logLevel->checkLevel(42));
+        self::assertSame(0, $logLevel->checkLevel(-10));
+    }
 
-		self::assertFalse( defined( 'WP_DEBUG_LOG' ) );
-		self::assertSame( Logger::DEBUG, $log_level->defaultMinLevel() );
-	}
+    public function estCheckLevelAcceptsDefinedLevelStrings()
+    {
 
-	/**
-	 * @runInSeparateProcess
-	 */
-	public function test_default_level_by_constant_log_false() {
+        $logLevel = new LogLevel();
 
-		define( 'WP_DEBUG_LOG', FALSE );
-		define( 'WP_DEBUG', TRUE );
-
-		$log_level = new LogLevel();
-
-		self::assertSame( Logger::ERROR, $log_level->defaultMinLevel() );
-	}
-
-	/**
-	 * @runInSeparateProcess
-	 */
-	public function test_default_level_by_env_over_constants() {
-
-		putenv( 'WONOLOG_DEFAULT_MIN_LEVEL=EMERGENCY' );
-		define( 'WP_DEBUG_LOG', FALSE );
-		define( 'WP_DEBUG', TRUE );
-
-		$log_level = new LogLevel();
-
-		self::assertSame( Logger::EMERGENCY, $log_level->defaultMinLevel() );
-	}
-
+        self::assertSame(Logger::CRITICAL, $logLevel->checkLevel('CRITICAL'));
+        self::assertSame(Logger::ERROR, $logLevel->checkLevel('error'));
+        self::assertSame(Logger::DEBUG, $logLevel->checkLevel('Debug'));
+        self::assertSame(Logger::ALERT, $logLevel->checkLevel('aLeRt'));
+        self::assertSame(Logger::EMERGENCY, $logLevel->checkLevel('emeRGEncy'));
+        self::assertSame(Logger::INFO, $logLevel->checkLevel(' INFO '));
+        self::assertSame(Logger::NOTICE, $logLevel->checkLevel(' nOtiCE'));
+        self::assertSame(Logger::WARNING, $logLevel->checkLevel('Warning '));
+        self::assertSame(0, $logLevel->checkLevel('MEH'));
+    }
 }

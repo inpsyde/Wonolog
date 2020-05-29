@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -25,332 +28,351 @@ use Monolog\Logger;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-class Controller {
-
-	const ACTION_LOADED = 'wonolog.loaded';
-	const ACTION_SETUP = 'wonolog.setup';
-	const FILTER_DISABLE = 'wonolog.disable';
-
-	/**
-	 * Initialize Wonolog.
-	 *
-	 * @param int $priority
-	 *
-	 * @return Controller
-	 */
-	public function setup( $priority = 100 ) {
-
-		if ( did_action( self::ACTION_SETUP ) ) {
-			return $this;
-		}
-
-		// We use WONOLOG_DISABLE instead of WONOLOG_ENABLE so that not defined (default) means enabled.
-		$disable_by_env = filter_var( getenv( 'WONOLOG_DISABLE' ), FILTER_VALIDATE_BOOLEAN );
-
-		/**
-		 * Filters whether to completely disable Wonolog.
-		 *
-		 * @param bool $disable
-		 */
-		if ( apply_filters( self::FILTER_DISABLE, $disable_by_env ) ) {
-			return $this;
-		}
-
-		/**
-		 * Fires right before Wonolog is set up.
-		 */
-		do_action( self::ACTION_SETUP );
-
-		$processor_registry = new ProcessorsRegistry();
-		$handlers_registry  = new HandlersRegistry( $processor_registry );
-		$subscriber         = new LogActionSubscriber( new Channels( $handlers_registry, $processor_registry ) );
-		$listener           = [ $subscriber, 'listen' ];
-
-		add_action( LOG, $listener, $priority, PHP_INT_MAX );
-
-		foreach ( Logger::getLevels() as $level => $level_code ) {
-			// $level_code is from 100 (DEBUG) to 600 (EMERGENCY) this makes hook priority based on level priority
-			add_action( LOG . '.' . strtolower( $level ), $listener, $priority + ( 601 - $level_code ), PHP_INT_MAX );
-		}
-
-		add_action( 'muplugins_loaded', [ HookListenersRegistry::class, 'initialize' ], PHP_INT_MAX );
-
-		/**
-		 * Fires right after Wonolog has been set up.
-		 */
-		do_action( self::ACTION_LOADED );
-
-		return $this;
-	}
-
-	/**
-	 * Tell Wonolog to use the PHP errors handler.
-	 *
-	 * @param int|null $error_types bitmask of error types constants, default to E_ALL | E_STRICT
-	 *
-	 * @return Controller
-	 */
-	public function log_php_errors( $error_types = NULL ) {
-
-		static $done = FALSE;
-		if ( $done ) {
-			return $this;
-		}
-
-		$done = TRUE;
-		is_int( $error_types ) or $error_types = E_ALL | E_STRICT;
-
-		$controller = new PhpErrorController();
-		register_shutdown_function( [ $controller, 'on_fatal', ] );
-		set_error_handler( [ $controller, 'on_error' ], $error_types );
-		set_exception_handler( [ $controller, 'on_exception', ] );
-
-		// Ensure that channel Channels::PHP_ERROR error is there
-		add_filter(
-			Channels::FILTER_CHANNELS,
-			function ( array $channels ) {
-
-				$channels[] = Channels::PHP_ERROR;
-
-				return $channels;
-			},
-			PHP_INT_MAX
-		);
-
-		return $this;
-	}
-
-	/**
-	 * Tell Wonolog to use a default handler that can be passed as argument or build using settings customizable via
-	 * hooks.
-	 *
-	 * @param HandlerInterface $handler
-	 *
-	 * @return Controller
-	 */
-	public function use_default_handler( HandlerInterface $handler = NULL ) {
-
-		static $done = FALSE;
-		if ( $done ) {
-			return $this;
-		}
-
-		$done = TRUE;
-
-		add_action(
-			HandlersRegistry::ACTION_REGISTER,
-			function ( HandlersRegistry $registry ) use ( $handler ) {
-
-				$handler = DefaultHandlerFactory::withDefaultHandler( $handler )
-					->createDefaultHandler();
-
-				$registry->addHandler( $handler, HandlersRegistry::DEFAULT_NAME );
-			},
-			1
-		);
-
-		return $this;
-	}
-
-	/**
-	 * Tell Wonolog to make given handler available to loggers with given id. If one or more channels are passed,
-	 * the handler will be attached to related Monolog loggers.
-	 *
-	 * @param HandlerInterface $handler
-	 * @param string[]         $channels
-	 * @param string|NULL      $handler_id
-	 *
-	 * @return Controller
-	 */
-	public function use_handler( HandlerInterface $handler, array $channels = [], $handler_id = NULL ) {
-
-		add_action(
-			HandlersRegistry::ACTION_REGISTER,
-			function ( HandlersRegistry $registry ) use ( $handler_id, $handler ) {
-
-				$registry->addHandler( $handler, $handler_id );
-			},
-			1
-		);
-
-		( $handler_id === null ) and $handler_id = $handler;
-
-		add_action(
-			Channels::ACTION_LOGGER,
-			function ( Logger $logger, HandlersRegistry $handlers ) use ( $handler_id, $channels ) {
-
-				if ( $channels === [] || in_array( $logger->getName(), $channels, TRUE ) ) {
-					$logger->pushHandler( $handlers->find( $handler_id ) );
-				}
-			},
-			10,
-			2
-		);
-
-		return $this;
-	}
-
-	/**
-	 * Tell Wonolog to use default log processor.
-	 *
-	 * @param callable $processor
-	 *
-	 * @return Controller
-	 */
-	public function use_default_processor( callable $processor = null ) {
-
-		static $done = FALSE;
-		if ( $done ) {
-			return $this;
-		}
-
-		$done = TRUE;
-
-		add_action(
-			ProcessorsRegistry::ACTION_REGISTER,
-			function ( ProcessorsRegistry $registry ) use ($processor) {
-				$processor or $processor = new WpContextProcessor();
-
-				$registry->addProcessor( $processor, ProcessorsRegistry::DEFAULT_NAME );
-			}
-		);
-
-		return $this;
-	}
-
-	/**
-	 * Tell Wonolog to make given processor available to loggers with given id. If one or more channels are passed,
-	 * the processor will be attached to related Monolog loggers.
-	 *
-	 * @param callable $processor
-	 * @param string[] $channels
-	 *
-	 * @param          $processor_id
-	 *
-	 * @return Controller
-	 */
-	public function use_processor( callable $processor, array $channels = [], $processor_id = NULL ) {
-
-		add_action(
-			ProcessorsRegistry::ACTION_REGISTER,
-			function ( ProcessorsRegistry $registry ) use ( $processor_id, $processor ) {
-
-				$registry->addProcessor( $processor, $processor_id );
-			}
-		);
-
-		( $processor_id === null ) and $processor_id = $processor;
-
-		add_action(
-			Channels::ACTION_LOGGER,
-			function (
-				Logger $logger,
-				HandlersRegistry $handlers,
-				ProcessorsRegistry $processors
-			) use ( $processor_id, $channels ) {
-
-				if ( $channels === [] || in_array( $logger->getName(), $channels, TRUE ) ) {
-
-					$logger->pushProcessor( $processors->find( $processor_id ) );
-				}
-			},
-			10,
-			3
-		);
-
-		return $this;
-	}
-
-	/**
-	 * Tell Wonolog to make given processor available to loggers with given id. If one or more channels are passed,
-	 * the processor will be attached to related Monolog loggers.
-	 *
-	 * @param callable    $processor
-	 * @param string[]    $handlers
-	 * @param string|null $processor_id
-	 *
-	 * @return Controller
-	 */
-	public function use_processor_for_handlers( callable $processor, array $handlers = [], $processor_id = NULL ) {
-
-		add_action(
-			ProcessorsRegistry::ACTION_REGISTER,
-			function ( ProcessorsRegistry $registry ) use ( $processor_id, $processor ) {
-
-				$registry->addProcessor( $processor, $processor_id );
-			}
-		);
-
-		( $processor_id === null ) and $processor_id = $processor;
-
-		add_action(
-			HandlersRegistry::ACTION_SETUP,
-			function (
-				HandlerInterface $handler,
-				$handler_id,
-				ProcessorsRegistry $processors
-			) use ( $processor_id, $handlers ) {
-
-				if ( $handlers === [] || in_array( $handler_id, $handlers, TRUE ) ) {
-					$handler->pushProcessor( $processors->find( $processor_id ) );
-				}
-			},
-			10,
-			3
-		);
-
-		return $this;
-	}
-
-	/**
-	 * Tell Wonolog to use all default hook listeners.
-	 *
-	 * @return Controller
-	 */
-	public function use_default_hook_listeners() {
-
-		static $done = FALSE;
-		if ( $done ) {
-			return $this;
-		}
-
-		$done = TRUE;
-
-		add_action(
-			HookListenersRegistry::ACTION_REGISTER,
-			function ( HookListenersRegistry $registry ) {
-
-				$registry
-					->register_listener( new HookListener\DbErrorListener() )
-					->register_listener( new HookListener\FailedLoginListener() )
-					->register_listener( new HookListener\HttpApiListener() )
-					->register_listener( new HookListener\MailerListener() )
-					->register_listener( new HookListener\QueryErrorsListener() )
-					->register_listener( new HookListener\CronDebugListener() )
-					->register_listener( new HookListener\WpDieHandlerListener() );
-			}
-		);
-
-		return $this;
-	}
-
-	/**
-	 * Tell Wonolog to use given hook listener.
-	 *
-	 * @param HookListenerInterface $listener
-	 *
-	 * @return Controller
-	 */
-	public function use_hook_listener( HookListenerInterface $listener ) {
-
-		add_action(
-			HookListenersRegistry::ACTION_REGISTER,
-			function ( HookListenersRegistry $registry ) use ( $listener ) {
-
-				$registry->register_listener( $listener );
-			}
-		);
-
-		return $this;
-	}
+class Controller
+{
+
+    public const ACTION_LOADED = 'wonolog.loaded';
+    public const ACTION_SETUP = 'wonolog.setup';
+    public const FILTER_DISABLE = 'wonolog.disable';
+
+    /**
+     * Initialize Wonolog.
+     *
+     * @param int $priority
+     * @return Controller
+     */
+    public function setup(int $priority = 100): Controller
+    {
+        if (did_action(self::ACTION_SETUP)) {
+            return $this;
+        }
+
+        // We use WONOLOG_DISABLE instead of WONOLOG_ENABLE so that not defined (default) means enabled.
+        $disableByEnv = filter_var(getenv('WONOLOG_DISABLE'), FILTER_VALIDATE_BOOLEAN);
+
+        /**
+         * Filters whether to completely disable Wonolog.
+         *
+         * @param bool $disable
+         */
+        if (apply_filters(self::FILTER_DISABLE, $disableByEnv)) {
+            return $this;
+        }
+
+        /**
+         * Fires right before Wonolog is set up.
+         */
+        do_action(self::ACTION_SETUP);
+
+        $processorRegistry = new ProcessorsRegistry();
+        $handlersRegistry = new HandlersRegistry($processorRegistry);
+        $subscriber = new LogActionSubscriber(new Channels($handlersRegistry, $processorRegistry));
+        /** @var callable $listener */
+        $listener = [$subscriber, 'listen'];
+
+        add_action(LOG, $listener, $priority, PHP_INT_MAX);
+
+        foreach (Logger::getLevels() as $level => $levelCode) {
+            // $levelCode goes from 100 (DEBUG) to 600 (EMERGENCY)
+            // `$priority + (601 - $levelCode)` makes hook priority based on level priority
+            add_action(
+                LOG . '.' . strtolower($level),
+                $listener,
+                $priority + (601 - $levelCode),
+                PHP_INT_MAX
+            );
+        }
+
+        add_action('muplugins_loaded', [HookListenersRegistry::class, 'initialize'], PHP_INT_MAX);
+
+        /**
+         * Fires right after Wonolog has been set up.
+         */
+        do_action(self::ACTION_LOADED);
+
+        return $this;
+    }
+
+    /**
+     * Tell Wonolog to use the PHP errors handler.
+     *
+     * @param int|null $errorTypes bitmask of error types constants, default to E_ALL | E_STRICT
+     *
+     * @return Controller
+     */
+    public function logPhpErrors(?int $errorTypes = null): Controller
+    {
+        static $done = false;
+        if ($done) {
+            return $this;
+        }
+
+        $done = true;
+        is_int($errorTypes) or $errorTypes = E_ALL | E_STRICT;
+
+        $controller = new PhpErrorController();
+        register_shutdown_function([$controller, 'on_fatal']);
+        set_error_handler([$controller, 'on_error'], $errorTypes);
+        set_exception_handler([$controller, 'on_exception']);
+
+        // Ensure that channel Channels::PHP_ERROR error is there
+        add_filter(
+            Channels::FILTER_CHANNELS,
+            static function (array $channels): array {
+                $channels[] = Channels::PHP_ERROR;
+
+                return $channels;
+            },
+            PHP_INT_MAX
+        );
+
+        return $this;
+    }
+
+    /**
+     * Tell Wonolog to use a default handler that can be passed as argument or build using settings
+     * customizable via hooks.
+     *
+     * @param HandlerInterface|null $handler
+     * @return Controller
+     */
+    public function useDefaultHandler(?HandlerInterface $handler = null): Controller
+    {
+        static $done = false;
+        if ($done) {
+            return $this;
+        }
+
+        $done = true;
+
+        add_action(
+            HandlersRegistry::ACTION_REGISTER,
+            static function (HandlersRegistry $registry) use ($handler): void {
+                $handler = DefaultHandlerFactory::withDefaultHandler($handler)
+                    ->createDefaultHandler();
+
+                $registry->addHandler($handler, HandlersRegistry::DEFAULT_NAME);
+            },
+            1
+        );
+
+        return $this;
+    }
+
+    /**
+     * Tell Wonolog to make given handler available to loggers with given id.
+     * If one or more channels are passed, the handler will be attached to related Monolog loggers.
+     *
+     * @param HandlerInterface $handler
+     * @param string[] $channels
+     * @param string|null $handlerId
+     *
+     * @return Controller
+     */
+    public function useHandler(
+        HandlerInterface $handler,
+        array $channels = [],
+        ?string $handlerId = null
+    ): Controller {
+
+        add_action(
+            HandlersRegistry::ACTION_REGISTER,
+            static function (HandlersRegistry $registry) use ($handlerId, $handler): void {
+                $registry->addHandler($handler, $handlerId);
+            },
+            1
+        );
+
+        ($handlerId === null) and $handlerId = $handler;
+
+        add_action(
+            Channels::ACTION_LOGGER,
+            static function (
+                Logger $logger,
+                HandlersRegistry $handlers
+            ) use (
+                $handlerId,
+                $channels
+            ): void {
+
+                if ($channels === [] || in_array($logger->getName(), $channels, true)) {
+                    $logger->pushHandler($handlers->find($handlerId));
+                }
+            },
+            10,
+            2
+        );
+
+        return $this;
+    }
+
+    /**
+     * Tell Wonolog to use default log processor.
+     *
+     * @param callable|null $processor
+     * @return Controller
+     */
+    public function useDefaultProcessor(callable $processor = null): Controller
+    {
+
+        static $done = false;
+        if ($done) {
+            return $this;
+        }
+
+        $done = true;
+
+        add_action(
+            ProcessorsRegistry::ACTION_REGISTER,
+            static function (ProcessorsRegistry $registry) use ($processor) {
+                $processor or $processor = new WpContextProcessor();
+
+                $registry->addProcessor($processor, ProcessorsRegistry::DEFAULT_NAME);
+            }
+        );
+
+        return $this;
+    }
+
+    /**
+     * Tell Wonolog to make given processor available to loggers with given id.
+     * If one or more channels are passed, the processor will be attached to related Monolog loggers.
+     *
+     * @param callable $processor
+     * @param string[] $channels
+     * @param $processorId
+     * @return Controller
+     */
+    public function useProcessor(
+        callable $processor,
+        array $channels = [],
+        ?string $processorId = null
+    ): Controller {
+
+        add_action(
+            ProcessorsRegistry::ACTION_REGISTER,
+            static function (ProcessorsRegistry $registry) use ($processorId, $processor) {
+
+                $registry->addProcessor($processor, $processorId);
+            }
+        );
+
+        ($processorId === null) and $processorId = $processor;
+
+        add_action(
+            Channels::ACTION_LOGGER,
+            static function (
+                Logger $logger,
+                HandlersRegistry $handlers,
+                ProcessorsRegistry $processors
+            ) use (
+                $processorId,
+                $channels
+            ) {
+
+                if ($channels === [] || in_array($logger->getName(), $channels, true)) {
+                    $logger->pushProcessor($processors->find($processorId));
+                }
+            },
+            10,
+            3
+        );
+
+        return $this;
+    }
+
+    /**
+     * Tell Wonolog to make given processor available to loggers with given id. If one or more
+     * channels are passed the processor will be attached to related Monolog loggers.
+     *
+     * @param callable $processor
+     * @param string[] $handlers
+     * @param string|null $processorId
+     *
+     * @return Controller
+     */
+    public function useProcessorForHandlers(
+        callable $processor,
+        array $handlers = [],
+        ?string $processorId = null
+    ): Controller {
+
+        add_action(
+            ProcessorsRegistry::ACTION_REGISTER,
+            static function (ProcessorsRegistry $registry) use ($processorId, $processor): void {
+                $registry->addProcessor($processor, $processorId);
+            }
+        );
+
+        ($processorId === null) and $processorId = $processor;
+
+        add_action(
+            HandlersRegistry::ACTION_SETUP,
+            static function (
+                HandlerInterface $handler,
+                string $handlerId,
+                ProcessorsRegistry $processors
+            ) use (
+                $processorId,
+                $handlers
+            ) {
+                if ($handlers === [] || in_array($handlerId, $handlers, true)) {
+                    $handler->pushProcessor($processors->find($processorId));
+                }
+            },
+            10,
+            3
+        );
+
+        return $this;
+    }
+
+    /**
+     * Tell Wonolog to use all default hook listeners.
+     *
+     * @return Controller
+     */
+    public function useDefaultHookListeners(): Controller
+    {
+        static $done = false;
+        if ($done) {
+            return $this;
+        }
+
+        $done = true;
+
+        add_action(
+            HookListenersRegistry::ACTION_REGISTER,
+            static function (HookListenersRegistry $registry) {
+                $registry
+                    ->registerListener(new HookListener\DbErrorListener())
+                    ->registerListener(new HookListener\FailedLoginListener())
+                    ->registerListener(new HookListener\HttpApiListener())
+                    ->registerListener(new HookListener\MailerListener())
+                    ->registerListener(new HookListener\QueryErrorsListener())
+                    ->registerListener(new HookListener\CronDebugListener())
+                    ->registerListener(new HookListener\WpDieHandlerListener());
+            }
+        );
+
+        return $this;
+    }
+
+    /**
+     * Tell Wonolog to use given hook listener.
+     *
+     * @param HookListenerInterface $listener
+     * @return Controller
+     */
+    public function useHookListener(HookListenerInterface $listener): Controller
+    {
+        add_action(
+            HookListenersRegistry::ACTION_REGISTER,
+            static function (HookListenersRegistry $registry) use ($listener): void {
+                $registry->registerListener($listener);
+            }
+        );
+
+        return $this;
+    }
 }
