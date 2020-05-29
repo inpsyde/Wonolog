@@ -148,7 +148,7 @@ class Controller
         add_action(
             HandlersRegistry::ACTION_REGISTER,
             static function (HandlersRegistry $registry) use ($handler): void {
-                $handler = DefaultHandlerFactory::withDefaultHandler($handler)
+                $handler = DefaultHandlerFactory::new($handler)
                     ->createDefaultHandler();
 
                 $registry->addHandler($handler, HandlersRegistry::DEFAULT_NAME);

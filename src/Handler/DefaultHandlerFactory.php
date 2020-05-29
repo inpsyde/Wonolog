@@ -45,12 +45,19 @@ class DefaultHandlerFactory
      *
      * @return static
      */
-    public static function withDefaultHandler(HandlerInterface $handler = null): DefaultHandlerFactory
+    public static function new(?HandlerInterface $handler = null): DefaultHandlerFactory
     {
-        $instance = new static();
-        $instance->defaultHandler = $handler;
+        return new static($handler);
+    }
 
-        return $instance;
+    /**
+     * DefaultHandlerFactory constructor.
+     *
+     * @param HandlerInterface|null $handler
+     */
+    private function __construct(?HandlerInterface $handler = null)
+    {
+        $this->defaultHandler = $handler;
     }
 
     /**
