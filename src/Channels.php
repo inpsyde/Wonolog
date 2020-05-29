@@ -200,7 +200,7 @@ class Channels
     private function useDefaultProcessor(Logger $logger): ?callable
     {
         $processor = $this->processorsRegistry->find(ProcessorsRegistry::DEFAULT_NAME);
-        if ($processor) {
+        if (!$processor) {
             return null;
         }
 

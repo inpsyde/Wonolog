@@ -159,7 +159,7 @@ class DefaultHandlerLoggingTest extends FunctionalTestCase
         bool $wpContext = true
     ) {
 
-        $regex = '^\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\] ';
+        $regex = '^\[([^\]]+)\] ';
         $regex .= $channel . '\.';
         $regex .= Logger::getLevelName($level) . ': ';
         $regex .= $message . ' \[\] ';
@@ -169,6 +169,11 @@ class DefaultHandlerLoggingTest extends FunctionalTestCase
 
         $regex .= '$';
 
-        self::assertRegExp("~{$regex}~", $text);
+        $matched = preg_match("~{$regex}~", $text, $matches);
+
+        $timestamp = strtotime($matches[1]);
+        static::assertTrue((time() - $timestamp) < 30);
+
+        self::assertSame(1, $matched);
     }
 }

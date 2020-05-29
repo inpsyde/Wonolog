@@ -24,9 +24,8 @@ use Inpsyde\Wonolog\Data\Log;
  */
 class PhpErrorController
 {
-
-    private static $errorsLevelMap = [
-        E_USER_ERROR => Logger::ERROR,
+    private const ERROR_LEVELS_MAP = [
+        E_USER_ERROR => Logger::CRITICAL,
         E_USER_NOTICE => Logger::NOTICE,
         E_USER_WARNING => Logger::WARNING,
         E_USER_DEPRECATED => Logger::NOTICE,
@@ -81,9 +80,7 @@ class PhpErrorController
         ?array $context = null
     ): bool {
 
-        $level = isset(self::$errorsLevelMap[$num])
-            ? self::$errorsLevelMap[$num]
-            : null;
+        $level = self::ERROR_LEVELS_MAP[$num] ?? Logger::ERROR;
 
         $reportSilenced = apply_filters(
             'wonolog.report-silenced-errors',
@@ -150,7 +147,7 @@ class PhpErrorController
     /**
      * Checks for a fatal error, work-around for `set_error_handler` not working with fatal errors.
      */
-    public function onFatal(): void
+    public function onShutdown(): void
     {
         $lastError = error_get_last();
         if (!$lastError) {

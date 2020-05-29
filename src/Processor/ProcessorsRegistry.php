@@ -19,7 +19,6 @@ namespace Inpsyde\Wonolog\Processor;
  */
 class ProcessorsRegistry implements \Countable
 {
-
     public const ACTION_REGISTER = 'wonolog.register-processors';
     public const DEFAULT_NAME = 'wonolog.default-processor';
 
@@ -35,7 +34,6 @@ class ProcessorsRegistry implements \Countable
 
     /**
      * @param callable $processor
-     *
      * @param string $name
      *
      * @return ProcessorsRegistry
@@ -43,7 +41,7 @@ class ProcessorsRegistry implements \Countable
     public function addProcessor(callable $processor, ?string $name = null): ProcessorsRegistry
     {
         ($name === null) and $name = $this->buildName($processor);
-        if (! is_string($name) || array_key_exists($name, $this->processors)) {
+        if (!is_string($name) || array_key_exists($name, $this->processors)) {
             return $this;
         }
 
@@ -54,14 +52,13 @@ class ProcessorsRegistry implements \Countable
 
     /**
      * @param callable|string $name
-     *
      * @return bool
      *
      * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
      */
     public function hasProcessor($name): bool
     {
-        if (is_callable($name) && ! is_string($name)) {
+        if (is_callable($name) && !is_string($name)) {
             $name = $this->buildName($name);
         }
 
@@ -70,14 +67,13 @@ class ProcessorsRegistry implements \Countable
 
     /**
      * @param callable|string $name
-     *
      * @return callable|null
      *
      * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
      */
     public function find($name): ?callable
     {
-        if (! $this->initialized) {
+        if (!$this->initialized) {
             $this->initialized = true;
 
             /**
@@ -88,7 +84,7 @@ class ProcessorsRegistry implements \Countable
             do_action(self::ACTION_REGISTER, $this);
         }
 
-        if (is_callable($name) && ! is_string($name)) {
+        if (is_callable($name) && !is_string($name)) {
             $name = $this->buildName($name);
         }
 
@@ -106,14 +102,15 @@ class ProcessorsRegistry implements \Countable
     }
 
     /**
-     * @param callable|string $callable
-     *
+     * @param callable $callable
      * @return string
      *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
      */
-    private function buildName($callable): string
+    private function buildName(callable $callable): string
     {
+        // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+
         if (is_string($callable)) {
             return $callable;
         }

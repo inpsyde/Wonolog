@@ -61,15 +61,14 @@ class CustomHandlerLoggingTest extends FunctionalTestCase
 
         Wonolog\bootstrap($handler, Wonolog\LOG_PHP_ERRORS | Wonolog\USE_DEFAULT_PROCESSOR);
 
-        // phpcs:disable WordPress.PHP.NoSilencedErrors
-        @trigger_error('Catch me!!', E_USER_WARNING);
-        @trigger_error('Catch me!!', E_USER_ERROR);
-        // phpcs:enable WordPress.PHP.NoSilencedErrors
+        add_filter('wonolog.report-silenced-errors', '__return_true');
+
+        @trigger_error('test', E_USER_NOTICE);
 
         $logs = $handler->getRecords();
 
         self::assertIsArray($logs);
-        self::assertCount(2, $logs);
+        self::assertCount(1, $logs);
         self::assertArrayHasKey('extra', $logs[0]);
         self::assertArrayHasKey('wp', $logs[0]['extra']);
         self::assertArrayHasKey('doing_cron', $logs[0]['extra']['wp']);

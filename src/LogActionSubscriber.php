@@ -63,7 +63,6 @@ class LogActionSubscriber
      */
     public function listen(): void
     {
-
         if (!did_action(Controller::ACTION_LOADED)) {
             return;
         }

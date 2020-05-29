@@ -108,12 +108,12 @@ class Controller
         }
 
         $done = true;
-        is_int($errorTypes) or $errorTypes = E_ALL | E_STRICT;
+        ($errorTypes === null) and $errorTypes = E_ALL | E_STRICT;
 
         $controller = new PhpErrorController();
-        register_shutdown_function([$controller, 'on_fatal']);
-        set_error_handler([$controller, 'on_error'], $errorTypes);
-        set_exception_handler([$controller, 'on_exception']);
+        register_shutdown_function([$controller, 'onShutdown']);
+        set_error_handler([$controller, 'onError']);
+        set_exception_handler([$controller, 'onException']);
 
         // Ensure that channel Channels::PHP_ERROR error is there
         add_filter(
@@ -213,9 +213,8 @@ class Controller
      * @param callable|null $processor
      * @return Controller
      */
-    public function useDefaultProcessor(callable $processor = null): Controller
+    public function useDefaultProcessor(?callable $processor = null): Controller
     {
-
         static $done = false;
         if ($done) {
             return $this;

@@ -147,7 +147,7 @@ class PhpErrorHandlerTest extends TestCase
 
     private function initializeErrorController(PhpErrorController $controller)
     {
-        register_shutdown_function([$controller, 'onFatal']);
+        register_shutdown_function([$controller, 'onShutdown']);
         set_error_handler([$controller, 'onError']);
         set_exception_handler([$controller, 'onException']);
     }

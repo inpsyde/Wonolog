@@ -54,15 +54,19 @@ class FunctionalTestCase extends \PHPUnit\Framework\TestCase
     {
         Functions\when('add_action')
             ->alias(
-                function (string $hook, callable $callback, int $priority = 10): void {
+                function (string $hook, callable $callback, int $priority = 10): bool {
                     $this->storeHook($hook, $callback, $priority);
+
+                    return true;
                 }
             );
 
         Functions\when('add_filter')
             ->alias(
-                function (string $hook, callable $callback, int $priority = 10): void {
+                function (string $hook, callable $callback, int $priority = 10): bool {
                     $this->storeHook($hook, $callback, $priority);
+
+                    return true;
                 }
             );
 
