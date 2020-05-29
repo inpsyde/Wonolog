@@ -61,7 +61,7 @@ class LogActionSubscriber
      * @wp-hook wonolog.log.alert
      * @wp-hook wonolog.log.emergency
      */
-    public function listen()
+    public function listen(): void
     {
 
         if (!did_action(Controller::ACTION_LOADED)) {
