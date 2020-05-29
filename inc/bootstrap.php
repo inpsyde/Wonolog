@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -12,12 +15,12 @@ namespace Inpsyde\Wonolog;
 
 use Monolog\Handler\HandlerInterface;
 
-/**
- * We want to load this file just once. Being loaded by Composer autoload, and being in WordPress context,
- * we have to put special care on this.
- */
-if ( defined( __NAMESPACE__ . '\\LOG' ) ) {
-	return;
+// We want to load this file just once.
+// Being loaded by Composer autoload, and being in WordPress context,
+// we have to put special care on this.
+// phpcs:disable WordPressVIPMinimum.Constants.ConstantString.NotCheckingConstantName
+if (defined(__NAMESPACE__ . '\\LOG')) {
+    return;
 }
 
 const LOG = 'wonolog.log';
@@ -29,42 +32,43 @@ const USE_DEFAULT_ALL = 15;
 const USE_DEFAULT_NONE = 0;
 
 /**
- * @param HandlerInterface|NULL $default_handler
- * @param int                   $flags
- * @param int                   $log_hook_priority
+ * @param HandlerInterface|NULL $defaultHandler
+ * @param int $flags
+ * @param int $logHookPriority
  *
  * @return Controller
  */
 function bootstrap(
-	HandlerInterface $default_handler = NULL,
-	$flags = USE_DEFAULT_ALL,
-	$log_hook_priority = 100
-) {
+    HandlerInterface $defaultHandler = null,
+    int $flags = USE_DEFAULT_ALL,
+    int $logHookPriority = 100
+): Controller {
 
-	static $controller;
-	if ( $controller ) {
-		// This should run once, but we avoid to break return type, just in case it is called more than once
-		return $controller;
-	}
+    static $controller;
+    if ($controller) {
+        // This should run once, but we avoid to break return type,
+        // just in case it is called more than once
+        return $controller;
+    }
 
-	$controller = new Controller();
-	is_int( $flags ) or $flags = USE_DEFAULT_NONE;
+    $controller = new Controller();
+    is_int($flags) or $flags = USE_DEFAULT_NONE;
 
-	if ( $flags & LOG_PHP_ERRORS ) {
-		$controller->log_php_errors();
-	}
+    if ($flags & LOG_PHP_ERRORS) {
+        $controller->log_php_errors();
+    }
 
-	if ( $flags & USE_DEFAULT_HOOK_LISTENERS ) {
-		$controller->use_default_hook_listeners();
-	}
+    if ($flags & USE_DEFAULT_HOOK_LISTENERS) {
+        $controller->use_default_hook_listeners();
+    }
 
-	if ( $default_handler || ( $flags & USE_DEFAULT_HANDLER ) ) {
-		$controller->use_default_handler( $default_handler );
-	}
+    if ($defaultHandler || ($flags & USE_DEFAULT_HANDLER)) {
+        $controller->use_default_handler($defaultHandler);
+    }
 
-	if ( $flags & USE_DEFAULT_PROCESSOR ) {
-		$controller->use_default_processor();
-	}
+    if ($flags & USE_DEFAULT_PROCESSOR) {
+        $controller->use_default_processor();
+    }
 
-	return $controller->setup( $log_hook_priority );
+    return $controller->setup($logHookPriority);
 }
