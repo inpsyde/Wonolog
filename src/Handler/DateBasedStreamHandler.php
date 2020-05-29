@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -16,211 +19,246 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
 /**
- * Similar to Monolog RotatingFileHandler, this class overcomes RotatingFileHandler too stringent date format
+ * Similar to Monolog RotatingFileHandler, this class
+ * overcomes RotatingFileHandler too stringent date format
  * enforcement.
  *
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class DateBasedStreamHandler extends AbstractProcessingHandler {
+final class DateBasedStreamHandler extends AbstractProcessingHandler
+{
 
-	const VALID_DATE_PLACEHOLDERS = 'dDjlNwzWFMmntoYy';
+    private const VALID_DATE_PLACEHOLDERS = 'dDjlNwzWFMmntoYy';
 
-	/**
-	 * @var StreamHandler[]
-	 */
-	private $handlers = [];
+    /**
+     * @var StreamHandler[]
+     */
+    private $handlers = [];
 
-	/**
-	 * @var string|callable
-	 */
-	private $file_format;
+    /**
+     * @var string|callable
+     */
+    private $fileFormat;
 
-	/**
-	 * @var string
-	 */
-	private $date_format;
+    /**
+     * @var string
+     */
+    private $dateFormat;
 
-	/**
-	 * @var bool
-	 */
-	private $locking;
+    /**
+     * @var bool
+     */
+    private $locking;
 
-	/**
-	 * @param string|callable $file_format
-	 * @param string          $date_format
-	 * @param bool|int        $level
-	 * @param bool            $bubble
-	 * @param bool            $locking
-	 */
-	public function __construct( $file_format, $date_format, $level = Logger::DEBUG, $bubble = TRUE, $locking = TRUE ) {
+    /**
+     * @param string|callable $fileFormat
+     * @param string $dateFormat
+     * @param bool|int $level
+     * @param bool $bubble
+     * @param bool $locking
+     *
+     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function __construct(
+        $fileFormat,
+        string $dateFormat,
+        $level = Logger::DEBUG,
+        bool $bubble = true,
+        bool $locking = true
+    ) {
 
-		if ( ! $this->check_file_format( $file_format ) || ! $this->check_date_format( $date_format ) ) {
-			throw new \InvalidArgumentException( 'Invalid file name or date format for ' . __CLASS__ );
-		}
+        if (! $this->checkFileFormat($fileFormat) || ! $this->checkDateFormat($dateFormat)) {
+            throw new \InvalidArgumentException('Invalid file name or date format for ' . __CLASS__);
+        }
 
-		$this->file_format = $file_format;
-		$this->date_format = (string) $date_format;
-		$this->locking     = (bool) $locking;
+        $this->fileFormat = $fileFormat;
+        $this->dateFormat = (string) $dateFormat;
+        $this->locking = (bool) $locking;
 
-		parent::__construct( $level, $bubble );
-	}
+        parent::__construct($level, $bubble);
+    }
 
-	/**
-	 * @param array $record
-	 *
-	 * @return StreamHandler
-	 */
-	public function stream_handler_for_record( array $record ) {
+    /**
+     * @param array $record
+     *
+     * @return StreamHandler
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     */
+    public function streamHandlerForRecord(array $record): StreamHandler
+    {
+        [$filename, $filePermissions] = $this->fileNameForRecord($record);
 
-		list( $filename, $file_permissions ) = $this->file_name_for_record( $record );
+        if (isset($this->handlers[$filename])) {
+            return $this->handlers[$filename];
+        }
 
-		if ( isset( $this->handlers[ $filename ] ) ) {
-			return $this->handlers[ $filename ];
-		}
+        $this->close();
 
-		$this->close();
+        $handler = new StreamHandler(
+            $filename,
+            $this->getLevel(),
+            $this->getBubble(),
+            $filePermissions,
+            $this->locking
+        );
 
-		$handler = new StreamHandler(
-			$filename,
-			$this->getLevel(),
-			$this->getBubble(),
-			$file_permissions,
-			$this->locking
-		);
+        $this->handlers[$filename] = $handler;
 
-		$this->handlers[ $filename ] = $handler;
+        return $handler;
+    }
 
-		return $handler;
-	}
+    /**
+     * @inheritdoc
+     */
+    protected function write(array $record): void
+    {
+        $this->streamHandlerForRecord($record)
+            ->write($record);
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function write( array $record ) {
+    /**
+     * @inheritdoc
+     */
+    public function close(): void
+    {
+        $this->handlers and array_walk(
+            $this->handlers,
+            static function (AbstractHandler $handler): void {
+                $handler->close();
+            }
+        );
 
-		$this->stream_handler_for_record( $record )
-			->write( $record );
-	}
+        unset($this->handlers);
+        $this->handlers = [];
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function close() {
+    /**
+     * @param string $fileFormat
+     *
+     * @return bool
+     *
+     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     */
+    private function checkFileFormat($fileFormat): bool
+    {
+        if (is_callable($fileFormat)) {
+            return true;
+        }
 
-		$this->handlers and array_walk(
-			$this->handlers,
-			function ( AbstractHandler $handler ) {
+        return
+            is_string($fileFormat)
+            && substr_count($fileFormat, '{date}') === 1;
+    }
 
-				$handler->close();
-			}
-		);
+    /**
+     * Checks that a date format contains only valida `date()` placeholder
+     * and valid separators, but not only separators
+     *
+     * @param $dateFormat
+     *
+     * @return bool
+     */
+    private function checkDateFormat(string $dateFormat): bool
+    {
+        if (! is_string($dateFormat)) {
+            return false;
+        }
 
-		unset( $this->handlers );
-		$this->handlers = [];
-	}
+        $dateFormatNoSep = str_replace(['-', '_', '/', '.'], '', $dateFormat);
 
-	/**
-	 * @param string $file_format
-	 *
-	 * @return bool
-	 */
-	private function check_file_format( $file_format ) {
+        if (! $dateFormatNoSep) {
+            return false;
+        }
 
-		if ( is_callable( $file_format ) ) {
-			return TRUE;
-		}
+        return rtrim($dateFormatNoSep, self::VALID_DATE_PLACEHOLDERS) === '';
+    }
 
-		return
-			is_string( $file_format )
-			&& substr_count( $file_format, '{date}' ) === 1;
-	}
+    /**
+     * @param array $record
+     *
+     * @return array
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     *
+     * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+     */
+    private function fileNameForRecord(array $record): array
+    {
+        $fileFormat = $this->fileFormat;
 
-	/**
-	 * Checks that a date format contains only valida `date()` placeholder and valid separators, but not only separators
-	 *
-	 * @param $date_format
-	 *
-	 * @return bool
-	 */
-	private function check_date_format( $date_format ) {
+        if (is_callable($fileFormat)) {
+            $fileFormat = $fileFormat($record);
+            is_callable($fileFormat) and $fileFormat = null;
+            $this->checkFileFormat($fileFormat) or $fileFormat = '{date}.log';
+        }
 
-		if ( ! is_string( $date_format ) ) {
-			return FALSE;
-		}
+        $timestamp = $this->recordTimestamp($record);
 
-		$date_format_no_sep = str_replace( [ '-', '_', '/', '.' ], '', $date_format );
+        $filename = str_replace('{date}', date($this->dateFormat, $timestamp), $fileFormat);
+        if (! filter_var(filter_var($filename, FILTER_SANITIZE_URL), FILTER_SANITIZE_URL)) {
+            throw new \InvalidArgumentException('Invalid file name format or date format for ' . __CLASS__);
+        }
 
-		if ( ! $date_format_no_sep ) {
-			return FALSE;
-		}
+        $dir = @dirname($filename);
+        if (! $dir || ! wp_mkdir_p($dir)) {
+            throw new \RuntimeException('It was not possible to create folder ' . $dir);
+        }
 
-		return rtrim( $date_format_no_sep, self::VALID_DATE_PLACEHOLDERS ) === '';
-	}
+        $stat = @stat($dir);
+        $dirPerms = isset($stat['mode'])
+            ? $stat['mode'] & 0007777
+            : 0755;
 
-	/**
-	 * @param array $record
-	 *
-	 * @return array
-	 */
-	private function file_name_for_record( array $record ) {
+        return [$filename, $dirPerms];
+    }
 
-		$file_format = $this->file_format;
+    /**
+     * @param array $record
+     *
+     * @return int
+     *
+     * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+     */
+    private function recordTimestamp(array $record): int
+    {
+        static $oldTimestamp;
+        $oldTimestamp or $oldTimestamp = strtotime('1 month ago');
 
-		if ( is_callable( $file_format ) ) {
-			$file_format = $file_format( $record );
-			is_callable( $file_format ) and $file_format = NULL;
-			$this->check_file_format( $file_format ) or $file_format = '{date}.log';
-		}
+        $timestamp = empty($record['datetime'])
+            ? null
+            : $record['datetime'];
 
-		$timestamp = $this->record_timestamp( $record );
+        if (is_string($timestamp)) {
+            $timestamp = ctype_digit($timestamp)
+                ? (int) $timestamp
+                : @strtotime($timestamp);
+            (is_int($timestamp) && $timestamp) or $timestamp = null;
+        }
 
-		$filename = str_replace( '{date}', date( $this->date_format, $timestamp ), $file_format );
-		if ( ! filter_var( filter_var( $filename, FILTER_SANITIZE_URL ), FILTER_SANITIZE_URL ) ) {
-			throw new \InvalidArgumentException( 'Invalid file name format or date format for ' . __CLASS__ );
-		}
+        if ($timestamp instanceof \DateTimeInterface) {
+            $timestamp = $timestamp->getTimestamp();
+        }
 
-		$dir = @dirname( $filename );
-		if ( ! $dir || ! wp_mkdir_p( $dir ) ) {
-			throw new \RuntimeException( 'It was not possible to create folder ' . $dir );
-		}
+        $timestampNow = time();
 
-		$stat      = @stat( $dir );
-		$dir_perms = isset( $stat[ 'mode' ] ) ? $stat[ 'mode' ] & 0007777 : 0755;
+        // We don't really have a way to see if an integer is a timestamp,
+        // but if it's a number that's bigger than
+        // 1 month ago timestamp and lower than current timestamp,
+        // chances are it is a valid one.
+        if (
+            is_int($timestamp)
+            && $timestamp > $oldTimestamp
+            && $timestamp <= $timestampNow
+        ) {
+            return $timestamp;
+        }
 
-		return [ $filename, $dir_perms ];
-	}
-
-	/**
-	 * @param array $record
-	 *
-	 * @return int
-	 */
-	private function record_timestamp( array $record ) {
-
-		static $old_timestamp;
-		$old_timestamp or $old_timestamp = strtotime( '1 month ago' );
-
-		$timestamp = empty( $record[ 'datetime' ] ) ? NULL : $record[ 'datetime' ];
-
-		if ( is_string( $timestamp ) ) {
-			$timestamp = ctype_digit( $timestamp ) ? (int) $timestamp : @strtotime( $timestamp );
-			( is_int( $timestamp ) && $timestamp ) or $timestamp = NULL;
-		}
-
-		if ( $timestamp instanceof \DateTimeInterface ) {
-			$timestamp = $timestamp->getTimestamp();
-		}
-
-		$timestamp_now = time();
-
-		// We don't really have a way to see if an integer is a timestamp, but if it's a number that's bigger than
-		// 1 month ago timestamp and lower than current timestamp, chances are it is a valid one.
-		if ( is_int( $timestamp ) && $timestamp > $old_timestamp && $timestamp <= $timestamp_now ) {
-			return $timestamp;
-		}
-
-		return $timestamp_now;
-
-	}
+        return $timestampNow;
+    }
 }

@@ -141,10 +141,10 @@ class Controller {
 			HandlersRegistry::ACTION_REGISTER,
 			function ( HandlersRegistry $registry ) use ( $handler ) {
 
-				$handler = DefaultHandlerFactory::with_default_handler( $handler )
-					->create_default_handler();
+				$handler = DefaultHandlerFactory::withDefaultHandler( $handler )
+					->createDefaultHandler();
 
-				$registry->add_handler( $handler, HandlersRegistry::DEFAULT_NAME );
+				$registry->addHandler( $handler, HandlersRegistry::DEFAULT_NAME );
 			},
 			1
 		);
@@ -168,7 +168,7 @@ class Controller {
 			HandlersRegistry::ACTION_REGISTER,
 			function ( HandlersRegistry $registry ) use ( $handler_id, $handler ) {
 
-				$registry->add_handler( $handler, $handler_id );
+				$registry->addHandler( $handler, $handler_id );
 			},
 			1
 		);

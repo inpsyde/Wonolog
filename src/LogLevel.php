@@ -43,7 +43,7 @@ class LogLevel {
 	 *
 	 * @return int
 	 */
-	public function default_min_level() {
+	public function defaultMinLevel() {
 
 		if ( self::$min_level !== null ) {
 			return self::$min_level;

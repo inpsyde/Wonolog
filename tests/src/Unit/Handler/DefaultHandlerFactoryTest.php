@@ -56,16 +56,16 @@ class DefaultHandlerFactoryTest extends TestCase {
 	public function test_enforced_instance_is_returned() {
 
 		$handler = \Mockery::mock( HandlerInterface::class );
-		$factory = DefaultHandlerFactory::with_default_handler( $handler );
+		$factory = DefaultHandlerFactory::withDefaultHandler( $handler );
 
-		self::assertSame( $handler, $factory->create_default_handler() );
+		self::assertSame( $handler, $factory->createDefaultHandler() );
 	}
 
 	public function test_default_handler_is_null_if_no_folder() {
 
-		$factory = DefaultHandlerFactory::with_default_handler();
+		$factory = DefaultHandlerFactory::withDefaultHandler();
 
-		$handler = $factory->create_default_handler();
+		$handler = $factory->createDefaultHandler();
 
 		self::assertInstanceOf( NullHandler::class, $handler );
 	}
@@ -75,10 +75,10 @@ class DefaultHandlerFactoryTest extends TestCase {
 		$dir = str_replace( '\\', '/', __DIR__ );
 		putenv( 'WONOLOG_DEFAULT_HANDLER_ROOT_DIR=' . $dir );
 
-		$factory = DefaultHandlerFactory::with_default_handler();
+		$factory = DefaultHandlerFactory::withDefaultHandler();
 
 		/** @var DateBasedStreamHandler $handler */
-		$handler = $factory->create_default_handler();
+		$handler = $factory->createDefaultHandler();
 
 		self::assertInstanceOf( DateBasedStreamHandler::class, $handler );
 	}
@@ -91,10 +91,10 @@ class DefaultHandlerFactoryTest extends TestCase {
 		$dir = str_replace( '\\', '/', __DIR__ );
 		define( 'WP_CONTENT_DIR', $dir );
 
-		$factory = DefaultHandlerFactory::with_default_handler();
+		$factory = DefaultHandlerFactory::withDefaultHandler();
 
 		/** @var DateBasedStreamHandler $handler */
-		$handler = $factory->create_default_handler();
+		$handler = $factory->createDefaultHandler();
 
 		self::assertInstanceOf( DateBasedStreamHandler::class, $handler );
 	}
@@ -108,9 +108,9 @@ class DefaultHandlerFactoryTest extends TestCase {
 		$dir = str_replace( '\\', '/', __DIR__ );
 		putenv( 'WONOLOG_DEFAULT_HANDLER_ROOT_DIR=' . $dir );
 
-		$factory = DefaultHandlerFactory::with_default_handler();
+		$factory = DefaultHandlerFactory::withDefaultHandler();
 
-		$handler = $factory->create_default_handler();
+		$handler = $factory->createDefaultHandler();
 
 		self::assertInstanceOf( NullHandler::class, $handler );
 	}
@@ -124,9 +124,9 @@ class DefaultHandlerFactoryTest extends TestCase {
 		$dir = str_replace( '\\', '/', __DIR__ );
 		putenv( 'WONOLOG_DEFAULT_HANDLER_ROOT_DIR=' . $dir );
 
-		$factory = DefaultHandlerFactory::with_default_handler();
+		$factory = DefaultHandlerFactory::withDefaultHandler();
 
-		$handler = $factory->create_default_handler();
+		$handler = $factory->createDefaultHandler();
 
 		self::assertInstanceOf( NullHandler::class, $handler );
 	}
@@ -145,14 +145,14 @@ class DefaultHandlerFactoryTest extends TestCase {
 			->once()
 			->andReturn( '/etc/logs/' );
 
-		$factory = DefaultHandlerFactory::with_default_handler();
+		$factory = DefaultHandlerFactory::withDefaultHandler();
 
 		/** @var DateBasedStreamHandler $handler */
-		$handler = $factory->create_default_handler();
+		$handler = $factory->createDefaultHandler();
 
 		self::assertInstanceOf( DateBasedStreamHandler::class, $handler );
 
-		$stream_url = $handler->stream_handler_for_record( [] )
+		$stream_url = $handler->streamHandlerForRecord( [] )
 			->getUrl();
 
 		self::assertSame( '/etc/logs/wonolog/' . date( 'mYd' ) . '.text', $stream_url );

@@ -33,9 +33,9 @@ class HandlersRegistryTest extends TestCase {
 		$handler_b = clone $handler_a;
 		$handler_c = clone $handler_a;
 
-		$registry->add_handler( $handler_a, 'test' );
-		$registry->add_handler( $handler_b, 'test' );
-		$registry->add_handler( $handler_c, 'test' );
+		$registry->addHandler( $handler_a, 'test' );
+		$registry->addHandler( $handler_b, 'test' );
+		$registry->addHandler( $handler_c, 'test' );
 
 		self::assertCount( 1, $registry );
 	}
@@ -51,15 +51,15 @@ class HandlersRegistryTest extends TestCase {
 		$handler_b = clone $handler_a;
 		$handler_c = clone $handler_a;
 
-		$registry->add_handler( $handler_a, 'a' );
-		$registry->add_handler( $handler_b, 'b' );
-		$registry->add_handler( $handler_c, 'c' );
+		$registry->addHandler( $handler_a, 'a' );
+		$registry->addHandler( $handler_b, 'b' );
+		$registry->addHandler( $handler_c, 'c' );
 
-		self::assertTrue( $registry->has_handler( 'a' ) );
-		self::assertTrue( $registry->has_handler( 'b' ) );
-		self::assertTrue( $registry->has_handler( 'c' ) );
-		self::assertFalse( $registry->has_handler( [ 'a' ] ) );
-		self::assertFalse( $registry->has_handler( 'x' ) );
+		self::assertTrue( $registry->hasHandler( 'a' ) );
+		self::assertTrue( $registry->hasHandler( 'b' ) );
+		self::assertTrue( $registry->hasHandler( 'c' ) );
+		self::assertFalse( $registry->hasHandler( [ 'a' ] ) );
+		self::assertFalse( $registry->hasHandler( 'x' ) );
 
 		self::assertCount( 3, $registry );
 	}
@@ -97,8 +97,8 @@ class HandlersRegistryTest extends TestCase {
 			->whenHappen(
 				function ( HandlersRegistry $registry ) use ( $handler_a, $handler_b ) {
 
-					$registry->add_handler( $handler_a, 'a' );
-					$registry->add_handler( $handler_b, 'b' );
+					$registry->addHandler( $handler_a, 'a' );
+					$registry->addHandler( $handler_b, 'b' );
 				}
 			);
 

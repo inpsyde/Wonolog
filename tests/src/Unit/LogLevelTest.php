@@ -35,7 +35,7 @@ class LogLevelTest extends TestCase {
 
 		$log_level = new LogLevel();
 
-		self::assertSame( Logger::CRITICAL, $log_level->default_min_level() );
+		self::assertSame( Logger::CRITICAL, $log_level->defaultMinLevel() );
 	}
 
 	public function test_default_level_by_env_num() {
@@ -44,14 +44,14 @@ class LogLevelTest extends TestCase {
 
 		$log_level = new LogLevel();
 
-		self::assertSame( Logger::CRITICAL, $log_level->default_min_level() );
+		self::assertSame( Logger::CRITICAL, $log_level->defaultMinLevel() );
 	}
 
 	public function test_default_level_by_constant_none() {
 
 		$log_level = new LogLevel();
 
-		self::assertSame( Logger::ERROR, $log_level->default_min_level() );
+		self::assertSame( Logger::ERROR, $log_level->defaultMinLevel() );
 	}
 
 	public function test_check_level_accepts_positive_numbers() {
@@ -88,7 +88,7 @@ class LogLevelTest extends TestCase {
 
 		$log_level = new LogLevel();
 
-		self::assertSame( Logger::DEBUG, $log_level->default_min_level() );
+		self::assertSame( Logger::DEBUG, $log_level->defaultMinLevel() );
 	}
 
 	/**
@@ -101,7 +101,7 @@ class LogLevelTest extends TestCase {
 		$log_level = new LogLevel();
 
 		self::assertFalse( defined( 'WP_DEBUG_LOG' ) );
-		self::assertSame( Logger::DEBUG, $log_level->default_min_level() );
+		self::assertSame( Logger::DEBUG, $log_level->defaultMinLevel() );
 	}
 
 	/**
@@ -114,7 +114,7 @@ class LogLevelTest extends TestCase {
 
 		$log_level = new LogLevel();
 
-		self::assertSame( Logger::ERROR, $log_level->default_min_level() );
+		self::assertSame( Logger::ERROR, $log_level->defaultMinLevel() );
 	}
 
 	/**
@@ -128,7 +128,7 @@ class LogLevelTest extends TestCase {
 
 		$log_level = new LogLevel();
 
-		self::assertSame( Logger::EMERGENCY, $log_level->default_min_level() );
+		self::assertSame( Logger::EMERGENCY, $log_level->defaultMinLevel() );
 	}
 
 }

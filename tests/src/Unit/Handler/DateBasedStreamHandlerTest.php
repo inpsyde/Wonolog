@@ -73,7 +73,7 @@ class DateBasedStreamHandlerTest extends TestCase {
 
 		$handler = new DateBasedStreamHandler( '/etc/logs/{date}.log', 'd/m/Y' );
 
-		$stream_handler = $handler->stream_handler_for_record( compact( 'datetime' ) );
+		$stream_handler = $handler->streamHandlerForRecord( compact( 'datetime' ) );
 
 		self::assertInstanceOf( StreamHandler::class, $stream_handler );
 		self::assertSame( '/etc/logs/' . date( 'd/m/Y', $timestamp ) . '.log', $stream_handler->getUrl() );
@@ -101,7 +101,7 @@ class DateBasedStreamHandlerTest extends TestCase {
 			'datetime' => ( new \DateTime() )->setTimestamp( $timestamp )
 		];
 
-		$stream_handler = $handler->stream_handler_for_record( $record );
+		$stream_handler = $handler->streamHandlerForRecord( $record );
 
 		self::assertInstanceOf( StreamHandler::class, $stream_handler );
 		self::assertSame( '/etc/logs/debug/' . date( 'd/m/Y', $timestamp ) . '.log', $stream_handler->getUrl() );
