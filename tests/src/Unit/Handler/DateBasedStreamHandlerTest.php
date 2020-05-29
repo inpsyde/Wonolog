@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -20,119 +23,121 @@ use Monolog\Logger;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class DateBasedStreamHandlerTest extends TestCase {
+class DateBasedStreamHandlerTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        Functions\when('wp_normalize_path')
+            ->alias(
+                static function (string $str): string {
+                    return str_replace('\\', '/', $str);
+                }
+            );
 
-	protected function setUp() {
+        Functions\when('wp_mkdir_p')
+            ->alias(
+                static function (string $str): string {
+                    return filter_var($str, FILTER_SANITIZE_URL) ? $str : '';
+                }
+            );
 
-		Functions\when( 'wp_normalize_path' )
-			->alias(
-				function ( $str ) {
+        parent::setUp();
+    }
 
-					return str_replace( '\\', '/', $str );
-				}
-			);
+    public function testConstructorFailsIfBadFileFormat()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/file name or date format/i');
 
-		Functions\when( 'wp_mkdir_p' )
-			->alias(
-				function ( $str ) {
+        new DateBasedStreamHandler('foo', 'd/m/Y');
+    }
 
-					return is_string( $str ) && filter_var( $str, FILTER_SANITIZE_URL )
-						? $str
-						: '';
-				}
-			);
+    public function estConstructorFailsIfBadDateFormat()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/file name or date format/i');
 
-		parent::setUp();
-	}
+        new DateBasedStreamHandler('{date}.log', 'xxx');
+    }
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessageRegExp /file name or date format/
-	 */
-	public function test_constructor_fails_if_bad_file_format() {
+    /**
+     * @dataProvider dataProviderForTestStreamHandlerForRecord
+     *
+     * @param mixed $datetime
+     * @param int $timestamp
+     *
+     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+     */
+    public function testStreamHandlerForRecord($datetime, int $timestamp)
+    {
+        // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
 
-		new DateBasedStreamHandler( 'foo', 'd/m/Y' );
-	}
+        $handler = new DateBasedStreamHandler('/etc/logs/{date}.log', 'd/m/Y');
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessageRegExp /file name or date format/
-	 */
-	public function test_constructor_fails_if_bad_date_format() {
+        $streamHandler = $handler->streamHandlerForRecord(compact('datetime'));
 
-		new DateBasedStreamHandler( '{date}.log', 'xxx' );
-	}
+        self::assertInstanceOf(StreamHandler::class, $streamHandler);
+        self::assertSame(
+            '/etc/logs/' . date('d/m/Y', $timestamp) . '.log',
+            $streamHandler->getUrl()
+        );
+    }
 
-	/**
-	 * @dataProvider data_provider_for_test_stream_handler_for_record
-	 *
-	 * @param mixed $datetime
-	 * @param int   $timestamp
-	 */
-	public function test_stream_handler_for_record( $datetime, $timestamp ) {
+    public function testStreamHandlerForRecordWithCallback()
+    {
+        $fileFormat = static function (array $record): string {
+            if (empty($record['channel']) || !is_string($record['channel'])) {
+                return '/etc/logs/{date}.log';
+            }
 
-		$handler = new DateBasedStreamHandler( '/etc/logs/{date}.log', 'd/m/Y' );
+            return '/etc/logs/' . strtolower($record['channel']) . '/{date}.log';
+        };
 
-		$stream_handler = $handler->streamHandlerForRecord( compact( 'datetime' ) );
+        $handler = new DateBasedStreamHandler($fileFormat, 'd/m/Y');
 
-		self::assertInstanceOf( StreamHandler::class, $stream_handler );
-		self::assertSame( '/etc/logs/' . date( 'd/m/Y', $timestamp ) . '.log', $stream_handler->getUrl() );
-	}
+        $timestamp = time();
 
-	public function test_stream_handler_for_record_with_callback() {
+        $record = [
+            'message' => 'Hello',
+            'level' => Logger::DEBUG,
+            'channel' => 'DEBUG',
+            'datetime' => (new \DateTime())->setTimestamp($timestamp),
+        ];
 
-		$file_format = function ( array $record ) {
+        $streamHandler = $handler->streamHandlerForRecord($record);
 
-			if ( empty( $record[ 'channel' ] ) || ! is_string( $record[ 'channel' ] ) ) {
-				return '/etc/logs/{date}.log';
-			}
+        self::assertInstanceOf(StreamHandler::class, $streamHandler);
+        self::assertSame(
+            '/etc/logs/debug/' . date('d/m/Y', $timestamp) . '.log',
+            $streamHandler->getUrl()
+        );
+    }
 
-			return '/etc/logs/' . strtolower( $record[ 'channel' ] ) . '/{date}.log';
-		};
+    /**
+     * @return array<array{0:int|string, int}>
+     * @see testStreamHandlerForRecord
+     */
+    public function dataProviderForTestStreamHandlerForRecord(): array
+    {
+        $time = time();
+        $now = new \DateTime('now');
+        $weekAgo = new \DateTime();
+        $weekAgo->setTimestamp(strtotime('1 week ago'));
+        $lastYear = new \DateTime();
+        $lastYear->setTimestamp(strtotime('1 year ago'));
 
-		$handler = new DateBasedStreamHandler( $file_format, 'd/m/Y' );
-
-		$timestamp = time();
-
-		$record = [
-			'message'  => 'Hello',
-			'level'    => Logger::DEBUG,
-			'channel'  => 'DEBUG',
-			'datetime' => ( new \DateTime() )->setTimestamp( $timestamp )
-		];
-
-		$stream_handler = $handler->streamHandlerForRecord( $record );
-
-		self::assertInstanceOf( StreamHandler::class, $stream_handler );
-		self::assertSame( '/etc/logs/debug/' . date( 'd/m/Y', $timestamp ) . '.log', $stream_handler->getUrl() );
-	}
-
-	/**
-	 * @return array
-	 * @see test_stream_handler_for_record
-	 */
-	public function data_provider_for_test_stream_handler_for_record() {
-
-		$time     = time();
-		$now      = new \DateTime( 'now' );
-		$week_ago = new \DateTime();
-		$week_ago->setTimestamp( strtotime( '1 week ago' ) );
-		$last_year = new \DateTime();
-		$last_year->setTimestamp( strtotime( '1 year ago' ) );
-
-		return [
-			[ $time, $time ],
-			[ (string) $time, $time ],
-			[ 'yesterday', strtotime( 'yesterday' ) ],
-			[ '2 weeks ago', strtotime( '2 weeks ago' ) ],
-			[ $now, $now->getTimestamp() ],
-			[ $now->format( 'Y-m-d H:i:s' ), $now->getTimestamp() ],
-			[ $now->format( 'Y-m-d' ), $now->getTimestamp() ],
-			[ $now->format( 'r' ), $now->getTimestamp() ],
-			[ $week_ago, strtotime( '1 week ago' ) ],
-			[ $week_ago->format( 'c' ), strtotime( '1 week ago' ) ],
-			[ $last_year->format( 'c' ), $time ],
-		];
-
-	}
+        return [
+            [$time, $time],
+            [(string)$time, $time],
+            ['yesterday', strtotime('yesterday')],
+            ['2 weeks ago', strtotime('2 weeks ago')],
+            [$now, $now->getTimestamp()],
+            [$now->format('Y-m-d H:i:s'), $now->getTimestamp()],
+            [$now->format('Y-m-d'), $now->getTimestamp()],
+            [$now->format('r'), $now->getTimestamp()],
+            [$weekAgo, strtotime('1 week ago')],
+            [$weekAgo->format('c'), strtotime('1 week ago')],
+            [$lastYear->format('c'), $time],
+        ];
+    }
 }

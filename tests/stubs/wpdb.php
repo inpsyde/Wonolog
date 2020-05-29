@@ -1,4 +1,11 @@
-<?php # -*- coding: utf-8 -*-
+<?php // phpcs:disable PSR1
+
+// phpcs:disable Inpsyde.CodeQuality.ForbiddenPublicProperty
+// phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+// phpcs:disable Inpsyde.CodeQuality.ReturnTypeDeclaration
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -10,63 +17,57 @@
 
 use Inpsyde\Wonolog\HookListener\WpDieHandlerListener;
 
-if ( class_exists( 'wpdb' ) ) {
-	return;
+if (class_exists('wpdb')) {
+    return;
 }
 
 /**
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-class wpdb {
+class wpdb // phpcs:ignore
+{
+    /**
+     * @var WpDieHandlerListener
+     */
+    public $wp_die_listener;
 
-	/**
-	 * @var WpDieHandlerListener
-	 */
-	public $wp_die_listener;
+    /**
+     * @param string $message
+     * @param string $code
+     * @return string
+     */
+    public function bail($message, $code = '500')
+    {
+        $handler = $this->execute_die_listener($message);
 
-	/**
-	 * @param string $message
-	 * @param string $error_code
-	 *
-	 * @return string
-	 */
-	public function bail( $message, $error_code = '500' ) {
+        return $handler($message, 'Bail');
+    }
 
-		$handler = $this->execute_die_listener( $message );
+    /**
+     * @param string $message
+     * @return string
+     */
+    public function print_error($message = '')
+    {
+        $handler = $this->execute_die_listener($message);
 
-		return $handler( $message, 'Bail' );
-	}
+        return $handler($message, 'Bail');
+    }
 
-	/**
-	 * @param string $message
-	 *
-	 * @return string
-	 */
-	public function print_error( $message = '' ) {
+    /**
+     * @param string $message
+     * @return callable
+     */
+    private function execute_die_listener($message)
+    {
+        $handler = static function ($message) {
+            return "Handled: $message";
+        };
 
-		$handler = $this->execute_die_listener( $message );
+        $listener = $this->wp_die_listener;
+        $handler = $listener->filter([$handler]);
 
-		return $handler( $message, 'Bail' );
-	}
-
-	/**
-	 * @param string $message
-	 *
-	 * @return callable
-	 */
-	private function execute_die_listener( $message ) {
-
-		$handler = function ( $message ) {
-
-			return "Handled: $message";
-		};
-
-		$listener = $this->wp_die_listener;
-		$handler  = call_user_func( [ $listener, 'filter' ], [ $handler ] );
-
-		return $handler;
-	}
-
+        return $handler;
+    }
 }

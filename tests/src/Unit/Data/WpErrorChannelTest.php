@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -20,90 +23,81 @@ use Inpsyde\Wonolog\Tests\TestCase;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class WpErrorChannelTest extends TestCase {
+class WpErrorChannelTest extends TestCase
+{
+    public function testForError()
+    {
+        $instance = WpErrorChannel::new(\Mockery::mock('WP_Error'));
 
-	protected function setUp() {
+        self::assertInstanceOf(WpErrorChannel::class, $instance);
+    }
 
-		Functions\when( 'is_wp_error' )->alias( function($thing) {
-			return $thing instanceof \WP_Error;
-		});
+    public function testChannelExplicit()
+    {
+        $instance = WpErrorChannel::new(\Mockery::mock('WP_Error'), 'FOO');
+        $channel = $instance->channel();
 
-		parent::setUp();
-	}
+        self::assertSame('FOO', $channel);
+    }
 
-	public function test_for_error() {
+    public function testChannelGuessedDb()
+    {
+        $error = \Mockery::mock('WP_Error');
+        $error
+            ->shouldReceive('get_error_codes')
+            ->once()
+            ->andReturn(['foo', 'bar', 'db_failed']);
 
-		$instance = WpErrorChannel::new( \Mockery::mock( 'WP_Error' ) );
+        $instance = WpErrorChannel::new($error);
+        $channel = $instance->channel();
 
-		self::assertInstanceOf( WpErrorChannel::class, $instance );
-	}
+        self::assertSame(Channels::DB, $channel);
+    }
 
-	public function test_channel_explicit() {
+    public function testChannelGuessedHttp()
+    {
+        $error = \Mockery::mock('WP_Error');
+        $error
+            ->shouldReceive('get_error_codes')
+            ->once()
+            ->andReturn(['foo', 'bar', 'rest_error']);
 
-		$instance = WpErrorChannel::new( \Mockery::mock( 'WP_Error' ), 'FOO' );
-		$channel  = $instance->channel();
+        $instance = WpErrorChannel::new($error);
+        $channel = $instance->channel();
 
-		self::assertSame( 'FOO', $channel );
-	}
+        self::assertSame(Channels::HTTP, $channel);
+    }
 
-	public function test_channel_guessed_db() {
+    public function testChannelGuessedSecurity()
+    {
+        $error = \Mockery::mock('WP_Error');
+        $error
+            ->shouldReceive('get_error_codes')
+            ->once()
+            ->andReturn(['foo', 'authentication', 'rest_error']);
 
-		$error = \Mockery::mock( 'WP_Error' );
-		$error
-			->shouldReceive( 'get_error_codes' )
-			->once()
-			->andReturn( [ 'foo', 'bar', 'db_failed' ] );
+        $instance = WpErrorChannel::new($error);
+        $channel = $instance->channel();
 
-		$instance = WpErrorChannel::new( $error );
-		$channel  = $instance->channel();
+        self::assertSame(Channels::SECURITY, $channel);
+    }
 
-		self::assertSame( Channels::DB, $channel );
-	}
+    public function testChannelGuessedFiltered()
+    {
+        Filters\expectApplied(WpErrorChannel::FILTER_CHANNEL)
+            ->once()
+            ->with(Channels::SECURITY, \Mockery::type('WP_Error'))
+            ->andReturn('BAR');
 
-	public function test_channel_guessed_http() {
+        $error = \Mockery::mock('WP_Error');
+        $error
+            ->shouldReceive('get_error_codes')
+            ->once()
+            ->andReturn(['foo', 'authentication', 'rest_error']);
 
-		$error = \Mockery::mock( 'WP_Error' );
-		$error
-			->shouldReceive( 'get_error_codes' )
-			->once()
-			->andReturn( [ 'foo', 'bar', 'rest_error' ] );
+        $instance = WpErrorChannel::new($error);
+        $channel = $instance->channel();
 
-		$instance = WpErrorChannel::new( $error );
-		$channel  = $instance->channel();
-
-		self::assertSame( Channels::HTTP, $channel );
-	}
-
-	public function test_channel_guessed_security() {
-
-		$error = \Mockery::mock( 'WP_Error' );
-		$error
-			->shouldReceive( 'get_error_codes' )
-			->once()
-			->andReturn( [ 'foo', 'authentication', 'rest_error' ] );
-
-		$instance = WpErrorChannel::new( $error );
-		$channel  = $instance->channel();
-
-		self::assertSame( Channels::SECURITY, $channel );
-	}
-
-	public function test_channel_guessed_filtered() {
-
-		Filters\expectApplied( WpErrorChannel::FILTER_CHANNEL )
-			->once()
-			->with( Channels::SECURITY, \Mockery::type( 'WP_Error' ) )
-			->andReturn( 'BAR' );
-
-		$error = \Mockery::mock( 'WP_Error' );
-		$error
-			->shouldReceive( 'get_error_codes' )
-			->once()
-			->andReturn( [ 'foo', 'authentication', 'rest_error' ] );
-
-		$instance = WpErrorChannel::new( $error );
-		$channel  = $instance->channel();
-
-		self::assertSame( 'BAR', $channel );
-	}
+        self::assertSame('BAR', $channel);
+    }
 }

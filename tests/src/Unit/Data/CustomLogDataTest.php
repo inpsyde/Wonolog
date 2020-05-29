@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -27,35 +30,37 @@ use Monolog\Logger;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class CustomLogDataTest extends TestCase {
+class CustomLogDataTest extends TestCase
+{
 
-	/**
-	 * @dataProvider log_levels
-	 *
-	 * @param int              $expected_level
-	 * @param LogDataInterface $log
-	 */
-	public function test_levels( $expected_level, LogDataInterface $log ) {
+    /**
+     * @dataProvider logLevels
+     *
+     * @param int $expectedLevel
+     * @param LogDataInterface $log
+     */
+    public function testLevels(int $expectedLevel, LogDataInterface $log): void
+    {
+        self::assertSame(Channels::DEBUG, $log->channel());
+        self::assertSame('test', $log->message());
+        self::assertSame([], $log->context());
+        self::assertSame($expectedLevel, $log->level());
+    }
 
-		self::assertSame( Channels::DEBUG, $log->channel() );
-		self::assertSame( 'test', $log->message() );
-		self::assertSame( [], $log->context() );
-		self::assertSame( $expected_level, $log->level() );
-
-	}
-
-	public function log_levels() {
-
-		return [
-			[ Logger::ALERT, new Alert( 'test', Channels::DEBUG ) ],
-			[ Logger::CRITICAL, new Critical( 'test', Channels::DEBUG ) ],
-			[ Logger::DEBUG, new Debug( 'test', Channels::DEBUG ) ],
-			[ Logger::EMERGENCY, new Emergency( 'test', Channels::DEBUG ) ],
-			[ Logger::ERROR, new Error( 'test', Channels::DEBUG ) ],
-			[ Logger::INFO, new Info( 'test', Channels::DEBUG ) ],
-			[ Logger::NOTICE, new Notice( 'test', Channels::DEBUG ) ],
-			[ Logger::WARNING, new Warning( 'test', Channels::DEBUG ) ],
-		];
-	}
-
+    /**
+     * @return array<array{0:int, 1:LogDataInterface}>
+     */
+    public function logLevels(): array
+    {
+        return [
+            [Logger::ALERT, new Alert('test', Channels::DEBUG)],
+            [Logger::CRITICAL, new Critical('test', Channels::DEBUG)],
+            [Logger::DEBUG, new Debug('test', Channels::DEBUG)],
+            [Logger::EMERGENCY, new Emergency('test', Channels::DEBUG)],
+            [Logger::ERROR, new Error('test', Channels::DEBUG)],
+            [Logger::INFO, new Info('test', Channels::DEBUG)],
+            [Logger::NOTICE, new Notice('test', Channels::DEBUG)],
+            [Logger::WARNING, new Warning('test', Channels::DEBUG)],
+        ];
+    }
 }

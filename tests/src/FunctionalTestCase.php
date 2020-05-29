@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -17,148 +20,139 @@ use Brain\Monkey\Functions;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class FunctionalTestCase extends \PHPUnit_Framework_TestCase {
+class FunctionalTestCase extends \PHPUnit\Framework\TestCase
+{
+    protected $callbacks = [];
 
-	protected $callbacks = [];
+    protected $didActions = [];
 
-	protected $did_actions = [];
+    private $currentFilter = null;
 
-	private $current_filter = NULL;
+    protected function setUp(): void
+    {
+        $stubsPath = getenv('TESTS_PATH') . '/stubs';
+        $stubFiles = glob("{$stubsPath}/*.php");
+        foreach ($stubFiles as $stubFile) {
+            /** @noinspection PhpIncludeInspection */
+            require_once $stubFile;
+        }
 
-	protected function setUp() {
+        parent::setUp();
+        Monkey\setUp();
+        $this->mockHookFunctions();
+    }
 
-		$stubs_path = getenv( 'TESTS_PATH' ) . '/stubs';
-		$stub_files = glob( "{$stubs_path}/*.php" );
-		foreach ( $stub_files as $stub_file ) {
-			/** @noinspection PhpIncludeInspection */
-			require_once $stub_file;
-		}
+    protected function tearDown(): void
+    {
+        $this->callbacks = [];
+        $this->didActions = [];
+        Monkey\tearDown();
+        parent::tearDown();
+    }
 
-		parent::setUp();
-		Monkey\setUp();
-		$this->mock_hook_functions();
-	}
+    private function mockHookFunctions()
+    {
+        Functions\when('add_action')
+            ->alias(
+                function (string $hook, callable $callback, int $priority = 10): void {
+                    $this->storeHook($hook, $callback, $priority);
+                }
+            );
 
-	protected function tearDown() {
+        Functions\when('add_filter')
+            ->alias(
+                function (string $hook, callable $callback, int $priority = 10): void {
+                    $this->storeHook($hook, $callback, $priority);
+                }
+            );
 
-		$this->callbacks   = [];
-		$this->did_actions = [];
-		Monkey\tearDown();
-		parent::tearDown();
-	}
+        Functions\when('do_action')
+            ->alias(
+                function (...$args) { // phpcs:ignore
+                    $this->executeHook(array_shift($args), $args, false);
+                }
+            );
 
-	private function mock_hook_functions() {
+        Functions\when('apply_filters')
+            ->alias(
+                function (...$args) {  // phpcs:ignore
+                    return $this->executeHook(array_shift($args), $args, true);
+                }
+            );
 
-		Functions\when( 'add_action' )
-			->alias(
-				function ( $hook, callable $callback, $priority = 10 ) {
+        Functions\when('did_action')
+            ->alias(
+                function (string $action): bool {
+                    return in_array($action, $this->didActions, true);
+                }
+            );
 
-					$this->store_hook( $hook, $callback, $priority );
-				}
-			);
+        Functions\when('current_filter')
+            ->alias(
+                function (): ?string {
+                    return $this->currentFilter;
+                }
+            );
 
-		Functions\when( 'add_filter' )
-			->alias(
-				function ( $hook, callable $callback, $priority = 10 ) {
+        Functions\expect('get_option')
+            ->with('permalink_structure')
+            ->andReturn(false);
+    }
 
-					$this->store_hook( $hook, $callback, $priority );
-				}
-			);
+    /**
+     * @param string $hook
+     * @param callable $callable
+     * @param int $priority
+     */
+    private function storeHook(string $hook, callable $callable, int $priority): void
+    {
+        if (!isset($this->callbacks[$hook][$priority])) {
+            $this->callbacks[$hook][$priority] = [];
+        }
 
-		Functions\when( 'do_action' )
-			->alias(
-				function () {
+        $this->callbacks[$hook][$priority][] = $callable;
+    }
 
-					$args = func_get_args();
-					$this->execute_hook( array_shift( $args ), $args, FALSE );
-				}
-			);
+    /**
+     * @param string $hook
+     * @param array $args
+     * @param bool $filter
+     * @return mixed|null
+     *
+     * phpcs:disable Inpsyde.CodeQuality.ReturnTypeDeclaration
+     */
+    private function executeHook(string $hook, array $args = [], bool $filter = false)
+    {
+        // phpcs:enable Inpsyde.CodeQuality.ReturnTypeDeclaration
 
-		Functions\when( 'apply_filters' )
-			->alias(
-				function () {
+        $filter or $this->didActions[] = $hook;
+        $this->currentFilter = $hook;
 
-					$args = func_get_args();
+        $callbacks = empty($this->callbacks[$hook]) ? [] : $this->callbacks[$hook];
 
-					return $this->execute_hook( array_shift( $args ), $args, TRUE );
-				}
-			);
+        if (!$callbacks) {
+            $this->currentFilter = null;
 
-		Functions\when( 'did_action' )
-			->alias(
-				function ( $action ) {
+            return $filter && $args ? reset($args) : null;
+        }
 
-					return in_array( $action, $this->did_actions, TRUE );
-				}
-			);
+        ksort($callbacks);
 
-		Functions\when( 'current_filter' )
-			->alias(
-				function () {
+        array_walk(
+            $callbacks,
+            static function (array $callbacks) use (&$args, $filter, $hook) {
+                array_walk(
+                    $callbacks,
+                    static function (callable $callback) use (&$args, $filter) {
+                        $value = $callback(...$args);
+                        $filter and $args[0] = $value;
+                    }
+                );
+            }
+        );
 
-					return $this->current_filter;
-				}
-			);
+        $this->currentFilter = null;
 
-		Functions\expect( 'get_option' )
-			->with( 'permalink_structure' )
-			->andReturn( FALSE );
-
-	}
-
-	/**
-	 * @param string   $hook
-	 * @param callable $callable
-	 * @param int      $priority
-	 */
-	private function store_hook( $hook, callable $callable, $priority ) {
-
-		if ( ! isset( $this->callbacks[ $hook ][ $priority ] ) ) {
-			$this->callbacks[ $hook ][ $priority ] = [];
-		}
-
-		$this->callbacks[ $hook ][ $priority ][] = $callable;
-	}
-
-	/**
-	 * @param string $hook
-	 * @param array  $args
-	 * @param bool   $filter
-	 *
-	 * @return mixed|null
-	 */
-	private function execute_hook( $hook, array $args = [], $filter = FALSE ) {
-
-		$filter or $this->did_actions[] = $hook;
-		$this->current_filter = $hook;
-
-		$callbacks = empty( $this->callbacks[ $hook ] ) ? [] : $this->callbacks[ $hook ];
-
-		if ( ! $callbacks ) {
-			$this->current_filter = NULL;
-
-			return $filter && $args ? reset( $args ) : NULL;
-		}
-
-		ksort( $callbacks );
-
-		array_walk(
-			$callbacks,
-			function ( array $callbacks ) use ( &$args, $filter, $hook ) {
-
-				array_walk(
-					$callbacks,
-					function ( callable $callback ) use ( &$args, $filter ) {
-
-						$value = call_user_func_array( $callback, $args );
-						$filter and $args[ 0 ] = $value;
-					}
-				);
-			}
-		);
-
-		$this->current_filter = NULL;
-
-		return $filter && isset( $args[ 0 ] ) ? $args[ 0 ] : NULL;
-	}
+        return $filter && isset($args[0]) ? $args[0] : null;
+    }
 }

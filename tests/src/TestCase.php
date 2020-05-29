@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -7,26 +10,26 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace Inpsyde\Wonolog\Tests;
 
-use PHPUnit_Framework_TestCase;
 use Brain\Monkey;
 
 /**
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class TestCase extends PHPUnit_Framework_TestCase {
+class TestCase extends \PHPUnit\Framework\TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Monkey\setUp();
+    }
 
-	protected function setUp() {
-
-		parent::setUp();
-		Monkey\setUp();
-	}
-
-	protected function tearDown() {
-
-		Monkey\tearDown();
-		parent::tearDown();
-	}
+    protected function tearDown(): void
+    {
+        Monkey\tearDown();
+        parent::tearDown();
+    }
 }

@@ -27,8 +27,6 @@ use Monolog\Handler\HandlerInterface;
 /**
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
- *
- * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv
  */
 class ControllerTest extends TestCase
 {

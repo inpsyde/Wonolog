@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -25,143 +28,147 @@ use org\bovigo\vfs\vfsStreamFile;
  *
  * @runTestsInSeparateProcesses
  */
-class DefaultHandlerLoggingTest extends FunctionalTestCase {
+class DefaultHandlerLoggingTest extends FunctionalTestCase
+{
+    public function testLogCustomHook()
+    {
+        $dir = vfsStream::setup('TestDir');
+        $url = $dir->url();
+        putenv("WONOLOG_DEFAULT_HANDLER_ROOT_DIR={$url}");
 
-	private function check_logged_message( $message, $channel, $level, $text, $wp_context = TRUE ) {
+        Wonolog\bootstrap();
 
-		$regex = '^\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\] ';
-		$regex .= $channel . '\.';
-		$regex .= Logger::getLevelName( $level ) . ': ';
-		$regex .= $message . ' \[\] ';
-		$regex .= $wp_context
-			? preg_quote( '{"wp":{"doing_cron":false,"doing_ajax":false,"is_admin":false}}', '~' )
-			: '\[\]';
+        do_action(Wonolog\LOG, new Error('Log via hook happened!', Channels::DB));
 
-		$regex .= '$';
+        $path = date('Y/m/d') . '.log';
 
-		self::assertRegExp( "~{$regex}~", $text );
-	}
+        self::assertTrue($dir->hasChild($path));
 
-	public function test_log_custom_hook() {
+        /** @var vfsStreamFile $file */
+        $file = $dir->getChild($path);
 
-		$dir = vfsStream::setup( 'TestDir' );
-		$url = $dir->url();
-		putenv( "WONOLOG_DEFAULT_HANDLER_ROOT_DIR={$url}" );
+        $this->checkLoggedMessage(
+            'Log via hook happened!',
+            Channels::DB,
+            Logger::ERROR,
+            $file->getContent()
+        );
+    }
 
-		Wonolog\bootstrap();
+    public function testLogCoreHook()
+    {
+        $dir = vfsStream::setup('TestDir');
+        $url = $dir->url();
+        putenv("WONOLOG_DEFAULT_HANDLER_ROOT_DIR={$url}");
 
-		do_action( Wonolog\LOG, new Error( 'Log via hook happened!', Channels::DB ) );
+        Wonolog\bootstrap();
 
-		$path = date( 'Y/m/d' ) . '.log';
+        do_action('muplugins_loaded');
 
-		self::assertTrue( $dir->hasChild( $path ) );
+        $error = \Mockery::mock(\WP_Error::class);
+        $error->shouldReceive('get_error_message')->andReturn('WP mail is broken');
+        $error->shouldReceive('get_error_data')->andReturn([]);
+        $error->shouldReceive('get_error_codes')->andReturn(['wp_mail_failed']);
 
-		/** @var vfsStreamFile $file */
-		$file = $dir->getChild( $path );
+        do_action('wp_mail_failed', $error);
 
-		$this->check_logged_message(
-			'Log via hook happened!',
-			Channels::DB,
-			Logger::ERROR,
-			$file->getContent()
-		);
-	}
+        $path = date('Y/m/d') . '.log';
 
-	public function test_log_core_hook() {
+        self::assertTrue($dir->hasChild($path));
 
-		$dir = vfsStream::setup( 'TestDir' );
-		$url = $dir->url();
-		putenv( "WONOLOG_DEFAULT_HANDLER_ROOT_DIR={$url}" );
+        /** @var vfsStreamFile $file */
+        $file = $dir->getChild($path);
 
-		Wonolog\bootstrap();
+        $this->checkLoggedMessage(
+            'WP mail is broken',
+            Channels::HTTP,
+            Logger::ERROR,
+            $file->getContent()
+        );
+    }
 
-		do_action( 'muplugins_loaded' );
+    public function testCoreHookNotLoggedIfNoHookListeners()
+    {
+        $dir = vfsStream::setup('TestDir');
+        $url = $dir->url();
+        putenv("WONOLOG_DEFAULT_HANDLER_ROOT_DIR={$url}");
 
-		$error = \Mockery::mock( \WP_Error::class );
-		$error->shouldReceive( 'get_error_message' )
-			->andReturn( 'WP mail is broken' );
-		$error->shouldReceive( 'get_error_data' )
-			->andReturn( [] );
-		$error->shouldReceive( 'get_error_codes' )
-			->andReturn( [ 'wp_mail_failed' ] );
+        Wonolog\bootstrap(null, Wonolog\USE_DEFAULT_NONE);
 
-		do_action( 'wp_mail_failed', $error );
+        do_action('muplugins_loaded');
 
-		$path = date( 'Y/m/d' ) . '.log';
+        $error = \Mockery::mock(\WP_Error::class);
+        $error->shouldReceive('get_error_message')->andReturn('WP mail is broken');
+        $error->shouldReceive('get_error_data')->andReturn([]);
+        $error->shouldReceive('get_error_codes')->andReturn(['wp_mail_failed']);
 
-		self::assertTrue( $dir->hasChild( $path ) );
+        do_action('wp_mail_failed', $error);
 
-		/** @var vfsStreamFile $file */
-		$file = $dir->getChild( $path );
+        $path = date('Y/m/d') . '.log';
 
-		$this->check_logged_message(
-			'WP mail is broken',
-			Channels::HTTP,
-			Logger::ERROR,
-			$file->getContent()
-		);
-	}
+        self::assertFalse($dir->hasChild($path));
+    }
 
-	public function test_core_hook_not_logged_if_no_hook_listeners() {
+    public function testCoreHookWithSingleListener()
+    {
+        $dir = vfsStream::setup('TestDir');
+        $url = $dir->url();
+        putenv("WONOLOG_DEFAULT_HANDLER_ROOT_DIR={$url}");
 
-		$dir = vfsStream::setup( 'TestDir' );
-		$url = $dir->url();
-		putenv( "WONOLOG_DEFAULT_HANDLER_ROOT_DIR={$url}" );
+        Wonolog\bootstrap(null, Wonolog\USE_DEFAULT_HANDLER)
+            ->useHookListener(new HookListener\MailerListener());
 
-		Wonolog\bootstrap( NULL, Wonolog\USE_DEFAULT_NONE );
+        do_action('muplugins_loaded');
 
-		do_action( 'muplugins_loaded' );
+        $error = \Mockery::mock(\WP_Error::class);
+        $error->shouldReceive('get_error_message')->andReturn('WP mail is broken');
+        $error->shouldReceive('get_error_data')->andReturn([]);
+        $error->shouldReceive('get_error_codes')->andReturn(['wp_mail_failed']);
 
-		$error = \Mockery::mock( \WP_Error::class );
-		$error->shouldReceive( 'get_error_message' )
-			->andReturn( 'WP mail is broken' );
-		$error->shouldReceive( 'get_error_data' )
-			->andReturn( [] );
-		$error->shouldReceive( 'get_error_codes' )
-			->andReturn( [ 'wp_mail_failed' ] );
+        do_action('wp_mail_failed', $error);
 
-		do_action( 'wp_mail_failed', $error );
+        $path = date('Y/m/d') . '.log';
 
-		$path = date( 'Y/m/d' ) . '.log';
+        self::assertTrue($dir->hasChild($path));
 
-		self::assertFalse( $dir->hasChild( $path ) );
-	}
+        /** @var vfsStreamFile $file */
+        $file = $dir->getChild($path);
 
-	public function test_core_hook_with_single_listener() {
+        $this->checkLoggedMessage(
+            'WP mail is broken',
+            Channels::HTTP,
+            Logger::ERROR,
+            $file->getContent(),
+            false
+        );
+    }
 
-		$dir = vfsStream::setup( 'TestDir' );
-		$url = $dir->url();
-		putenv( "WONOLOG_DEFAULT_HANDLER_ROOT_DIR={$url}" );
+    /**
+     * @param string $message
+     * @param string $channel
+     * @param int $level
+     * @param string $text
+     * @param bool $wpContext
+     * @return void
+     */
+    private function checkLoggedMessage(
+        string $message,
+        string $channel,
+        int $level,
+        string $text,
+        bool $wpContext = true
+    ) {
 
-		Wonolog\bootstrap( NULL, Wonolog\USE_DEFAULT_HANDLER )
-			->useHookListener( new HookListener\MailerListener() );
+        $regex = '^\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\] ';
+        $regex .= $channel . '\.';
+        $regex .= Logger::getLevelName($level) . ': ';
+        $regex .= $message . ' \[\] ';
+        $regex .= $wpContext
+            ? preg_quote('{"wp":{"doing_cron":false,"doing_ajax":false,"is_admin":false}}', '~')
+            : '\[\]';
 
-		do_action( 'muplugins_loaded' );
+        $regex .= '$';
 
-		$error = \Mockery::mock( \WP_Error::class );
-		$error->shouldReceive( 'get_error_message' )
-			->andReturn( 'WP mail is broken' );
-		$error->shouldReceive( 'get_error_data' )
-			->andReturn( [] );
-		$error->shouldReceive( 'get_error_codes' )
-			->andReturn( [ 'wp_mail_failed' ] );
-
-		do_action( 'wp_mail_failed', $error );
-
-		$path = date( 'Y/m/d' ) . '.log';
-
-		self::assertTrue( $dir->hasChild( $path ) );
-
-		/** @var vfsStreamFile $file */
-		$file = $dir->getChild( $path );
-
-		$this->check_logged_message(
-			'WP mail is broken',
-			Channels::HTTP,
-			Logger::ERROR,
-			$file->getContent(),
-			FALSE
-		);
-	}
-
+        self::assertRegExp("~{$regex}~", $text);
+    }
 }

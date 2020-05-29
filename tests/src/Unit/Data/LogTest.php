@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -19,159 +22,156 @@ use Monolog\Logger;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class LogTest extends TestCase {
+class LogTest extends TestCase
+{
+    public function testBasicProperties()
+    {
+        $log = new Log('message', Logger::EMERGENCY, Channels::DEBUG, ['foo']);
 
-	public function test_basic_properties() {
+        self::assertSame(Channels::DEBUG, $log->channel());
+        self::assertSame('message', $log->message());
+        self::assertSame(['foo'], $log->context());
+        self::assertSame(Logger::EMERGENCY, $log->level());
+    }
 
-		$log = new Log( 'message', Logger::EMERGENCY, Channels::DEBUG, [ 'foo' ] );
+    public function testFromWpError()
+    {
+        $error = \Mockery::mock(\WP_Error::class);
 
-		self::assertSame( Channels::DEBUG, $log->channel() );
-		self::assertSame( 'message', $log->message() );
-		self::assertSame( [ 'foo' ], $log->context() );
-		self::assertSame( Logger::EMERGENCY, $log->level() );
+        $error->shouldReceive('get_error_message')->andReturn('Error!');
+        $error->shouldReceive('get_error_data')->andReturn(['!']);
+        $error->shouldReceive('get_error_codes')->andReturn(['x']);
 
-	}
+        $log = Log::fromWpError($error);
 
-	public function test_from_wp_error() {
+        self::assertSame(Channels::DEBUG, $log->channel());
+        self::assertSame('Error!', $log->message());
+        self::assertSame(['!'], $log->context());
+        self::assertSame(Logger::NOTICE, $log->level());
+    }
 
-		$error = \Mockery::mock( \WP_Error::class );
+    public function testFromWpErrorWithExplicitLevel()
+    {
+        $error = \Mockery::mock(\WP_Error::class);
 
-		$error->shouldReceive('get_error_message')->andReturn('Error!');
-		$error->shouldReceive('get_error_data')->andReturn(['!']);
-		$error->shouldReceive('get_error_codes')->andReturn(['x']);
+        $error->shouldReceive('get_error_message')->andReturn('Error!');
+        $error->shouldReceive('get_error_data')->andReturn(['!']);
+        $error->shouldReceive('get_error_codes')->andReturn(['x']);
 
-		$log = Log::fromWpError( $error );
+        $log = Log::fromWpError($error, Logger::DEBUG);
 
-		self::assertSame( Channels::DEBUG, $log->channel() );
-		self::assertSame( 'Error!', $log->message() );
-		self::assertSame( [ '!' ], $log->context() );
-		self::assertSame( Logger::NOTICE, $log->level() );
-	}
+        self::assertSame(Channels::DEBUG, $log->channel());
+        self::assertSame('Error!', $log->message());
+        self::assertSame(['!'], $log->context());
+        self::assertSame(Logger::DEBUG, $log->level());
+    }
 
-	public function test_from_wp_error_with_explicit_level() {
+    public function testFromWpErrorWithExplicitLevelAndChannel()
+    {
+        $error = \Mockery::mock(\WP_Error::class);
 
-		$error = \Mockery::mock( \WP_Error::class );
+        $error->shouldReceive('get_error_message')->andReturn('Error!');
+        $error->shouldReceive('get_error_data')->andReturn(['!']);
+        $error->shouldReceive('get_error_codes')->andReturn(['x']);
 
-		$error->shouldReceive('get_error_message')->andReturn('Error!');
-		$error->shouldReceive('get_error_data')->andReturn(['!']);
-		$error->shouldReceive('get_error_codes')->andReturn(['x']);
+        $log = Log::fromWpError($error, Logger::DEBUG, Channels::DB);
 
-		$log = Log::fromWpError( $error, Logger::DEBUG );
+        self::assertSame(Channels::DB, $log->channel());
+        self::assertSame('Error!', $log->message());
+        self::assertSame(['!'], $log->context());
+        self::assertSame(Logger::DEBUG, $log->level());
+    }
 
-		self::assertSame( Channels::DEBUG, $log->channel() );
-		self::assertSame( 'Error!', $log->message() );
-		self::assertSame( [ '!' ], $log->context() );
-		self::assertSame( Logger::DEBUG, $log->level() );
-	}
+    public function testFromThrowable()
+    {
+        $exception = new \Exception('Fail!, Fail!', 123);
 
-	public function test_from_wp_error_with_explicit_level_and_channel() {
+        $log = Log::fromThrowable($exception);
+        self::assertInstanceOf(Log::class, $log);
 
-		$error = \Mockery::mock( \WP_Error::class );
+        $context = $log->context();
+        self::assertInternalType('array', $context);
 
-		$error->shouldReceive('get_error_message')->andReturn('Error!');
-		$error->shouldReceive('get_error_data')->andReturn(['!']);
-		$error->shouldReceive('get_error_codes')->andReturn(['x']);
+        self::assertSame(Channels::DEBUG, $log->channel());
+        self::assertSame('Fail!, Fail!', $log->message());
+        self::assertSame(Logger::ERROR, $log->level());
+        self::assertArrayHasKey('throwable', $context);
+        self::assertSame($context['throwable']['class'], \Exception::class);
+        self::assertSame($context['throwable']['file'], __FILE__);
+        self::assertArrayHasKey('line', $context['throwable']);
+        self::assertArrayHasKey('trace', $context['throwable']);
+    }
 
-		$log = Log::fromWpError( $error, Logger::DEBUG, Channels::DB );
+    public function testFromThrowableWithExplicitLevel()
+    {
+        $exception = new \Exception('Fail!, Fail!', 123);
 
-		self::assertSame( Channels::DB, $log->channel() );
-		self::assertSame( 'Error!', $log->message() );
-		self::assertSame( [ '!' ], $log->context() );
-		self::assertSame( Logger::DEBUG, $log->level() );
-	}
+        $log = Log::fromThrowable($exception, Logger::DEBUG);
+        self::assertInstanceOf(Log::class, $log);
 
-	public function test_from_throwable() {
+        $context = $log->context();
+        self::assertInternalType('array', $context);
 
-		$exception = new \Exception('Fail!, Fail!', 123);
+        self::assertSame(Channels::DEBUG, $log->channel());
+        self::assertSame('Fail!, Fail!', $log->message());
+        self::assertSame(Logger::DEBUG, $log->level());
+        self::assertArrayHasKey('throwable', $context);
+        self::assertSame($context['throwable']['class'], \Exception::class);
+        self::assertSame($context['throwable']['file'], __FILE__);
+        self::assertArrayHasKey('line', $context['throwable']);
+        self::assertArrayHasKey('trace', $context['throwable']);
+    }
 
-		$log = Log::fromThrowable( $exception );
-		self::assertInstanceOf( Log::class, $log );
+    public function testFromThrowableWithExplicitLevelAndChannel()
+    {
+        $exception = new \Exception('Fail!, Fail!', 123);
 
-		$context = $log->context();
-		self::assertInternalType( 'array', $context );
+        $log = Log::fromThrowable($exception, Logger::NOTICE, Channels::HTTP);
+        self::assertInstanceOf(Log::class, $log);
 
-		self::assertSame( Channels::DEBUG, $log->channel() );
-		self::assertSame( 'Fail!, Fail!', $log->message() );
-		self::assertSame( Logger::ERROR, $log->level() );
-		self::assertArrayHasKey( 'throwable', $context );
-		self::assertSame( $context['throwable']['class'], \Exception::class );
-		self::assertSame( $context['throwable']['file'], __FILE__ );
-		self::assertArrayHasKey( 'line', $context['throwable'] );
-		self::assertArrayHasKey( 'trace', $context['throwable'] );
-	}
+        $context = $log->context();
+        self::assertInternalType('array', $context);
 
-	public function test_from_throwable_with_explicit_level() {
+        self::assertSame(Channels::HTTP, $log->channel());
+        self::assertSame('Fail!, Fail!', $log->message());
+        self::assertSame(Logger::NOTICE, $log->level());
+        self::assertArrayHasKey('throwable', $context);
+        self::assertSame($context['throwable']['class'], \Exception::class);
+        self::assertSame($context['throwable']['file'], __FILE__);
+        self::assertArrayHasKey('line', $context['throwable']);
+        self::assertArrayHasKey('trace', $context['throwable']);
+    }
 
-		$exception = new \Exception('Fail!, Fail!', 123);
+    public function testFromArray()
+    {
+        $log = Log::fromArray(
+            [
+                Log::MESSAGE => 'message',
+                Log::LEVEL => Logger::EMERGENCY,
+                Log::CHANNEL => Channels::HTTP,
+                Log::CONTEXT => ['foo'],
+            ]
+        );
 
-		$log = Log::fromThrowable( $exception, Logger::DEBUG );
-		self::assertInstanceOf( Log::class, $log );
+        self::assertSame(Channels::HTTP, $log->channel());
+        self::assertSame('message', $log->message());
+        self::assertSame(['foo'], $log->context());
+        self::assertSame(Logger::EMERGENCY, $log->level());
+    }
 
-		$context = $log->context();
-		self::assertInternalType( 'array', $context );
+    public function testFromArrayMerged()
+    {
 
-		self::assertSame( Channels::DEBUG, $log->channel() );
-		self::assertSame( 'Fail!, Fail!', $log->message() );
-		self::assertSame( Logger::DEBUG, $log->level() );
-		self::assertArrayHasKey( 'throwable', $context );
-		self::assertSame( $context['throwable']['class'], \Exception::class );
-		self::assertSame( $context['throwable']['file'], __FILE__ );
-		self::assertArrayHasKey( 'line', $context['throwable'] );
-		self::assertArrayHasKey( 'trace', $context['throwable'] );
-	}
+        $log = Log::fromArray(
+            [
+                Log::MESSAGE => 'message',
+                Log::CONTEXT => ['foo'],
+            ]
+        );
 
-	public function test_from_throwable_with_explicit_level_and_channel() {
-
-		$exception = new \Exception('Fail!, Fail!', 123);
-
-		$log = Log::fromThrowable( $exception, Logger::NOTICE, Channels::HTTP );
-		self::assertInstanceOf( Log::class, $log );
-
-		$context = $log->context();
-		self::assertInternalType( 'array', $context );
-
-		self::assertSame( Channels::HTTP, $log->channel() );
-		self::assertSame( 'Fail!, Fail!', $log->message() );
-		self::assertSame( Logger::NOTICE, $log->level() );
-		self::assertArrayHasKey( 'throwable', $context );
-		self::assertSame( $context['throwable']['class'], \Exception::class );
-		self::assertSame( $context['throwable']['file'], __FILE__ );
-		self::assertArrayHasKey( 'line', $context['throwable'] );
-		self::assertArrayHasKey( 'trace', $context['throwable'] );
-	}
-
-	public function test_from_array() {
-
-		$log = Log::fromArray(
-			[
-				Log::MESSAGE => 'message',
-				Log::LEVEL   => Logger::EMERGENCY,
-				Log::CHANNEL => Channels::HTTP,
-				Log::CONTEXT => [ 'foo' ]
-			]
-		);
-
-		self::assertSame( Channels::HTTP, $log->channel() );
-		self::assertSame( 'message', $log->message() );
-		self::assertSame( [ 'foo' ], $log->context() );
-		self::assertSame( Logger::EMERGENCY, $log->level() );
-
-	}
-
-	public function test_from_array_merged() {
-
-		$log = Log::fromArray(
-			[
-				Log::MESSAGE => 'message',
-				Log::CONTEXT => [ 'foo' ]
-			]
-		);
-
-		self::assertSame( Channels::DEBUG, $log->channel() );
-		self::assertSame( 'message', $log->message() );
-		self::assertSame( [ 'foo' ], $log->context() );
-		self::assertSame( Logger::DEBUG, $log->level() );
-
-	}
-
+        self::assertSame(Channels::DEBUG, $log->channel());
+        self::assertSame('message', $log->message());
+        self::assertSame(['foo'], $log->context());
+        self::assertSame(Logger::DEBUG, $log->level());
+    }
 }

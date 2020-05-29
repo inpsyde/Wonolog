@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -18,80 +21,79 @@ use Inpsyde\Wonolog\Tests\TestCase;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class ProcessorsRegistryTest extends TestCase {
+class ProcessorsRegistryTest extends TestCase
+{
+    public function testSameProcessorIsAddedOnce()
+    {
+        $registry = new ProcessorsRegistry();
 
-	public function test_same_processor_is_added_once() {
+        $processorOne = 'strtolower';
+        $processorTwo = 'strtoupper';
+        $processorThree = 'strrev';
 
-		$registry = new ProcessorsRegistry();
+        $registry->addProcessor($processorOne, 'test');
+        $registry->addProcessor($processorTwo, 'test');
+        $registry->addProcessor($processorThree, 'test');
 
-		$processor_a = 'strtolower';
-		$processor_b = 'strtoupper';
-		$processor_c = 'strrev';
+        self::assertCount(1, $registry);
+    }
 
-		$registry->addProcessor( $processor_a, 'test' );
-		$registry->addProcessor( $processor_b, 'test' );
-		$registry->addProcessor( $processor_c, 'test' );
+    public function testHasProcessor()
+    {
+        $registry = new ProcessorsRegistry();
 
-		self::assertCount( 1, $registry );
-	}
+        $processorOne = 'strtolower';
+        $processorTwo = 'strtoupper';
+        $processorThree = 'strrev';
 
-	public function test_has_processor() {
+        $registry->addProcessor($processorOne, 'a');
+        $registry->addProcessor($processorTwo, 'b');
+        $registry->addProcessor($processorThree, 'c');
 
-		$registry = new ProcessorsRegistry( );
+        self::assertTrue($registry->hasProcessor('a'));
+        self::assertTrue($registry->hasProcessor('b'));
+        self::assertTrue($registry->hasProcessor('c'));
+        self::assertFalse($registry->hasProcessor(['a']));
+        self::assertFalse($registry->hasProcessor('x'));
 
-		$processor_a = 'strtolower';
-		$processor_b = 'strtoupper';
-		$processor_c = 'strrev';
+        self::assertCount(3, $registry);
+    }
 
-		$registry->addProcessor( $processor_a, 'a' );
-		$registry->addProcessor( $processor_b, 'b' );
-		$registry->addProcessor( $processor_c, 'c' );
+    public function testFindByNameCallRegisterOnce()
+    {
+        $registry = new ProcessorsRegistry();
 
-		self::assertTrue( $registry->hasProcessor( 'a' ) );
-		self::assertTrue( $registry->hasProcessor( 'b' ) );
-		self::assertTrue( $registry->hasProcessor( 'c' ) );
-		self::assertFalse( $registry->hasProcessor( [ 'a' ] ) );
-		self::assertFalse( $registry->hasProcessor( 'x' ) );
+        Actions\expectDone(ProcessorsRegistry::ACTION_REGISTER)
+            ->once()
+            ->with($registry);
 
-		self::assertCount( 3, $registry );
-	}
+        self::assertCount(0, $registry);
+        self::assertNull($registry->find('foo'));
+        self::assertNull($registry->find('bar'));
+        self::assertNull($registry->find('baz'));
+        self::assertNull($registry->find(1));
+    }
 
-	public function test_find_by_name_call_register_once() {
+    public function testRegisterOnFindByName()
+    {
+        $registry = new ProcessorsRegistry();
 
-		$registry = new ProcessorsRegistry();
+        Actions\expectDone(ProcessorsRegistry::ACTION_REGISTER)
+            ->once()
+            ->with($registry)
+            ->whenHappen(
+                static function (ProcessorsRegistry $registry): void {
+                    $registry->addProcessor('strtolower', 'a');
+                    $registry->addProcessor('strtoupper', 'b');
+                }
+            );
 
-		Actions\expectDone( ProcessorsRegistry::ACTION_REGISTER )
-			->once()
-			->with( $registry );
-
-		self::assertCount( 0, $registry );
-		self::assertNull( $registry->find( 'foo' ) );
-		self::assertNull( $registry->find( 'bar' ) );
-		self::assertNull( $registry->find( 'baz' ) );
-		self::assertNull( $registry->find( 1 ) );
-	}
-
-	public function test_register_on_find_by_name() {
-
-		$registry = new ProcessorsRegistry();
-
-		Actions\expectDone( ProcessorsRegistry::ACTION_REGISTER )
-			->once()
-			->with( $registry )
-			->whenHappen(
-				function ( ProcessorsRegistry $registry ) {
-
-					$registry->addProcessor( 'strtolower', 'a' );
-					$registry->addProcessor( 'strtoupper', 'b' );
-				}
-			);
-
-		self::assertSame( 'strtolower', $registry->find( 'a' ) );
-		self::assertSame( 'strtoupper', $registry->find( 'b' ) );
-		self::assertSame( 'strtolower', $registry->find( 'a' ) );
-		self::assertSame( 'strtoupper', $registry->find( 'b' ) );
-		self::assertNull( $registry->find( 'bar' ) );
-		self::assertNull( $registry->find( 'baz' ) );
-		self::assertCount( 2, $registry );
-	}
+        self::assertSame('strtolower', $registry->find('a'));
+        self::assertSame('strtoupper', $registry->find('b'));
+        self::assertSame('strtolower', $registry->find('a'));
+        self::assertSame('strtoupper', $registry->find('b'));
+        self::assertNull($registry->find('bar'));
+        self::assertNull($registry->find('baz'));
+        self::assertCount(2, $registry);
+    }
 }

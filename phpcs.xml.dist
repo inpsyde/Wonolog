@@ -14,6 +14,7 @@
     <rule ref="Inpsyde">
         <exclude name="WordPress.PHP.DevelopmentFunctions" />
         <exclude name="WordPressVIPMinimum.Constants.ConstantString.NotCheckingConstantName" />
+        <exclude name="WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv" />
     </rule>
 
     <rule ref="Inpsyde.CodeQuality.ElementNameMinimalLength">

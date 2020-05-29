@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -19,108 +22,126 @@ use Monolog\Logger;
 /**
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
+ *
+ * phpcs:disable Inpsyde.CodeQuality.FunctionLength
  */
-class FailedLoginTest extends TestCase {
+class FailedLoginTest extends TestCase
+{
+    public function testData()
+    {
+        $transient = false;
 
-	public function test_data() {
+        // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+        $callback = static function (string $name, $value = null) use (&$transient): ?bool {
+            // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+            if ($value === null) {
+                return $transient;
+            }
 
-		$transient = FALSE;
+            $transient = $value;
 
-		$callback = function ( $name, $value = NULL ) use ( &$transient ) {
+            return true;
+        };
 
-			if ( $value === null ) {
-				return $transient;
-			}
+        Functions\when('get_site_transient')->alias($callback);
+        Functions\when('set_site_transient')->alias($callback);
 
-			$transient = $value;
+        $failedLogin = new FailedLogin('h4ck3rb0y');
 
-			return TRUE;
-		};
+        $logged = $messages = [];
 
-		Functions\when( 'get_site_transient' )
-			->alias( $callback );
-		Functions\when( 'set_site_transient' )
-			->alias( $callback );
+        // Let's brute force!
+        for ($i = 1; $i < 1600; $i++) {
+            $level = $failedLogin->level();
+            if ($level) {
+                $logged[$i] = $level;
+                $messages[] = $failedLogin->message();
+                $context = $failedLogin->context();
+                self::assertArrayHasKey('ip', $context);
+                self::assertArrayHasKey('ip_from', $context);
+                self::assertArrayHasKey('username', $context);
+                self::assertSame('h4ck3rb0y', $context['username']);
+                self::assertSame(Channels::SECURITY, $failedLogin->channel());
+            }
+            $failedLogin = new FailedLogin('h4ck3rb0y');
+        }
 
-		$failed_login = new FailedLogin( 'h4ck3rb0y' );
+        $expectedLoggedLevels = [
+            3 => Logger::NOTICE,
+            23 => Logger::NOTICE,
+            43 => Logger::NOTICE,
+            63 => Logger::NOTICE,
+            83 => Logger::NOTICE,
+            183 => Logger::WARNING,
+            283 => Logger::WARNING,
+            383 => Logger::WARNING,
+            483 => Logger::WARNING,
+            583 => Logger::WARNING,
+            683 => Logger::ERROR,
+            783 => Logger::ERROR,
+            883 => Logger::ERROR,
+            983 => Logger::ERROR,
+            1183 => Logger::CRITICAL,
+            1383 => Logger::CRITICAL,
+            1583 => Logger::CRITICAL,
+        ];
 
-		$logged = $messages = [];
+        self::assertSame($expectedLoggedLevels, $logged);
 
-		// Let's brute force!
-		for ( $i = 1; $i < 1600; $i ++ ) {
-			$level = $failed_login->level();
-			if ( $level ) {
-				$logged[ $i ] = $level;
-				$messages[]   = $failed_login->message();
-				$context      = $failed_login->context();
-				self::assertArrayHasKey( 'ip', $context );
-				self::assertArrayHasKey( 'ip_from', $context );
-				self::assertArrayHasKey( 'username', $context );
-				self::assertSame( 'h4ck3rb0y', $context[ 'username' ] );
-				self::assertSame( Channels::SECURITY, $failed_login->channel() );
-			}
-			$failed_login = new FailedLogin( 'h4ck3rb0y' );
-		}
+        $format = "%d failed login attempts from username 'h4ck3rb0y' in last 5 minutes";
 
-		$expected_logged_levels = [
-			3    => Logger::NOTICE,
-			23   => Logger::NOTICE,
-			43   => Logger::NOTICE,
-			63   => Logger::NOTICE,
-			83   => Logger::NOTICE,
-			183  => Logger::WARNING,
-			283  => Logger::WARNING,
-			383  => Logger::WARNING,
-			483  => Logger::WARNING,
-			583  => Logger::WARNING,
-			683  => Logger::ERROR,
-			783  => Logger::ERROR,
-			883  => Logger::ERROR,
-			983  => Logger::ERROR,
-			1183 => Logger::CRITICAL,
-			1383 => Logger::CRITICAL,
-			1583 => Logger::CRITICAL,
-		];
+        foreach (array_keys($expectedLoggedLevels) as $i => $levelNum) {
+            self::assertSame($messages[$i], sprintf($format, $levelNum));
+        }
+    }
 
-		self::assertSame( $expected_logged_levels, $logged );
+    public function testMessage()
+    {
+        $transient = false;
 
-		$format = "%d failed login attempts from username 'h4ck3rb0y' in last 5 minutes";
+        // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+        $callback = static function (string $name, $value = null) use (&$transient): ?bool {
+            // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+            if ($value === null) {
+                return $transient;
+            }
 
-		foreach ( array_keys( $expected_logged_levels ) as $i => $n ) {
-			self::assertSame( $messages[ $i ], sprintf( $format, $n ) );
-		}
-	}
+            $transient = $value;
 
-	public function test_message() {
+            return true;
+        };
 
-		$transient = FALSE;
+        Functions\when('get_site_transient')->alias($callback);
+        Functions\when('set_site_transient')->alias($callback);
 
-		$callback = function ( $name, $value = NULL ) use ( &$transient ) {
+        $expectedMessageFormat = "%d failed login attempts from username '%s' in last 5 minutes";
 
-			if ( $value === null ) {
-				return $transient;
-			}
+        $firstFailedLogin = new FailedLogin('h4ck3rb0y');
+        $secondFailedLogin = new FailedLogin('h4ck3rb0y');
 
-			$transient = $value;
+        $this->assertSame(
+            sprintf($expectedMessageFormat, 1, 'h4ck3rb0y'),
+            $firstFailedLogin->message()
+        );
 
-			return TRUE;
-		};
+        $this->assertSame(
+            sprintf($expectedMessageFormat, 1, 'h4ck3rb0y'),
+            $firstFailedLogin->message()
+        );
 
-		Functions\when( 'get_site_transient' )
-			->alias( $callback );
-		Functions\when( 'set_site_transient' )
-			->alias( $callback );
+        $this->assertSame(
+            sprintf($expectedMessageFormat, 1, 'h4ck3rb0y'),
+            $firstFailedLogin->message()
+        );
 
-		$expected_msg_format = "%d failed login attempts from username '%s' in last 5 minutes";
+        $this->assertSame(
+            sprintf($expectedMessageFormat, 2, 'h4ck3rb0y'),
+            $secondFailedLogin->message()
+        );
 
-		$first_failed_login  = new FailedLogin( 'h4ck3rb0y' );
-		$second_failed_login = new FailedLogin( 'h4ck3rb0y' );
-
-		$this->assertSame( sprintf( $expected_msg_format, 1, 'h4ck3rb0y' ), $first_failed_login->message() );
-		$this->assertSame( sprintf( $expected_msg_format, 1, 'h4ck3rb0y' ), $first_failed_login->message() );
-		$this->assertSame( sprintf( $expected_msg_format, 1, 'h4ck3rb0y' ), $first_failed_login->message() );
-
-		$this->assertSame( sprintf( $expected_msg_format, 2, 'h4ck3rb0y' ), $second_failed_login->message() );
-		$this->assertSame( sprintf( $expected_msg_format, 2, 'h4ck3rb0y' ), $second_failed_login->message() );
-	}
+        $this->assertSame(
+            sprintf($expectedMessageFormat, 2, 'h4ck3rb0y'),
+            $secondFailedLogin->message()
+        );
+    }
 }

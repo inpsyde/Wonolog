@@ -22,8 +22,6 @@ use Monolog\Logger;
  * @license http://opensource.org/licenses/MIT MIT
  *
  * @runTestsInSeparateProcesses
- *
- * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv
  */
 class LogLevelTest extends TestCase
 {

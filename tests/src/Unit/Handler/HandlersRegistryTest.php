@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -20,104 +23,102 @@ use Monolog\Handler\HandlerInterface;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class HandlersRegistryTest extends TestCase {
+class HandlersRegistryTest extends TestCase
+{
+    public function testSameHandlerIsAddedOnce()
+    {
+        /** @var ProcessorsRegistry $processorsRegistry */
+        $processorsRegistry = \Mockery::mock(ProcessorsRegistry::class);
+        $registry = new HandlersRegistry($processorsRegistry);
 
-	public function test_same_handler_is_added_once() {
+        /** @var HandlerInterface $handlerOne */
+        $handlerOne = \Mockery::mock(HandlerInterface::class);
+        $handlerTwo = clone $handlerOne;
+        $handlerThree = clone $handlerOne;
 
-		/** @var ProcessorsRegistry $processors_registry */
-		$processors_registry = \Mockery::mock( ProcessorsRegistry::class );
-		$registry            = new HandlersRegistry( $processors_registry );
+        $registry->addHandler($handlerOne, 'test');
+        $registry->addHandler($handlerTwo, 'test');
+        $registry->addHandler($handlerThree, 'test');
 
-		/** @var HandlerInterface $handler_a */
-		$handler_a = \Mockery::mock( HandlerInterface::class );
-		$handler_b = clone $handler_a;
-		$handler_c = clone $handler_a;
+        self::assertCount(1, $registry);
+    }
 
-		$registry->addHandler( $handler_a, 'test' );
-		$registry->addHandler( $handler_b, 'test' );
-		$registry->addHandler( $handler_c, 'test' );
+    public function testHasHandler()
+    {
+        /** @var ProcessorsRegistry $processorsRegistry */
+        $processorsRegistry = \Mockery::mock(ProcessorsRegistry::class);
+        $registry = new HandlersRegistry($processorsRegistry);
 
-		self::assertCount( 1, $registry );
-	}
+        /** @var HandlerInterface $handlerOne */
+        $handlerOne = \Mockery::mock(HandlerInterface::class);
+        $handlerTwo = clone $handlerOne;
+        $handlerThree = clone $handlerOne;
 
-	public function test_has_handler() {
+        $registry->addHandler($handlerOne, 'a');
+        $registry->addHandler($handlerTwo, 'b');
+        $registry->addHandler($handlerThree, 'c');
 
-		/** @var ProcessorsRegistry $processors_registry */
-		$processors_registry = \Mockery::mock( ProcessorsRegistry::class );
-		$registry            = new HandlersRegistry( $processors_registry );
+        self::assertTrue($registry->hasHandler('a'));
+        self::assertTrue($registry->hasHandler('b'));
+        self::assertTrue($registry->hasHandler('c'));
+        self::assertFalse($registry->hasHandler('x'));
 
-		/** @var HandlerInterface $handler_a */
-		$handler_a = \Mockery::mock( HandlerInterface::class );
-		$handler_b = clone $handler_a;
-		$handler_c = clone $handler_a;
+        self::assertCount(3, $registry);
+    }
 
-		$registry->addHandler( $handler_a, 'a' );
-		$registry->addHandler( $handler_b, 'b' );
-		$registry->addHandler( $handler_c, 'c' );
+    public function testFindByNameCallRegisterOnce()
+    {
+        /** @var ProcessorsRegistry $processorsRegistry */
+        $processorsRegistry = \Mockery::mock(ProcessorsRegistry::class);
+        $registry = new HandlersRegistry($processorsRegistry);
 
-		self::assertTrue( $registry->hasHandler( 'a' ) );
-		self::assertTrue( $registry->hasHandler( 'b' ) );
-		self::assertTrue( $registry->hasHandler( 'c' ) );
-		self::assertFalse( $registry->hasHandler( [ 'a' ] ) );
-		self::assertFalse( $registry->hasHandler( 'x' ) );
+        Actions\expectDone(HandlersRegistry::ACTION_REGISTER)
+            ->once()
+            ->with($registry);
 
-		self::assertCount( 3, $registry );
-	}
+        self::assertCount(0, $registry);
+        self::assertNull($registry->find('foo'));
+        self::assertNull($registry->find('bar'));
+        self::assertNull($registry->find('baz'));
+        self::assertNull($registry->find(1));
+    }
 
-	public function test_find_by_name_call_register_once() {
+    public function testRegisterOnFindByName()
+    {
+        /** @var ProcessorsRegistry $processorsRegistry */
+        $processorsRegistry = \Mockery::mock(ProcessorsRegistry::class);
+        $registry = new HandlersRegistry($processorsRegistry);
 
-		/** @var ProcessorsRegistry $processors_registry */
-		$processors_registry = \Mockery::mock( ProcessorsRegistry::class );
-		$registry            = new HandlersRegistry( $processors_registry );
+        /** @var HandlerInterface $handlerOne */
+        $handlerOne = \Mockery::mock(HandlerInterface::class);
+        $handlerTwo = clone $handlerOne;
 
-		Actions\expectDone( HandlersRegistry::ACTION_REGISTER )
-			->once()
-			->with( $registry );
+        Actions\expectDone(HandlersRegistry::ACTION_REGISTER)
+            ->once()
+            ->with($registry)
+            ->whenHappen(
+                static function (HandlersRegistry $registry) use ($handlerOne, $handlerTwo) {
+                    $registry->addHandler($handlerOne, 'a');
+                    $registry->addHandler($handlerTwo, 'b');
+                }
+            );
 
-		self::assertCount( 0, $registry );
-		self::assertNull( $registry->find( 'foo' ) );
-		self::assertNull( $registry->find( 'bar' ) );
-		self::assertNull( $registry->find( 'baz' ) );
-		self::assertNull( $registry->find( 1 ) );
-	}
+        Actions\expectDone(HandlersRegistry::ACTION_SETUP)
+            ->once()
+            ->with($handlerOne, 'a', $processorsRegistry);
 
-	public function test_register_on_find_by_name() {
+        Actions\expectDone(HandlersRegistry::ACTION_SETUP)
+            ->once()
+            ->with($handlerTwo, 'b', $processorsRegistry);
 
-		/** @var ProcessorsRegistry $processors_registry */
-		$processors_registry = \Mockery::mock( ProcessorsRegistry::class );
-		$registry            = new HandlersRegistry( $processors_registry );
-
-		/** @var HandlerInterface $handler_a */
-		$handler_a = \Mockery::mock( HandlerInterface::class );
-		$handler_b = clone $handler_a;
-
-		Actions\expectDone( HandlersRegistry::ACTION_REGISTER )
-			->once()
-			->with( $registry )
-			->whenHappen(
-				function ( HandlersRegistry $registry ) use ( $handler_a, $handler_b ) {
-
-					$registry->addHandler( $handler_a, 'a' );
-					$registry->addHandler( $handler_b, 'b' );
-				}
-			);
-
-		Actions\expectDone( HandlersRegistry::ACTION_SETUP )
-			->once()
-			->with( $handler_a, 'a', $processors_registry );
-
-		Actions\expectDone( HandlersRegistry::ACTION_SETUP )
-			->once()
-			->with( $handler_b, 'b', $processors_registry );
-
-		self::assertSame( $handler_a, $registry->find( 'a' ) );
-		self::assertSame( $handler_b, $registry->find( 'b' ) );
-		self::assertSame( $handler_a, $registry->find( 'a' ) );
-		self::assertSame( $handler_b, $registry->find( 'b' ) );
-		self::assertSame( $handler_a, $registry->find( 'a' ) );
-		self::assertSame( $handler_b, $registry->find( 'b' ) );
-		self::assertNull( $registry->find( 'bar' ) );
-		self::assertNull( $registry->find( 'baz' ) );
-		self::assertCount( 2, $registry );
-	}
+        self::assertSame($handlerOne, $registry->find('a'));
+        self::assertSame($handlerTwo, $registry->find('b'));
+        self::assertSame($handlerOne, $registry->find('a'));
+        self::assertSame($handlerTwo, $registry->find('b'));
+        self::assertSame($handlerOne, $registry->find('a'));
+        self::assertSame($handlerTwo, $registry->find('b'));
+        self::assertNull($registry->find('bar'));
+        self::assertNull($registry->find('baz'));
+        self::assertCount(2, $registry);
+    }
 }

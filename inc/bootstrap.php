@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 
 declare(strict_types=1);
 
@@ -18,7 +18,6 @@ use Monolog\Handler\HandlerInterface;
 // We want to load this file just once.
 // Being loaded by Composer autoload, and being in WordPress context,
 // we have to put special care on this.
-// phpcs:disable WordPressVIPMinimum.Constants.ConstantString.NotCheckingConstantName
 if (defined(__NAMESPACE__ . '\\LOG')) {
     return;
 }

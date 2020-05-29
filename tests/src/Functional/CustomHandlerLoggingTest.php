@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -22,58 +25,58 @@ use Monolog\Handler\TestHandler;
  *
  * @runTestsInSeparateProcesses
  */
-class CustomHandlerLoggingTest extends FunctionalTestCase {
+class CustomHandlerLoggingTest extends FunctionalTestCase
+{
+    public function testLogCustomHook()
+    {
+        $handler = new TestHandler();
+        $handler->pushProcessor(
+            static function (array $record): array {
+                $record['message'] = 'Handler Processor: ' . $record['message'];
 
-	public function test_log_custom_hook() {
+                return $record;
+            }
+        );
 
-		$handler = new TestHandler();
-		$handler->pushProcessor(
-			function ( array $record ) {
+        Wonolog\bootstrap($handler, Wonolog\USE_DEFAULT_NONE)
+            ->useProcessor(
+                static function (array $record): array {
+                    $record['message'] = 'General Processor: ' . $record['message'];
 
-				$record[ 'message' ] = 'Handler Processor: ' . $record[ 'message' ];
+                    return $record;
+                },
+                [Channels::DEBUG]
+            );
 
-				return $record;
-			}
-		);
+        do_action(Wonolog\LOG, new Error('Log via hook happened!', Channels::DB));
+        do_action(Wonolog\LOG, 'Test this!');
 
-		Wonolog\bootstrap( $handler, Wonolog\USE_DEFAULT_NONE )
-			->useProcessor(
-				function ( array $record ) {
+        self::assertTrue($handler->hasError('Handler Processor: Log via hook happened!'));
+        self::assertTrue($handler->hasDebug('Handler Processor: General Processor: Test this!'));
+    }
 
-					$record[ 'message' ] = 'General Processor: ' . $record[ 'message' ];
+    public function testLogError()
+    {
+        $handler = new TestHandler();
 
-					return $record;
-				},
-				[ Channels::DEBUG ]
-			);
+        Wonolog\bootstrap($handler, Wonolog\LOG_PHP_ERRORS | Wonolog\USE_DEFAULT_PROCESSOR);
 
-		do_action( Wonolog\LOG, new Error( 'Log via hook happened!', Channels::DB ) );
-		do_action( Wonolog\LOG, 'Test this!' );
+        // phpcs:disable WordPress.PHP.NoSilencedErrors
+        @trigger_error('Catch me!!', E_USER_WARNING);
+        @trigger_error('Catch me!!', E_USER_ERROR);
+        // phpcs:enable WordPress.PHP.NoSilencedErrors
 
-		self::assertTrue( $handler->hasError( 'Handler Processor: Log via hook happened!' ) );
-		self::assertTrue( $handler->hasDebug( 'Handler Processor: General Processor: Test this!' ) );
-	}
+        $logs = $handler->getRecords();
 
-	public function test_log_error() {
-
-		$handler = new TestHandler();
-
-		Wonolog\bootstrap( $handler, Wonolog\LOG_PHP_ERRORS|Wonolog\USE_DEFAULT_PROCESSOR );
-
-		@trigger_error( 'Catch me!!', E_USER_WARNING );
-		@trigger_error( 'Catch me!!', E_USER_ERROR );
-
-		$logs = $handler->getRecords();
-
-		self::assertInternalType( 'array', $logs );
-		self::assertCount( 2, $logs );
-		self::assertArrayHasKey( 'extra', $logs[0]);
-		self::assertArrayHasKey( 'wp', $logs[0]['extra']);
-		self::assertArrayHasKey( 'doing_cron', $logs[0]['extra']['wp']);
-		self::assertArrayHasKey( 'doing_ajax', $logs[0]['extra']['wp']);
-		self::assertArrayHasKey( 'is_admin', $logs[0]['extra']['wp']);
-		self::assertFalse( $logs[0]['extra']['wp']['doing_cron']);
-		self::assertFalse( $logs[0]['extra']['wp']['doing_ajax']);
-		self::assertFalse( $logs[0]['extra']['wp']['is_admin']);
-	}
+        self::assertIsArray($logs);
+        self::assertCount(2, $logs);
+        self::assertArrayHasKey('extra', $logs[0]);
+        self::assertArrayHasKey('wp', $logs[0]['extra']);
+        self::assertArrayHasKey('doing_cron', $logs[0]['extra']['wp']);
+        self::assertArrayHasKey('doing_ajax', $logs[0]['extra']['wp']);
+        self::assertArrayHasKey('is_admin', $logs[0]['extra']['wp']);
+        self::assertFalse($logs[0]['extra']['wp']['doing_cron']);
+        self::assertFalse($logs[0]['extra']['wp']['doing_ajax']);
+        self::assertFalse($logs[0]['extra']['wp']['is_admin']);
+    }
 }

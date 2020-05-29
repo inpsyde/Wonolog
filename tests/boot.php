@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php // phpcs:disable PSR1.Files.SideEffects
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -8,26 +11,21 @@
  * file that was distributed with this source code.
  */
 
-putenv( 'TESTS_PATH=' . __DIR__ );
-putenv( 'LIBRARY_PATH=' . dirname( __DIR__ ) );
+putenv('TESTS_PATH=' . __DIR__);
+putenv('LIBRARY_PATH=' . dirname(__DIR__));
 
-$vendor = dirname( __DIR__ ) . '/vendor';
+$vendor = dirname(__DIR__) . '/vendor';
 
-if ( ! realpath( $vendor ) ) {
-	die( 'Please install via Composer before running tests.' );
+if (!realpath($vendor)) {
+    die('Please install via Composer before running tests.');
 }
 
-if ( ! defined( 'PHPUNIT_COMPOSER_INSTALL' ) ) {
-	define( 'PHPUNIT_COMPOSER_INSTALL', "{$vendor}/autoload.php" );
+if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
+    define('PHPUNIT_COMPOSER_INSTALL', "{$vendor}/autoload.php");
 }
 
-/**
- * Make sure strict standards are reported
- * @link https://github.com/inpsyde/Wonolog/issues/4
- */
-error_reporting( E_ALL );
+error_reporting(E_ALL); // phpcs:ignore
 
 require_once "{$vendor}/antecedent/patchwork/Patchwork.php";
 require_once "{$vendor}/autoload.php";
-
-unset( $vendor );
+unset($vendor);
