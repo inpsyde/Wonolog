@@ -196,7 +196,8 @@ class Controller
             ): void {
 
                 if ($channels === [] || in_array($logger->getName(), $channels, true)) {
-                    $logger->pushHandler($handlers->find($handlerId));
+                    $handler = $handlers->find($handlerId);
+                    $handler and $logger->pushHandler($handler);
                 }
             },
             10,
@@ -271,7 +272,8 @@ class Controller
             ) {
 
                 if ($channels === [] || in_array($logger->getName(), $channels, true)) {
-                    $logger->pushProcessor($processors->find($processorId));
+                    $processor = $processors->find($processorId);
+                    $processor and $logger->pushProcessor($processor);
                 }
             },
             10,
@@ -317,7 +319,8 @@ class Controller
                 $handlers
             ) {
                 if ($handlers === [] || in_array($handlerId, $handlers, true)) {
-                    $handler->pushProcessor($processors->find($processorId));
+                    $processor = $processors->find($processorId);
+                    $processor and $handler->pushProcessor($processor);
                 }
             },
             10,
