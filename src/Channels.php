@@ -108,7 +108,7 @@ class Channels {
 	public function has_channel( $channel ) {
 
 		if ( ! is_string( $channel ) ) {
-			throw InvalidChannelNameException::for_invalid_type( $channel );
+			throw InvalidChannelNameException::forInvalidType( $channel );
 		}
 
 		return in_array( $channel, $this->channels );
@@ -125,7 +125,7 @@ class Channels {
 
 		$channel = (string) $channel;
 		if ( ! $this->has_channel( $channel ) ) {
-			throw InvalidChannelNameException::for_unregistered_channel( $channel );
+			throw InvalidChannelNameException::forUnregisteredChannel( $channel );
 		}
 
 		if ( ! array_key_exists( $channel, $this->loggers ) ) {
