@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -24,198 +27,218 @@ use Monolog\Handler\HandlerInterface;
 /**
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
+ *
+ * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv
  */
-class ControllerTest extends TestCase {
+class ControllerTest extends TestCase
+{
 
-	protected function tearDown() {
+    protected function tearDown(): void
+    {
+        putenv('WONOLOG_DISABLE');
+        parent::tearDown();
+    }
 
-		putenv( 'WONOLOG_DISABLE' );
-		parent::tearDown();
-	}
+    public function testSetupDisabledViaEnv()
+    {
 
-	public function test_setup_disabled_via_env() {
+        putenv('WONOLOG_DISABLE=1');
+        Actions\expectDone(Controller::ACTION_SETUP)
+            ->never();
 
-		putenv( 'WONOLOG_DISABLE=1' );
-		Actions\expectDone( Controller::ACTION_SETUP )
-			->never();
+        $controller = new Controller();
+        $controller->setup();
+    }
 
-		$controller = new Controller();
-		$controller->setup();
-	}
+    public function testSetupDoNothingIfAlreadyDid()
+    {
 
-	public function test_setup_do_nothing_if_did() {
+        do_action(Controller::ACTION_SETUP);
 
-		do_action( Controller::ACTION_SETUP );
+        putenv('WONOLOG_DISABLE=1');
+        Actions\expectDone(Controller::ACTION_SETUP)
+            ->never();
 
-		putenv( 'WONOLOG_DISABLE=1' );
-		Actions\expectDone( Controller::ACTION_SETUP )
-			->never();
+        $controller = new Controller();
+        $controller->setup();
+    }
 
-		$controller = new Controller();
-		$controller->setup();
-	}
+    public function testSetupAddHooksOnce()
+    {
 
-	public function test_setup_add_hooks_once() {
+        Actions\expectDone(Controller::ACTION_SETUP)
+            ->once();
 
-		Actions\expectDone( Controller::ACTION_SETUP )
-			->once();
+        Actions\expectAdded(\Inpsyde\Wonolog\LOG)
+            ->once()
+            ->with(\Mockery::type('callable'), 123, PHP_INT_MAX);
 
-		Actions\expectAdded( \Inpsyde\Wonolog\LOG )
-			->once()
-			->with( \Mockery::type( 'callable' ), 123, PHP_INT_MAX );
+        $levels = [
+            '.debug' => 100,
+            '.info' => 200,
+            '.notice' => 250,
+            '.warning' => 300,
+            '.error' => 400,
+            '.critical' => 500,
+            '.alert' => 550,
+            '.emergency' => 600,
+        ];
 
-		$levels = array(
-			'.debug'     => 100,
-			'.info'      => 200,
-			'.notice'    => 250,
-			'.warning'   => 300,
-			'.error'     => 400,
-			'.critical'  => 500,
-			'.alert'     => 550,
-			'.emergency' => 600,
-		);
+        foreach ($levels as $level => $severity) {
+            Actions\expectAdded(\Inpsyde\Wonolog\LOG . $level)
+                ->once()
+                ->with(\Mockery::type('callable'), 123 + (601 - $severity), PHP_INT_MAX);
+        }
 
-		foreach ( $levels as $level => $severity ) {
-			Actions\expectAdded( \Inpsyde\Wonolog\LOG . $level )
-				->once()
-				->with( \Mockery::type( 'callable' ), 123 + ( 601 - $severity ), PHP_INT_MAX );
-		}
+        Actions\expectAdded('muplugins_loaded')
+            ->once()
+            ->with([HookListenersRegistry::class, 'initialize'], PHP_INT_MAX);
 
-		Actions\expectAdded( 'muplugins_loaded' )
-			->once()
-			->with( [ HookListenersRegistry::class, 'initialize' ], PHP_INT_MAX );
+        Actions\expectDone(Controller::ACTION_LOADED)
+            ->once();
 
-		Actions\expectDone( Controller::ACTION_LOADED )
-			->once();
+        $controller = new Controller();
+        $controller->setup(123);
+        $controller->setup();
+        $controller->setup();
+    }
 
-		$controller = new Controller();
-		$controller->setup( 123 );
-		$controller->setup();
-		$controller->setup();
-	}
+    /**
+     * @runInSeparateProcess
+     */
+    public function testLogPhpErrorsRunOnce()
+    {
 
-	/**
-	 * @runInSeparateProcess
-	 */
-	public function test_log_php_errors_run_once() {
+        Filters\expectAdded(Channels::FILTER_CHANNELS)
+            ->once();
 
-		Filters\expectAdded( Channels::FILTER_CHANNELS )
-			->once();
+        $controller = new Controller();
 
-		$controller = new Controller();
+        static::assertSame($controller, $controller->logPhpErrors());
+        static::assertSame($controller, $controller->logPhpErrors());
+    }
 
-		self::assertSame( $controller, $controller->log_php_errors() );
-		self::assertSame( $controller, $controller->log_php_errors() );
-	}
+    /**
+     * @runInSeparateProcess
+     */
+    public function testUseDefaultHandlerAddHookOnce()
+    {
 
-	/**
-	 * @runInSeparateProcess
-	 */
-	public function test_use_default_handler_add_hook_once() {
+        Actions\expectAdded(HandlersRegistry::ACTION_REGISTER)
+            ->once();
 
-		Actions\expectAdded( HandlersRegistry::ACTION_REGISTER )
-			->once();
+        $controller = new Controller();
+        static::assertSame($controller, $controller->useDefaultHandler());
+        static::assertSame($controller, $controller->useDefaultHandler());
+    }
 
-		$controller = new Controller();
-		self::assertSame( $controller, $controller->use_default_handler() );
-		self::assertSame( $controller, $controller->use_default_handler() );
-	}
+    public function testUseHandlerAddHooks()
+    {
 
-	public function test_use_handler_add_hooks() {
+        Actions\expectAdded(HandlersRegistry::ACTION_REGISTER)
+            ->twice();
 
-		Actions\expectAdded( HandlersRegistry::ACTION_REGISTER )
-			->twice();
+        Actions\expectAdded(Channels::ACTION_LOGGER)
+            ->twice();
 
-		Actions\expectAdded( Channels::ACTION_LOGGER )
-			->twice();
+        $controller = new Controller();
+        /** @var HandlerInterface $handler */
+        $handler = \Mockery::mock(HandlerInterface::class);
 
-		$controller = new Controller();
-		/** @var HandlerInterface $handler */
-		$handler = \Mockery::mock( HandlerInterface::class );
+        static::assertSame($controller, $controller->useHandler($handler));
+        static::assertSame($controller, $controller->useHandler($handler));
+    }
 
-		self::assertSame( $controller, $controller->use_handler( $handler ) );
-		self::assertSame( $controller, $controller->use_handler( $handler ) );
-	}
+    /**
+     * @runInSeparateProcess
+     */
+    public function testUseDefaultProcessorAddHookOnce()
+    {
 
-	/**
-	 * @runInSeparateProcess
-	 */
-	public function test_use_default_processor_add_hook_once() {
+        Actions\expectAdded(ProcessorsRegistry::ACTION_REGISTER)
+            ->once();
 
-		Actions\expectAdded( ProcessorsRegistry::ACTION_REGISTER )
-			->once();
+        $controller = new Controller();
+        static::assertSame($controller, $controller->useDefaultProcessor());
+        static::assertSame($controller, $controller->useDefaultProcessor());
+    }
 
-		$controller = new Controller();
-		self::assertSame( $controller, $controller->use_default_processor() );
-		self::assertSame( $controller, $controller->use_default_processor() );
-	}
+    public function testUseProcessorNoChannelsAddHook()
+    {
 
-	public function test_use_processor_no_channels_add_hook() {
+        Actions\expectAdded(ProcessorsRegistry::ACTION_REGISTER)
+            ->twice();
 
-		Actions\expectAdded( ProcessorsRegistry::ACTION_REGISTER )
-			->twice();
+        Actions\expectAdded(Channels::ACTION_LOGGER)
+            ->twice();
 
-		Actions\expectAdded( Channels::ACTION_LOGGER )
-			->twice();
+        $controller = new Controller();
+        static::assertSame($controller, $controller->useProcessor('strtolower'));
+        static::assertSame($controller, $controller->useProcessor('strtoupper'));
+    }
 
-		$controller = new Controller();
-		self::assertSame( $controller, $controller->use_processor( 'strtolower' ) );
-		self::assertSame( $controller, $controller->use_processor( 'strtoupper' ) );
-	}
+    public function testUseProcessorWithChannelsAddHooks()
+    {
 
-	public function test_use_processor_with_channels_add_hooks() {
+        Actions\expectAdded(ProcessorsRegistry::ACTION_REGISTER)
+            ->twice();
 
-		Actions\expectAdded( ProcessorsRegistry::ACTION_REGISTER )
-			->twice();
+        Actions\expectAdded(Channels::ACTION_LOGGER)
+            ->twice();
 
-		Actions\expectAdded( Channels::ACTION_LOGGER )
-			->twice();
+        $controller = new Controller();
+        static::assertSame($controller, $controller->useProcessor('strtolower', ['foo'], 'foo'));
+        static::assertSame($controller, $controller->useProcessor('strtoupper', ['foo'], 'bar'));
+    }
 
-		$controller = new Controller();
-		self::assertSame( $controller, $controller->use_processor( 'strtolower', [ 'foo' ], 'foo' ) );
-		self::assertSame( $controller, $controller->use_processor( 'strtoupper', [ 'foo' ], 'bar' ) );
-	}
+    public function testUseProcessorForHandlersAddHooksIfHandlers()
+    {
 
-	public function test_use_processor_for_handlers_add_hooks_if_handlers() {
+        Actions\expectAdded(ProcessorsRegistry::ACTION_REGISTER)
+            ->twice();
 
-		Actions\expectAdded( ProcessorsRegistry::ACTION_REGISTER )
-			->twice();
+        Actions\expectAdded(HandlersRegistry::ACTION_SETUP)
+            ->twice();
 
-		Actions\expectAdded( HandlersRegistry::ACTION_SETUP )
-			->twice();
+        $controller = new Controller();
+        static::assertSame(
+            $controller,
+            $controller->useProcessorForHandlers('strtolower', ['foo'], 'foo')
+        );
+        static::assertSame(
+            $controller,
+            $controller->useProcessorForHandlers('strtoupper', ['foo'], 'bar')
+        );
+    }
 
-		$controller = new Controller();
-		self::assertSame( $controller, $controller->use_processor_for_handlers( 'strtolower', [ 'foo' ], 'foo' ) );
-		self::assertSame( $controller, $controller->use_processor_for_handlers( 'strtoupper', [ 'foo' ], 'bar' ) );
-	}
+    /**
+     * @runInSeparateProcess
+     */
+    public function testUseDefaultHookListenersAddHookOnce()
+    {
 
-	/**
-	 * @runInSeparateProcess
-	 */
-	public function test_use_default_hook_listeners_add_hook_once() {
+        Actions\expectAdded(HookListenersRegistry::ACTION_REGISTER)
+            ->once();
 
-		Actions\expectAdded( HookListenersRegistry::ACTION_REGISTER )
-			->once();
+        $controller = new Controller();
+        static::assertSame($controller, $controller->useDefaultHookListeners());
+        static::assertSame($controller, $controller->useDefaultHookListeners());
+    }
 
-		$controller = new Controller();
-		self::assertSame( $controller, $controller->use_default_hook_listeners() );
-		self::assertSame( $controller, $controller->use_default_hook_listeners() );
+    /**
+     * @runInSeparateProcess
+     */
+    public function testUseHookListenerAddHook()
+    {
 
-	}
+        Actions\expectAdded(HookListenersRegistry::ACTION_REGISTER)
+            ->twice();
 
-	/**
-	 * @runInSeparateProcess
-	 */
-	public function test_use_hook_listener_add_hook() {
+        $controller = new Controller();
+        /** @var HookListenerInterface $listener */
+        $listener = \Mockery::mock(HookListenerInterface::class);
 
-		Actions\expectAdded( HookListenersRegistry::ACTION_REGISTER )
-			->twice();
-
-		$controller = new Controller();
-		/** @var HookListenerInterface $listener */
-		$listener = \Mockery::mock( HookListenerInterface::class );
-
-		self::assertSame( $controller, $controller->use_hook_listener( $listener ) );
-		self::assertSame( $controller, $controller->use_hook_listener( $listener ) );
-	}
+        static::assertSame($controller, $controller->useHookListener($listener));
+        static::assertSame($controller, $controller->useHookListener($listener));
+    }
 }

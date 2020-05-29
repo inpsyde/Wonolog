@@ -11,7 +11,10 @@
 	<config name="text_domain" value="wonolog"/>
 	<config name="ignore_warnings_on_exit" value="1"/>
 
-    <rule ref="Inpsyde"/>
+    <rule ref="Inpsyde">
+        <exclude name="WordPress.PHP.DevelopmentFunctions" />
+        <exclude name="WordPressVIPMinimum.Constants.ConstantString.NotCheckingConstantName" />
+    </rule>
 
     <rule ref="Inpsyde.CodeQuality.ElementNameMinimalLength">
         <properties>
@@ -24,7 +27,7 @@
             <property
                     name="psr4"
                     type="array"
-                    value="Inpsyde\Wonolog=>src,Inpsyde\Wonolog\Tests=>tests/src,Inpsyde\Wonolog\Tests\Unit=>tests/src/Unit,Inpsyde\Wonolog\Tests\Functional=>tests/src/Functional"/>
+                    value="Inpsyde\Wonolog=>src,Inpsyde\Wonolog\Tests=>tests/src"/>
         </properties>
     </rule>
 

@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -13,6 +16,7 @@ namespace Inpsyde\Wonolog\Tests\Unit;
 use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
 use Inpsyde\Wonolog\Channels;
+use Inpsyde\Wonolog\Exception\InvalidChannelNameException;
 use Inpsyde\Wonolog\Handler\HandlersRegistry;
 use Inpsyde\Wonolog\Processor\ProcessorsRegistry;
 use Inpsyde\Wonolog\Tests\TestCase;
@@ -23,166 +27,156 @@ use Monolog\Logger;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class ChannelsTest extends TestCase {
+class ChannelsTest extends TestCase
+{
+    public function testAllChannelsReturnDefaultChannels()
+    {
+        $channels = Channels::all();
 
-	public function test_all_channels_return_default_channels() {
+        $expected = [
+            Channels::HTTP,
+            Channels::DB,
+            Channels::SECURITY,
+            Channels::DEBUG,
+        ];
 
-		$channels = Channels::all_channels();
+        static::assertSame($expected, $channels);
+    }
 
-		$expected = [
-			Channels::HTTP,
-			Channels::DB,
-			Channels::SECURITY,
-			Channels::DEBUG,
-		];
+    public function testAllChannelsAllowFilter()
+    {
 
-		self::assertSame( $expected, $channels );
-	}
+        Filters\expectApplied(Channels::FILTER_CHANNELS)
+            ->once()
+            ->andReturn(['foo', 1, []]);
 
-	public function test_all_channels_allow_filter() {
+        $channels = Channels::all();
 
-		Filters\expectApplied( Channels::FILTER_CHANNELS )
-			->once()
-			->andReturn( [ 'foo', 1, [] ] );
+        static::assertSame(['foo'], $channels);
+    }
 
-		$channels = Channels::all_channels();
+    public function testHasChannel()
+    {
+        $channels = $this->createChannels();
 
-		self::assertSame( [ 'foo' ], $channels );
-	}
+        static::assertTrue($channels->hasChannel(Channels::DEBUG));
+        static::assertFalse($channels->hasChannel('Foo'));
+    }
 
-	/**
-	 * @expectedException \Inpsyde\Wonolog\Exception\InvalidChannelNameException
-	 */
-	public function test_has_channel_fails_if_wrong_param_type() {
+    public function testLoggerFailsIfWrongChannel()
+    {
+        $channels = $this->createChannels();
+        
+        $this->expectException(InvalidChannelNameException::class);
+        $channels->logger('X');
+    }
 
-		$channels = $this->create_channels();
-		$channels->has_channel( [] );
-	}
+    public function testLoggerInitializeOnceAndReturnAlways()
+    {
+        /** @var HandlersRegistry|\Mockery\MockInterface $handlers */
+        $handlers = \Mockery::mock(HandlersRegistry::class);
 
-	public function test_has_channel() {
+        /** @var ProcessorsRegistry|\Mockery\MockInterface $processors */
+        $processors = \Mockery::mock(ProcessorsRegistry::class);
 
-		$channels = $this->create_channels();
+        $defaultHandler = \Mockery::mock(HandlerInterface::class);
 
-		self::assertTrue( $channels->has_channel( Channels::DEBUG ) );
-		self::assertFalse( $channels->has_channel( 'Foo' ) );
-	}
+        $handlers->shouldReceive('find')
+            ->once()
+            ->with(HandlersRegistry::DEFAULT_NAME)
+            ->andReturn($defaultHandler);
 
-	/**
-	 * @expectedException \Inpsyde\Wonolog\Exception\InvalidChannelNameException
-	 */
-	public function test_logger_fails_if_wrong_channel() {
+        $processors->shouldReceive('find')
+            ->once()
+            ->with(ProcessorsRegistry::DEFAULT_NAME)
+            ->andReturn('strtolower');
 
-		$channels = $this->create_channels();
-		$channels->logger( 'X' );
-	}
+        Filters\expectApplied(Channels::FILTER_USE_DEFAULT_HANDLER)
+            ->once()
+            ->with(true, \Mockery::type(Logger::class), $defaultHandler)
+            ->andReturn(true);
 
-	public function test_logger_initialize_once_and_return_always() {
+        Filters\expectApplied(Channels::FILTER_USE_DEFAULT_PROCESSOR)
+            ->once()
+            ->with(true, \Mockery::type(Logger::class), 'strtolower')
+            ->andReturn(true);
 
-		/** @var HandlersRegistry|\Mockery\MockInterface $handlers */
-		$handlers = \Mockery::mock( HandlersRegistry::class );
+        Actions\expectDone(Channels::ACTION_LOGGER)
+            ->once()
+            ->with(\Mockery::type(Logger::class), $handlers, $processors);
 
-		/** @var ProcessorsRegistry $processors */
-		$processors = \Mockery::mock( ProcessorsRegistry::class );
+        $channels = new Channels($handlers, $processors);
+        $logger = $channels->logger(Channels::DEBUG);
 
-		$default_handler = \Mockery::mock( HandlerInterface::class );
+        static::assertInstanceOf(Logger::class, $logger);
+        static::assertSame($logger, $channels->logger(Channels::DEBUG));
+        static::assertSame($logger, $channels->logger(Channels::DEBUG));
+        static::assertEquals([$defaultHandler], $logger->getHandlers());
+        static::assertEquals(['strtolower'], $logger->getProcessors());
+    }
 
-		$handlers->shouldReceive( 'find' )
-			->once()
-			->with( HandlersRegistry::DEFAULT_NAME )
-			->andReturn( $default_handler );
+    public function testLoggerInitializeSkipDefaultsViaFilter()
+    {
+        /** @var HandlersRegistry|\Mockery\MockInterface $handlers */
+        $handlers = \Mockery::mock(HandlersRegistry::class);
 
-		$processors->shouldReceive( 'find' )
-			->once()
-			->with( ProcessorsRegistry::DEFAULT_NAME )
-			->andReturn( 'strtolower' );
+        /** @var ProcessorsRegistry|\Mockery\MockInterface $processors */
+        $processors = \Mockery::mock(ProcessorsRegistry::class);
 
-		Filters\expectApplied( Channels::FILTER_USE_DEFAULT_HANDLER )
-			->once()
-			->with( TRUE, \Mockery::type( Logger::class ), $default_handler )
-			->andReturn( TRUE );
+        $defaultHandler = \Mockery::mock(HandlerInterface::class);
 
-		Filters\expectApplied( Channels::FILTER_USE_DEFAULT_PROCESSOR )
-			->once()
-			->with( TRUE, \Mockery::type( Logger::class ), 'strtolower' )
-			->andReturn( TRUE );
+        $handlers->shouldReceive('find')
+            ->once()
+            ->with(HandlersRegistry::DEFAULT_NAME)
+            ->andReturn($defaultHandler);
 
-		Actions\expectDone( Channels::ACTION_LOGGER )
-			->once()
-			->with( \Mockery::type( Logger::class ), $handlers, $processors );
+        $processors->shouldReceive('find')
+            ->once()
+            ->with(ProcessorsRegistry::DEFAULT_NAME)
+            ->andReturn('strtolower');
 
-		$channels = new Channels( $handlers, $processors );
-		$logger   = $channels->logger( Channels::DEBUG );
+        Filters\expectApplied(Channels::FILTER_USE_DEFAULT_HANDLER)
+            ->once()
+            ->with(true, \Mockery::type(Logger::class), $defaultHandler)
+            ->andReturn(false);
 
-		self::assertInstanceOf( Logger::class, $logger );
-		self::assertSame( $logger, $channels->logger( Channels::DEBUG ) );
-		self::assertSame( $logger, $channels->logger( Channels::DEBUG ) );
-		self::assertEquals( [ $default_handler ], $logger->getHandlers() );
-		self::assertEquals( [ 'strtolower' ], $logger->getProcessors() );
-	}
+        Filters\expectApplied(Channels::FILTER_USE_DEFAULT_PROCESSOR)
+            ->once()
+            ->with(true, \Mockery::type(Logger::class), 'strtolower')
+            ->andReturn(false);
 
-	public function test_logger_initialize_skip_defaults_via_filter() {
+        /** @var $customHandler HandlerInterface $handler */
+        $customHandler = \Mockery::mock(HandlerInterface::class);
 
-		/** @var HandlersRegistry|\Mockery\MockInterface $handlers */
-		$handlers = \Mockery::mock( HandlersRegistry::class );
+        Actions\expectDone(Channels::ACTION_LOGGER)
+            ->once()
+            ->with(\Mockery::type(Logger::class), $handlers, $processors)
+            ->whenHappen(
+                static function (Logger $logger) use ($customHandler) {
+                    $logger->pushHandler($customHandler);
+                }
+            );
 
-		/** @var ProcessorsRegistry $processors */
-		$processors = \Mockery::mock( ProcessorsRegistry::class );
+        $channels = new Channels($handlers, $processors);
+        $logger = $channels->logger(Channels::DEBUG);
 
-		$default_handler = \Mockery::mock( HandlerInterface::class );
+        static::assertInstanceOf(Logger::class, $logger);
+        static::assertSame($logger, $channels->logger(Channels::DEBUG));
+        static::assertSame($logger, $channels->logger(Channels::DEBUG));
+        static::assertSame([$customHandler], $logger->getHandlers());
+        static::assertSame([], $logger->getProcessors());
+    }
 
-		$handlers->shouldReceive( 'find' )
-			->once()
-			->with( HandlersRegistry::DEFAULT_NAME )
-			->andReturn( $default_handler );
+    /**
+     * @return Channels
+     */
+    private function createChannels(): Channels
+    {
+        /** @var HandlersRegistry $handlers */
+        $handlers = \Mockery::mock(HandlersRegistry::class);
+        /** @var ProcessorsRegistry $processors */
+        $processors = \Mockery::mock(ProcessorsRegistry::class);
 
-		$processors->shouldReceive( 'find' )
-			->once()
-			->with( ProcessorsRegistry::DEFAULT_NAME )
-			->andReturn( 'strtolower' );
-
-		Filters\expectApplied( Channels::FILTER_USE_DEFAULT_HANDLER )
-			->once()
-			->with( TRUE, \Mockery::type( Logger::class ), $default_handler )
-			->andReturn( FALSE );
-
-		Filters\expectApplied( Channels::FILTER_USE_DEFAULT_PROCESSOR )
-			->once()
-			->with( TRUE, \Mockery::type( Logger::class ), 'strtolower' )
-			->andReturn( FALSE );
-
-		/** @var $custom_handler HandlerInterface $handler */
-		$custom_handler = \Mockery::mock( HandlerInterface::class );
-
-		Actions\expectDone( Channels::ACTION_LOGGER )
-			->once()
-			->with( \Mockery::type( Logger::class ), $handlers, $processors )
-			->whenHappen(
-				function ( Logger $logger ) use ( $custom_handler ) {
-
-					$logger->pushHandler( $custom_handler );
-				}
-			);
-
-		$channels = new Channels( $handlers, $processors );
-		$logger   = $channels->logger( Channels::DEBUG );
-
-		self::assertInstanceOf( Logger::class, $logger );
-		self::assertSame( $logger, $channels->logger( Channels::DEBUG ) );
-		self::assertSame( $logger, $channels->logger( Channels::DEBUG ) );
-		self::assertSame( [ $custom_handler ], $logger->getHandlers() );
-		self::assertSame( [], $logger->getProcessors() );
-	}
-
-	/**
-	 * @return Channels
-	 */
-	private function create_channels() {
-
-		/** @var HandlersRegistry $handlers */
-		$handlers = \Mockery::mock( HandlersRegistry::class );
-		/** @var ProcessorsRegistry $processors */
-		$processors = \Mockery::mock( ProcessorsRegistry::class );
-
-		return new Channels( $handlers, $processors );
-	}
+        return new Channels($handlers, $processors);
+    }
 }

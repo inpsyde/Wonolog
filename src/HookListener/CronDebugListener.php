@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -12,6 +15,7 @@ namespace Inpsyde\Wonolog\HookListener;
 
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Info;
+use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\Data\NullLog;
 
 /**
@@ -20,146 +24,140 @@ use Inpsyde\Wonolog\Data\NullLog;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class CronDebugListener implements ActionListenerInterface {
+final class CronDebugListener implements ActionListenerInterface
+{
+    use ListenerIdByClassNameTrait;
 
-	use ListenerIdByClassNameTrait;
+    public const IS_CLI = 1;
+    public const IS_CRON = 2;
 
-	const IS_CLI = 1;
-	const IS_CRON = 2;
+    /**
+     * @var bool
+     */
+    private static $ran = false;
 
-	/**
-	 * @var bool
-	 */
-	private static $ran = FALSE;
+    /**
+     * @var int
+     */
+    private $flags = 0;
 
-	/**
-	 * @var int
-	 */
-	private $flags = 0;
+    /**
+     * @var array[]
+     */
+    private $done = [];
 
-	/**
-	 * @var array[]
-	 */
-	private $done = [];
+    /**
+     * @param int $flags
+     */
+    public function __construct(int $flags = 0)
+    {
+        $this->flags = $flags;
+    }
 
-	/**
-	 * @param int $flags
-	 */
-	public function __construct( $flags = 0 ) {
+    /**
+     * @return array<string>
+     */
+    public function listenTo(): array
+    {
+        return ['wp_loaded'];
+    }
 
-		$this->flags = is_int( $flags ) ? $flags : 0;
-	}
+    /**
+     * @return bool
+     */
+    public function isCli(): bool
+    {
+        return ($this->flags & self::IS_CLI) || (defined('WP_CLI') && WP_CLI);
+    }
 
-	/**
-	 * @return string
-	 */
-	public function listen_to() {
+    /**
+     * @return bool
+     */
+    public function isCron(): bool
+    {
+        return ($this->flags & self::IS_CRON) || (defined('DOING_CRON') && DOING_CRON);
+    }
 
-		return 'wp_loaded';
-	}
+    /**
+     * Logs all the cron hook performed and their performance.
+     *
+     * @param array $args
+     * @return NullLog
+     *
+     * @wp-hook wp_loaded
+     */
+    public function update(array $args): LogDataInterface
+    {
+        if (self::$ran) {
+            return new NullLog();
+        }
 
-	/**
-	 * @return bool
-	 */
-	public function is_cli() {
+        if ($this->isCron() || $this->isCli()) {
+            $this->registerEventListener();
+        }
 
-		return ( $this->flags & self::IS_CLI ) || ( defined( 'WP_CLI' ) && WP_CLI );
-	}
+        return new NullLog();
+    }
 
-	/**
-	 * @return bool
-	 */
-	public function is_cron() {
+    /**
+     * Logs all the cron hook performed and their performance.
+     */
+    private function registerEventListener(): void
+    {
+        $cronArray = _get_cron_array();
+        if (!$cronArray || !is_array($cronArray)) {
+            return;
+        }
 
-		return ( $this->flags & self::IS_CRON ) || ( defined( 'DOING_CRON' ) && DOING_CRON );
-	}
+        $hooks = array_reduce(
+            $cronArray,
+            static function (array $hooks, array $crons): array {
+                return array_merge($hooks, array_keys($crons));
+            },
+            []
+        );
 
-	/**
-	 * Logs all the cron hook performed and their performance.
-	 *
-	 * @wp-hook  wp_loaded
-	 *
-	 * @param array $args
-	 *
-	 * @return NullLog
-	 */
-	public function update( array $args ) {
+        $profileCallback = function () {
+            $this->cronActionProfile();
+        };
 
-		if ( self::$ran ) {
-			return new NullLog();
-		}
+        array_walk(
+            $hooks,
+            static function (string $hook) use ($profileCallback) {
+                // Please note that "(int)(PHP_INT_MAX +  )" is the lowest possible integer.
+                add_action($hook, $profileCallback, (int)(PHP_INT_MAX + 1));
+                add_action($hook, $profileCallback, PHP_INT_MAX);
+            }
+        );
 
-		if ( $this->is_cron() || $this->is_cli() ) {
-			$this->register_event_listener();
-		}
+        self::$ran = true;
+    }
 
-		return new NullLog();
-	}
+    /**
+     * Run before and after that any cron action ran, logging it and its performance.
+     */
+    private function cronActionProfile(): void
+    {
+        if (!defined('DOING_CRON') || !DOING_CRON) {
+            return;
+        }
 
-	/**
-	 * Logs all the cron hook performed and their performance.
-	 */
-	private function register_event_listener() {
+        $hook = current_filter();
+        if (!isset($this->done[$hook])) {
+            $this->done[$hook]['start'] = microtime(true);
 
-		$cron_array = _get_cron_array();
-		if ( ! $cron_array ) {
-			return;
-		}
+            return;
+        }
 
-		$hooks = array_reduce(
-			$cron_array,
-			function ( $hooks, $crons ) {
+        if (!isset($this->done[$hook]['duration'])) {
+            $duration = number_format(microtime(true) - $this->done[$hook]['start'], 2);
+            $this->done[$hook]['duration'] = $duration . ' s';
 
-				return array_merge( $hooks, array_keys( $crons ) );
-			},
-			[]
-		);
-
-		$profile_cb = function () {
-
-			$this->cron_action_profile();
-		};
-
-		array_walk(
-			$hooks,
-			function ( $hook ) use ( $profile_cb ) {
-
-				// Please note that "(int) ( PHP_INT_MAX + 1 )" is the lowest possible integer.
-				add_action( $hook, $profile_cb, (int) ( PHP_INT_MAX + 1 ) );
-				add_action( $hook, $profile_cb, PHP_INT_MAX );
-			}
-		);
-
-		self::$ran = TRUE;
-	}
-
-	/**
-	 * Run before and after that any cron action ran, logging it and its performance.
-	 */
-	private function cron_action_profile() {
-
-		if ( ! defined( 'DOING_CRON' ) || ! DOING_CRON ) {
-			return;
-		}
-
-		$hook = current_filter();
-		if ( ! isset( $this->done[ $hook ] ) ) {
-			$this->done[ $hook ][ 'start' ] = microtime( TRUE );
-
-			return;
-		}
-
-		if ( ! isset( $this->done[ $hook ][ 'duration' ] ) ) {
-
-			$duration = number_format( microtime( TRUE ) - $this->done[ $hook ][ 'start' ], 2 );
-
-			$this->done[ $hook ][ 'duration' ] = $duration . ' s';
-
-			// Log the cron action performed.
-			do_action(
-				\Inpsyde\Wonolog\LOG,
-				new Info( "Cron action \"{$hook}\" performed.", Channels::DEBUG, $this->done[ $hook ] )
-			);
-		}
-	}
+            // Log the cron action performed.
+            do_action(
+                \Inpsyde\Wonolog\LOG,
+                new Info("Cron action \"{$hook}\" performed.", Channels::DEBUG, $this->done[$hook])
+            );
+        }
+    }
 }

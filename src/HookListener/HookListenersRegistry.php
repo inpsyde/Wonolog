@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -18,131 +21,142 @@ use Inpsyde\Wonolog\Data\LogDataInterface;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-class HookListenersRegistry {
+class HookListenersRegistry
+{
+    public const ACTION_REGISTER = 'wonolog.register-listeners';
+    public const FILTER_ENABLED = 'wonolog.hook-listener-enabled';
+    public const FILTER_PRIORITY = 'wonolog.listened-hook-priority';
 
-	const ACTION_REGISTER = 'wonolog.register-listeners';
-	const FILTER_ENABLED = 'wonolog.hook-listener-enabled';
-	const FILTER_PRIORITY = 'wonolog.listened-hook-priority';
+    /**
+     * @var array<HookListenerInterface>
+     */
+    private $listeners = [];
 
-	/**
-	 * @var HookListenerInterface[]
-	 */
-	private $listeners = [];
+    /**
+     * Initialize the class, fire an hook to allow listener registration and adds the hook that will
+     * make log happen.
+     */
+    public static function initialize(): void
+    {
+        $instance = new static();
 
-	/**
-	 * Initialize the class, fire an hook to allow listener registration and adds the hook that will make log happen
-	 */
-	public static function initialize() {
+        /**
+         * Fires right before hook listeners are registered.
+         *
+         * @param HookListenersRegistry $registry
+         */
+        do_action(self::ACTION_REGISTER, $instance);
 
-		$instance = new static();
+        array_walk(
+            $instance->listeners,
+            static function (HookListenerInterface $listener) use ($instance) {
+                /**
+                 * Filters whether to enable the hook listener.
+                 *
+                 * @param bool $enable
+                 * @param HookListenerInterface $listener
+                 */
+                if (!apply_filters(self::FILTER_ENABLED, true, $listener)) {
+                    return;
+                }
 
-		/**
-		 * Fires right before hook listeners are registered.
-		 *
-		 * @param HookListenersRegistry $registry
-		 */
-		do_action( self::ACTION_REGISTER, $instance );
+                $hooks = $listener->listenTo();
+                foreach ($hooks as $hook) {
+                    $instance->listenHook($hook, $listener);
+                }
+            }
+        );
 
-		array_walk(
-			$instance->listeners,
-			function ( HookListenerInterface $listener ) use ( $instance ) {
+        unset($instance->listeners);
+        $instance->listeners = [];
+    }
 
-				/**
-				 * Filters whether to enable the hook listener.
-				 *
-				 * @param bool                  $enable
-				 * @param HookListenerInterface $listener
-				 */
-				if ( apply_filters( self::FILTER_ENABLED, TRUE, $listener ) ) {
-					$hooks = (array) $listener->listen_to();
-					array_walk( $hooks, [ $instance, 'listen_hook' ], $listener );
-				}
-			}
-		);
+    /**
+     * @param HookListenerInterface $listener
+     * @return HookListenersRegistry
+     */
+    public function registerListener(HookListenerInterface $listener): HookListenersRegistry
+    {
+        $id = (string)$listener->id();
 
-		unset( $instance->listeners );
-		$instance->listeners = [];
-	}
+        array_key_exists($id, $this->listeners) or $this->listeners[$id] = $listener;
 
-	/**
-	 * @param HookListenerInterface $listener
-	 *
-	 * @return HookListenersRegistry
-	 */
-	public function register_listener( HookListenerInterface $listener ) {
+        return $this;
+    }
 
-		$id = (string) $listener->id();
+    /**
+     * Return all registered listeners.
+     *
+     * @return array<HookListenerInterface>
+     */
+    public function listeners(): array
+    {
+        return array_values($this->listeners);
+    }
 
-		array_key_exists( $id, $this->listeners ) or $this->listeners[ $id ] = $listener;
+    /**
+     * @param string $hook
+     * @param HookListenerInterface $listener
+     * @return bool
+     */
+    private function listenHook(string $hook, HookListenerInterface $listener): bool
+    {
+        [$callback, $isFilter] = $this->hookCallback($listener);
+        if (!$callback) {
+            return false;
+        }
 
-		return $this;
-	}
+        $priority = $listener instanceof HookPriorityInterface
+            ? (int)$listener->priority()
+            : PHP_INT_MAX - 10;
 
-	/**
-	 * Return all registered listeners.
-	 *
-	 * @return HookListenerInterface[]
-	 */
-	public function listeners() {
+        /**
+         * Filters the hook listener priority.
+         *
+         * @param int $priority
+         * @param string $hook
+         * @param HookListenerInterface $listener
+         */
+        $filtered = apply_filters(self::FILTER_PRIORITY, $priority, $hook, $listener);
+        is_numeric($filtered) and $priority = (int)$filtered;
 
-		return array_values( $this->listeners );
-	}
+        return $isFilter
+            ? add_filter($hook, $callback, $priority, PHP_INT_MAX)
+            : add_action($hook, $callback, $priority, PHP_INT_MAX);
+    }
 
-	/**
-	 * @param string                $hook
-	 * @param int                   $i
-	 * @param HookListenerInterface $listener
-	 *
-	 * @return bool
-	 */
-	private function listen_hook( $hook, $i, HookListenerInterface $listener ) {
+    /**
+     * @param HookListenerInterface $listener
+     * @return array{0:callable|null, 1:bool|null}
+     */
+    private function hookCallback(HookListenerInterface $listener): array
+    {
+        $isFilter = $listener instanceof FilterListenerInterface;
+        $isAction = $listener instanceof ActionListenerInterface;
 
-		$is_filter = $listener instanceof FilterListenerInterface;
+        if (!$isFilter && !$isAction) {
+            return [null, null];
+        }
 
-		if ( ! $is_filter && ! $listener instanceof ActionListenerInterface ) {
-			return FALSE;
-		}
+        /**
+         * @return mixed|null
+         *
+         * @wp-hook
+         */
+        $callback = static function () use ($listener, $isFilter) {
+            $args = func_get_args();
+            if (!$isFilter) {
+                /** @var ActionListenerInterface $listener */
+                do_action(\Inpsyde\Wonolog\LOG, $listener->update($args));
 
-		$callback = $this->hook_callback( $listener, $is_filter );
+                return null;
+            }
 
-		$priority = $listener instanceof HookPriorityInterface ? (int) $listener->priority() : PHP_INT_MAX - 10;
+            /** @var FilterListenerInterface $listener */
 
-		/**
-		 * Filters the hook listener priority.
-		 *
-		 * @param int                   $priority
-		 * @param string                $hook
-		 * @param HookListenerInterface $listener
-		 */
-		$filtered = apply_filters( self::FILTER_PRIORITY, $priority, $hook, $listener );
-		is_numeric( $filtered ) and $priority = (int) $filtered;
+            return $listener->filter($args);
+        };
 
-		return $is_filter
-			? add_filter( $hook, $callback, $priority, PHP_INT_MAX )
-			: add_action( $hook, $callback, $priority, PHP_INT_MAX );
-	}
-
-	/**
-	 * @param FilterListenerInterface|ActionListenerInterface|HookPriorityInterface $listener
-	 * @param bool                                                                  $is_filter
-	 *
-	 * @return callable
-	 */
-	private function hook_callback( $listener, $is_filter ) {
-
-		return function () use ( $listener, $is_filter ) {
-
-			$args = func_get_args();
-
-			if ( ! $is_filter ) {
-				$log = $listener->update( $args );
-				if ( $log instanceof LogDataInterface ) {
-					// Log the update result.
-					do_action( \Inpsyde\Wonolog\LOG, $log );
-				}
-			}
-
-			return $is_filter ? $listener->filter( $args ) : NULL;
-		};
-	}
+        return [$callback, $isFilter];
+    }
 }

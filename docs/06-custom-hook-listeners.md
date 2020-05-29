@@ -143,7 +143,7 @@ add_filter( 'wonolog.channels', function( array $channels ) {
     return $channels;
 } );
 
-Wonolog\bootstrap()->use_hook_listener( new MyFilesListener() );
+Wonolog\bootstrap()->useHookListener( new MyFilesListener() );
 ```
 
 

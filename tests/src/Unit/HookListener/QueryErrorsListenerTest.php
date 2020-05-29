@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -11,7 +14,7 @@
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
 use Inpsyde\Wonolog\Channels;
-use Inpsyde\Wonolog\Data\Debug;
+use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\Data\NullLog;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
@@ -22,72 +25,65 @@ use Brain\Monkey\Functions;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class QueryErrorsListenerTest extends TestCase {
+class QueryErrorsListenerTest extends TestCase
+{
+    public function testLogDone()
+    {
+        Functions\when('is_404')->justReturn(true);
 
-	public function test_log_done() {
+        Functions\when('add_query_arg')->justReturn('/meh');
 
-		Functions\when( 'is_404' )
-			->justReturn( TRUE );
+        $tester = static function (LogDataInterface $log): void {
+            static::assertSame(Channels::HTTP, $log->channel());
+            static::assertSame('Error on frontend request for url /meh.', $log->message());
+            static::assertSame(
+                [
+                    'error' => ['404 Page not found'],
+                    'query_vars' => ['foo' => 'bar'],
+                    'matched_rule' => '/.+/',
+                ],
+                $log->context()
+            );
+        };
 
-		Functions\when( 'add_query_arg' )
-			->justReturn( '/meh' );
+        /** @var \WP $wp */
+        $wp = \Mockery::mock('WP');
+        $wp->query_vars = ['foo' => 'bar'];
+        $wp->matched_rule = '/.+/';
 
-		$tester = function ( Debug $log ) {
+        $listener = new QueryErrorsListener();
 
-			self::assertSame( Channels::HTTP, $log->channel() );
-			self::assertSame( 'Error on frontend request for url /meh.', $log->message() );
-			self::assertSame(
-				[
-					'error'        => [ '404 Page not found' ],
-					'query_vars'   => [ 'foo' => 'bar' ],
-					'matched_rule' => '/.+/'
-				],
-				$log->context()
+        Actions\expectDone('wp')
+            ->whenHappen(
+                // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+                static function (...$args) use ($listener, $tester): void {
+                    // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+                    $tester($listener->update($args));
+                }
+            );
 
-			);
-		};
+        do_action($listener->listenTo()[0], $wp);
+    }
 
-		/** @var \WP $wp */
-		$wp               = \Mockery::mock( 'WP' );
-		$wp->query_vars   = [ 'foo' => 'bar' ];
-		$wp->matched_rule = '/.+/';
+    public function testLogNotDoneIfWrongArg()
+    {
+        Functions\when('is_404')->justReturn(true);
+        Functions\when('add_query_arg')->justReturn('/meh');
 
-		$listener = new QueryErrorsListener();
+        $wp = new \stdClass();
+        $wp->query_vars = ['foo' => 'bar'];
+        $wp->matched_rule = '/.+/';
 
-		Actions\expectDone( 'wp' )
-			->whenHappen(
-				function () use ( $listener, $tester ) {
+        $listener = new QueryErrorsListener();
 
-					$tester( $listener->update( func_get_args() ) );
-				}
-			);
+        Actions\expectDone('wp')
+            ->whenHappen(
+                static function () use ($listener): void {
+                    $log = $listener->update(func_get_args());
+                    static::assertInstanceOf(NullLog::class, $log);
+                }
+            );
 
-		do_action( $listener->listen_to(), $wp );
-	}
-
-	public function test_log_not_done_if_wrong_arg() {
-
-		Functions\when( 'is_404' )
-			->justReturn( TRUE );
-
-		Functions\when( 'add_query_arg' )
-			->justReturn( '/meh' );
-
-		$wp               = new \stdClass();
-		$wp->query_vars   = [ 'foo' => 'bar' ];
-		$wp->matched_rule = '/.+/';
-
-		$listener = new QueryErrorsListener();
-
-		Actions\expectDone( 'wp' )
-			->whenHappen(
-				function () use ( $listener ) {
-
-					$log = $listener->update( func_get_args() );
-					self::assertInstanceOf( NullLog::class, $log );
-				}
-			);
-
-		do_action( $listener->listen_to(), $wp );
-	}
+        do_action($listener->listenTo()[0], $wp);
+    }
 }

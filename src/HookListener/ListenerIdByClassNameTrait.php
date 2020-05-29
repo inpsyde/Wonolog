@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -14,13 +17,13 @@ namespace Inpsyde\Wonolog\HookListener;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-trait ListenerIdByClassNameTrait {
-
-	/**
-	 * @return string
-	 */
-	public function id() {
-
-		return __CLASS__;
-	}
+trait ListenerIdByClassNameTrait
+{
+    /**
+     * @return string
+     */
+    public function id(): string
+    {
+        return __CLASS__;
+    }
 }

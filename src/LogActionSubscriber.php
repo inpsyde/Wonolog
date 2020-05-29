@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -17,109 +20,102 @@ use Monolog\Logger;
 /**
  * Main package object, where "things happen".
  *
- * It is the object that is used to listed to `wonolog.log` actions, build log data from received arguments and
- * pass them to Monolog for the actual logging.
+ * It is the object that is used to listed to `wonolog.log` actions, build log data from received
+ * arguments and pass them to Monolog for the actual logging.
  *
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-class LogActionSubscriber {
+class LogActionSubscriber
+{
+    public const ACTION_LOGGER_ERROR = 'wonolog.logger-error';
 
-	const ACTION_LOGGER_ERROR = 'wonolog.logger-error';
+    /**
+     * @var Channels
+     */
+    private $channels;
 
-	/**
-	 * @var Channels
-	 */
-	private $channels;
+    /**
+     * @var HookLogFactory
+     */
+    private $logFactory;
 
-	/**
-	 * @var HookLogFactory
-	 */
-	private $log_factory;
+    /**
+     * @param Channels $channels
+     * @param HookLogFactory|null $factory
+     */
+    public function __construct(Channels $channels, HookLogFactory $factory = null)
+    {
+        $this->channels = $channels;
+        $this->logFactory = $factory ?: new HookLogFactory();
+    }
 
-	/**
-	 * @param Channels            $channels
-	 * @param HookLogFactory|NULL $factory
-	 */
-	public function __construct( Channels $channels, HookLogFactory $factory = NULL ) {
+    /**
+     * @wp-hook wonolog.log
+     * @wp-hook wonolog.log.debug
+     * @wp-hook wonolog.log.info
+     * @wp-hook wonolog.log.notice
+     * @wp-hook wonolog.log.warning
+     * @wp-hook wonolog.log.error
+     * @wp-hook wonolog.log.critical
+     * @wp-hook wonolog.log.alert
+     * @wp-hook wonolog.log.emergency
+     */
+    public function listen()
+    {
 
-		$this->channels    = $channels;
-		$this->log_factory = $factory ? : new HookLogFactory();
-	}
+        if (!did_action(Controller::ACTION_LOADED)) {
+            return;
+        }
 
-	/**
-	 * @wp-hook wonolog.log
-	 * @wp-hook wonolog.log.debug
-	 * @wp-hook wonolog.log.info
-	 * @wp-hook wonolog.log.notice
-	 * @wp-hook wonolog.log.warning
-	 * @wp-hook wonolog.log.error
-	 * @wp-hook wonolog.log.critical
-	 * @wp-hook wonolog.log.alert
-	 * @wp-hook wonolog.log.emergency
-	 */
-	public function listen() {
+        $logs = $this->logFactory->logsFromHookArguments(func_get_args(), $this->hookLevel());
 
-		if ( ! did_action( Controller::ACTION_LOADED ) ) {
-			return;
-		}
+        array_walk($logs, [$this, 'update']);
+    }
 
-		$logs = $this->log_factory->logsFromHookArguments( func_get_args(), $this->hook_level() );
+    /**
+     * @param LogDataInterface $log
+     *
+     * @return bool
+     */
+    public function update(LogDataInterface $log): bool
+    {
+        if (!did_action(Controller::ACTION_LOADED) || $log->level() < 1) {
+            return false;
+        }
 
-		array_walk( $logs, [ $this, 'update' ] );
-	}
+        try {
+            return $this->channels
+                ->logger($log->channel())
+                ->addRecord($log->level(), $log->message(), $log->context());
+        } catch (\Throwable $throwable) {
+            /**
+             * Fires when the logger encounters an error.
+             *
+             * @param LogDataInterface $log
+             * @param \Exception|\Throwable $throwable
+             */
+            do_action(self::ACTION_LOGGER_ERROR, $log, $throwable);
 
-	/**
-	 * @param LogDataInterface $log
-	 *
-	 * @return bool
-	 */
-	public function update( LogDataInterface $log ) {
+            return false;
+        }
+    }
 
-		if ( ! did_action( Controller::ACTION_LOADED ) || $log->level() < 1 ) {
-			return FALSE;
-		}
+    /**
+     * @return int
+     */
+    private function hookLevel(): int
+    {
+        $currentFilter = current_filter();
+        if ($currentFilter === LOG) {
+            return 0;
+        }
 
-		try {
+        $parts = explode('.', $currentFilter, 3);
+        if (isset($parts[2])) {
+            return LogLevel::instance()->checkLevel($parts[2]);
+        }
 
-			return $this->channels
-				->logger( $log->channel() )
-				->addRecord( $log->level(), $log->message(), $log->context() );
-
-		} catch ( \Throwable $e ) {
-			/**
-			 * Fires when the logger encounters an error.
-			 *
-			 * @param LogDataInterface      $log
-			 * @param \Exception|\Throwable $e
-			 */
-			do_action( self::ACTION_LOGGER_ERROR, $log, $e );
-
-			return FALSE;
-		} catch ( \Exception $e ) {
-			/** This action is documented in src/LogActionSubscriber.php */
-			do_action( self::ACTION_LOGGER_ERROR, $log, $e );
-
-			return FALSE;
-		}
-	}
-
-	/**
-	 * @return int
-	 */
-	private function hook_level() {
-
-		$current_filter = current_filter();
-		if ( $current_filter === LOG ) {
-			return 0;
-		}
-
-		$parts = explode( '.', $current_filter, 3 );
-		if ( isset( $parts[ 2 ] ) ) {
-			return LogLevel::instance()
-				->check_level( $parts[ 2 ] );
-		}
-
-		return Logger::DEBUG;
-	}
+        return Logger::DEBUG;
+    }
 }

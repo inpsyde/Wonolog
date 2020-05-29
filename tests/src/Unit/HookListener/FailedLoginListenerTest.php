@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -20,55 +23,53 @@ use Inpsyde\Wonolog\Tests\TestCase;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class FailedLoginListenerTest extends TestCase {
+class FailedLoginListenerTest extends TestCase
+{
+    public function testLogDone()
+    {
+        Functions\when('get_site_transient')
+            ->justReturn(['127.0.0.1' => ['count' => 2, 'last_logged' => 0]]);
 
-	public function test_log_done() {
+        Functions\when('set_site_transient')
+            ->justReturn(false);
 
-		Functions\when( 'get_site_transient' )
-			->justReturn( [ '127.0.0.1' => [ 'count' => 2, 'last_logged' => 0, ] ] );
+        $listener = new FailedLoginListener();
 
-		Functions\when( 'set_site_transient' )
-			->justReturn( FALSE );
+        Actions\expectDone('wp_login_failed')
+            ->once()
+            ->whenHappen(
+                static function () use ($listener) {
+                    $log = $listener->update(func_get_args());
+                    static::assertInstanceOf(FailedLogin::class, $log);
+                }
+            );
 
-		$listener = new FailedLoginListener();
+        do_action($listener->listenTo()[0]);
+    }
 
-		Actions\expectDone( 'wp_login_failed' )
-			->once()
-			->whenHappen(
-				function () use ( $listener ) {
+    public function testLogNotDoneIfNoLevel()
+    {
+        Functions\when('get_site_transient')
+            ->justReturn(['127.0.0.1' => ['count' => 5, 'last_logged' => 3]]);
 
-					$log = $listener->update( func_get_args() );
-					self::assertInstanceOf( FailedLogin::class, $log );
-				}
-			);
+        Functions\when('set_site_transient')
+            ->justReturn(false);
 
-		do_action( $listener->listen_to() );
-	}
+        Actions\expectDone(\Inpsyde\Wonolog\LOG)
+            ->never();
 
-	public function test_log_not_done_if_no_level() {
+        $listener = new FailedLoginListener();
 
-		Functions\when( 'get_site_transient' )
-			->justReturn( [ '127.0.0.1' => [ 'count' => 5, 'last_logged' => 3, ] ] );
+        Actions\expectDone('wp_login_failed')
+            ->once()
+            ->whenHappen(
+                static function () use ($listener) {
+                    $log = $listener->update(func_get_args());
+                    static::assertInstanceOf(FailedLogin::class, $log);
+                    static::assertSame(0, $log->level());
+                }
+            );
 
-		Functions\when( 'set_site_transient' )
-			->justReturn( FALSE );
-
-		Actions\expectDone( \Inpsyde\Wonolog\LOG )
-			->never();
-
-		$listener = new FailedLoginListener();
-
-		Actions\expectDone( 'wp_login_failed' )
-			->once()
-			->whenHappen(
-				function () use ( $listener ) {
-
-					$log = $listener->update( func_get_args() );
-					self::assertInstanceOf( FailedLogin::class, $log );
-					self::assertSame( 0, $log->level() );
-				}
-			);
-
-		do_action( $listener->listen_to() );
-	}
+        do_action($listener->listenTo()[0]);
+    }
 }

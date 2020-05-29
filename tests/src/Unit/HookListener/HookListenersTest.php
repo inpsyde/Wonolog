@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -18,38 +21,40 @@ use Inpsyde\Wonolog\Tests\TestCase;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class HookListenersTest extends TestCase {
+class HookListenersTest extends TestCase
+{
 
-	public function test_register_listener() {
+    public function testRegisterListener()
+    {
+        $listener1 = \Mockery::mock(HookListenerInterface::class);
+        $listener1->shouldReceive('id')->andReturnUsing(
+            static function (): string {
+                return __CLASS__;
+            }
+        );
 
-		$listener_1 = \Mockery::mock( HookListenerInterface::class );
-		$listener_1->shouldReceive('id')->andReturnUsing(function() {
-			return __CLASS__;
-		});
+        $listener2 = clone $listener1;
+        $listener3 = clone $listener2;
 
-		$listener_2 = clone $listener_1;
-		$listener_3 = clone $listener_2;
+        $listeners = new HookListenersRegistry();
+        $listeners
+            ->registerListener($listener1)
+            ->registerListener($listener2)
+            ->registerListener($listener3);
 
-		$listeners = new HookListenersRegistry();
-		$listeners
-			->register_listener( $listener_1 )
-			->register_listener( $listener_2 )
-			->register_listener( $listener_3 );
+        $all = $listeners->listeners();
 
-		$all = $listeners->listeners();
+        $custom = [];
+        foreach ($all as $listener) {
+            if (
+                $listener === $listener1
+                || $listener === $listener2
+                || $listener === $listener3
+            ) {
+                $custom[] = $listener;
+            }
+        }
 
-		$custom = [];
-		foreach ( $all as $listener ) {
-			if (
-				$listener === $listener_1
-				|| $listener === $listener_2
-				|| $listener === $listener_3
-			) {
-				$custom[] = $listener;
-			}
-		}
-
-		self::assertSame( [ $listener_1 ], $custom );
-
-	}
+        static::assertSame([$listener1], $custom);
+    }
 }

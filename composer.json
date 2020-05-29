@@ -37,6 +37,7 @@
         "docs": "https://inpsyde.github.io/Wonolog/"
     },
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
         "php": ">=7.2",
         "monolog/monolog": "^2"

@@ -37,7 +37,7 @@ class CustomHandlerLoggingTest extends FunctionalTestCase {
 		);
 
 		Wonolog\bootstrap( $handler, Wonolog\USE_DEFAULT_NONE )
-			->use_processor(
+			->useProcessor(
 				function ( array $record ) {
 
 					$record[ 'message' ] = 'General Processor: ' . $record[ 'message' ];

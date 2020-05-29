@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -20,51 +23,48 @@ use Inpsyde\Wonolog\Tests\TestCase;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class WpDieHandlerListenerTest extends TestCase {
+class WpDieHandlerListenerTest extends TestCase
+{
 
-	public function test_log_done_on_bail() {
+    public function testLogDoneOnBail()
+    {
 
-		Actions\expectDone( \Inpsyde\Wonolog\LOG )
-			->once()
-			->with( \Mockery::type( Error::class ) )
-			->whenHappen(
-				function ( Error $log ) {
+        Actions\expectDone(\Inpsyde\Wonolog\LOG)
+            ->once()
+            ->with(\Mockery::type(Error::class))
+            ->whenHappen(
+                static function (Error $log): void {
+                    static::assertSame(Channels::DB, $log->channel());
+                    static::assertSame($log->message(), 'Bailed!');
+                }
+            );
 
-					self::assertSame( Channels::DB, $log->channel() );
-					self::assertSame( $log->message(), 'Bailed!' );
-				}
-			);
+        /** @noinspection PhpIncludeInspection */
+        require_once getenv('TESTS_PATH') . '/stubs/wpdb.php';
 
-		/** @noinspection PhpIncludeInspection */
-		require_once getenv( 'TESTS_PATH' ) . '/stubs/wpdb.php';
+        $wpdb = new \wpdb('user', 'password', 'db', 'host');
+        $wpdb->wp_die_listener = new WpDieHandlerListener();
 
-		$wpdb = new \wpdb( 'user', 'password', 'db', 'host' );
-		/** @noinspection PhpUndefinedFieldInspection */
-		$wpdb->wp_die_listener = new WpDieHandlerListener();
+        static::assertSame('Handled: Bailed!', $wpdb->bail('Bailed!'));
+    }
 
-		self::assertSame( 'Handled: Bailed!', $wpdb->bail( 'Bailed!' ) );
-	}
+    public function testLogDoneOnPrintError()
+    {
+        Actions\expectDone(\Inpsyde\Wonolog\LOG)
+            ->once()
+            ->with(\Mockery::type(Error::class))
+            ->whenHappen(
+                static function (Error $log): void {
+                    static::assertSame(Channels::DB, $log->channel());
+                    static::assertSame($log->message(), 'Error!');
+                }
+            );
 
-	public function test_log_done_on_print_error() {
+        require_once getenv('TESTS_PATH') . '/stubs/wpdb.php';
 
-		Actions\expectDone( \Inpsyde\Wonolog\LOG )
-			->once()
-			->with( \Mockery::type( Error::class ) )
-			->whenHappen(
-				function ( Error $log ) {
+        $wpdb = new \wpdb('user', 'password', 'db', 'host');
+        $wpdb->wp_die_listener = new WpDieHandlerListener();
 
-					self::assertSame( Channels::DB, $log->channel() );
-					self::assertSame( $log->message(), 'Error!' );
-				}
-			);
-
-		/** @noinspection PhpIncludeInspection */
-		require_once getenv( 'TESTS_PATH' ) . '/stubs/wpdb.php';
-
-		$wpdb = new \wpdb( 'user', 'password', 'db', 'host' );
-		/** @noinspection PhpUndefinedFieldInspection */
-		$wpdb->wp_die_listener = new WpDieHandlerListener();
-
-		self::assertSame( 'Handled: Error!', $wpdb->print_error( 'Error!' ) );
-	}
+        static::assertSame('Handled: Error!', $wpdb->print_error('Error!'));
+    }
 }

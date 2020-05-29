@@ -1,4 +1,5 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -14,15 +15,15 @@ namespace Inpsyde\Wonolog\HookListener;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-interface HookListenerInterface {
+interface HookListenerInterface
+{
+    /**
+     * @return string
+     */
+    public function id(): string;
 
-	/**
-	 * @return string
-	 */
-	public function id();
-
-	/**
-	 * @return string|string[]
-	 */
-	public function listen_to();
+    /**
+     * @return array<string>
+     */
+    public function listenTo(): array;
 }

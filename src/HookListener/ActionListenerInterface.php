@@ -1,4 +1,5 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -16,12 +17,13 @@ use Inpsyde\Wonolog\Data\LogDataInterface;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-interface ActionListenerInterface extends HookListenerInterface {
+interface ActionListenerInterface extends HookListenerInterface
+{
 
-	/**
-	 * @param array $args
-	 *
-	 * @return LogDataInterface
-	 */
-	public function update( array $args );
+    /**
+     * @param array $args
+     *
+     * @return LogDataInterface
+     */
+    public function update(array $args): LogDataInterface;
 }

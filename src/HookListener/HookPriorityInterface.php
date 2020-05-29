@@ -1,4 +1,5 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -15,14 +16,14 @@ namespace Inpsyde\Wonolog\HookListener;
  *
  * @package Inpsyde\Wonolog\HookListeners
  */
-interface HookPriorityInterface {
+interface HookPriorityInterface
+{
+    public const FILTER_PRIORITY = 'wonolog.hook-listener-priority';
 
-	const FILTER_PRIORITY = 'wonolog.hook-listener-priority';
-
-	/**
-	 * Returns the priority of the hook callback
-	 *
-	 * @return int
-	 */
-	public function priority();
+    /**
+     * Returns the priority of the hook callback
+     *
+     * @return int
+     */
+    public function priority();
 }

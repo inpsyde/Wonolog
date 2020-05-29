@@ -81,7 +81,7 @@ final class Log implements LogDataInterface
     ): Log {
 
         $logLevel = LogLevel::instance();
-        $level = $logLevel->check_level($level)
+        $level = $logLevel->checkLevel($level)
             ?: Logger::NOTICE;
 
         $message = $error->get_error_message();
@@ -125,7 +125,7 @@ final class Log implements LogDataInterface
     ): Log {
 
         $logLevel = LogLevel::instance();
-        $level = $logLevel->check_level($level)
+        $level = $logLevel->checkLevel($level)
             ?: Logger::ERROR;
 
         $channel or $channel = Channels::DEBUG;
@@ -202,7 +202,7 @@ final class Log implements LogDataInterface
         $levels = Logger::getLevels();
 
         if (isset($logData[self::LEVEL]) && is_string($logData[self::LEVEL])) {
-            $logData[self::LEVEL] = $logLevel->check_level($logData[self::LEVEL], $levels);
+            $logData[self::LEVEL] = $logLevel->checkLevel($logData[self::LEVEL], $levels);
         }
 
         $logData = (array) filter_var_array($logData, self::$filters);

@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -16,146 +19,151 @@ use Inpsyde\Wonolog\Data\Log;
 /**
  * Handler for PHP core errors, used to log those errors mapping error types to Monolog log levels.
  *
- *
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-class PhpErrorController {
+class PhpErrorController
+{
 
-	private static $errors_level_map = [
-		E_USER_ERROR        => Logger::ERROR,
-		E_USER_NOTICE       => Logger::NOTICE,
-		E_USER_WARNING      => Logger::WARNING,
-		E_USER_DEPRECATED   => Logger::NOTICE,
-		E_RECOVERABLE_ERROR => Logger::ERROR,
-		E_WARNING           => Logger::WARNING,
-		E_NOTICE            => Logger::NOTICE,
-		E_DEPRECATED        => Logger::NOTICE,
-		E_STRICT            => Logger::NOTICE,
-		E_ERROR             => Logger::CRITICAL,
-		E_PARSE             => Logger::CRITICAL,
-		E_CORE_ERROR        => Logger::CRITICAL,
-		E_CORE_WARNING      => Logger::CRITICAL,
-		E_COMPILE_ERROR     => Logger::CRITICAL,
-		E_COMPILE_WARNING   => Logger::CRITICAL,
-	];
+    private static $errorsLevelMap = [
+        E_USER_ERROR => Logger::ERROR,
+        E_USER_NOTICE => Logger::NOTICE,
+        E_USER_WARNING => Logger::WARNING,
+        E_USER_DEPRECATED => Logger::NOTICE,
+        E_RECOVERABLE_ERROR => Logger::ERROR,
+        E_WARNING => Logger::WARNING,
+        E_NOTICE => Logger::NOTICE,
+        E_DEPRECATED => Logger::NOTICE,
+        E_STRICT => Logger::NOTICE,
+        E_ERROR => Logger::CRITICAL,
+        E_PARSE => Logger::CRITICAL,
+        E_CORE_ERROR => Logger::CRITICAL,
+        E_CORE_WARNING => Logger::CRITICAL,
+        E_COMPILE_ERROR => Logger::CRITICAL,
+        E_COMPILE_WARNING => Logger::CRITICAL,
+    ];
 
-	/**
-	 * @var array
-	 */
-	private static $super_globals_keys = [
-		'_REQUEST',
-		'_ENV',
-		'GLOBALS',
-		'_SERVER',
-		'_FILES',
-		'_COOKIE',
-		'_POST',
-		'_GET',
-	];
+    private const FATALS = [
+        E_ERROR,
+        E_PARSE,
+        E_CORE_ERROR,
+        E_CORE_WARNING,
+        E_COMPILE_ERROR,
+        E_COMPILE_WARNING,
+    ];
 
-	/**
-	 * Error handler.
-	 *
-	 * @param  int        $num
-	 * @param  string     $str
-	 * @param  string     $file
-	 * @param  int        $line
-	 * @param  array|null $context
-	 *
-	 * @return bool
-	 */
-	public function on_error( $num, $str, $file, $line, $context = NULL ) {
+    private const SUPER_GLOBALS_KEYS = [
+        '_REQUEST',
+        '_ENV',
+        'GLOBALS',
+        '_SERVER',
+        '_FILES',
+        '_COOKIE',
+        '_POST',
+        '_GET',
+    ];
 
-		$level = isset( self::$errors_level_map[ $num ] )
-			? self::$errors_level_map[ $num ]
-			: NULL;
+    /**
+     * Error handler.
+     *
+     * @param int $num
+     * @param string $str
+     * @param string $file
+     * @param int $line
+     * @param array|null $context
+     * @return bool
+     */
+    public function onError(
+        int $num,
+        string $str,
+        ?string $file,
+        ?int $line,
+        ?array $context = null
+    ): bool {
 
-		$report_silenced = apply_filters(
-			'wonolog.report-silenced-errors',
-			error_reporting() !== 0,
-			$num,
-			$str,
-			$file,
-			$line
-		);
+        $level = isset(self::$errorsLevelMap[$num])
+            ? self::$errorsLevelMap[$num]
+            : null;
 
-		if ( $level === NULL || ! $report_silenced ) {
-			return FALSE;
-		}
+        $reportSilenced = apply_filters(
+            'wonolog.report-silenced-errors',
+            error_reporting() !== 0, // phpcs:ignore
+            $num,
+            $str,
+            $file ?? '',
+            $line ?? 0
+        );
 
-		$log_context = [];
-		if ( $context ) {
-			$skip_keys   = array_merge( array_keys( $GLOBALS ), self::$super_globals_keys );
-			$skip        = array_fill_keys( $skip_keys, '' );
-			$log_context = array_filter( array_diff_key( (array) $context, $skip ) );
-		}
+        if ($level === null || !$reportSilenced) {
+            return false;
+        }
 
-		$log_context[ 'file' ] = $file;
-		$log_context[ 'line' ] = $line;
+        $logContext = [];
+        if ($context) {
+            $skipKeys = array_merge(array_keys($GLOBALS), self::SUPER_GLOBALS_KEYS);
+            $skip = array_fill_keys($skipKeys, '');
+            $logContext = array_filter(array_diff_key($context, $skip));
+        }
 
-		// Log the PHP error.
-		do_action(
-			\Inpsyde\Wonolog\LOG,
-			new Log( $str, $level, Channels::PHP_ERROR, $log_context )
-		);
+        $logContext['file'] = $file;
+        $logContext['line'] = $line;
 
-		return FALSE;
-	}
+        // Log the PHP error.
+        do_action(
+            \Inpsyde\Wonolog\LOG,
+            new Log($str, $level, Channels::PHP_ERROR, $logContext)
+        );
 
-	/**
-	 * Uncaught exception handler.
-	 *
-	 * @param  \Throwable $e
-	 *
-	 * @throws \Throwable
-	 */
-	public function on_exception( $e ) {
+        return false;
+    }
 
-		// Log the PHP exception.
-		do_action(
-			\Inpsyde\Wonolog\LOG,
-			new Log(
-				$e->getMessage(),
-				Logger::CRITICAL,
-				Channels::PHP_ERROR,
-				[
-					'exception' => get_class( $e ),
-					'file'      => $e->getFile(),
-					'line'      => $e->getLine(),
-					'trace'     => $e->getTraceAsString(),
-				]
-			)
-		);
+    /**
+     * Uncaught exception handler.
+     *
+     * @param \Throwable $throwable
+     *
+     * @throws \Throwable
+     */
+    public function onException(\Throwable $throwable): void
+    {
+        // Log the PHP exception.
+        do_action(
+            \Inpsyde\Wonolog\LOG,
+            new Log(
+                $throwable->getMessage(),
+                Logger::CRITICAL,
+                Channels::PHP_ERROR,
+                [
+                    'exception' => get_class($throwable),
+                    'file' => $throwable->getFile(),
+                    'line' => $throwable->getLine(),
+                    'trace' => $throwable->getTraceAsString(),
+                ]
+            )
+        );
 
-		// after logging let's reset handler and throw the exception
-		restore_exception_handler();
-		throw $e;
-	}
+        // after logging let's reset handler and throw the exception
+        restore_exception_handler();
+        throw $throwable;
+    }
 
-	/**
-	 * Checks for a fatal error, work-around for `set_error_handler` not working with fatal errors.
-	 */
-	public function on_fatal() {
+    /**
+     * Checks for a fatal error, work-around for `set_error_handler` not working with fatal errors.
+     */
+    public function onFatal(): void
+    {
+        $lastError = error_get_last();
+        if (!$lastError) {
+            return;
+        }
 
-		$last_error = error_get_last();
-		if ( ! $last_error ) {
-			return;
-		}
+        $error = array_merge(
+            ['type' => -1, 'message' => '', 'file' => '', 'line' => 0],
+            $lastError
+        );
 
-		$error = array_merge( [ 'type' => -1, 'message' => '', 'file' => '', 'line' => 0 ], $last_error );
-
-		$fatals = [
-			E_ERROR,
-			E_PARSE,
-			E_CORE_ERROR,
-			E_CORE_WARNING,
-			E_COMPILE_ERROR,
-			E_COMPILE_WARNING,
-		];
-
-		if ( in_array( $error[ 'type' ], $fatals, TRUE ) ) {
-			$this->on_error( $error[ 'type' ], $error[ 'message' ], $error[ 'file' ], $error[ 'line' ] );
-		}
-	}
+        if (in_array($error['type'], self::FATALS, true)) {
+            $this->onError($error['type'], $error['message'], $error['file'], $error['line']);
+        }
+    }
 }

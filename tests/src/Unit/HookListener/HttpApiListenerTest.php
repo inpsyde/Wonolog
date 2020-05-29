@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -23,160 +26,193 @@ use Monolog\Logger;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class HttpApiListenerTest extends TestCase {
+class HttpApiListenerTest extends TestCase
+{
+    public function testLogDoneOnWpError()
+    {
+        Functions\when('is_wp_error')
+            ->justReturn(true);
 
-	public function test_log_done_on_wp_error() {
+        Actions\expectDone(\Inpsyde\Wonolog\LOG)
+            ->with(\Mockery::type(LogDataInterface::class))
+            ->whenHappen(
+                static function (LogDataInterface $log) {
 
-		Functions\when( 'is_wp_error' )
-			->justReturn( TRUE );
+                    static::assertSame('WP HTTP API Error, Test!', $log->message());
+                    static::assertSame(Channels::HTTP, $log->channel());
+                    static::assertSame(Logger::ERROR, $log->level());
+                    static::assertSame(
+                        [
+                            'transport' => 'TestClass',
+                            'context' => 'response',
+                            'query_args' => [],
+                            'url' => 'http://example.com',
+                        ],
+                        $log->context()
+                    );
+                }
+            );
 
-		Actions\expectDone( \Inpsyde\Wonolog\LOG )
-			->with( \Mockery::type( LogDataInterface::class ) )
-			->whenHappen(
-				function ( LogDataInterface $log ) {
+        /** @var \WP_Error|\Mockery\MockInterface $response */
+        $response = \Mockery::mock('WP_Error');
+        $response
+            ->shouldReceive('get_error_message')
+            ->once()
+            ->andReturn('Test!');
 
-					self::assertSame( 'WP HTTP API Error, Test!', $log->message() );
-					self::assertSame( Channels::HTTP, $log->channel() );
-					self::assertSame( Logger::ERROR, $log->level() );
-					self::assertSame(
-						[
-							'transport'  => 'TestClass',
-							'context'    => 'response',
-							'query_args' => [],
-							'url'        => 'http://example.com',
-						],
-						$log->context()
-					);
-				}
-			);
+        $listener = new HttpApiListener();
 
-		/** @var \WP_Error|\Mockery\MockInterface $response */
-		$response = \Mockery::mock( 'WP_Error' );
-		$response
-			->shouldReceive( 'get_error_message' )
-			->once()
-			->andReturn( 'Test!' );
+        Actions\expectDone('http_api_debug')
+            ->whenHappen(
+                static function () use ($listener) {
 
-		$listener = new HttpApiListener();
+                    $listener->update(func_get_args());
+                }
+            );
 
-		Actions\expectDone( 'http_api_debug' )
-			->whenHappen(
-				function () use ( $listener ) {
+        do_action(
+            $listener->listenTo()[0],
+            $response,
+            'response',
+            'TestClass',
+            [],
+            'http://example.com'
+        );
+    }
 
-					$listener->update( func_get_args() );
-				}
-			);
+    public function testLogDoneOnBadResponse()
+    {
+        Functions\when('is_wp_error')
+            ->justReturn(false);
 
-		do_action( $listener->listen_to(), $response, 'response', 'TestClass', [], 'http://example.com' );
-	}
+        Functions\when('shortcode_atts')
+            ->alias('array_merge');
 
-	public function test_log_done_on_bad_response() {
+        $tester = static function (LogDataInterface $log) {
 
-		Functions\when( 'is_wp_error' )
-			->justReturn( FALSE );
+            static::assertSame(Channels::HTTP, $log->channel());
+            static::assertSame(Logger::ERROR, $log->level());
+            static::assertSame(
+                'WP HTTP API Error: Internal Server Error - Response code: 500.',
+                $log->message()
+            );
+            static::assertSame(
+                [
+                    'transport' => 'TestClass',
+                    'context' => 'response',
+                    'query_args' => [],
+                    'url' => 'http://example.com',
+                    'response_body' => 'Server died.',
+                    'headers' => ['foo' => 'bar'],
+                ],
+                $log->context()
+            );
+        };
 
-		Functions\when( 'shortcode_atts' )
-			->alias( 'array_merge' );
+        $listener = new HttpApiListener();
 
-		$tester = function ( LogDataInterface $log ) {
+        Actions\expectDone('http_api_debug')
+            ->whenHappen(
+                static function () use ($listener, $tester) {
 
-			self::assertSame( Channels::HTTP, $log->channel() );
-			self::assertSame( Logger::ERROR, $log->level() );
-			self::assertSame( 'WP HTTP API Error: Internal Server Error - Response code: 500.', $log->message() );
-			self::assertSame(
-				[
-					'transport'     => 'TestClass',
-					'context'       => 'response',
-					'query_args'    => [],
-					'url'           => 'http://example.com',
-					'response_body' => 'Server died.',
-					'headers'       => [ 'foo' => 'bar' ],
-				],
-				$log->context()
+                    $tester($listener->update(func_get_args()));
+                }
+            );
 
-			);
-		};
+        $response = [
+            'response' => [
+                'code' => 500,
+                'message' => 'Internal Server Error',
+                'body' => 'Server died.',
+            ],
+            'headers' => ['foo' => 'bar'],
+        ];
 
-		$listener = new HttpApiListener();
+        do_action(
+            $listener->listenTo()[0],
+            $response,
+            'response',
+            'TestClass',
+            [],
+            'http://example.com'
+        );
+    }
 
-		Actions\expectDone( 'http_api_debug' )
-			->whenHappen(
-				function () use ( $listener, $tester ) {
+    public function testLogNotDoneOnGoodResponse()
+    {
+        Functions\when('is_wp_error')
+            ->justReturn(false);
 
-					$tester( $listener->update( func_get_args() ) );
-				}
-			);
+        $listener = new HttpApiListener();
 
-		$response = [
-			'response' => [ 'code' => 500, 'message' => 'Internal Server Error', 'body' => 'Server died.' ],
-			'headers'  => [ 'foo' => 'bar' ]
-		];
+        Actions\expectDone('http_api_debug')
+            ->whenHappen(
+                static function () use ($listener) {
+                    $log = $listener->update(func_get_args());
+                    static::assertInstanceOf(NullLog::class, $log);
+                }
+            );
 
-		do_action( $listener->listen_to(), $response, 'response', 'TestClass', [], 'http://example.com' );
-	}
+        $response = [
+            'response' => ['code' => 200, 'message' => 'OK'],
+            'headers' => ['foo' => 'bar'],
+        ];
 
-	public function test_log_not_done_on_good_response() {
+        do_action(
+            $listener->listenTo()[0],
+            $response,
+            'response',
+            'TestClass',
+            [],
+            'http://example.com'
+        );
+    }
 
-		Functions\when( 'is_wp_error' )
-			->justReturn( FALSE );
+    public function testLogCron()
+    {
+        Functions\when('is_wp_error')
+            ->justReturn(false);
 
-		$listener = new HttpApiListener();
+        $tester = static function (LogDataInterface $log) {
 
-		Actions\expectDone( 'http_api_debug' )
-			->whenHappen(
-				function () use ( $listener ) {
+            static::assertSame('Cron request', $log->message());
+            static::assertSame(Channels::DEBUG, $log->channel());
+            static::assertSame(Logger::DEBUG, $log->level());
+            static::assertSame(
+                [
+                    'transport' => 'TestClass',
+                    'context' => 'response',
+                    'query_args' => [],
+                    'url' => 'http://example.com/wp-cron.php',
+                    'headers' => ['foo' => 'bar'],
+                ],
+                $log->context()
+            );
+        };
 
-					$log = $listener->update( func_get_args() );
-					self::assertInstanceOf( NullLog::class, $log );
-				}
-			);
+        /** @var \WP_Error|\Mockery\MockInterface $response */
+        $response = [
+            'response' => ['code' => 200, 'message' => 'Ok'],
+            'headers' => ['foo' => 'bar'],
+        ];
 
-		$response = [
-			'response' => [ 'code' => 200, 'message' => 'OK' ],
-			'headers'  => [ 'foo' => 'bar' ]
-		];
+        $listener = new HttpApiListener();
 
-		do_action( $listener->listen_to(), $response, 'response', 'TestClass', [], 'http://example.com' );
-	}
+        Actions\expectDone('http_api_debug')
+            ->whenHappen(
+                static function () use ($listener, $tester) {
 
-	public function test_log_cron() {
+                    $tester($listener->update(func_get_args()));
+                }
+            );
 
-		Functions\when( 'is_wp_error' )
-			->justReturn( FALSE );
-
-		$tester = function ( LogDataInterface $log ) {
-
-			self::assertSame( 'Cron request', $log->message() );
-			self::assertSame( Channels::DEBUG, $log->channel() );
-			self::assertSame( Logger::DEBUG, $log->level() );
-			self::assertSame(
-				[
-					'transport'  => 'TestClass',
-					'context'    => 'response',
-					'query_args' => [],
-					'url'        => 'http://example.com/wp-cron.php',
-					'headers'    => [ 'foo' => 'bar' ]
-				],
-				$log->context()
-			);
-		};
-
-		/** @var \WP_Error|\Mockery\MockInterface $response */
-		$response = [
-			'response' => [ 'code' => 200, 'message' => 'Ok' ],
-			'headers'  => [ 'foo' => 'bar' ]
-		];
-
-		$listener = new HttpApiListener();
-
-		Actions\expectDone( 'http_api_debug' )
-			->whenHappen(
-				function () use ( $listener, $tester ) {
-
-					$tester( $listener->update( func_get_args() ) );
-				}
-			);
-
-		do_action( $listener->listen_to(), $response, 'response', 'TestClass', [], 'http://example.com/wp-cron.php' );
-	}
+        do_action(
+            $listener->listenTo()[0],
+            $response,
+            'response',
+            'TestClass',
+            [],
+            'http://example.com/wp-cron.php'
+        );
+    }
 }

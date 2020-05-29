@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -11,7 +14,7 @@
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
 use Inpsyde\Wonolog\Channels;
-use Inpsyde\Wonolog\Data\Error;
+use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\Data\NullLog;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Inpsyde\Wonolog\HookListener\DbErrorListener;
@@ -21,50 +24,52 @@ use Brain\Monkey\Actions;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class DbErrorListenerTest extends TestCase {
+class DbErrorListenerTest extends TestCase
+{
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        $GLOBALS['EZSQL_ERROR'] = null;
+        unset($GLOBALS['EZSQL_ERROR']);
+    }
 
-	protected function tearDown() {
+    public function testLogDone()
+    {
+        // phpcs:disable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
+        global $EZSQL_ERROR;
+        $EZSQL_ERROR = [['query' => 'This is a SQL query', 'error_str' => 'This is an error']];
 
-		parent::tearDown();
-		$GLOBALS[ 'EZSQL_ERROR' ] = NULL;
-		unset( $GLOBALS[ 'EZSQL_ERROR' ] );
-	}
+        $tester = static function (LogDataInterface $log) use ($EZSQL_ERROR) {
+            $context = ['last_query' => 'This is a SQL query', 'errors' => $EZSQL_ERROR];
 
-	public function test_log_done() {
+            static::assertSame(Channels::DB, $log->channel());
+            static::assertSame('This is an error', $log->message());
+            static::assertEquals($context, $log->context());
+        };
+        // phpcs:enable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
 
-		global $EZSQL_ERROR;
-		$EZSQL_ERROR = [ [ 'query' => 'This is a SQL query', 'error_str' => 'This is an error' ] ];
+        $listener = new DbErrorListener();
 
-		$tester = function ( Error $log ) use ( $EZSQL_ERROR ) {
+        Actions\expectDone('shutdown')
+            ->once()
+            ->whenHappen(
+                static function () use ($listener, $tester) {
+                    $tester($listener->update(func_get_args()));
+                }
+            );
 
-			$context = [ 'last_query' => 'This is a SQL query', 'errors' => $EZSQL_ERROR, ];
+        do_action($listener->listenTo()[0]);
+    }
 
-			self::assertSame( Channels::DB, $log->channel() );
-			self::assertSame( 'This is an error', $log->message() );
-			self::assertEquals( $context, $log->context() );
-		};
+    public function testLogNotDoneIfNoError()
+    {
+        // phpcs:disable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
+        global $EZSQL_ERROR;
+        $EZSQL_ERROR = [];
+        // phpcs:enable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
 
-		$listener = new DbErrorListener();
+        $listener = new DbErrorListener();
 
-		Actions\expectDone( 'shutdown' )
-			->once()
-			->whenHappen(
-				function () use ( $listener, $tester ) {
-
-					$tester( $listener->update( func_get_args() ) );
-				}
-			);
-
-		do_action( $listener->listen_to() );
-	}
-
-	public function test_log_not_done_if_no_error() {
-
-		global $EZSQL_ERROR;
-		$EZSQL_ERROR = [];
-
-		$listener = new DbErrorListener();
-
-		self::assertInstanceOf( NullLog::class, $listener->update( [] ) );
-	}
+        static::assertInstanceOf(NullLog::class, $listener->update([]));
+    }
 }

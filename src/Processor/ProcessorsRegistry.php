@@ -1,7 +1,4 @@
-<?php
-
-declare(strict_types=1);
-
+<?php # -*- coding: utf-8 -*-
 /*
  * This file is part of the Wonolog package.
  *
@@ -17,117 +14,108 @@ namespace Inpsyde\Wonolog\Processor;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-class ProcessorsRegistry implements \Countable
-{
+class ProcessorsRegistry implements \Countable {
 
-    public const ACTION_REGISTER = 'wonolog.register-processors';
-    public const DEFAULT_NAME = 'wonolog.default-processor';
+	const ACTION_REGISTER = 'wonolog.register-processors';
+	const DEFAULT_NAME = 'wonolog.default-processor';
 
-    /**
-     * @var callable[]
-     */
-    private $processors = [];
+	/**
+	 * @var callable[]
+	 */
+	private $processors = [];
 
-    /**
-     * @var bool
-     */
-    private $initialized = false;
+	/**
+	 * @var bool
+	 */
+	private $initialized = FALSE;
 
-    /**
-     * @param callable $processor
-     *
-     * @param string $name
-     *
-     * @return ProcessorsRegistry
-     */
-    public function addProcessor(callable $processor, ?string $name = null): ProcessorsRegistry
-    {
-        ($name === null) and $name = $this->buildName($processor);
-        if (! is_string($name) || array_key_exists($name, $this->processors)) {
-            return $this;
-        }
+	/**
+	 * @param callable $processor
+	 *
+	 * @param string   $name
+	 *
+	 * @return ProcessorsRegistry
+	 */
+	public function addProcessor( callable $processor, $name = null ) {
 
-        $this->processors[$name] = $processor;
+		( $name === null ) and $name = $this->build_name( $processor );
+		if ( ! is_string( $name ) || array_key_exists( $name, $this->processors ) ) {
+			return $this;
+		}
 
-        return $this;
-    }
+		$this->processors[ $name ] = $processor;
 
-    /**
-     * @param callable|string $name
-     *
-     * @return bool
-     *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
-     */
-    public function hasProcessor($name): bool
-    {
-        if (is_callable($name) && ! is_string($name)) {
-            $name = $this->buildName($name);
-        }
+		return $this;
+	}
 
-        return is_string($name) && array_key_exists($name, $this->processors);
-    }
+	/**
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public function has_processor( $name ) {
 
-    /**
-     * @param callable|string $name
-     *
-     * @return callable|null
-     *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
-     */
-    public function find($name): ?callable
-    {
-        if (! $this->initialized) {
-            $this->initialized = true;
+		if ( is_callable( $name ) && ! is_string( $name ) ) {
+			$name = $this->build_name( $name );
+		}
 
-            /**
-             * Fires right before the first processor is to be registered.
-             *
-             * @param ProcessorsRegistry $processors_registry
-             */
-            do_action(self::ACTION_REGISTER, $this);
-        }
+		return is_string( $name ) && array_key_exists( $name, $this->processors );
+	}
 
-        if (is_callable($name) && ! is_string($name)) {
-            $name = $this->buildName($name);
-        }
+	/**
+	 * @param string $name
+	 *
+	 * @return callable|null
+	 */
+	public function find( $name ) {
 
-        return $this->hasProcessor($name)
-            ? $this->processors[$name]
-            : null;
-    }
+		if ( ! $this->initialized ) {
+			$this->initialized = TRUE;
 
-    /**
-     * @return int
-     */
-    public function count(): int
-    {
-        return count($this->processors);
-    }
+			/**
+			 * Fires right before the first processor is to be registered.
+			 *
+			 * @param ProcessorsRegistry $processors_registry
+			 */
+			do_action( self::ACTION_REGISTER, $this );
+		}
 
-    /**
-     * @param callable|string $callable
-     *
-     * @return string
-     *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
-     */
-    private function buildName($callable): string
-    {
-        if (is_string($callable)) {
-            return $callable;
-        }
+		if ( is_callable( $name ) && ! is_string( $name ) ) {
+			$name = $this->build_name( $name );
+		}
 
-        if (is_object($callable)) {
-            /** @var object $callable */
-            return spl_object_hash($callable);
-        }
+		return $this->has_processor( $name ) ? $this->processors[ $name ] : null;
+	}
 
-        $class = $callable[0];
-        if (is_object($class)) {
-            return spl_object_hash($class) . $callable[1];
-        }
+	/**
+	 * @return int
+	 */
+	public function count() {
 
-        return "{$class}::{$callable[1]}";
-    }
+		return count( $this->processors );
+	}
+
+	/**
+	 * @param callable $callable
+	 *
+	 * @return string
+	 */
+	private function build_name( callable $callable ) {
+
+		if ( is_string( $callable ) ) {
+			return $callable;
+		}
+
+		if ( is_object( $callable ) ) {
+			/** @var object $callable */
+			return spl_object_hash( $callable );
+		}
+
+		$class = $callable[ 0 ];
+		if ( is_object( $class ) ) {
+			return spl_object_hash( $class ) . $callable[ 1 ];
+		}
+
+		return "{$class}::{$callable[1]}";
+	}
 }

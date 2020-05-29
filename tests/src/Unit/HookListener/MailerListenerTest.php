@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -24,104 +27,98 @@ use Monolog\Logger;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class MailerListenerTest extends TestCase {
+class MailerListenerTest extends TestCase
+{
 
-	public function test_on_mailer_init() {
+    public function testOnMailerInit()
+    {
+        $listener = new MailerListener();
 
-		$listener = new MailerListener();
+        Actions\expectDone('phpmailer_init')
+            ->once()
+            ->whenHappen(
+                static function (\PHPMailer $mailer) use ($listener) {
 
-		Actions\expectDone( 'phpmailer_init' )
-			->once()
-			->whenHappen(
-				function ( \PHPMailer $mailer ) use ( $listener ) {
+                    $log = $listener->update([$mailer]);
+                    static::assertInstanceOf(NullLog::class, $log);
+                }
+            );
 
-					$log = $listener->update( [ $mailer ] );
-					self::assertInstanceOf( NullLog::class, $log );
-				}
-			);
+        Actions\expectDone(\Inpsyde\Wonolog\LOG)
+            ->once()
+            ->whenHappen(
+                static function (Debug $debug) {
 
-		Actions\expectDone( \Inpsyde\Wonolog\LOG )
-			->once()
-			->whenHappen(
-				function ( Debug $debug ) {
+                    static::assertSame('Test email!', $debug->message());
+                    static::assertSame(Channels::HTTP, $debug->channel());
+                }
+            );
 
-					self::assertSame( 'Test email!', $debug->message() );
-					self::assertSame( Channels::HTTP, $debug->channel() );
-				}
-			);
+        $mailer = \Mockery::mock(\PHPMailer::class);
+        $mailer->SMTPDebug = 0;
+        $mailer->Debugoutput = null;
 
-		$mailer              = \Mockery::mock( \PHPMailer::class );
-		$mailer->SMTPDebug   = 0;
-		$mailer->Debugoutput = NULL;
+        do_action('phpmailer_init', $mailer);
 
-		do_action( 'phpmailer_init', $mailer );
+        static::assertSame(2, $mailer->SMTPDebug);
+        static::assertInternalType('callable', $mailer->Debugoutput);
 
-		self::assertSame( 2, $mailer->SMTPDebug );
-		self::assertInternalType( 'callable', $mailer->Debugoutput );
+        /** @var callable $callback */
+        $callback = $mailer->Debugoutput;
+        $callback('Test email!');
+    }
 
-		/** @var callable $callback */
-		$callback = $mailer->Debugoutput;
-		$callback( 'Test email!' );
-	}
+    public function testOnMailFailed()
+    {
+        $listener = new MailerListener();
 
-	public function test_on_mail_failed() {
+        Functions\when('is_wp_error')
+            ->alias(
+                // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+                static function ($thing): bool {
+                    // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+                    return $thing instanceof \WP_Error;
+                }
+            );
 
-		$listener = new MailerListener();
+        Actions\expectDone('wp_mail_failed')
+            ->once()
+            ->whenHappen(
+                static function (\WP_Error $error) use ($listener) {
+                    $log = $listener->update([$error]);
 
-		Functions\when( 'is_wp_error' )
-			->alias(
-				function ( $thing ) {
+                    static::assertInstanceOf(LogDataInterface::class, $log);
+                    static::assertSame(Logger::ERROR, $log->level());
+                    static::assertSame(Channels::HTTP, $log->channel());
+                }
+            );
 
-					return $thing instanceof \WP_Error;
-				}
-			);
+        $error = \Mockery::mock(\WP_Error::class);
+        $error->shouldReceive('get_error_message')->andReturn('Something when wrong!');
+        $error->shouldReceive('get_error_codes')->andReturn([0]);
+        $error->shouldReceive('get_error_data')->andReturn([]);
 
-		Actions\expectDone( 'wp_mail_failed' )
-			->once()
-			->whenHappen(
-				function ( \WP_Error $error ) use ( $listener ) {
+        do_action('wp_mail_failed', $error);
+    }
 
-					/** @var LogDataInterface $log */
-					$log   = $listener->update( [ $error ] );
+    /**
+     * Check for a consistent return type
+     *
+     * @see MailerListener::update()
+     * @see MailerListener::on_mail_failed()
+     */
+    public function testOnMailFailedReturnType()
+    {
+        $listener = new MailerListener();
 
-					self::assertInstanceOf( LogDataInterface::class, $log );
-					self::assertSame( Logger::ERROR, $log->level() );
-					self::assertSame( Channels::HTTP, $log->channel() );
-				}
-			);
+        Functions\expect('current_filter')
+            ->once()
+            ->andReturn('wp_mail_failed');
 
-		$error = \Mockery::mock( \WP_Error::class );
-		$error->shouldReceive( 'get_error_message' )
-			->andReturn( 'Something when wrong!' );
-		$error->shouldReceive( 'get_error_codes' )
-			->andReturn( [ 0 ] );
-		$error->shouldReceive( 'get_error_data' )
-			->andReturn( [] );
+        Functions\expect('is_wp_error')
+            ->once()
+            ->andReturn(false);
 
-		do_action( 'wp_mail_failed', $error );
-	}
-
-	/**
-	 * Check for a consistent return type
-	 *
-	 * @see MailerListener::update()
-	 * @see MailerListener::on_mail_failed()
-	 */
-	public function test_on_mail_failed_return_type() {
-
-		$listener = new MailerListener();
-
-		Functions\expect( 'current_filter' )
-			->once()
-			->andReturn( 'wp_mail_failed' );
-
-		Functions\expect( 'is_wp_error' )
-			->once()
-			->andReturn( FALSE );
-
-		$this->assertInstanceOf(
-			LogDataInterface::class,
-			$listener->update( [] )
-		);
-	}
+        $this->assertInstanceOf(LogDataInterface::class, $listener->update([]));
+    }
 }

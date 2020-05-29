@@ -274,7 +274,7 @@ $email_handler = new NativeMailerHandler(
 );
 
 Wonolog\bootstrap()
-    ->use_handler( $email_handler, [ Wonolog\Channels::SECURITY ] );
+    ->useHandler( $email_handler, [ Wonolog\Channels::SECURITY ] );
 ```
 
 The above code tells Wonolog to use the default Wonolog handler for all loggers, and, via environment variable, where to save log files.

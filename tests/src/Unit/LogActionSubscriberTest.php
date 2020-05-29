@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -26,139 +29,140 @@ use Monolog\Logger;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class LogActionSubscriberTest extends TestCase {
+class LogActionSubscriberTest extends TestCase
+{
+    public function testListenDoNothingIfNotLoaded()
+    {
+        /** @var Channels $channels */
+        $channels = \Mockery::mock(Channels::class);
+        /** @var HookLogFactory|\Mockery\MockInterface $factory */
+        $factory = \Mockery::mock(HookLogFactory::class);
+        $factory->shouldNotReceive('logs_from_hook_arguments');
 
-	public function test_listen_do_nothing_if_not_loaded() {
+        $subscriber = new LogActionSubscriber($channels, $factory);
+        $subscriber->listen();
+    }
 
-		/** @var Channels $channels */
-		$channels = \Mockery::mock( Channels::class );
-		/** @var HookLogFactory|\Mockery\MockInterface $factory */
-		$factory = \Mockery::mock( HookLogFactory::class );
-		$factory->shouldNotReceive( 'logs_from_hook_arguments' );
+    public function testListenCallUpdate()
+    {
+        Functions\when('current_filter')
+            ->justReturn(Wonolog\LOG);
 
-		$subscriber = new LogActionSubscriber( $channels, $factory );
-		$subscriber->listen();
-	}
+        $log = \Mockery::mock(LogDataInterface::class);
+        $log
+            ->shouldReceive('level')
+            ->once()
+            ->andThrow(new \Exception('Test passed'));
 
-	/**
-	 * @expectedException \Exception
-	 * @expectedExceptionMessage Test passed
-	 */
-	public function test_listen_call_update() {
+        /** @var Channels|\Mockery\MockInterface $channels */
+        $channels = \Mockery::mock(Channels::class);
+        $channels->shouldNotReceive('logger');
 
-		Functions\when( 'current_filter' )
-			->justReturn( Wonolog\LOG );
+        /** @var HookLogFactory|\Mockery\MockInterface $factory */
+        $factory = \Mockery::mock(HookLogFactory::class);
+        $factory
+            ->shouldReceive('logsFromHookArguments')
+            ->once()
+            ->with([], 0)
+            ->andReturn([$log]);
 
-		$log = \Mockery::mock( LogDataInterface::class );
-		$log
-			->shouldReceive( 'level' )
-			->once()
-			->andThrow( new \Exception( 'Test passed' ) );
+        do_action(Controller::ACTION_LOADED);
 
-		/** @var Channels|\Mockery\MockInterface $channels */
-		$channels = \Mockery::mock( Channels::class );
-		$channels->shouldNotReceive( 'logger' );
+        $subscriber = new LogActionSubscriber($channels, $factory);
 
-		/** @var HookLogFactory|\Mockery\MockInterface $factory */
-		$factory = \Mockery::mock( HookLogFactory::class );
-		$factory
-			->shouldReceive( 'logs_from_hook_arguments' )
-			->once()
-			->with( [], 0 )
-			->andReturn( [ $log ] );
+        $this->expectExceptionMessage('Test passed');
+        $subscriber->listen();
+    }
 
-		do_action( Controller::ACTION_LOADED );
+    public function testUpdateDoNothingIfNotLoaded()
+    {
 
-		$subscriber = new LogActionSubscriber( $channels, $factory );
-		$subscriber->listen();
-	}
+        /** @var Channels|\Mockery\MockInterface $channels */
+        $channels = \Mockery::mock(Channels::class);
+        $channels->shouldNotReceive('logger');
 
-	public function test_update_do_nothing_if_not_loaded() {
+        $subscriber = new LogActionSubscriber($channels);
+        $subscriber->update(new Log());
+    }
 
-		/** @var Channels|\Mockery\MockInterface $channels */
-		$channels = \Mockery::mock( Channels::class );
-		$channels->shouldNotReceive( 'logger' );
+    public function testUpdateHandleLoggerExceptions()
+    {
 
-		$subscriber = new LogActionSubscriber( $channels );
-		$subscriber->update( new Log() );
-	}
+        $log = \Mockery::mock(LogDataInterface::class);
+        $log
+            ->shouldReceive('level')
+            ->andReturn(Logger::ALERT);
+        $log
+            ->shouldReceive('channel')
+            ->andReturn(Channels::DEBUG);
+        $log
+            ->shouldReceive('message')
+            ->andReturn('Hello');
+        $log
+            ->shouldReceive('context')
+            ->andReturn([]);
 
-	public function test_update_handle_logger_exceptions() {
+        $logger = \Mockery::mock(Logger::class);
+        $logger
+            ->shouldReceive('addRecord')
+            ->once()
+            ->with(Logger::ALERT, 'Hello', [])
+            ->andThrow(new \Exception());
 
-		$log = \Mockery::mock( LogDataInterface::class );
-		$log
-			->shouldReceive( 'level' )
-			->andReturn( Logger::ALERT );
-		$log
-			->shouldReceive( 'channel' )
-			->andReturn( Channels::DEBUG );
-		$log
-			->shouldReceive( 'message' )
-			->andReturn( 'Hello' );
-		$log
-			->shouldReceive( 'context' )
-			->andReturn( [] );
+        /** @var Channels|\Mockery\MockInterface $channels */
+        $channels = \Mockery::mock(Channels::class);
+        $channels
+            ->shouldReceive('logger')
+            ->once()
+            ->with(Channels::DEBUG)
+            ->andReturn($logger);
 
-		$logger = \Mockery::mock( Logger::class );
-		$logger
-			->shouldReceive( 'addRecord' )
-			->once()
-			->with( Logger::ALERT, 'Hello', [] )
-			->andThrow( new \Exception() );
+        Actions\expectDone(LogActionSubscriber::ACTION_LOGGER_ERROR)
+            ->once()
+            ->with($log, \Mockery::type(\Exception::class));
 
-		/** @var Channels|\Mockery\MockInterface $channels */
-		$channels = \Mockery::mock( Channels::class );
-		$channels
-			->shouldReceive( 'logger' )
-			->once()
-			->with( Channels::DEBUG )
-			->andReturn( $logger );
+        do_action(Controller::ACTION_LOADED);
 
-		Actions\expectDone( LogActionSubscriber::ACTION_LOGGER_ERROR )
-			->once()
-			->with( $log, \Mockery::type( \Exception::class ) );
+        $subscriber = new LogActionSubscriber($channels);
+        $subscriber->update($log);
+    }
 
-		do_action( Controller::ACTION_LOADED );
+    public function testUpdateDoLogs()
+    {
 
-		$subscriber = new LogActionSubscriber( $channels );
-		$subscriber->update( $log );
-	}
+        $log = \Mockery::mock(LogDataInterface::class);
+        $log
+            ->shouldReceive('level')
+            ->andReturn(Logger::ALERT);
+        $log
+            ->shouldReceive('channel')
+            ->andReturn(Channels::DEBUG);
+        $log
+            ->shouldReceive('message')
+            ->andReturn('Hello');
+        $log
+            ->shouldReceive('context')
+            ->andReturn([]);
 
-	public function test_update_do_logs() {
+        $logger = \Mockery::mock(Logger::class);
+        $logger
+            ->shouldReceive('addRecord')
+            ->once()
+            ->with(Logger::ALERT, 'Hello', [])
+            ->andReturn('It worked!');
 
-		$log = \Mockery::mock( LogDataInterface::class );
-		$log
-			->shouldReceive( 'level' )
-			->andReturn( Logger::ALERT );
-		$log
-			->shouldReceive( 'channel' )
-			->andReturn( Channels::DEBUG );
-		$log
-			->shouldReceive( 'message' )
-			->andReturn( 'Hello' );
-		$log
-			->shouldReceive( 'context' )
-			->andReturn( [] );
+        /** @var Channels|\Mockery\MockInterface $channels */
+        $channels = \Mockery::mock(Channels::class);
+        $channels
+            ->shouldReceive('logger')
+            ->once()
+            ->with(Channels::DEBUG)
+            ->andReturn($logger);
 
-		$logger = \Mockery::mock( Logger::class );
-		$logger
-			->shouldReceive( 'addRecord' )
-			->once()
-			->with( Logger::ALERT, 'Hello', [] )
-			->andReturn( 'It worked!' );
+        do_action(Controller::ACTION_LOADED);
 
-		/** @var Channels|\Mockery\MockInterface $channels */
-		$channels = \Mockery::mock( Channels::class );
-		$channels
-			->shouldReceive( 'logger' )
-			->once()
-			->with( Channels::DEBUG )
-			->andReturn( $logger );
+        $subscriber = new LogActionSubscriber($channels);
 
-		do_action( Controller::ACTION_LOADED );
-
-		$subscriber = new LogActionSubscriber( $channels );
-
-		self::assertSame( 'It worked!', $subscriber->update( $log ) );
-	}
+        static::assertSame('It worked!', $subscriber->update($log));
+    }
 }

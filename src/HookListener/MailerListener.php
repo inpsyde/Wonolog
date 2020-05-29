@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -21,68 +24,63 @@ use Monolog\Logger;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-class MailerListener implements ActionListenerInterface {
+class MailerListener implements ActionListenerInterface
+{
+    use ListenerIdByClassNameTrait;
 
-	use ListenerIdByClassNameTrait;
+    /**
+     * @return array<string>
+     */
+    public function listenTo(): array
+    {
+        return ['phpmailer_init', 'wp_mail_failed'];
+    }
 
-	/**
-	 * @return string|string[]
-	 */
-	public function listen_to() {
+    /**
+     * @param array $args
+     * @return LogDataInterface
+     */
+    public function update(array $args): LogDataInterface
+    {
+        switch (current_filter()) {
+            case 'phpmailer_init':
+                return $this->onMailerInit($args);
+            case 'wp_mail_failed':
+                return $this->onMailFailed($args);
+        }
 
-		return [ 'phpmailer_init', 'wp_mail_failed' ];
-	}
+        return new NullLog();
+    }
 
-	/**
-	 * @param array $args
-	 *
-	 * @return LogDataInterface
-	 */
-	public function update( array $args ) {
+    /**
+     * @param array $args
+     * @return LogDataInterface
+     */
+    private function onMailFailed(array $args): LogDataInterface
+    {
+        $error = $args ? reset($args) : null;
+        if (is_wp_error($error)) {
+            return Log::fromWpError($error, Logger::ERROR, Channels::HTTP);
+        }
 
-		switch ( current_filter() ) {
-			case 'phpmailer_init' :
-				return $this->on_mailer_init( $args );
-			case 'wp_mail_failed' :
-				return $this->on_mail_failed( $args );
-		}
+        return new NullLog();
+    }
 
-		return new NullLog();
-	}
+    /**
+     * @param array $args
+     * @return LogDataInterface
+     */
+    private function onMailerInit(array $args): LogDataInterface
+    {
+        $mailer = $args ? reset($args) : null;
+        if ($mailer instanceof \PHPMailer) {
+            $mailer->SMTPDebug = 2;
+            $mailer->Debugoutput = static function (string $message): void {
+                // Log the mailer debug message.
+                do_action(\Inpsyde\Wonolog\LOG, new Debug($message, Channels::HTTP));
+            };
+        }
 
-	/**
-	 * @param array $args
-	 *
-	 * @return LogDataInterface
-	 */
-	private function on_mail_failed( array $args ) {
-
-		$error = $args ? reset( $args ) : NULL;
-		if ( is_wp_error( $error ) ) {
-
-			return Log::fromWpError( $error, Logger::ERROR, Channels::HTTP );
-		}
-
-		return new NullLog();
-	}
-
-	/**
-	 * @param array $args
-	 *
-	 * @return LogDataInterface
-	 */
-	private function on_mailer_init( array $args ) {
-
-		$mailer = $args ? reset( $args ) : NULL;
-		if ( $mailer instanceof \PHPMailer ) {
-			$mailer->SMTPDebug   = 2;
-			$mailer->Debugoutput = function ( $message ) {
-
-				// Log the mailer debug message.
-				do_action( \Inpsyde\Wonolog\LOG, new Debug( $message, Channels::HTTP ) );
-			};
-		}
-
-		return new NullLog();
-	}
+        return new NullLog();
+    }
 }

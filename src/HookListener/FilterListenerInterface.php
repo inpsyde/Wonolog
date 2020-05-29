@@ -1,4 +1,5 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -14,12 +15,13 @@ namespace Inpsyde\Wonolog\HookListener;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-interface FilterListenerInterface extends HookListenerInterface {
+interface FilterListenerInterface extends HookListenerInterface
+{
 
-	/**
-	 * @param array $args
-	 *
-	 * @return mixed
-	 */
-	public function filter( array $args );
+    /**
+     * @param array $args
+     *
+     * @return mixed
+     */
+    public function filter(array $args);
 }

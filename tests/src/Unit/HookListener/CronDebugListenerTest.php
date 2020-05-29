@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -22,118 +25,123 @@ use Inpsyde\Wonolog\HookListener\CronDebugListener;
  * @package wonolog\tests
  * @license http://opensource.org/licenses/MIT MIT
  */
-class CronDebugListenerTest extends TestCase {
+class CronDebugListenerTest extends TestCase
+{
 
-	/**
-	 * @see CronDebugListener::listen_to()
-	 */
-	public function test_listen_to() {
+    /**
+     * @see CronDebugListener::listenTo()
+     */
+    public function testListenTo()
+    {
 
-		$this->assertSame(
-			'wp_loaded',
-			( new CronDebugListener() )->listen_to()
-		);
-	}
+        $this->assertSame(
+            ['wp_loaded'],
+            (new CronDebugListener())->listenTo()
+        );
+    }
 
-	/**
-	 * @see CronDebugListener::update()
-	 */
-	public function test_update() {
+    /**
+     * @see CronDebugListener::update()
+     */
+    public function testUpdate()
+    {
 
-		$this->assertInstanceOf(
-			NullLog::class,
-			( new CronDebugListener() )->update( [] )
-		);
-	}
+        $this->assertInstanceOf(
+            NullLog::class,
+            (new CronDebugListener())->update([])
+        );
+    }
 
-	/**
-	 * @runInSeparateProcess
-	 * @dataProvider update_registers_listeners
-	 * @see          CronDebugListener::update()
-	 *
-	 * @param int $flags
-	 */
-	public function test_update_registers_listeners( $flags ) {
+    /**
+     * @runInSeparateProcess
+     * @dataProvider updateRegistersListeners
+     * @param int $flags
+     * @see CronDebugListener::update()
+     *
+     */
+    public function testUpdateRegistersListeners(int $flags)
+    {
 
-		Functions\when( '_get_cron_array' )
-			->justReturn(
-				[
-					[ 'action_1' => 'do_something' ],
-					[ 'action_2' => 'do_something_else' ],
-				]
-			);
+        Functions\when('_get_cron_array')
+            ->justReturn(
+                [
+                    ['action_1' => 'do_something'],
+                    ['action_2' => 'do_something_else'],
+                ]
+            );
 
-		Actions\expectAdded( 'action_1' )
-			->twice()
-			->whenHappen(
-				function ( callable $callback ) {
-					defined('DOING_CRON') or define('DOING_CRON', 1);
-					$callback();
-				}
-			);
+        Actions\expectAdded('action_1')
+            ->twice()
+            ->whenHappen(
+                static function (callable $callback) {
+                    defined('DOING_CRON') or define('DOING_CRON', 1);
+                    $callback();
+                }
+            );
 
-		Actions\expectAdded( 'action_2' )
-			->twice()
-			->whenHappen(
-				function ( callable $callback ) {
-					defined('DOING_CRON') or define('DOING_CRON', 1);
-					$callback();
-				}
-			);
+        Actions\expectAdded('action_2')
+            ->twice()
+            ->whenHappen(
+                static function (callable $callback) {
+                    defined('DOING_CRON') or define('DOING_CRON', 1);
+                    $callback();
+                }
+            );
 
-		Actions\expectDone( \Inpsyde\Wonolog\LOG )
-			->with( Info::class )
-			->once()
-			->whenHappen(
-				function ( Info $info ) {
+        Actions\expectDone(\Inpsyde\Wonolog\LOG)
+            ->with(Info::class)
+            ->once()
+            ->whenHappen(
+                static function (Info $info) {
+                    $context = $info->context();
 
-					$context = $info->context();
+                    static::assertIsArray($context);
+                    static::assertArrayHasKey('start', $context);
+                    static::assertArrayHasKey('duration', $context);
+                    static::assertSame(Channels::DEBUG, $info->channel());
+                }
+            );
 
-					self::assertInternalType( 'array', $context );
-					self::assertArrayHasKey( 'start', $context );
-					self::assertArrayHasKey( 'duration', $context );
-					self::assertSame( Channels::DEBUG, $info->channel() );
-				}
-			);
+        $listener = new CronDebugListener($flags);
 
-		$listener = new CronDebugListener( $flags );
+        $this->assertInstanceOf(NullLog::class, $listener->update([]));
+    }
 
-		$this->assertInstanceOf( NullLog::class, $listener->update( [] ) );
-	}
+    /**
+     * @return array<string, array<int>>
+     * @see testUpdateRegistersListeners
+     */
+    public function updateRegistersListeners(): array
+    {
+        return [
+            'is_cron' => [CronDebugListener::IS_CRON],
+            'is_cli' => [CronDebugListener::IS_CLI],
+            'is_cron_and_cli' => [CronDebugListener::IS_CLI | CronDebugListener::IS_CRON],
+        ];
+    }
 
-	/**
-	 * @see test_update_registers_listeners
-	 * @return array
-	 */
-	public function update_registers_listeners() {
+    /**
+     * @runInSeparateProcess
+     * @see CronDebugListener::__construct()
+     */
+    public function testConstructorReadsWpCli()
+    {
 
-		return [
-			'is_cron'         => [ CronDebugListener::IS_CRON ],
-			'is_cli'          => [ CronDebugListener::IS_CLI ],
-			'is_cron_and_cli' => [ CronDebugListener::IS_CLI | CronDebugListener::IS_CRON ]
-		];
-	}
+        define('WP_CLI', true);
+        $listener = new CronDebugListener();
+        $this->assertTrue($listener->isCli());
+    }
 
-	/**
-	 * @runInSeparateProcess
-	 * @see CronDebugListener::__construct()
-	 */
-	public function test_constructor_reads_wp_cli() {
+    /**
+     * @runInSeparateProcess
+     * @see CronDebugListener::__construct()
+     */
+    public function testConstructorReadsDoingCron()
+    {
 
-		define( 'WP_CLI', TRUE );
-		$listener = new CronDebugListener();
-		$this->assertTrue( $listener->is_cli() );
-	}
+        define('DOING_CRON', true);
+        $listener = new CronDebugListener();
 
-	/**
-	 * @runInSeparateProcess
-	 * @see CronDebugListener::__construct()
-	 */
-	public function test_constructor_reads_doing_cron() {
-
-		define( 'DOING_CRON', TRUE );
-		$listener  = new CronDebugListener();
-
-		$this->assertTrue( $listener->is_cron() );
-	}
+        $this->assertTrue($listener->isCron());
+    }
 }
