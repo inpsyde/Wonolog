@@ -36,7 +36,7 @@
         "source": "https://github.com/inpsyde/Wonolog",
         "docs": "https://inpsyde.github.io/Wonolog/"
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "require": {
         "php": ">=7.2",
         "monolog/monolog": "^2"
@@ -44,7 +44,7 @@
     "require-dev": {
         "phpunit/phpunit": "^8",
         "brain/monkey": "^2.2.0",
-        "mikey179/vfsStream": "~1.6.4",
+        "mikey179/vfsstream": "~1.6.4",
         "inpsyde/php-coding-standards": "^1",
         "vimeo/psalm": "@stable",
         "roots/wordpress": "@stable"
