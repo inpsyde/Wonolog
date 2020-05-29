@@ -9,7 +9,6 @@ define('OBJECT', 'OBJECT');
 
 $wpIncPath = ABSPATH."wp-includes/";
 
-require dirname(__DIR__)."/inc/functions.php";
 require "{$wpIncPath}class-wp-post.php";
 require "{$wpIncPath}class-wp-error.php";
 require "{$wpIncPath}load.php";
