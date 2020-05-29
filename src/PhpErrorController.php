@@ -24,6 +24,8 @@ use Inpsyde\Wonolog\Data\Log;
  */
 class PhpErrorController
 {
+    public const FILTER_REPORT_SILENCED_ERRORS = 'wonolog.report-silenced-errors';
+
     private const ERROR_LEVELS_MAP = [
         E_USER_ERROR => Logger::CRITICAL,
         E_USER_NOTICE => Logger::NOTICE,
@@ -83,7 +85,7 @@ class PhpErrorController
         $level = self::ERROR_LEVELS_MAP[$num] ?? Logger::ERROR;
 
         $reportSilenced = apply_filters(
-            'wonolog.report-silenced-errors',
+            self::FILTER_REPORT_SILENCED_ERRORS,
             error_reporting() !== 0, // phpcs:ignore
             $num,
             $str,
@@ -91,7 +93,7 @@ class PhpErrorController
             $line ?? 0
         );
 
-        if ($level === null || !$reportSilenced) {
+        if (!$reportSilenced) {
             return false;
         }
 

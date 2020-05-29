@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Tests;
 
 use Brain\Monkey;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 /**
  * @package wonolog\tests
@@ -21,6 +22,8 @@ use Brain\Monkey;
  */
 class TestCase extends \PHPUnit\Framework\TestCase
 {
+    use MockeryPHPUnitIntegration;
+
     protected function setUp(): void
     {
         parent::setUp();

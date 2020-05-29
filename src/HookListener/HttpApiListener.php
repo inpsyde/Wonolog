@@ -70,11 +70,14 @@ final class HttpApiListener implements ActionListenerInterface
     public function update(array $args): LogDataInterface
     {
         /**
-         * @var \WP_Error|array $response
-         * @var string $context
-         * @var string $class
+         * @var \WP_Error|array|null $response
+         * @var string|null $context
+         * @var string|null $class
+         * @var array|null $httpArgs
+         * @var string|null $url
          */
-        [$response, $context, $class, $httpArgs, $url] = array_pad($args, 4, null);
+        [$response, $context, $class, $httpArgs, $url] = array_pad($args, 5, null);
+
         if (!$response || !$context || !$class || !is_string($context) || !is_string($class)) {
             return new NullLog();
         }
@@ -85,7 +88,7 @@ final class HttpApiListener implements ActionListenerInterface
         }
 
         ($httpArgs && is_array($httpArgs)) or $httpArgs = [];
-        ($url && is_array($url)) or $url = '';
+        ($url && is_string($url)) or $url = '';
 
         if ($isWpError || $this->isError($response, (array)$httpArgs)) {
             if ($isWpError) {
@@ -134,7 +137,7 @@ final class HttpApiListener implements ActionListenerInterface
     {
         return
             is_array($response)
-            && basename(parse_url($url, PHP_URL_PATH)) === 'wp-cron.php';
+            && basename((string)parse_url($url, PHP_URL_PATH)) === 'wp-cron.php';
     }
 
     /**
@@ -191,7 +194,7 @@ final class HttpApiListener implements ActionListenerInterface
 
         $msg = 'WP HTTP API Error';
         $response = isset($data['response']) && is_array($data['response'])
-            ? shortcode_atts(['message' => '', 'code' => '', 'body' => ''], $data['response'])
+            ? array_replace(['message' => '', 'code' => '', 'body' => ''], $data['response'])
             : ['message' => '', 'code' => '', 'body' => ''];
 
         if ($response['message'] && is_string($response['message'])) {
@@ -211,11 +214,12 @@ final class HttpApiListener implements ActionListenerInterface
                 : substr($response['body'], 0, 300) . '...';
         }
 
-        if (array_key_exists('code', $response) && is_scalar($response['code'])) {
+        $code = $response['code'] ?? null;
+        if ($code && is_scalar($code)) {
             $msg .= " - Response code: {$response[ 'code' ]}";
             (is_array($data) && !empty($data['headers'])) and $logContext['headers'] = $data['headers'];
         }
 
-        return new Error(rtrim($msg, '.') . '.', Channels::HTTP, $logContext);
+        return new Error($msg, Channels::HTTP, $logContext);
     }
 }

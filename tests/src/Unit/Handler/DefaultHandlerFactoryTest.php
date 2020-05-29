@@ -55,15 +55,14 @@ class DefaultHandlerFactoryTest extends TestCase
     public function testEnforcedInstanceIsReturned()
     {
         $handler = \Mockery::mock(HandlerInterface::class);
-        $factory = DefaultHandlerFactory::withDefaultHandler($handler);
+        $factory = DefaultHandlerFactory::new($handler);
 
         self::assertSame($handler, $factory->createDefaultHandler());
     }
 
     public function testDefaultHandlerIsNullIfNoFolder()
     {
-        $factory = DefaultHandlerFactory::withDefaultHandler();
-
+        $factory = DefaultHandlerFactory::new();
         $handler = $factory->createDefaultHandler();
 
         self::assertInstanceOf(NullHandler::class, $handler);
@@ -74,7 +73,7 @@ class DefaultHandlerFactoryTest extends TestCase
         $dir = str_replace('\\', '/', __DIR__);
         putenv('WONOLOG_DEFAULT_HANDLER_ROOT_DIR=' . $dir);
 
-        $factory = DefaultHandlerFactory::withDefaultHandler();
+        $factory = DefaultHandlerFactory::new();
 
         /** @var DateBasedStreamHandler $handler */
         $handler = $factory->createDefaultHandler();
@@ -90,7 +89,7 @@ class DefaultHandlerFactoryTest extends TestCase
         $dir = str_replace('\\', '/', __DIR__);
         define('WP_CONTENT_DIR', $dir);
 
-        $factory = DefaultHandlerFactory::withDefaultHandler();
+        $factory = DefaultHandlerFactory::new();
 
         /** @var DateBasedStreamHandler $handler */
         $handler = $factory->createDefaultHandler();
@@ -107,7 +106,7 @@ class DefaultHandlerFactoryTest extends TestCase
         $dir = str_replace('\\', '/', __DIR__);
         putenv('WONOLOG_DEFAULT_HANDLER_ROOT_DIR=' . $dir);
 
-        $factory = DefaultHandlerFactory::withDefaultHandler();
+        $factory = DefaultHandlerFactory::new();
 
         $handler = $factory->createDefaultHandler();
 
@@ -123,7 +122,7 @@ class DefaultHandlerFactoryTest extends TestCase
         $dir = str_replace('\\', '/', __DIR__);
         putenv('WONOLOG_DEFAULT_HANDLER_ROOT_DIR=' . $dir);
 
-        $factory = DefaultHandlerFactory::withDefaultHandler();
+        $factory = DefaultHandlerFactory::new();
         $handler = $factory->createDefaultHandler();
 
         self::assertInstanceOf(NullHandler::class, $handler);
@@ -143,7 +142,7 @@ class DefaultHandlerFactoryTest extends TestCase
             ->once()
             ->andReturn('/etc/logs/');
 
-        $factory = DefaultHandlerFactory::withDefaultHandler();
+        $factory = DefaultHandlerFactory::new();
 
         /** @var DateBasedStreamHandler $handler */
         $handler = $factory->createDefaultHandler();

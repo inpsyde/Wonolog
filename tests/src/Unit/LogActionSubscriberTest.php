@@ -129,27 +129,20 @@ class LogActionSubscriberTest extends TestCase
 
     public function testUpdateDoLogs()
     {
-
-        $log = \Mockery::mock(LogDataInterface::class);
-        $log
-            ->shouldReceive('level')
-            ->andReturn(Logger::ALERT);
-        $log
-            ->shouldReceive('channel')
-            ->andReturn(Channels::DEBUG);
-        $log
-            ->shouldReceive('message')
-            ->andReturn('Hello');
-        $log
-            ->shouldReceive('context')
-            ->andReturn([]);
+        $log = new Log('Hello', Logger::ALERT, Channels::DEBUG);
 
         $logger = \Mockery::mock(Logger::class);
         $logger
             ->shouldReceive('addRecord')
             ->once()
             ->with(Logger::ALERT, 'Hello', [])
-            ->andReturn('It worked!');
+            ->andReturnUsing(
+                static function (): bool {
+                    echo 'It worked!';
+
+                    return true;
+                }
+            );
 
         /** @var Channels|\Mockery\MockInterface $channels */
         $channels = \Mockery::mock(Channels::class);
@@ -163,6 +156,7 @@ class LogActionSubscriberTest extends TestCase
 
         $subscriber = new LogActionSubscriber($channels);
 
-        static::assertSame('It worked!', $subscriber->update($log));
+        $this->expectOutputString('It worked!');
+        $subscriber->update($log);
     }
 }

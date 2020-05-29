@@ -32,7 +32,7 @@ final class Log implements LogDataInterface
     /**
      * @var array
      */
-    private static $filters = [
+    private const FILTERS = [
         self::MESSAGE => FILTER_SANITIZE_STRING,
         self::LEVEL => FILTER_SANITIZE_NUMBER_INT,
         self::CHANNEL => FILTER_SANITIZE_STRING,
@@ -43,6 +43,110 @@ final class Log implements LogDataInterface
      * @var int
      */
     private $level;
+
+    /**
+     * @param array $logData
+     *
+     * @return Log
+     */
+    public static function fromArray(array $logData): Log
+    {
+        $defaults = [
+            self::MESSAGE => 'Unknown error',
+            self::LEVEL => Logger::DEBUG,
+            self::CHANNEL => Channels::DEBUG,
+            self::CONTEXT => [],
+        ];
+
+        $logLevel = LogLevel::instance();
+        $levels = Logger::getLevels();
+
+        if (isset($logData[self::LEVEL]) && is_string($logData[self::LEVEL])) {
+            $logData[self::LEVEL] = $logLevel->checkLevel($logData[self::LEVEL], $levels);
+        }
+
+        $logData = (array)filter_var_array($logData, self::FILTERS);
+        $logData = (array)array_filter($logData);
+        $data = array_merge($defaults, $logData);
+
+        return new static(
+            (string)$data[self::MESSAGE],
+            (int)$data[self::LEVEL],
+            (string)$data[self::CHANNEL],
+            (array)$data[self::CONTEXT]
+        );
+    }
+
+    /**
+     * @param \WP_Error $error
+     * @param string|int $level A string representing the level, e.g. `"NOTICE"`
+     *                          or an integer, very likely via Logger constants,
+     *                          e.g. `Logger::NOTICE`
+     * @param string $channel Channel name
+     * @return Log
+     *
+     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     */
+    public static function fromWpError(
+        \WP_Error $error,
+        $level = Logger::NOTICE,
+        string $channel = ''
+    ): Log {
+
+        $logLevel = LogLevel::instance();
+        $level = $logLevel->checkLevel($level) ?: Logger::NOTICE;
+
+        $message = $error->get_error_message();
+        $context = $error->get_error_data() ?: [];
+
+        if ($channel) {
+            return new static($message, $level, $channel, $context);
+        }
+
+        $channel = WpErrorChannel::new($error)->channel();
+
+        // Raise level for "guessed" channels
+        if ($channel === Channels::SECURITY && $level < Logger::ERROR) {
+            $level = Logger::ERROR;
+        } elseif ($channel !== Channels::DEBUG && $level < Logger::WARNING) {
+            $level = Logger::WARNING;
+        }
+
+        return new static((string)$message, (int)$level, (string)$channel, $context);
+    }
+
+    /**
+     * @param \Throwable $throwable
+     * @param int|string $level A string representing the level, e.g. `"NOTICE"`
+     *                          or an integer, very likely via Logger constants,
+     *                          e.g. `Logger::NOTICE`
+     * @param string $channel
+     * @param array $context
+     * @return Log
+     *
+     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     */
+    public static function fromThrowable(
+        \Throwable $throwable,
+        $level = Logger::ERROR,
+        string $channel = Channels::DEBUG,
+        array $context = []
+    ): Log {
+
+        $logLevel = LogLevel::instance();
+        $level = $logLevel->checkLevel($level) ?: Logger::ERROR;
+
+        $channel or $channel = Channels::DEBUG;
+
+        $context['throwable'] = [
+            'class' => get_class($throwable),
+            'file' => $throwable->getFile(),
+            'line' => $throwable->getLine(),
+            'trace' => $throwable->getTrace(),
+        ];
+
+        return new static($throwable->getMessage(), (int)$level, $channel, $context);
+    }
 
     /**
      * @param string $message
@@ -61,83 +165,6 @@ final class Log implements LogDataInterface
         $this->message = $message;
         $this->channel = $channel;
         $this->context = $context;
-    }
-
-    /**
-     * @param \WP_Error $error
-     * @param string|int $level A string representing the level, e.g. `"NOTICE"`
-     *                          or an integer, very likely via Logger constants,
-     *                          e.g. `Logger::NOTICE`
-     * @param string $channel Channel name
-     *
-     * @return Log
-     *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
-     */
-    public static function fromWpError(
-        \WP_Error $error,
-        $level = Logger::NOTICE,
-        $channel = ''
-    ): Log {
-
-        $logLevel = LogLevel::instance();
-        $level = $logLevel->checkLevel($level)
-            ?: Logger::NOTICE;
-
-        $message = $error->get_error_message();
-        $context = $error->get_error_data()
-            ?: [];
-
-        if ($channel) {
-            return new static($message, $level, $channel, $context);
-        }
-
-        $channel = WpErrorChannel::new($error)
-            ->channel();
-
-        // Raise level for "guessed" channels
-        if ($channel === Channels::SECURITY && $level < Logger::ERROR) {
-            $level = Logger::ERROR;
-        } elseif ($channel !== Channels::DEBUG && $level < Logger::WARNING) {
-            $level = Logger::WARNING;
-        }
-
-        return new static($message, $level, $channel, $context);
-    }
-
-    /**
-     * @param \Throwable $throwable
-     * @param int|string $level A string representing the level, e.g. `"NOTICE"`
-     *                          or an integer, very likely via Logger constants,
-     *                          e.g. `Logger::NOTICE`
-     * @param string $channel
-     * @param array $context
-     *
-     * @return Log
-     *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
-     */
-    public static function fromThrowable(
-        \Throwable $throwable,
-        $level = Logger::ERROR,
-        string $channel = Channels::DEBUG,
-        array $context = []
-    ): Log {
-
-        $logLevel = LogLevel::instance();
-        $level = $logLevel->checkLevel($level)
-            ?: Logger::ERROR;
-
-        $channel or $channel = Channels::DEBUG;
-
-        $context['throwable'] = [
-            'class' => get_class($throwable),
-            'file' => $throwable->getFile(),
-            'line' => $throwable->getLine(),
-            'trace' => $throwable->getTrace(),
-        ];
-
-        return new static($throwable->getMessage(), $level, $channel, $context);
     }
 
     /**
@@ -185,40 +212,6 @@ final class Log implements LogDataInterface
     }
 
     /**
-     * @param array $logData
-     *
-     * @return Log
-     */
-    public static function fromArray(array $logData): Log
-    {
-        $defaults = [
-            self::MESSAGE => 'Unknown error',
-            self::LEVEL => Logger::DEBUG,
-            self::CHANNEL => Channels::DEBUG,
-            self::CONTEXT => [],
-        ];
-
-        $logLevel = LogLevel::instance();
-        $levels = Logger::getLevels();
-
-        if (isset($logData[self::LEVEL]) && is_string($logData[self::LEVEL])) {
-            $logData[self::LEVEL] = $logLevel->checkLevel($logData[self::LEVEL], $levels);
-        }
-
-        $logData = (array) filter_var_array($logData, self::$filters);
-        $logData = (array) array_filter($logData);
-
-        $data = array_merge($defaults, $logData);
-
-        return new static(
-            $data[self::MESSAGE],
-            $data[self::LEVEL],
-            $data[self::CHANNEL],
-            $data[self::CONTEXT]
-        );
-    }
-
-    /**
      * @param string $key
      * @param mixed $value
      *
@@ -229,7 +222,7 @@ final class Log implements LogDataInterface
      */
     public function with(string $key, $value): Log
     {
-        if (! array_key_exists($key, self::$filters)) {
+        if (! array_key_exists($key, self::FILTERS)) {
             throw new \InvalidArgumentException('Invalid Log key.');
         }
 

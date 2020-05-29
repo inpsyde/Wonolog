@@ -39,7 +39,6 @@ class ControllerTest extends TestCase
 
     public function testSetupDisabledViaEnv()
     {
-
         putenv('WONOLOG_DISABLE=1');
         Actions\expectDone(Controller::ACTION_SETUP)
             ->never();

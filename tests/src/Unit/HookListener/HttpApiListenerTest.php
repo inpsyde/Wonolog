@@ -30,15 +30,11 @@ class HttpApiListenerTest extends TestCase
 {
     public function testLogDoneOnWpError()
     {
-        Functions\when('is_wp_error')
-            ->justReturn(true);
-
         Actions\expectDone(\Inpsyde\Wonolog\LOG)
             ->with(\Mockery::type(LogDataInterface::class))
             ->whenHappen(
                 static function (LogDataInterface $log) {
-
-                    static::assertSame('WP HTTP API Error, Test!', $log->message());
+                    static::assertSame('WP HTTP API Error: Test!', $log->message());
                     static::assertSame(Channels::HTTP, $log->channel());
                     static::assertSame(Logger::ERROR, $log->level());
                     static::assertSame(
@@ -64,9 +60,10 @@ class HttpApiListenerTest extends TestCase
 
         Actions\expectDone('http_api_debug')
             ->whenHappen(
-                static function () use ($listener) {
-
-                    $listener->update(func_get_args());
+                // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+                static function (...$args) use ($listener): void {
+                    // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+                    do_action(\Inpsyde\Wonolog\LOG, $listener->update($args));
                 }
             );
 
@@ -93,7 +90,7 @@ class HttpApiListenerTest extends TestCase
             static::assertSame(Channels::HTTP, $log->channel());
             static::assertSame(Logger::ERROR, $log->level());
             static::assertSame(
-                'WP HTTP API Error: Internal Server Error - Response code: 500.',
+                'WP HTTP API Error: Internal Server Error - Response code: 500',
                 $log->message()
             );
             static::assertSame(
@@ -147,8 +144,10 @@ class HttpApiListenerTest extends TestCase
 
         Actions\expectDone('http_api_debug')
             ->whenHappen(
-                static function () use ($listener) {
-                    $log = $listener->update(func_get_args());
+                // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+                static function (...$args) use ($listener): void {
+                    // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+                    $log = $listener->update($args);
                     static::assertInstanceOf(NullLog::class, $log);
                 }
             );

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Data;
 
 use Inpsyde\Wonolog\Channels;
+use Inpsyde\Wonolog\LogLevel;
 use Monolog\Logger;
 
 /**
@@ -32,7 +33,7 @@ class HookLogFactory
     public function logsFromHookArguments(array $arguments, int $hookLevel = 0): array
     {
         // When no arguments are passed, there's not much we can do
-        if (! $arguments) {
+        if (!$arguments) {
             $log = new Log('Unknown error.', Logger::DEBUG, Channels::DEBUG);
 
             return [$this->maybeRaiseLevel($hookLevel, $log)];
@@ -117,20 +118,19 @@ class HookLogFactory
 
     /**
      * @param array $args
-     *
-     * @return array
+     * @return array{0:int, 1:string}
      */
     private function levelAndChannelFromArgs(array $args): array
     {
-        if (! $args) {
-            return ['', ''];
+        if (!$args) {
+            return [0, ''];
         }
 
         $level = 0;
         $channel = '';
 
-        if (! empty($args[0]) && is_scalar($args[0])) {
-            $level = $args[0];
+        if (!empty($args[0]) && (is_numeric($args[0]) || is_string($args[0]))) {
+            $level = (int)LogLevel::instance()->checkLevel($args[0]);
         }
 
         if (! empty($args[1]) && is_string($args[1])) {

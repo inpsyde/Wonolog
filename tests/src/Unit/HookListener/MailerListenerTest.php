@@ -61,7 +61,7 @@ class MailerListenerTest extends TestCase
         do_action('phpmailer_init', $mailer);
 
         static::assertSame(2, $mailer->SMTPDebug);
-        static::assertInternalType('callable', $mailer->Debugoutput);
+        static::assertIsCallable($mailer->Debugoutput);
 
         /** @var callable $callback */
         $callback = $mailer->Debugoutput;

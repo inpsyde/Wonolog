@@ -17,6 +17,7 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\LogDataInterface;
 use Inpsyde\Wonolog\PhpErrorController;
 use Brain\Monkey\Actions;
+use Brain\Monkey\Filters;
 use Inpsyde\Wonolog\Tests\TestCase;
 use Mockery;
 use Monolog\Logger;
@@ -107,8 +108,8 @@ class PhpErrorHandlerTest extends TestCase
         global $wp_filter;
         $wp_filter = ['foo', 'bar'];
         $localVar = 'I am local';
-        /** @noinspection PhpUndefinedFunctionInspection */
-        @meh();
+
+        @trigger_error('Error', E_USER_WARNING);
     }
 
     public function testOnException()
@@ -147,6 +148,8 @@ class PhpErrorHandlerTest extends TestCase
 
     private function initializeErrorController(PhpErrorController $controller)
     {
+        Filters\expectApplied('wonolog.report-silenced-errors')->andReturn(true);
+
         register_shutdown_function([$controller, 'onShutdown']);
         set_error_handler([$controller, 'onError']);
         set_exception_handler([$controller, 'onException']);

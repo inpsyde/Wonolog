@@ -28,7 +28,6 @@ use Monolog\Handler\NullHandler;
  */
 class DefaultHandlerFactory
 {
-
     public const FILTER_FOLDER = 'wonolog.default-handler-folder';
     public const FILTER_FILENAME = 'wonolog.default-handler-filename';
     public const FILTER_DATE_FORMAT = 'wonolog.default-handler-date-format';

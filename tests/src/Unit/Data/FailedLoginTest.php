@@ -32,8 +32,10 @@ class FailedLoginTest extends TestCase
         $transient = false;
 
         // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-        $callback = static function (string $name, $value = null) use (&$transient): ?bool {
+        // phpcs:disable Inpsyde.CodeQuality.ReturnTypeDeclaration
+        $callback = static function (string $name, $value = null) use (&$transient) {
             // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+            // phpcs:enable Inpsyde.CodeQuality.ReturnTypeDeclaration
             if ($value === null) {
                 return $transient;
             }
@@ -100,8 +102,10 @@ class FailedLoginTest extends TestCase
         $transient = false;
 
         // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-        $callback = static function (string $name, $value = null) use (&$transient): ?bool {
+        // phpcs:disable Inpsyde.CodeQuality.ReturnTypeDeclaration
+        $callback = static function (string $name, $value = null) use (&$transient) {
             // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+            // phpcs:enable Inpsyde.CodeQuality.ReturnTypeDeclaration
             if ($value === null) {
                 return $transient;
             }

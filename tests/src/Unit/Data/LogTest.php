@@ -90,7 +90,7 @@ class LogTest extends TestCase
         self::assertInstanceOf(Log::class, $log);
 
         $context = $log->context();
-        self::assertInternalType('array', $context);
+        self::assertIsArray($context);
 
         self::assertSame(Channels::DEBUG, $log->channel());
         self::assertSame('Fail!, Fail!', $log->message());
@@ -110,7 +110,7 @@ class LogTest extends TestCase
         self::assertInstanceOf(Log::class, $log);
 
         $context = $log->context();
-        self::assertInternalType('array', $context);
+        self::assertIsArray($context);
 
         self::assertSame(Channels::DEBUG, $log->channel());
         self::assertSame('Fail!, Fail!', $log->message());
@@ -130,7 +130,7 @@ class LogTest extends TestCase
         self::assertInstanceOf(Log::class, $log);
 
         $context = $log->context();
-        self::assertInternalType('array', $context);
+        self::assertIsArray($context);
 
         self::assertSame(Channels::HTTP, $log->channel());
         self::assertSame('Fail!, Fail!', $log->message());

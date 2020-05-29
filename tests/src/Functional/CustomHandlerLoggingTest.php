@@ -63,7 +63,9 @@ class CustomHandlerLoggingTest extends FunctionalTestCase
 
         add_filter('wonolog.report-silenced-errors', '__return_true');
 
+        // phpcs:disable WordPress.PHP.NoSilencedErrors
         @trigger_error('test', E_USER_NOTICE);
+        // phpcs:enable WordPress.PHP.NoSilencedErrors
 
         $logs = $handler->getRecords();
 

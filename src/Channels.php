@@ -103,8 +103,6 @@ class Channels
     /**
      * @param string $channel
      * @return bool
-     *
-     * @throws InvalidChannelNameException
      */
     public function hasChannel(string $channel): bool
     {
