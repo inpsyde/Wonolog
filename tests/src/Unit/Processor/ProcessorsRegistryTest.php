@@ -28,9 +28,9 @@ class ProcessorsRegistryTest extends TestCase {
 		$processor_b = 'strtoupper';
 		$processor_c = 'strrev';
 
-		$registry->add_processor( $processor_a, 'test' );
-		$registry->add_processor( $processor_b, 'test' );
-		$registry->add_processor( $processor_c, 'test' );
+		$registry->addProcessor( $processor_a, 'test' );
+		$registry->addProcessor( $processor_b, 'test' );
+		$registry->addProcessor( $processor_c, 'test' );
 
 		self::assertCount( 1, $registry );
 	}
@@ -43,15 +43,15 @@ class ProcessorsRegistryTest extends TestCase {
 		$processor_b = 'strtoupper';
 		$processor_c = 'strrev';
 
-		$registry->add_processor( $processor_a, 'a' );
-		$registry->add_processor( $processor_b, 'b' );
-		$registry->add_processor( $processor_c, 'c' );
+		$registry->addProcessor( $processor_a, 'a' );
+		$registry->addProcessor( $processor_b, 'b' );
+		$registry->addProcessor( $processor_c, 'c' );
 
-		self::assertTrue( $registry->has_processor( 'a' ) );
-		self::assertTrue( $registry->has_processor( 'b' ) );
-		self::assertTrue( $registry->has_processor( 'c' ) );
-		self::assertFalse( $registry->has_processor( [ 'a' ] ) );
-		self::assertFalse( $registry->has_processor( 'x' ) );
+		self::assertTrue( $registry->hasProcessor( 'a' ) );
+		self::assertTrue( $registry->hasProcessor( 'b' ) );
+		self::assertTrue( $registry->hasProcessor( 'c' ) );
+		self::assertFalse( $registry->hasProcessor( [ 'a' ] ) );
+		self::assertFalse( $registry->hasProcessor( 'x' ) );
 
 		self::assertCount( 3, $registry );
 	}
@@ -81,8 +81,8 @@ class ProcessorsRegistryTest extends TestCase {
 			->whenHappen(
 				function ( ProcessorsRegistry $registry ) {
 
-					$registry->add_processor( 'strtolower', 'a' );
-					$registry->add_processor( 'strtoupper', 'b' );
+					$registry->addProcessor( 'strtolower', 'a' );
+					$registry->addProcessor( 'strtoupper', 'b' );
 				}
 			);
 
