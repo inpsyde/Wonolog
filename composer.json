@@ -68,7 +68,8 @@
     "extra": {
         "branch-alias": {
             "dev-master": "2.0.x-dev"
-        }
+        },
+        "wordpress-install-dir": "vendor/wordpress/wordpress"
     },
     "scripts": {
         "cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",

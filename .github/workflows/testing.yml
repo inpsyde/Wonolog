@@ -24,7 +24,7 @@ jobs:
           php-version: ${{ matrix.php-versions }}
 
       - name: PhpCS
-        run: composer phpcs
+        run: composer cs
 
       - name: Psalm
         run: composer psalm
