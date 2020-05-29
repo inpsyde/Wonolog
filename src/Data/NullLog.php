@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -18,39 +21,40 @@ namespace Inpsyde\Wonolog\Data;
  *
  * @codeCoverageIgnore
  */
-final class NullLog implements LogDataInterface {
+final class NullLog implements LogDataInterface
+{
 
-	const LOG_LEVEL = -1;
+    private const LOG_LEVEL = -1;
 
-	/**
-	 * @return int
-	 */
-	public function level() {
+    /**
+     * @return int
+     */
+    public function level(): int
+    {
+        return self::LOG_LEVEL;
+    }
 
-		return self::LOG_LEVEL;
-	}
+    /**
+     * @return string
+     */
+    public function message(): string
+    {
+        return '';
+    }
 
-	/**
-	 * @return string
-	 */
-	public function message() {
+    /**
+     * @return string
+     */
+    public function channel(): string
+    {
+        return '';
+    }
 
-		return '';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function channel() {
-
-		return '';
-	}
-
-	/**
-	 * @return array
-	 */
-	public function context() {
-
-		return [];
-	}
+    /**
+     * @return array
+     */
+    public function context(): array
+    {
+        return [];
+    }
 }

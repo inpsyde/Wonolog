@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -18,122 +21,125 @@ use Inpsyde\Wonolog\Channels;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-class WpErrorChannel {
+class WpErrorChannel
+{
 
-	const FILTER_CHANNEL = 'wonolog.wp-error-channel';
+    public const FILTER_CHANNEL = 'wonolog.wp-error-channel';
 
-	/**
-	 * @var \WP_Error
-	 */
-	private $error;
+    /**
+     * @var \WP_Error
+     */
+    private $error;
 
-	/**
-	 * @var string
-	 */
-	private $channel = '';
+    /**
+     * @var string
+     */
+    private $channel = '';
 
-	/**
-	 * @param \WP_Error $error
-	 * @param string    $channel
-	 *
-	 * @return WpErrorChannel
-	 */
-	public static function for_error( \WP_Error $error, $channel = '' ) {
+    /**
+     * @param \WP_Error $error
+     * @param string $channel
+     *
+     * @return WpErrorChannel
+     */
+    public static function forError(\WP_Error $error, string $channel = ''): WpErrorChannel
+    {
+        $instance = new static();
+        $instance->error = $error;
+        $channel and $instance->channel = (string) $channel;
 
-		$instance        = new static;
-		$instance->error = $error;
-		$channel and $instance->channel = (string) $channel;
+        return $instance;
+    }
 
-		return $instance;
-	}
+    /**
+     * @return string
+     */
+    public function channel(): string
+    {
+        if ($this->channel) {
+            return $this->channel;
+        }
 
-	/**
-	 * @return string
-	 */
-	public function channel() {
+        $channel = '';
+        $codes = $this->error->get_error_codes();
 
-		if ( $this->channel ) {
-			return $this->channel;
-		}
+        while (! $channel && $codes) {
+            $code = array_shift($codes);
+            $channel = $this->maybeDbChannel($code);
+            $channel or $channel = $this->maybeHttpChannel($code);
+            $channel or $channel = $this->maybeSecurityChannel($code);
+        }
 
-		$channel = '';
-		$codes   = $this->error->get_error_codes();
+        $channel or $channel = Channels::DEBUG;
 
-		while ( ! $channel && $codes ) {
-			$code    = array_shift( $codes );
-			$channel = $this->maybe_db_channel( $code );
-			$channel or $channel = $this->maybe_http_channel( $code );
-			$channel or $channel = $this->maybe_security_channel( $code );
-		}
+        /**
+         * Filters the WordPress error channel.
+         *
+         * @param string $channel
+         * @param \WP_Error|null $error
+         */
+        $filtered = apply_filters(self::FILTER_CHANNEL, $channel, $this->error);
 
-		$channel or $channel = Channels::DEBUG;
+        $this->channel = is_string($filtered)
+            ? $filtered
+            : $channel;
 
-		/**
-		 * Filters the WordPress error channel.
-		 *
-		 * @param string         $channel
-		 * @param \WP_Error|null $error
-		 */
-		$filtered = apply_filters( self::FILTER_CHANNEL, $channel, $this->error );
+        return $this->channel;
+    }
 
-		$this->channel = is_string( $filtered ) ? $filtered : $channel;
+    /**
+     * @param string $code
+     *
+     * @return string
+     */
+    private function maybeDbChannel(string $code): string
+    {
+        if (stripos($code, 'wpdb') !== false || preg_match('/(\b|_)db(\b|_)/i', $code)) {
+            return Channels::DB;
+        }
 
-		return $this->channel;
-	}
+        return '';
+    }
 
-	/**
-	 * @param string $code
-	 *
-	 * @return string
-	 */
-	private function maybe_db_channel( $code ) {
+    /**
+     * @param string $code
+     *
+     * @return string
+     */
+    private function maybeHttpChannel(string $code): string
+    {
+        if (
+            stripos($code, 'http') !== false
+            || stripos($code, 'request') !== false
+            || stripos($code, 'download') !== false
+            || stripos($code, 'upload') !== false
+            || stripos($code, 'simplepie') !== false
+            || stripos($code, 'mail') !== false
+            || stripos($code, 'rest') !== false
+            || stripos($code, 'wp_mail') !== false
+            || stripos($code, 'email') !== false
+        ) {
+            return Channels::HTTP;
+        }
 
-		if ( stripos( $code, 'wpdb' ) !== FALSE || preg_match( '/(\b|_)db(\b|_)/i', $code ) ) {
-			return Channels::DB;
-		}
+        return '';
+    }
 
-		return '';
-	}
+    /**
+     * @param string $code
+     *
+     * @return string
+     */
+    private function maybeSecurityChannel(string $code): string
+    {
+        if (
+            stripos($code, 'cookie') !== false
+            || stripos($code, 'login') !== false
+            || stripos($code, 'authentication') !== false
+        ) {
+            return Channels::SECURITY;
+        }
 
-	/**
-	 * @param string $code
-	 *
-	 * @return string
-	 */
-	private function maybe_http_channel( $code ) {
-
-		if (
-			stripos( $code, 'http' ) !== FALSE
-			|| stripos( $code, 'request' ) !== FALSE
-			|| stripos( $code, 'download' ) !== FALSE
-			|| stripos( $code, 'upload' ) !== FALSE
-			|| stripos( $code, 'simplepie' ) !== FALSE
-			|| stripos( $code, 'mail' ) !== FALSE
-			|| stripos( $code, 'rest' ) !== FALSE
-			|| stripos( $code, 'wp_mail' ) !== FALSE
-			|| stripos( $code, 'email' ) !== FALSE
-		) {
-			return Channels::HTTP;
-		}
-
-		return '';
-	}
-
-	/**
-	 * @param string $code
-	 *
-	 * @return string
-	 */
-	private function maybe_security_channel( $code ) {
-
-		if (
-			stripos( $code, 'cookie' ) !== FALSE
-			|| stripos( $code, 'login' ) !== FALSE
-			|| stripos( $code, 'authentication' ) !== FALSE
-		) {
-			return Channels::SECURITY;
-		}
-
-		return '';
-	}
+        return '';
+    }
 }

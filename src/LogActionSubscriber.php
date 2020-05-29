@@ -64,7 +64,7 @@ class LogActionSubscriber {
 			return;
 		}
 
-		$logs = $this->log_factory->logs_from_hook_arguments( func_get_args(), $this->hook_level() );
+		$logs = $this->log_factory->logsFromHookArguments( func_get_args(), $this->hook_level() );
 
 		array_walk( $logs, [ $this, 'update' ] );
 	}

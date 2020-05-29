@@ -38,7 +38,7 @@ class HookLogFactoryTest extends TestCase {
 	public function test_logs_from_arguments_returns_default_if_no_arguments() {
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( [] );
+		$logs    = $factory->logsFromHookArguments( [] );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 1, $logs );
@@ -75,7 +75,7 @@ class HookLogFactoryTest extends TestCase {
 		$args[] = $fourth;
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( $args );
+		$logs    = $factory->logsFromHookArguments( $args );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 4, $logs );
@@ -129,7 +129,7 @@ class HookLogFactoryTest extends TestCase {
 		$args = compact( 'first', 'second' );
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( $args, 300 );
+		$logs    = $factory->logsFromHookArguments( $args, 300 );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 2, $logs );
@@ -150,7 +150,7 @@ class HookLogFactoryTest extends TestCase {
 	public function test_logs_from_from_string_argument() {
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( [ 'Foo!' ] );
+		$logs    = $factory->logsFromHookArguments( [ 'Foo!' ] );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 1, $logs );
@@ -168,7 +168,7 @@ class HookLogFactoryTest extends TestCase {
 	public function test_logs_from_from_string_argument_and_args() {
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( [ 'Foo!', Logger::CRITICAL, 'A Channel' ] );
+		$logs    = $factory->logsFromHookArguments( [ 'Foo!', Logger::CRITICAL, 'A Channel' ] );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 1, $logs );
@@ -186,7 +186,7 @@ class HookLogFactoryTest extends TestCase {
 	public function test_logs_from_from_string_argument_and_raised_level() {
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( [ 'Foo!', Logger::DEBUG, 'A Channel' ], Logger::CRITICAL );
+		$logs    = $factory->logsFromHookArguments( [ 'Foo!', Logger::DEBUG, 'A Channel' ], Logger::CRITICAL );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 1, $logs );
@@ -212,7 +212,7 @@ class HookLogFactoryTest extends TestCase {
 			->andReturn( [ 'wpdb' ] );
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( [ $error ] );
+		$logs    = $factory->logsFromHookArguments( [ $error ] );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 1, $logs );
@@ -238,7 +238,7 @@ class HookLogFactoryTest extends TestCase {
 			->andReturn( [ 'wpdb' ] );
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( [ $error, Logger::ERROR, Channels::DEBUG ] );
+		$logs    = $factory->logsFromHookArguments( [ $error, Logger::ERROR, Channels::DEBUG ] );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 1, $logs );
@@ -264,7 +264,7 @@ class HookLogFactoryTest extends TestCase {
 			->andReturn( [ 'foo' ] );
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( [ $error, Logger::NOTICE, Channels::HTTP ], Logger::ERROR );
+		$logs    = $factory->logsFromHookArguments( [ $error, Logger::NOTICE, Channels::HTTP ], Logger::ERROR );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 1, $logs );
@@ -284,7 +284,7 @@ class HookLogFactoryTest extends TestCase {
 		$exception = new \Exception( 'Foo!' );
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( [ $exception ] );
+		$logs    = $factory->logsFromHookArguments( [ $exception ] );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 1, $logs );
@@ -304,7 +304,7 @@ class HookLogFactoryTest extends TestCase {
 		$exception = new \Exception( 'Foo!' );
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( [ $exception, Logger::CRITICAL, Channels::DB ] );
+		$logs    = $factory->logsFromHookArguments( [ $exception, Logger::CRITICAL, Channels::DB ] );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 1, $logs );
@@ -324,7 +324,7 @@ class HookLogFactoryTest extends TestCase {
 		$exception = new \Exception( 'Foo!' );
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( [ $exception, Logger::DEBUG, Channels::DB ], Logger::CRITICAL );
+		$logs    = $factory->logsFromHookArguments( [ $exception, Logger::DEBUG, Channels::DB ], Logger::CRITICAL );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 1, $logs );
@@ -349,7 +349,7 @@ class HookLogFactoryTest extends TestCase {
 		];
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( [ $data, 'x', 'y' ], Logger::DEBUG );
+		$logs    = $factory->logsFromHookArguments( [ $data, 'x', 'y' ], Logger::DEBUG );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 1, $logs );
@@ -374,7 +374,7 @@ class HookLogFactoryTest extends TestCase {
 		];
 
 		$factory = new HookLogFactory();
-		$logs    = $factory->logs_from_hook_arguments( [ $data, 600, 'y' ], Logger::NOTICE );
+		$logs    = $factory->logsFromHookArguments( [ $data, 600, 'y' ], Logger::NOTICE );
 
 		self::assertInternalType( 'array', $logs );
 		self::assertCount( 1, $logs );

@@ -40,7 +40,7 @@ class LogTest extends TestCase {
 		$error->shouldReceive('get_error_data')->andReturn(['!']);
 		$error->shouldReceive('get_error_codes')->andReturn(['x']);
 
-		$log = Log::from_wp_error( $error );
+		$log = Log::fromWpError( $error );
 
 		self::assertSame( Channels::DEBUG, $log->channel() );
 		self::assertSame( 'Error!', $log->message() );
@@ -56,7 +56,7 @@ class LogTest extends TestCase {
 		$error->shouldReceive('get_error_data')->andReturn(['!']);
 		$error->shouldReceive('get_error_codes')->andReturn(['x']);
 
-		$log = Log::from_wp_error( $error, Logger::DEBUG );
+		$log = Log::fromWpError( $error, Logger::DEBUG );
 
 		self::assertSame( Channels::DEBUG, $log->channel() );
 		self::assertSame( 'Error!', $log->message() );
@@ -72,7 +72,7 @@ class LogTest extends TestCase {
 		$error->shouldReceive('get_error_data')->andReturn(['!']);
 		$error->shouldReceive('get_error_codes')->andReturn(['x']);
 
-		$log = Log::from_wp_error( $error, Logger::DEBUG, Channels::DB );
+		$log = Log::fromWpError( $error, Logger::DEBUG, Channels::DB );
 
 		self::assertSame( Channels::DB, $log->channel() );
 		self::assertSame( 'Error!', $log->message() );
@@ -84,7 +84,7 @@ class LogTest extends TestCase {
 
 		$exception = new \Exception('Fail!, Fail!', 123);
 
-		$log = Log::from_throwable( $exception );
+		$log = Log::fromThrowable( $exception );
 		self::assertInstanceOf( Log::class, $log );
 
 		$context = $log->context();
@@ -104,7 +104,7 @@ class LogTest extends TestCase {
 
 		$exception = new \Exception('Fail!, Fail!', 123);
 
-		$log = Log::from_throwable( $exception, Logger::DEBUG );
+		$log = Log::fromThrowable( $exception, Logger::DEBUG );
 		self::assertInstanceOf( Log::class, $log );
 
 		$context = $log->context();
@@ -124,7 +124,7 @@ class LogTest extends TestCase {
 
 		$exception = new \Exception('Fail!, Fail!', 123);
 
-		$log = Log::from_throwable( $exception, Logger::NOTICE, Channels::HTTP );
+		$log = Log::fromThrowable( $exception, Logger::NOTICE, Channels::HTTP );
 		self::assertInstanceOf( Log::class, $log );
 
 		$context = $log->context();
@@ -142,7 +142,7 @@ class LogTest extends TestCase {
 
 	public function test_from_array() {
 
-		$log = Log::from_array(
+		$log = Log::fromArray(
 			[
 				Log::MESSAGE => 'message',
 				Log::LEVEL   => Logger::EMERGENCY,
@@ -160,7 +160,7 @@ class LogTest extends TestCase {
 
 	public function test_from_array_merged() {
 
-		$log = Log::from_array(
+		$log = Log::fromArray(
 			[
 				Log::MESSAGE => 'message',
 				Log::CONTEXT => [ 'foo' ]

@@ -1,4 +1,5 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -14,30 +15,31 @@ namespace Inpsyde\Wonolog\Data;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-interface LogDataInterface {
+interface LogDataInterface
+{
 
-	const MESSAGE = 'message';
-	const LEVEL = 'level';
-	const CHANNEL = 'channel';
-	const CONTEXT = 'context';
+    public const MESSAGE = 'message';
+    public const LEVEL = 'level';
+    public const CHANNEL = 'channel';
+    public const CONTEXT = 'context';
 
-	/**
-	 * @return int
-	 */
-	public function level();
+    /**
+     * @return int
+     */
+    public function level(): int;
 
-	/**
-	 * @return string
-	 */
-	public function message();
+    /**
+     * @return string
+     */
+    public function message(): string;
 
-	/**
-	 * @return string
-	 */
-	public function channel();
+    /**
+     * @return string
+     */
+    public function channel(): string;
 
-	/**
-	 * @return array
-	 */
-	public function context();
+    /**
+     * @return array
+     */
+    public function context(): array;
 }

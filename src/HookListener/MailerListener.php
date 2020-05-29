@@ -60,7 +60,7 @@ class MailerListener implements ActionListenerInterface {
 		$error = $args ? reset( $args ) : NULL;
 		if ( is_wp_error( $error ) ) {
 
-			return Log::from_wp_error( $error, Logger::ERROR, Channels::HTTP );
+			return Log::fromWpError( $error, Logger::ERROR, Channels::HTTP );
 		}
 
 		return new NullLog();

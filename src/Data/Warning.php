@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -18,15 +21,15 @@ use Monolog\Logger;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class Warning implements LogDataInterface {
+final class Warning implements LogDataInterface
+{
+    use LogDataTrait;
 
-	use LogDataTrait;
-
-	/**
-	 * @inheritdoc
-	 */
-	public function level() {
-
-		return Logger::WARNING;
-	}
+    /**
+     * @inheritdoc
+     */
+    public function level(): int
+    {
+        return Logger::WARNING;
+    }
 }

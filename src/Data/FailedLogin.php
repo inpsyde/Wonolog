@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -17,176 +20,197 @@ use Monolog\Logger;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class FailedLogin implements LogDataInterface {
+final class FailedLogin implements LogDataInterface
+{
 
-	const TRANSIENT_NAME = 'wonolog.failed-login-count';
+    public const TRANSIENT_NAME = 'wonolog.failed-login-count';
 
-	/**
-	 * @var string
-	 */
-	private $username;
+    /**
+     * @var string
+     */
+    private $username;
 
-	/**
-	 * Contains the actual IP and the method used to retrieve it
-	 *
-	 * @var array
-	 */
-	private $ip_data;
+    /**
+     * Contains the actual IP and the method used to retrieve it
+     *
+     * @var array
+     */
+    private $ipData;
 
-	/**
-	 * @var array
-	 */
-	private $attempts_data;
+    /**
+     * @var array
+     */
+    private $attemptsData;
 
-	/**
-	 * @var int
-	 */
-	private $attempts;
+    /**
+     * @var int
+     */
+    private $attempts;
 
-	/**
-	 * @param string $username Username used for the failed login attempt
-	 */
-	public function __construct( $username ) {
+    /**
+     * @param string $username Username used for the failed login attempt
+     */
+    public function __construct(string $username)
+    {
+        $this->username = is_scalar($username)
+            ? (string) $username
+            : 'Unknown user';
+    }
 
-		$this->username = is_scalar( $username ) ? (string) $username : 'Unknown user';
-	}
+    /**
+     * Determine severity of the error based on the number of login attempts in
+     * last 5 minutes.
+     *
+     * @return int
+     */
+    public function level(): int
+    {
+        $this->countAttempts(300);
 
-	/**
-	 * Determine severity of the error based on the number of login attempts in
-	 * last 5 minutes.
-	 *
-	 * @return int
-	 */
-	public function level() {
+        if ($this->attempts > 2 && $this->attempts <= 100) {
+            return Logger::NOTICE;
+        }
 
-		$this->count_attempts( 300 );
+        if ($this->attempts > 100 && $this->attempts <= 590) {
+            return Logger::WARNING;
+        }
 
-		switch ( TRUE ) {
-			case ( $this->attempts > 2 && $this->attempts <= 100 ) :
-				return Logger::NOTICE;
-			case ( $this->attempts > 100 && $this->attempts <= 590 ) :
-				return Logger::WARNING;
-			case ( $this->attempts > 590 && $this->attempts <= 990 ) :
-				return Logger::ERROR;
-			case ( $this->attempts > 990 ) :
-				return Logger::CRITICAL;
-		}
+        if ($this->attempts > 590 && $this->attempts <= 990) {
+            return Logger::ERROR;
+        }
 
-		return 0;
-	}
+        if ($this->attempts > 990) {
+            return Logger::CRITICAL;
+        }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function context() {
+        return 0;
+    }
 
-		$this->sniff_ip();
+    /**
+     * Determine how many failed login attempts comes from the guessed IP.
+     * Use a site transient to count them.
+     *
+     * @param int $ttl transient time to live in seconds
+     */
+    private function countAttempts(int $ttl = 300): void
+    {
+        if (isset($this->attempts)) {
+            return;
+        }
 
-		return [
-			'ip'       => $this->ip_data[ 0 ],
-			'ip_from'  => $this->ip_data[ 1 ],
-			'username' => $this->username,
-		];
-	}
+        $this->sniffIp();
+        $userIp = $this->ipData[0];
 
-	/**
-	 * @inheritdoc
-	 */
-	public function message() {
+        $attempts = get_site_transient(self::TRANSIENT_NAME);
+        is_array($attempts) or $attempts = [];
 
-		$this->count_attempts( 300 );
+        // Seems the first time a failed attempt for this IP
+        if (! $attempts || ! array_key_exists($userIp, $attempts)) {
+            $attempts[$userIp] = [
+                'count' => 0,
+                'last_logged' => 0,
+            ];
+        }
 
-		if ( ! $this->attempts_data ) {
-			return '';
-		}
+        $attempts[$userIp]['count']++;
+        $this->attemptsData = $attempts;
 
-		$this->sniff_ip();
-		if ( ! isset( $this->attempts_data[ $this->ip_data[ 0 ] ][ 'count' ] ) ) {
-			return '';
-		}
+        $count = $attempts[$userIp]['count'];
+        $lastLogged = $attempts[$userIp]['last_logged'];
 
-		return sprintf(
-			"%d failed login attempts from username '%s' in last 5 minutes",
-			$this->attempts_data[ $this->ip_data[ 0 ] ][ 'count' ],
-			$this->username
-		);
-	}
+        /**
+         * During a brute force attack, logging all the failed attempts
+         * can be so expensive to put the server down.
+         *
+         * So we log:
+         *
+         * - 3rd attempt
+         * - every 20 when total attempts are > 23 && < 100 (23rd, 43rd...)
+         * - every 100 when total attempts are > 182 && < 1182 (183rd, 283rd...)
+         * - every 200 when total attempts are > 1182 (1183rd, 1383rd...)
+         */
+        $doLog =
+            $count === 3
+            || ($count < 100 && ($count - $lastLogged) === 20)
+            || ($count < 1000 && ($count - $lastLogged) === 100)
+            || (($count - $lastLogged) === 200);
 
-	/**
-	 * @inheritdoc
-	 */
-	public function channel() {
+        $doLog and $attempts[$userIp]['last_logged'] = $count;
+        set_site_transient(self::TRANSIENT_NAME, $attempts, $ttl);
 
-		return Channels::SECURITY;
-	}
+        $this->attempts = $doLog
+            ? $count
+            : 0;
+    }
 
-	/**
-	 * Try to sniff the current client IP.
-	 */
-	private function sniff_ip() {
+    /**
+     * Try to sniff the current client IP.
+     */
+    private function sniffIp(): void
+    {
+        if ($this->ipData) {
+            return;
+        }
 
-		if ( $this->ip_data ) {
-			return;
-		}
+        if (PHP_SAPI === 'cli') {
+            $this->ipData = ['127.0.0.1', 'CLI'];
 
-		if ( PHP_SAPI === 'cli' ) {
-			$this->ip_data = [ '127.0.0.1', 'CLI' ];
+            return;
+        }
 
-			return;
-		}
+        $ipServerKeys = [
+            'REMOTE_ADDR' => '',
+            'HTTP_CLIENT_IP' => '',
+            'HTTP_X_FORWARDED_FOR' => '',
+        ];
+        $ips = array_intersect_key($_SERVER, $ipServerKeys);
+        $this->ipData = $ips
+            ? [reset($ips), key($ips)]
+            : ['0.0.0.0', 'Hidden IP'];
+    }
 
-		$ip_server_keys = [ 'REMOTE_ADDR' => '', 'HTTP_CLIENT_IP' => '', 'HTTP_X_FORWARDED_FOR' => '',  ];
-		$ips            = array_intersect_key( $_SERVER, $ip_server_keys );
-		$this->ip_data  = $ips ? [ reset( $ips ), key( $ips ) ] : [ '0.0.0.0', 'Hidden IP' ];
-	}
+    /**
+     * @inheritdoc
+     */
+    public function context(): array
+    {
+        $this->sniffIp();
 
-	/**
-	 * Determine how many failed login attempts comes from the guessed IP.
-	 * Use a site transient to count them.
-	 *
-	 * @param int $ttl transient time to live in seconds
-	 */
-	private function count_attempts( $ttl = 300 ) {
+        return [
+            'ip' => $this->ipData[0],
+            'ip_from' => $this->ipData[1],
+            'username' => $this->username,
+        ];
+    }
 
-		if ( isset( $this->attempts ) ) {
-			return;
-		}
+    /**
+     * @inheritdoc
+     */
+    public function message(): string
+    {
+        $this->countAttempts(300);
 
-		$this->sniff_ip();
-		$ip = $this->ip_data[ 0 ];
+        if (! $this->attemptsData) {
+            return '';
+        }
 
-		$attempts = get_site_transient( self::TRANSIENT_NAME );
-		is_array( $attempts ) or $attempts = [];
+        $this->sniffIp();
+        if (! isset($this->attemptsData[$this->ipData[0]]['count'])) {
+            return '';
+        }
 
-		// Seems the first time a failed attempt for this IP
-		if ( ! $attempts || ! array_key_exists( $ip, $attempts ) ) {
-			$attempts[ $ip ] = [ 'count' => 0, 'last_logged' => 0, ];
-		}
+        return sprintf(
+            "%d failed login attempts from username '%s' in last 5 minutes",
+            $this->attemptsData[$this->ipData[0]]['count'],
+            $this->username
+        );
+    }
 
-		$attempts[ $ip ][ 'count' ] ++;
-		$this->attempts_data = $attempts;
-
-		$count       = $attempts[ $ip ][ 'count' ];
-		$last_logged = $attempts[ $ip ][ 'last_logged' ];
-
-		/**
-		 * During a brute force attack, logging all the failed attempts can be so expensive to put the server down.
-		 * So we log:
-		 *
-		 * - 3rd attempt
-		 * - every 20 when total attempts are > 23 && < 100 (23rd, 43rd...)
-		 * - every 100 when total attempts are > 182 && < 1182 (183rd, 283rd...)
-		 * - every 200 when total attempts are > 1182 (1183rd, 1383rd...)
-		 */
-		$do_log =
-			$count === 3
-			|| ( $count < 100 && ( $count - $last_logged ) === 20 )
-			|| ( $count < 1000 && ( $count - $last_logged ) === 100 )
-			|| ( ( $count - $last_logged ) === 200 );
-
-		$do_log and $attempts[ $ip ][ 'last_logged' ] = $count;
-		set_site_transient( self::TRANSIENT_NAME, $attempts, $ttl );
-
-		$this->attempts = $do_log ? $count : 0;
-	}
+    /**
+     * @inheritdoc
+     */
+    public function channel(): string
+    {
+        return Channels::SECURITY;
+    }
 }
