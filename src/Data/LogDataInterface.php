@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -17,7 +17,6 @@ namespace Inpsyde\Wonolog\Data;
  */
 interface LogDataInterface
 {
-
     public const MESSAGE = 'message';
     public const LEVEL = 'level';
     public const CHANNEL = 'channel';

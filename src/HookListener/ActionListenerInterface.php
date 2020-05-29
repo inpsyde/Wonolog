@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -22,7 +22,6 @@ interface ActionListenerInterface extends HookListenerInterface
 
     /**
      * @param array $args
-     *
      * @return LogDataInterface
      */
     public function update(array $args): LogDataInterface;

@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -10,6 +8,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Handler;
 
@@ -53,7 +53,6 @@ class HandlersRegistry implements \Countable
     /**
      * @param HandlerInterface $handler
      * @param string $name
-     *
      * @return HandlersRegistry
      */
     public function addHandler(HandlerInterface $handler, ?string $name = null): HandlersRegistry
@@ -70,7 +69,6 @@ class HandlersRegistry implements \Countable
 
     /**
      * @param string|HandlerInterface $name
-     *
      * @return bool
      *
      * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
@@ -84,14 +82,13 @@ class HandlersRegistry implements \Countable
 
     /**
      * @param string|HandlerInterface $name
-     *
      * @return HandlerInterface|null
      *
      * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
      */
     public function find($name): ?HandlerInterface
     {
-        if (! is_array($this->initialized)) {
+        if (!is_array($this->initialized)) {
             $this->initialized = [];
 
             /**
@@ -104,15 +101,15 @@ class HandlersRegistry implements \Countable
 
         $name = $name instanceof HandlerInterface
             ? spl_object_hash($name)
-            : (string) $name;
+            : (string)$name;
 
-        if (! $this->hasHandler($name)) {
+        if (!$this->hasHandler($name)) {
             return null;
         }
 
         $handler = $this->handlers[$name];
 
-        if (! in_array($name, $this->initialized, true)) {
+        if (!in_array($name, $this->initialized, true)) {
             $this->initialized[] = $name;
 
             /**

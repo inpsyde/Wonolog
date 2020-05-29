@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -10,6 +8,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Data;
 
@@ -39,7 +39,6 @@ class WpErrorChannel
     /**
      * @param \WP_Error $error
      * @param string $channel
-     *
      * @return WpErrorChannel
      */
     public static function new(\WP_Error $error, string $channel = ''): WpErrorChannel
@@ -71,8 +70,8 @@ class WpErrorChannel
         $channel = '';
         $codes = $this->error->get_error_codes();
 
-        while (! $channel && $codes) {
-            $code = (string) array_shift($codes);
+        while (!$channel && $codes) {
+            $code = (string)array_shift($codes);
             $channel = $this->maybeDbChannel($code);
             $channel or $channel = $this->maybeHttpChannel($code);
             $channel or $channel = $this->maybeSecurityChannel($code);
@@ -88,16 +87,13 @@ class WpErrorChannel
          */
         $filtered = apply_filters(self::FILTER_CHANNEL, $channel, $this->error);
 
-        $this->channel = is_string($filtered)
-            ? $filtered
-            : $channel;
+        $this->channel = is_string($filtered) ? $filtered : $channel;
 
         return $this->channel;
     }
 
     /**
      * @param string $code
-     *
      * @return string
      */
     private function maybeDbChannel(string $code): string
@@ -111,7 +107,6 @@ class WpErrorChannel
 
     /**
      * @param string $code
-     *
      * @return string
      */
     private function maybeHttpChannel(string $code): string
@@ -135,7 +130,6 @@ class WpErrorChannel
 
     /**
      * @param string $code
-     *
      * @return string
      */
     private function maybeSecurityChannel(string $code): string

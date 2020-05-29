@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -10,6 +8,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
@@ -97,7 +97,6 @@ class Controller
      * Tell Wonolog to use the PHP errors handler.
      *
      * @param int|null $errorTypes bitmask of error types constants, default to E_ALL | E_STRICT
-     *
      * @return Controller
      */
     public function logPhpErrors(?int $errorTypes = null): Controller
@@ -166,7 +165,6 @@ class Controller
      * @param HandlerInterface $handler
      * @param string[] $channels
      * @param string|null $handlerId
-     *
      * @return Controller
      */
     public function useHandler(
@@ -289,7 +287,6 @@ class Controller
      * @param callable $processor
      * @param string[] $handlers
      * @param string|null $processorId
-     *
      * @return Controller
      */
     public function useProcessorForHandlers(

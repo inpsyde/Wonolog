@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -10,6 +8,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Data;
 
@@ -103,11 +103,8 @@ final class FailedLogin implements LogDataInterface
         is_array($attempts) or $attempts = [];
 
         // Seems the first time a failed attempt for this IP
-        if (! $attempts || ! array_key_exists($userIp, $attempts)) {
-            $attempts[$userIp] = [
-                'count' => 0,
-                'last_logged' => 0,
-            ];
+        if (!$attempts || !array_key_exists($userIp, $attempts)) {
+            $attempts[$userIp] = ['count' => 0, 'last_logged' => 0];
         }
 
         $attempts[$userIp]['count']++;
@@ -136,9 +133,7 @@ final class FailedLogin implements LogDataInterface
         $doLog and $attempts[$userIp]['last_logged'] = $count;
         set_site_transient(self::TRANSIENT_NAME, $attempts, $ttl);
 
-        $this->attempts = $doLog
-            ? $count
-            : 0;
+        $this->attempts = $doLog ? $count : 0;
     }
 
     /**
@@ -161,14 +156,13 @@ final class FailedLogin implements LogDataInterface
             'HTTP_CLIENT_IP' => '',
             'HTTP_X_FORWARDED_FOR' => '',
         ];
+
         $ips = array_intersect_key($_SERVER, $ipServerKeys);
-        $this->ipData = $ips
-            ? [reset($ips), key($ips)]
-            : ['0.0.0.0', 'Hidden IP'];
+        $this->ipData = $ips ? [reset($ips), key($ips)] : ['0.0.0.0', 'Hidden IP'];
     }
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function context(): array
     {
@@ -182,30 +176,30 @@ final class FailedLogin implements LogDataInterface
     }
 
     /**
-     * @inheritdoc
+     * @return string
      */
     public function message(): string
     {
         $this->countAttempts(300);
 
-        if (! $this->attemptsData) {
+        if (!$this->attemptsData) {
             return '';
         }
 
         $this->sniffIp();
-        if (! isset($this->attemptsData[$this->ipData[0]]['count'])) {
+        if (!isset($this->attemptsData[$this->ipData[0]]['count'])) {
             return '';
         }
 
         return sprintf(
             "%d failed login attempts from username '%s' in last 5 minutes",
-            (int) $this->attemptsData[$this->ipData[0]]['count'],
+            (int)$this->attemptsData[$this->ipData[0]]['count'],
             $this->username
         );
     }
 
     /**
-     * @inheritdoc
+     * @return string
      */
     public function channel(): string
     {

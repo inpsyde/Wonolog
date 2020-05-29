@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -10,6 +8,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Data;
 
@@ -27,7 +27,6 @@ class HookLogFactory
     /**
      * @param array $arguments
      * @param int $hookLevel
-     *
      * @return LogDataInterface[]
      */
     public function logsFromHookArguments(array $arguments, int $hookLevel = 0): array
@@ -56,19 +55,16 @@ class HookLogFactory
             case (is_array($firstArg)):
                 $logs[] = $this->maybeRaiseLevel($hookLevel, Log::fromArray($firstArg));
                 break;
-
             case (is_wp_error($firstArg)):
                 [$level, $channel] = $this->levelAndChannelFromArgs($otherArgs);
                 $log = Log::fromWpError($firstArg, $level, $channel);
                 $logs[] = $this->maybeRaiseLevel($hookLevel, $log);
                 break;
-
-            case ($firstArg instanceof \Throwable || $firstArg instanceof \Exception):
+            case ($firstArg instanceof \Throwable):
                 [$level, $channel] = $this->levelAndChannelFromArgs($otherArgs);
                 $log = Log::fromThrowable($firstArg, $level, $channel);
                 $logs[] = $this->maybeRaiseLevel($hookLevel, $log);
                 break;
-
             case (is_string($firstArg)):
                 [$level, $channel] = $this->levelAndChannelFromArgs($otherArgs);
                 $level or $level = Logger::DEBUG;
@@ -130,10 +126,10 @@ class HookLogFactory
         $channel = '';
 
         if (!empty($args[0]) && (is_numeric($args[0]) || is_string($args[0]))) {
-            $level = (int)LogLevel::instance()->checkLevel($args[0]);
+            $level = LogLevel::instance()->checkLevel($args[0]);
         }
 
-        if (! empty($args[1]) && is_string($args[1])) {
+        if (!empty($args[1]) && is_string($args[1])) {
             $channel = $args[1];
         }
 

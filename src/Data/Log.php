@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -10,6 +8,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Data;
 
@@ -46,7 +46,6 @@ final class Log implements LogDataInterface
 
     /**
      * @param array $logData
-     *
      * @return Log
      */
     public static function fromArray(array $logData): Log
@@ -198,13 +197,13 @@ final class Log implements LogDataInterface
             self::CONTEXT => $this->context(),
         ];
 
-        $logData = (array) shortcode_atts($base, $logData);
+        $logData = array_replace($base, $logData);
 
         return self::fromArray($logData);
     }
 
     /**
-     * @inheritdoc
+     * @return int
      */
     public function level(): int
     {
@@ -216,14 +215,13 @@ final class Log implements LogDataInterface
      * @param mixed $value
      *
      * @return Log
-     * @throws \InvalidArgumentException
      *
      * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
      */
     public function with(string $key, $value): Log
     {
-        if (! array_key_exists($key, self::FILTERS)) {
-            throw new \InvalidArgumentException('Invalid Log key.');
+        if (!array_key_exists($key, self::FILTERS)) {
+            throw new \InvalidArgumentException('Invalid log key.');
         }
 
         return $this->mergeArray([$key => $value]);

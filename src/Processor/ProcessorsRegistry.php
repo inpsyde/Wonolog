@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -10,6 +8,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Processor;
 
@@ -19,6 +19,7 @@ namespace Inpsyde\Wonolog\Processor;
  */
 class ProcessorsRegistry implements \Countable
 {
+
     public const ACTION_REGISTER = 'wonolog.register-processors';
     public const DEFAULT_NAME = 'wonolog.default-processor';
 
@@ -35,7 +36,6 @@ class ProcessorsRegistry implements \Countable
     /**
      * @param callable $processor
      * @param string $name
-     *
      * @return ProcessorsRegistry
      */
     public function addProcessor(callable $processor, ?string $name = null): ProcessorsRegistry
@@ -88,9 +88,7 @@ class ProcessorsRegistry implements \Countable
             $name = $this->buildName($name);
         }
 
-        return $this->hasProcessor($name)
-            ? $this->processors[$name]
-            : null;
+        return $this->hasProcessor($name) ? $this->processors[$name] : null;
     }
 
     /**

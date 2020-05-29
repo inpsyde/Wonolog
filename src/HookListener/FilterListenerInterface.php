@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -20,7 +20,6 @@ interface FilterListenerInterface extends HookListenerInterface
 
     /**
      * @param array $args
-     *
      * @return mixed
      */
     public function filter(array $args);

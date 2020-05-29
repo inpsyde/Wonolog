@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -10,6 +8,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Handler;
 
@@ -28,6 +28,7 @@ use Monolog\Handler\NullHandler;
  */
 class DefaultHandlerFactory
 {
+
     public const FILTER_FOLDER = 'wonolog.default-handler-folder';
     public const FILTER_FILENAME = 'wonolog.default-handler-filename';
     public const FILTER_DATE_FORMAT = 'wonolog.default-handler-date-format';
@@ -41,8 +42,7 @@ class DefaultHandlerFactory
 
     /**
      * @param HandlerInterface|null $handler
-     *
-     * @return static
+     * @return DefaultHandlerFactory
      */
     public static function new(?HandlerInterface $handler = null): DefaultHandlerFactory
     {
@@ -80,7 +80,7 @@ class DefaultHandlerFactory
     {
         $folder = $this->handlerFolder();
 
-        if (! $folder) {
+        if (!$folder) {
             return new NullHandler();
         }
 
@@ -94,7 +94,7 @@ class DefaultHandlerFactory
              *
              * @param bool $bubble
              */
-            $bubble = (bool) apply_filters(self::FILTER_BUBBLE, true);
+            $bubble = (bool)apply_filters(self::FILTER_BUBBLE, true);
 
             /**
              * Filters whether to try to lock the log file before writing.
@@ -124,7 +124,7 @@ class DefaultHandlerFactory
     {
         $folder = getenv('WONOLOG_DEFAULT_HANDLER_ROOT_DIR');
 
-        if (! $folder && defined('WP_CONTENT_DIR')) {
+        if (!$folder && defined('WP_CONTENT_DIR')) {
             $folder = rtrim(WP_CONTENT_DIR, '\\/') . '/wonolog';
         }
 
@@ -182,17 +182,16 @@ class DefaultHandlerFactory
      * also highly recommended in documentation.
      *
      * @param string $folder
-     *
      * @return string
      */
     private function maybeCreateHtaccess(string $folder): string
     {
         if (
-            ! $folder
-            || ! is_dir($folder)
-            || ! is_writable($folder)
+            !$folder
+            || !is_dir($folder)
+            || !is_writable($folder)
             || file_exists("{$folder}/.htaccess")
-            || ! defined('WP_CONTENT_DIR')
+            || !defined('WP_CONTENT_DIR')
         ) {
             return $folder;
         }
@@ -227,13 +226,11 @@ class DefaultHandlerFactory
 	Deny from all
 </IfModule>
 HTACCESS;
-
             if (fwrite($handle, $htaccess)) {
                 flock($handle, LOCK_UN);
                 chmod("{$folder}/.htaccess", 0444);
             }
         }
-
         fclose($handle);
 
         restore_error_handler();

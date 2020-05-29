@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -10,6 +8,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
@@ -74,7 +74,7 @@ class MailerListenerTest extends TestCase
 
         Functions\when('is_wp_error')
             ->alias(
-                // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+            // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
                 static function ($thing): bool {
                     // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
                     return $thing instanceof \WP_Error;

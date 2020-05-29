@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -10,6 +8,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
@@ -60,7 +60,7 @@ class HttpApiListenerTest extends TestCase
 
         Actions\expectDone('http_api_debug')
             ->whenHappen(
-                // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+            // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
                 static function (...$args) use ($listener): void {
                     // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
                     do_action(\Inpsyde\Wonolog\LOG, $listener->update($args));
@@ -144,7 +144,7 @@ class HttpApiListenerTest extends TestCase
 
         Actions\expectDone('http_api_debug')
             ->whenHappen(
-                // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+            // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
                 static function (...$args) use ($listener): void {
                     // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
                     $log = $listener->update($args);

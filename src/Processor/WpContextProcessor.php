@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -10,6 +8,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Processor;
 
@@ -28,7 +28,6 @@ class WpContextProcessor
     /**
      * @param array $record The complete log record containing 'message', 'context'
      *                      'level', 'level_name', 'channel', 'datetime' and 'extra'
-     *
      * @return array
      */
     public function __invoke(array $record)

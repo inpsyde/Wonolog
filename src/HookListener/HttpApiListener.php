@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-/*
+/**
  * This file is part of the Wonolog package.
  *
  * (c) Inpsyde GmbH
@@ -10,6 +8,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\HookListener;
 
@@ -109,7 +109,6 @@ final class HttpApiListener implements ActionListenerInterface
     /**
      * @param array|\WP_Error $response
      * @param array $httpArgs
-     *
      * @return bool
      */
     private function isError(array $response, array $httpArgs = []): bool
@@ -130,7 +129,6 @@ final class HttpApiListener implements ActionListenerInterface
     /**
      * @param array|\WP_Error $response
      * @param string $url
-     *
      * @return bool
      */
     private function isCron(array $response, string $url): bool
@@ -148,7 +146,6 @@ final class HttpApiListener implements ActionListenerInterface
      * @param string $class
      * @param array $args
      * @param string $url
-     *
      * @return Debug
      */
     private function logCron(
