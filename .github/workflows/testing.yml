@@ -12,13 +12,13 @@ jobs:
       - name: Analysing source code
         run: find ./src/ ./tests/ -type f -name '*.php' -print0 | xargs -0 -L 1 -P 4 -- php -l
 
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest -a
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest -a
 
       - name: Check code styles
         run: composer cs
