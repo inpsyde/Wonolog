@@ -211,7 +211,7 @@ class Controller {
 			function ( ProcessorsRegistry $registry ) use ($processor) {
 				$processor or $processor = new WpContextProcessor();
 
-				$registry->add_processor( $processor, ProcessorsRegistry::DEFAULT_NAME );
+				$registry->addProcessor( $processor, ProcessorsRegistry::DEFAULT_NAME );
 			}
 		);
 
@@ -235,7 +235,7 @@ class Controller {
 			ProcessorsRegistry::ACTION_REGISTER,
 			function ( ProcessorsRegistry $registry ) use ( $processor_id, $processor ) {
 
-				$registry->add_processor( $processor, $processor_id );
+				$registry->addProcessor( $processor, $processor_id );
 			}
 		);
 
@@ -277,7 +277,7 @@ class Controller {
 			ProcessorsRegistry::ACTION_REGISTER,
 			function ( ProcessorsRegistry $registry ) use ( $processor_id, $processor ) {
 
-				$registry->add_processor( $processor, $processor_id );
+				$registry->addProcessor( $processor, $processor_id );
 			}
 		);
 
