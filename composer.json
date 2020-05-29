@@ -1,65 +1,84 @@
 {
-  "name": "inpsyde/wonolog",
-  "description": "Monolog-based logging package for WordPress.",
-  "keywords": [
-    "debug",
-    "debugging",
-    "log",
-    "logger",
-    "logging",
-    "monolog",
-    "psr-3",
-    "wordpress"
-  ],
-  "type": "library",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Inpsyde GmbH",
-      "email": "hello@inpsyde.com",
-      "homepage": "https://inpsyde.com",
-      "role": "Company"
+    "name": "inpsyde/wonolog",
+    "description": "Monolog-based logging package for WordPress.",
+    "keywords": [
+        "debug",
+        "debugging",
+        "log",
+        "logger",
+        "logging",
+        "monolog",
+        "psr-3",
+        "wordpress"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Inpsyde GmbH",
+            "email": "hello@inpsyde.com",
+            "homepage": "https://inpsyde.com",
+            "role": "Company"
+        },
+        {
+            "name": "Giuseppe Mazzapica",
+            "email": "giuseppe.mazzapica@gmail.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Christian Leucht",
+            "email": "c.leucht@inpsyde.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/inpsyde/Wonolog/issues",
+        "source": "https://github.com/inpsyde/Wonolog",
+        "docs": "https://inpsyde.github.io/Wonolog/"
     },
-    {
-      "name": "Giuseppe Mazzapica",
-      "email": "giuseppe.mazzapica@gmail.com",
-      "role": "Developer"
-    }
-  ],
-  "support": {
-    "issues": "https://github.com/inpsyde/Wonolog/issues",
-    "source": "https://github.com/inpsyde/Wonolog",
-    "docs": "https://inpsyde.github.io/Wonolog/"
-  },
-  "minimum-stability": "stable",
-  "require": {
-    "php": ">=5.6",
-    "monolog/monolog": "^1.21.0"
-  },
-  "require-dev": {
-    "phpunit/phpunit": "^5.7.21",
-    "brain/monkey": "^2.2.0",
-    "mikey179/vfsStream": "~1.6.4"
-  },
-  "autoload": {
-    "psr-4": {
-      "Inpsyde\\Wonolog\\": "src"
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.2",
+        "monolog/monolog": "^2"
     },
-    "files": [
-      "inc/bootstrap.php"
-    ]
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Inpsyde\\Wonolog\\Tests\\": "tests/src"
+    "require-dev": {
+        "phpunit/phpunit": "^8",
+        "brain/monkey": "^2.2.0",
+        "mikey179/vfsStream": "~1.6.4",
+        "inpsyde/php-coding-standards": "^1",
+        "vimeo/psalm": "@stable",
+        "roots/wordpress": "@stable"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inpsyde\\Wonolog\\": "src"
+        },
+        "files": [
+            "inc/bootstrap.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Inpsyde\\Wonolog\\Tests\\": "tests/src"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
+        }
+    },
+    "scripts": {
+        "cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
+        "psalm": "@php ./vendor/vimeo/psalm/psalm",
+        "tests": "@php ./vendor/phpunit/phpunit/phpunit",
+        "tests:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --no-coverage",
+        "qa": [
+            "@cs",
+            "@psalm",
+            "@tests:no-cov"
+        ]
     }
-  },
-  "config": {
-    "optimize-autoloader": true
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-master": "1.0.x-dev"
-    }
-  }
 }
