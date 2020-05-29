@@ -1,4 +1,7 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Wonolog package.
  *
@@ -17,112 +20,119 @@ use Monolog\Handler\HandlerInterface;
  * @package wonolog
  * @license http://opensource.org/licenses/MIT MIT
  */
-class HandlersRegistry implements \Countable {
+class HandlersRegistry implements \Countable
+{
 
-	const ACTION_REGISTER = 'wonolog.register-handlers';
-	const ACTION_SETUP = 'wonolog.handler-setup';
-	const DEFAULT_NAME = 'wonolog.default-handler';
+    public const ACTION_REGISTER = 'wonolog.register-handlers';
+    public const ACTION_SETUP = 'wonolog.handler-setup';
+    public const DEFAULT_NAME = 'wonolog.default-handler';
 
-	/**
-	 * @var HandlerInterface[]
-	 */
-	private $handlers = [];
+    /**
+     * @var HandlerInterface[]
+     */
+    private $handlers = [];
 
-	/**
-	 * @var ProcessorsRegistry
-	 */
-	private $processors_registry;
+    /**
+     * @var ProcessorsRegistry
+     */
+    private $processorsRegistry;
 
-	/**
-	 * @var string[]
-	 */
-	private $initialized;
+    /**
+     * @var string[]
+     */
+    private $initialized;
 
-	/**
-	 * @param ProcessorsRegistry $processors_registry
-	 */
-	public function __construct( ProcessorsRegistry $processors_registry ) {
+    /**
+     * @param ProcessorsRegistry $processorsRegistry
+     */
+    public function __construct(ProcessorsRegistry $processorsRegistry)
+    {
+        $this->processorsRegistry = $processorsRegistry;
+    }
 
-		$this->processors_registry = $processors_registry;
-	}
+    /**
+     * @param HandlerInterface $handler
+     * @param string $name
+     *
+     * @return HandlersRegistry
+     */
+    public function addHandler(HandlerInterface $handler, ?string $name = null): HandlersRegistry
+    {
+        ($name === null) and $name = spl_object_hash($handler);
+        if (array_key_exists($name, $this->handlers)) {
+            return $this;
+        }
 
-	/**
-	 * @param HandlerInterface $handler
-	 * @param string           $name
-	 *
-	 * @return HandlersRegistry
-	 */
-	public function addHandler( HandlerInterface $handler, $name = null ) {
+        $this->handlers[$name] = $handler;
 
-		( $name === null ) and $name = spl_object_hash( $handler );
-		if ( ! is_string( $name ) || array_key_exists( $name, $this->handlers ) ) {
-			return $this;
-		}
+        return $this;
+    }
 
-		$this->handlers[ $name ] = $handler;
+    /**
+     * @param string|HandlerInterface $name
+     *
+     * @return bool
+     *
+     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     */
+    public function hasHandler($name): bool
+    {
+        $name instanceof HandlerInterface and $name = spl_object_hash($name);
 
-		return $this;
-	}
+        return is_string($name) && array_key_exists($name, $this->handlers);
+    }
 
-	/**
-	 * @param string $name
-	 *
-	 * @return bool
-	 */
-	public function has_handler( $name ) {
+    /**
+     * @param string|HandlerInterface $name
+     *
+     * @return HandlerInterface|null
+     *
+     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     */
+    public function find($name): ?HandlerInterface
+    {
+        if (! is_array($this->initialized)) {
+            $this->initialized = [];
 
-		$name instanceof HandlerInterface and $name = spl_object_hash( $name );
+            /**
+             * Fires right before the first handler is to be registered.
+             *
+             * @param HandlersRegistry $handlersRegistry
+             */
+            do_action(self::ACTION_REGISTER, $this);
+        }
 
-		return is_string( $name ) && array_key_exists( $name, $this->handlers );
-	}
+        $name = $name instanceof HandlerInterface
+            ? spl_object_hash($name)
+            : (string) $name;
 
-	/**
-	 * @param string|HandlerInterface $name
-	 *
-	 * @return HandlerInterface|null
-	 */
-	public function find( $name ) {
+        if (! $this->hasHandler($name)) {
+            return null;
+        }
 
-		if ( ! is_array( $this->initialized ) ) {
-			$this->initialized = [];
+        $handler = $this->handlers[$name];
 
-			/**
-			 * Fires right before the first handler is to be registered.
-			 *
-			 * @param HandlersRegistry $handlers_registry
-			 */
-			do_action( self::ACTION_REGISTER, $this );
-		}
+        if (! in_array($name, $this->initialized, true)) {
+            $this->initialized[] = $name;
 
-		$name = $name instanceof HandlerInterface ? spl_object_hash( $name ) : (string) $name;
+            /**
+             * Fires right after a handler has been registered.
+             *
+             * @param HandlerInterface $handler
+             * @param string $name
+             * @param ProcessorsRegistry $processors_registry
+             */
+            do_action(self::ACTION_SETUP, $handler, $name, $this->processorsRegistry);
+        }
 
-		if ( ! $this->has_handler( $name ) ) {
-			return null;
-		}
+        return $handler;
+    }
 
-		$handler = $this->handlers[ $name ];
-
-		if ( ! in_array( $name, $this->initialized, TRUE ) ) {
-			$this->initialized[] = $name;
-
-			/**
-			 * Fires right after a handler has been registered.
-			 *
-			 * @param HandlerInterface   $handler
-			 * @param string             $name
-			 * @param ProcessorsRegistry $processors_registry
-			 */
-			do_action( self::ACTION_SETUP, $handler, $name, $this->processors_registry );
-		}
-
-		return $handler;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function count() {
-
-		return count( $this->handlers );
-	}
+    /**
+     * @return int
+     */
+    public function count(): int
+    {
+        return count($this->handlers);
+    }
 }
