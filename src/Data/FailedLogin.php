@@ -52,9 +52,7 @@ final class FailedLogin implements LogDataInterface
      */
     public function __construct(string $username)
     {
-        $this->username = is_scalar($username)
-            ? (string) $username
-            : 'Unknown user';
+        $this->username = $username;
     }
 
     /**
@@ -201,7 +199,7 @@ final class FailedLogin implements LogDataInterface
 
         return sprintf(
             "%d failed login attempts from username '%s' in last 5 minutes",
-            $this->attemptsData[$this->ipData[0]]['count'],
+            (int) $this->attemptsData[$this->ipData[0]]['count'],
             $this->username
         );
     }

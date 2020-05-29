@@ -92,7 +92,7 @@ final class Log implements LogDataInterface
             return new static($message, $level, $channel, $context);
         }
 
-        $channel = WpErrorChannel::forError($error)
+        $channel = WpErrorChannel::new($error)
             ->channel();
 
         // Raise level for "guessed" channels
@@ -171,7 +171,9 @@ final class Log implements LogDataInterface
             self::CONTEXT => $this->context(),
         ];
 
-        return self::fromArray(shortcode_atts($base, $logData));
+        $logData = (array) shortcode_atts($base, $logData);
+
+        return self::fromArray($logData);
     }
 
     /**
@@ -203,7 +205,8 @@ final class Log implements LogDataInterface
             $logData[self::LEVEL] = $logLevel->check_level($logData[self::LEVEL], $levels);
         }
 
-        $logData = array_filter(filter_var_array($logData, self::$filters));
+        $logData = (array) filter_var_array($logData, self::$filters);
+        $logData = (array) array_filter($logData);
 
         $data = array_merge($defaults, $logData);
 
@@ -221,10 +224,12 @@ final class Log implements LogDataInterface
      *
      * @return Log
      * @throws \InvalidArgumentException
+     *
+     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
      */
-    public function with($key, $value): Log
+    public function with(string $key, $value): Log
     {
-        if (! is_string($key) || ! array_key_exists($key, self::$filters)) {
+        if (! array_key_exists($key, self::$filters)) {
             throw new \InvalidArgumentException('Invalid Log key.');
         }
 

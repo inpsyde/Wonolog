@@ -59,7 +59,7 @@ class HandlersRegistry implements \Countable
     public function addHandler(HandlerInterface $handler, ?string $name = null): HandlersRegistry
     {
         ($name === null) and $name = spl_object_hash($handler);
-        if (! is_string($name) || array_key_exists($name, $this->handlers)) {
+        if (array_key_exists($name, $this->handlers)) {
             return $this;
         }
 

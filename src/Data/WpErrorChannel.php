@@ -42,13 +42,21 @@ class WpErrorChannel
      *
      * @return WpErrorChannel
      */
-    public static function forError(\WP_Error $error, string $channel = ''): WpErrorChannel
+    public static function new(\WP_Error $error, string $channel = ''): WpErrorChannel
     {
-        $instance = new static();
-        $instance->error = $error;
-        $channel and $instance->channel = (string) $channel;
+        return new static($error, $channel);
+    }
 
-        return $instance;
+    /**
+     * WpErrorChannel constructor.
+     *
+     * @param \WP_Error $error
+     * @param string $channel
+     */
+    private function __construct(\WP_Error $error, string $channel)
+    {
+        $this->error = $error;
+        $this->channel = $channel;
     }
 
     /**
@@ -64,7 +72,7 @@ class WpErrorChannel
         $codes = $this->error->get_error_codes();
 
         while (! $channel && $codes) {
-            $code = array_shift($codes);
+            $code = (string) array_shift($codes);
             $channel = $this->maybeDbChannel($code);
             $channel or $channel = $this->maybeHttpChannel($code);
             $channel or $channel = $this->maybeSecurityChannel($code);

@@ -9,8 +9,9 @@ define('OBJECT', 'OBJECT');
 
 $wpIncPath = ABSPATH."wp-includes/";
 
-require "{$wpIncPath}class-wp-post.php";
+
 require "{$wpIncPath}class-wp-error.php";
+require "{$wpIncPath}shortcodes.php";
 require "{$wpIncPath}load.php";
 require "{$wpIncPath}plugin.php";
 require "{$wpIncPath}functions.php";

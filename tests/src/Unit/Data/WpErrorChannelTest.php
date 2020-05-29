@@ -33,14 +33,14 @@ class WpErrorChannelTest extends TestCase {
 
 	public function test_for_error() {
 
-		$instance = WpErrorChannel::forError( \Mockery::mock( 'WP_Error' ) );
+		$instance = WpErrorChannel::new( \Mockery::mock( 'WP_Error' ) );
 
 		self::assertInstanceOf( WpErrorChannel::class, $instance );
 	}
 
 	public function test_channel_explicit() {
 
-		$instance = WpErrorChannel::forError( \Mockery::mock( 'WP_Error' ), 'FOO' );
+		$instance = WpErrorChannel::new( \Mockery::mock( 'WP_Error' ), 'FOO' );
 		$channel  = $instance->channel();
 
 		self::assertSame( 'FOO', $channel );
@@ -54,7 +54,7 @@ class WpErrorChannelTest extends TestCase {
 			->once()
 			->andReturn( [ 'foo', 'bar', 'db_failed' ] );
 
-		$instance = WpErrorChannel::forError( $error );
+		$instance = WpErrorChannel::new( $error );
 		$channel  = $instance->channel();
 
 		self::assertSame( Channels::DB, $channel );
@@ -68,7 +68,7 @@ class WpErrorChannelTest extends TestCase {
 			->once()
 			->andReturn( [ 'foo', 'bar', 'rest_error' ] );
 
-		$instance = WpErrorChannel::forError( $error );
+		$instance = WpErrorChannel::new( $error );
 		$channel  = $instance->channel();
 
 		self::assertSame( Channels::HTTP, $channel );
@@ -82,7 +82,7 @@ class WpErrorChannelTest extends TestCase {
 			->once()
 			->andReturn( [ 'foo', 'authentication', 'rest_error' ] );
 
-		$instance = WpErrorChannel::forError( $error );
+		$instance = WpErrorChannel::new( $error );
 		$channel  = $instance->channel();
 
 		self::assertSame( Channels::SECURITY, $channel );
@@ -101,7 +101,7 @@ class WpErrorChannelTest extends TestCase {
 			->once()
 			->andReturn( [ 'foo', 'authentication', 'rest_error' ] );
 
-		$instance = WpErrorChannel::forError( $error );
+		$instance = WpErrorChannel::new( $error );
 		$channel  = $instance->channel();
 
 		self::assertSame( 'BAR', $channel );
