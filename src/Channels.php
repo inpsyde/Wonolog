@@ -160,6 +160,9 @@ class Channels
             $this->processorsRegistry
         );
 
+        // shutdown the logger
+        register_shutdown_function([$logger, 'close']);
+
         return $logger;
     }
 
