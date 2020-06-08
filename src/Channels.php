@@ -102,6 +102,7 @@ class Channels
 
     /**
      * @param string $channel
+     *
      * @return bool
      */
     public function hasChannel(string $channel): bool
@@ -111,6 +112,7 @@ class Channels
 
     /**
      * @param string $channel
+     *
      * @return Logger
      */
     public function logger(string $channel): Logger
@@ -134,6 +136,7 @@ class Channels
 
     /**
      * @param Logger $logger
+     *
      * @return Logger
      */
     private function initializeLogger(Logger $logger): Logger
@@ -161,13 +164,18 @@ class Channels
         );
 
         // shutdown the logger
-        register_shutdown_function([$logger, 'close']);
+        register_shutdown_function(
+            function () use ($logger) {
+                $logger->close();
+            }
+        );
 
         return $logger;
     }
 
     /**
      * @param Logger $logger
+     *
      * @return HandlerInterface|null
      */
     private function useDefaultHandler(Logger $logger): ?HandlerInterface
@@ -193,6 +201,7 @@ class Channels
 
     /**
      * @param Logger $logger
+     *
      * @return callable|null
      */
     private function useDefaultProcessor(Logger $logger): ?callable
