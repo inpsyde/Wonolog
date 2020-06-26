@@ -48,7 +48,9 @@
         "mikey179/vfsstream": "~1.6.4",
         "inpsyde/php-coding-standards": "^1",
         "vimeo/psalm": "@stable",
-        "roots/wordpress": "@stable"
+        "roots/wordpress": "@stable",
+        "symfony/process": "^4.4",
+        "globalis/wp-cli-bin": "^2.4"
     },
     "autoload": {
         "psr-4": {
@@ -77,6 +79,7 @@
         "psalm": "@php ./vendor/vimeo/psalm/psalm",
         "tests": "@php ./vendor/phpunit/phpunit/phpunit",
         "tests:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --no-coverage",
+        "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=Integration --no-coverage",
         "qa": [
             "@cs",
             "@psalm",

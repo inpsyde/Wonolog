@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+function dispatch() {
+  local COMMANDS=('qa' 'tests:unit' 'tests:integration' 'cs' 'psalm' 'help' '-h' 'down')
+  local PHP_VERSIONS=('7.2' '7.3' '7.4')
+  local BASE_CMD="composer install -q -n -a --no-progress --prefer-dist && composer"
+  local COMMAND=$1
+  local PHP_VER=$2
+  local CMD
+  local ERROR=0
+
+  # Command not recognized, print error then set command to help. Make sure exist code is 1.
+  # shellcheck disable=SC2076
+  if [[ ! " ${COMMANDS[*]} " =~ " $COMMAND " ]]; then
+    if [[ "$COMMAND" != '' ]]; then
+      printf "Error: the command '%s' does not exist.\n" "$COMMAND"
+    else
+      printf "Error: wrong usage.\n"
+    fi
+
+    COMMAND='help'
+    ERROR=1
+  fi
+
+  if [[ ! " ${PHP_VERSIONS[*]} " =~ " $PHP_VER " ]]; then
+    PHP_VER='7.4'
+  fi
+
+  if [[ "$COMMAND" = "help" ]] || [[ "$COMMAND" = "-h" ]]; then
+      cat << USAGE >&2
+
+docker-run command [php-version]
+docker-run -h
+
+Commands:
+    tests:unit            Execute PHP unit tests.
+    tests:integration     Execute PHP integration tests.
+    cs                    Check code styles with PHPCS.
+    psalm                 Check code with Psalm.
+    qa                    Execute all the above.
+    down                  Shortcut to 'docker-compose down --volumes'.
+    help                  Print this help. Equals to 'docker-run -h'.
+
+PHP versions:
+    7.2
+    7.3
+    7.4    (default)
+USAGE
+    exit ${ERROR}
+  fi
+
+  if [[ "$COMMAND" = "down" ]]; then
+    docker-compose down --volumes
+    exit 0
+  fi
+
+  if [[ "$COMMAND" = "tests:unit" ]]; then
+    COMMAND="tests:unit:no-cov"
+  fi
+
+  CMD="$BASE_CMD $COMMAND"
+
+  if [[ "$COMMAND" = "tests:integration" ]] || [[ "$COMMAND" = "qa" ]]; then
+    CMD="wait-for.sh wonolog-mysql:3306 -t 15 -- $CMD"
+  fi
+
+  local WAIT_FOR_PATH="./php${PHP_VER/./}/wait-for.sh"
+  if [[ ! -f "$WAIT_FOR_PATH" ]]; then
+    cp ./wait-for.sh ${WAIT_FOR_PATH}
+  fi
+
+  printf "Executing:\n  %s\n  in PHP v%s\n\n" "$CMD" "$PHP_VER"
+
+  case "$PHP_VER" in
+    7.2)
+      docker-compose run --rm -T php72 sh -c "$CMD"
+      ;;
+    7.3)
+      docker-compose run --rm -T php73 sh -c "$CMD"
+      ;;
+    *)
+      docker-compose run --rm -T php74 sh -c "$CMD"
+      ;;
+  esac
+}
+
+# And go!
+dispatch "$1" "$2"

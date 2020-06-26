@@ -18,6 +18,9 @@
 		<testsuite name="Functional">
 			<directory suffix="Test.php">tests/src/Functional</directory>
 		</testsuite>
+		<testsuite name="Integration">
+			<directory suffix="Test.php">tests/src/Integration</directory>
+		</testsuite>
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="true">
