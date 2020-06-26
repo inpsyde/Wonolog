@@ -19,10 +19,11 @@ use Inpsyde\Wonolog\Data\LogDataInterface;
  */
 interface ActionListenerInterface extends HookListenerInterface
 {
-
     /**
+     * @param string $hook
      * @param array $args
+     *
      * @return LogDataInterface
      */
-    public function update(array $args): LogDataInterface;
+    public function update(string $hook, array $args): LogDataInterface;
 }

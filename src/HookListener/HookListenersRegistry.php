@@ -23,7 +23,6 @@ use Inpsyde\Wonolog\Data\LogDataInterface;
  */
 class HookListenersRegistry
 {
-
     public const ACTION_REGISTER = 'wonolog.register-listeners';
     public const FILTER_ENABLED = 'wonolog.hook-listener-enabled';
     public const FILTER_PRIORITY = 'wonolog.listened-hook-priority';
@@ -102,7 +101,7 @@ class HookListenersRegistry
      */
     private function listenHook(string $hook, HookListenerInterface $listener): bool
     {
-        [$callback, $isFilter] = $this->hookCallback($listener);
+        [$callback, $isFilter] = $this->hookCallback($listener, $hook);
         if (!$callback) {
             return false;
         }
@@ -128,9 +127,11 @@ class HookListenersRegistry
 
     /**
      * @param HookListenerInterface $listener
+     * @param string $hook
+     *
      * @return array{0:callable|null, 1:bool|null}
      */
-    private function hookCallback(HookListenerInterface $listener): array
+    private function hookCallback(HookListenerInterface $listener, string $hook): array
     {
         $isFilter = $listener instanceof FilterListenerInterface;
         $isAction = $listener instanceof ActionListenerInterface;
@@ -140,22 +141,23 @@ class HookListenersRegistry
         }
 
         /**
+         * @param array $args
+         *
          * @return mixed|null
          *
          * @wp-hook
          */
-        $callback = static function () use ($listener, $isFilter) {
-            $args = func_get_args();
+        $callback = static function (...$args) use ($listener, $hook, $isFilter) {
             if (!$isFilter) {
                 /** @var ActionListenerInterface $listener */
-                do_action(\Inpsyde\Wonolog\LOG, $listener->update($args));
+                do_action(\Inpsyde\Wonolog\LOG, $listener->update($hook, $args));
 
                 return null;
             }
 
             /** @var FilterListenerInterface $listener */
 
-            return $listener->filter($args);
+            return $listener->filter($hook, $args);
         };
 
         return [$callback, $isFilter];

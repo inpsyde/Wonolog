@@ -81,19 +81,21 @@ final class CronDebugListener implements ActionListenerInterface
     /**
      * Logs all the cron hook performed and their performance.
      *
+     * @param string $hook
      * @param array $args
+     *
      * @return NullLog
      *
      * @wp-hook wp_loaded
      */
-    public function update(array $args): LogDataInterface
+    public function update(string $hook, array $args): LogDataInterface
     {
         if (self::$ran) {
             return new NullLog();
         }
 
         if ($this->isCron() || $this->isCli()) {
-            $this->registerEventListener();
+            $this->registerEventListener($hook);
         }
 
         return new NullLog();
@@ -101,8 +103,10 @@ final class CronDebugListener implements ActionListenerInterface
 
     /**
      * Logs all the cron hook performed and their performance.
+     *
+     * @param string $hook
      */
-    private function registerEventListener(): void
+    private function registerEventListener(string $hook): void
     {
         $cronArray = _get_cron_array();
         if (!$cronArray || !is_array($cronArray)) {
@@ -117,8 +121,8 @@ final class CronDebugListener implements ActionListenerInterface
             []
         );
 
-        $profileCallback = function () {
-            $this->cronActionProfile();
+        $profileCallback = function () use ($hook) {
+            $this->cronActionProfile($hook);
         };
 
         array_walk(
@@ -135,14 +139,15 @@ final class CronDebugListener implements ActionListenerInterface
 
     /**
      * Run before and after that any cron action ran, logging it and its performance.
+     *
+     * @param string $hook
      */
-    private function cronActionProfile(): void
+    private function cronActionProfile(string $hook): void
     {
         if (!defined('DOING_CRON') || !DOING_CRON) {
             return;
         }
 
-        $hook = current_filter();
         if (!isset($this->done[$hook])) {
             $this->done[$hook]['start'] = microtime(true);
 

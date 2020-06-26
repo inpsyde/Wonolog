@@ -39,7 +39,7 @@ class MailerListenerTest extends TestCase
             ->whenHappen(
                 static function (\PHPMailer $mailer) use ($listener) {
 
-                    $log = $listener->update([$mailer]);
+                    $log = $listener->update('phpmailer_init', [$mailer]);
                     static::assertInstanceOf(NullLog::class, $log);
                 }
             );
@@ -85,7 +85,7 @@ class MailerListenerTest extends TestCase
             ->once()
             ->whenHappen(
                 static function (\WP_Error $error) use ($listener) {
-                    $log = $listener->update([$error]);
+                    $log = $listener->update('wp_mail_failed', [$error]);
 
                     static::assertInstanceOf(LogDataInterface::class, $log);
                     static::assertSame(Logger::ERROR, $log->level());
@@ -111,14 +111,10 @@ class MailerListenerTest extends TestCase
     {
         $listener = new MailerListener();
 
-        Functions\expect('current_filter')
-            ->once()
-            ->andReturn('wp_mail_failed');
-
         Functions\expect('is_wp_error')
             ->once()
             ->andReturn(false);
 
-        $this->assertInstanceOf(LogDataInterface::class, $listener->update([]));
+        $this->assertInstanceOf(LogDataInterface::class, $listener->update('wp_mail_failed', []));
     }
 }

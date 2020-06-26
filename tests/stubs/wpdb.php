@@ -39,7 +39,7 @@ class wpdb // phpcs:ignore
      */
     public function bail($message, $code = '500')
     {
-        $handler = $this->execute_die_listener($message);
+        $handler = $this->execute_die_listener();
 
         return $handler($message, 'Bail');
     }
@@ -50,23 +50,22 @@ class wpdb // phpcs:ignore
      */
     public function print_error($message = '')
     {
-        $handler = $this->execute_die_listener($message);
+        $handler = $this->execute_die_listener();
 
         return $handler($message, 'Bail');
     }
 
     /**
-     * @param string $message
      * @return callable
      */
-    private function execute_die_listener($message)
+    private function execute_die_listener()
     {
         $handler = static function ($message) {
             return "Handled: $message";
         };
 
         $listener = $this->wp_die_listener;
-        $handler = $listener->filter([$handler]);
+        $handler = $listener->filter('a', [$handler]);
 
         return $handler;
     }

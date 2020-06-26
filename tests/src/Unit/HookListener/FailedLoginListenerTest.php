@@ -39,7 +39,7 @@ class FailedLoginListenerTest extends TestCase
             ->once()
             ->whenHappen(
                 static function () use ($listener) {
-                    $log = $listener->update(func_get_args());
+                    $log = $listener->update('a', func_get_args());
                     static::assertInstanceOf(FailedLogin::class, $log);
                 }
             );
@@ -64,7 +64,7 @@ class FailedLoginListenerTest extends TestCase
             ->once()
             ->whenHappen(
                 static function () use ($listener) {
-                    $log = $listener->update(func_get_args());
+                    $log = $listener->update('a', func_get_args());
                     static::assertInstanceOf(FailedLogin::class, $log);
                     static::assertSame(0, $log->level());
                 }

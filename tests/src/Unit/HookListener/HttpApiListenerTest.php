@@ -63,7 +63,7 @@ class HttpApiListenerTest extends TestCase
             // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
                 static function (...$args) use ($listener): void {
                     // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-                    do_action(\Inpsyde\Wonolog\LOG, $listener->update($args));
+                    do_action(\Inpsyde\Wonolog\LOG, $listener->update('a', $args));
                 }
             );
 
@@ -112,7 +112,7 @@ class HttpApiListenerTest extends TestCase
             ->whenHappen(
                 static function () use ($listener, $tester) {
 
-                    $tester($listener->update(func_get_args()));
+                    $tester($listener->update('a', func_get_args()));
                 }
             );
 
@@ -147,7 +147,7 @@ class HttpApiListenerTest extends TestCase
             // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
                 static function (...$args) use ($listener): void {
                     // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-                    $log = $listener->update($args);
+                    $log = $listener->update('a', $args);
                     static::assertInstanceOf(NullLog::class, $log);
                 }
             );
@@ -201,7 +201,7 @@ class HttpApiListenerTest extends TestCase
             ->whenHappen(
                 static function () use ($listener, $tester) {
 
-                    $tester($listener->update(func_get_args()));
+                    $tester($listener->update('a', func_get_args()));
                 }
             );
 

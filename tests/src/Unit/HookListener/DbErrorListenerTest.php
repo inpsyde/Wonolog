@@ -54,7 +54,7 @@ class DbErrorListenerTest extends TestCase
             ->once()
             ->whenHappen(
                 static function () use ($listener, $tester) {
-                    $tester($listener->update(func_get_args()));
+                    $tester($listener->update('a', func_get_args()));
                 }
             );
 
@@ -70,6 +70,6 @@ class DbErrorListenerTest extends TestCase
 
         $listener = new DbErrorListener();
 
-        static::assertInstanceOf(NullLog::class, $listener->update([]));
+        static::assertInstanceOf(NullLog::class, $listener->update('a', []));
     }
 }

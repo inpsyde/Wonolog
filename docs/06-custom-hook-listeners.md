@@ -69,15 +69,15 @@ class MyFilesListener implements ActionListenerInterface {
             'myfiles_file_upload_failed',
             'myfiles_file_downloaded',
         ];
-    }  
+    }
 
-    public function update( array $args ) {
+    public function update( string $hook, array $args ) {
 
         $method = [ $this, current_filter() ];
         if ( is_callable( $method ) ) {
             return $method( ...$args );
         }
-    }  
+    }
 
     private function myfiles_file_uploaded( $file_info, $user_id ) {
 
@@ -127,7 +127,7 @@ The MU plugin to do that could be something like this:
 /*
  * Plugin name: Wonolog Configuration
  */
- 
+
 use Inpsyde\Wonolog;
 use MyWebsite\MyFilesListener;
 
@@ -136,7 +136,7 @@ if ( ! defined( 'Inpsyde\Wonolog\LOG' ) ) {
 }
 
 // Add the custom channel to Wonolog.
-add_filter( 'wonolog.channels', function( array $channels ) {  
+add_filter( 'wonolog.channels', function( array $channels ) {
 
     $channels[] = MyFilesListener::TARGET_CHANNEL_NAME;
 
@@ -193,7 +193,7 @@ For example, the `MyFilesListener` class from above could do something like this
 
 ```php
 class MyFilesListener implements ActionListenerInterface {
- 
+
     // ...
 
     public function listen_to() {
@@ -220,7 +220,7 @@ class MyFilesListener implements ActionListenerInterface {
 
 -------
 
-Read previous: 
+Read previous:
 
 - [05 - Wonolog Customization](05-wonolog-customization.md) for a deep travel through all the possible configurations available for any aspect of the package.
 - [04 - Hook Listeners](04-hook-listeners.md) to read about hook listeners, the powerful feature of Wonolog that allows for logging any WordPress code.

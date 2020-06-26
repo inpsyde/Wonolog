@@ -37,12 +37,14 @@ class MailerListener implements ActionListenerInterface
     }
 
     /**
+     * @param string $hook
      * @param array $args
+     *
      * @return LogDataInterface
      */
-    public function update(array $args): LogDataInterface
+    public function update(string $hook, array $args): LogDataInterface
     {
-        switch (current_filter()) {
+        switch ($hook) {
             case 'phpmailer_init':
                 return $this->onMailerInit($args);
             case 'wp_mail_failed':
