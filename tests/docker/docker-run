@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
 function dispatch() {
-  local COMMANDS=('qa' 'tests:unit' 'tests:integration' 'cs' 'psalm' 'help' '-h' 'down')
+  local COMMANDS=('tests:unit' 'tests:integration' 'cs' 'psalm' 'help' '-h' 'down')
   local PHP_VERSIONS=('7.2' '7.3' '7.4')
   local BASE_CMD="composer install -q -n -a --no-progress --prefer-dist && composer"
   local COMMAND=$1
   local PHP_VER=$2
+  local CMD_PARAMS=$3
   local CMD
   local ERROR=0
 
@@ -37,7 +38,6 @@ Commands:
     tests:integration     Execute PHP integration tests.
     cs                    Check code styles with PHPCS.
     psalm                 Check code with Psalm.
-    qa                    Execute all the above.
     down                  Shortcut to 'docker-compose down --volumes'.
     help                  Print this help. Equals to 'docker-run -h'.
 
@@ -60,8 +60,12 @@ USAGE
 
   CMD="$BASE_CMD $COMMAND"
 
-  if [[ "$COMMAND" = "tests:integration" ]] || [[ "$COMMAND" = "qa" ]]; then
+  if [[ "$COMMAND" = "tests:integration" ]]; then
     CMD="wait-for.sh wonolog-mysql:3306 -t 15 -- $CMD"
+  fi
+
+  if [[ "$CMD_PARAMS" ]]; then
+    CMD="$CMD -- $CMD_PARAMS"
   fi
 
   local WAIT_FOR_PATH="./php${PHP_VER/./}/wait-for.sh"
@@ -85,4 +89,4 @@ USAGE
 }
 
 # And go!
-dispatch "$1" "$2"
+dispatch "$1" "$2" "$3"

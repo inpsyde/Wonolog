@@ -77,13 +77,8 @@
     "scripts": {
         "cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
         "psalm": "@php ./vendor/vimeo/psalm/psalm",
-        "tests": "@php ./vendor/phpunit/phpunit/phpunit",
-        "tests:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --no-coverage",
-        "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=Integration --no-coverage",
-        "qa": [
-            "@cs",
-            "@psalm",
-            "@tests:no-cov"
-        ]
+        "tests:unit": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=Unit,Functional",
+        "tests:unit:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=Unit,Functional --no-coverage",
+        "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=Integration --no-coverage"
     }
 }
