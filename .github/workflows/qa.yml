@@ -24,8 +24,8 @@ jobs:
             -   name: Check code styles
                 run: composer cs
 
-            -   name: Check Psalm
-                run: composer psalm
+            #-   name: Check Psalm
+            #    run: composer psalm
 
             -   name: Run unit tests
                 run: composer tests:unit:no-cov
