@@ -62,12 +62,14 @@ final class HttpApiListener implements ActionListenerInterface
     /**
      * Log HTTP cron requests.
      *
+     * @param string $hook
      * @param array $args
+     *
      * @return LogDataInterface
      *
      * @wp-hook http_api_debug
      */
-    public function update(array $args): LogDataInterface
+    public function update(string $hook, array $args): LogDataInterface
     {
         /**
          * @var \WP_Error|array|null $response

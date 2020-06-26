@@ -37,13 +37,15 @@ final class FailedLoginListener implements ActionListenerInterface
     /**
      * Logs failed login attempts.
      *
+     * @param string $hook
      * @param array $args
+     *
      * @return LogDataInterface
      *
      * @wp-hook wp_login_failed
      * @see \Inpsyde\Wonolog\Data\FailedLogin
      */
-    public function update(array $args): LogDataInterface
+    public function update(string $hook, array $args): LogDataInterface
     {
         $username = $args ? reset($args) : 'Unknown user';
 

@@ -17,10 +17,11 @@ namespace Inpsyde\Wonolog\HookListener;
  */
 interface FilterListenerInterface extends HookListenerInterface
 {
-
     /**
+     * @param string $hook
      * @param array $args
+     *
      * @return mixed
      */
-    public function filter(array $args);
+    public function filter(string $hook, array $args);
 }

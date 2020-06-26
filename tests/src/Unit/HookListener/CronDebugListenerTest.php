@@ -33,7 +33,6 @@ class CronDebugListenerTest extends TestCase
      */
     public function testListenTo()
     {
-
         $this->assertSame(
             ['wp_loaded'],
             (new CronDebugListener())->listenTo()
@@ -45,10 +44,9 @@ class CronDebugListenerTest extends TestCase
      */
     public function testUpdate()
     {
-
         $this->assertInstanceOf(
             NullLog::class,
-            (new CronDebugListener())->update([])
+            (new CronDebugListener())->update('a', [])
         );
     }
 
@@ -61,7 +59,6 @@ class CronDebugListenerTest extends TestCase
      */
     public function testUpdateRegistersListeners(int $flags)
     {
-
         Functions\when('_get_cron_array')
             ->justReturn(
                 [
@@ -104,7 +101,7 @@ class CronDebugListenerTest extends TestCase
 
         $listener = new CronDebugListener($flags);
 
-        $this->assertInstanceOf(NullLog::class, $listener->update([]));
+        $this->assertInstanceOf(NullLog::class, $listener->update('a', []));
     }
 
     /**
@@ -126,7 +123,6 @@ class CronDebugListenerTest extends TestCase
      */
     public function testConstructorReadsWpCli()
     {
-
         define('WP_CLI', true);
         $listener = new CronDebugListener();
         $this->assertTrue($listener->isCli());
@@ -138,7 +134,6 @@ class CronDebugListenerTest extends TestCase
      */
     public function testConstructorReadsDoingCron()
     {
-
         define('DOING_CRON', true);
         $listener = new CronDebugListener();
 

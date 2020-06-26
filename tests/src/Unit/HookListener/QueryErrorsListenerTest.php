@@ -58,7 +58,7 @@ class QueryErrorsListenerTest extends TestCase
             // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
                 static function (...$args) use ($listener, $tester): void {
                     // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-                    $tester($listener->update($args));
+                    $tester($listener->update('a', $args));
                 }
             );
 
@@ -79,7 +79,7 @@ class QueryErrorsListenerTest extends TestCase
         Actions\expectDone('wp')
             ->whenHappen(
                 static function () use ($listener): void {
-                    $log = $listener->update(func_get_args());
+                    $log = $listener->update('a', func_get_args());
                     static::assertInstanceOf(NullLog::class, $log);
                 }
             );

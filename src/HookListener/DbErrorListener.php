@@ -41,12 +41,14 @@ final class DbErrorListener implements ActionListenerInterface
      * This method runs on shutdown and look if there're errors in `$EZSQL_ERROR`
      * global var and log them if so.
      *
+     * @param string $hook
      * @param array $args
+     *
      * @return LogDataInterface
      *
      * @wp-hook shutdown
      */
-    public function update(array $args): LogDataInterface
+    public function update(string $hook, array $args): LogDataInterface
     {
         // phpcs:disable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
         /** @var array $EZSQL_ERROR */

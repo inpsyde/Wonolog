@@ -38,12 +38,14 @@ final class QueryErrorsListener implements ActionListenerInterface
     /**
      * Checks frontend request for any errors and log them.
      *
-     * @param $args
+     * @param string $hook
+     * @param array $args
+     *
      * @return LogDataInterface
      *
      * @wp-hook wp
      */
-    public function update(array $args): LogDataInterface
+    public function update(string $hook, array $args): LogDataInterface
     {
         $wp = $args ? reset($args) : null;
 

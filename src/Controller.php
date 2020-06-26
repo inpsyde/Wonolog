@@ -67,17 +67,24 @@ class Controller
         $processorRegistry = new ProcessorsRegistry();
         $handlersRegistry = new HandlersRegistry($processorRegistry);
         $subscriber = new LogActionSubscriber(new Channels($handlersRegistry, $processorRegistry));
-        /** @var callable $listener */
-        $listener = [$subscriber, 'listen'];
 
-        add_action(LOG, $listener, $priority, PHP_INT_MAX);
+        add_action(
+            LOG,
+            static function (...$args) use ($subscriber) {
+                $subscriber->listen($args);
+            },
+            $priority,
+            PHP_INT_MAX
+        );
 
         foreach (Logger::getLevels() as $level => $levelCode) {
             // $levelCode goes from 100 (DEBUG) to 600 (EMERGENCY)
             // `$priority + (601 - $levelCode)` makes hook priority based on level priority
             add_action(
                 LOG . '.' . strtolower($level),
-                $listener,
+                static function (...$args) use ($subscriber, $level) {
+                    $subscriber->listen($args, $level);
+                },
                 $priority + (601 - $levelCode),
                 PHP_INT_MAX
             );

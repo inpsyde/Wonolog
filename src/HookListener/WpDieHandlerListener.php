@@ -41,10 +41,12 @@ final class WpDieHandlerListener implements FilterListenerInterface
      * @wp-hook wp_die_ajax_handler
      * @wp-hook wp_die_handler
      *
+     * @param string $hook
      * @param array $args
+     *
      * @return mixed
      */
-    public function filter(array $args)
+    public function filter(string $hook, array $args)
     {
         $handler = $args ? reset($args) : null;
 
