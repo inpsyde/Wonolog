@@ -1,10 +1,9 @@
 # Wonolog 
 
 [![Version](https://img.shields.io/packagist/v/inpsyde/wonolog.svg)](https://packagist.org/packages/inpsyde/wonolog)
-[![Status](https://img.shields.io/badge/status-active-brightgreen.svg)](https://github.com/inpsyde/Wonolog)
-[![Build](https://img.shields.io/travis/inpsyde/Wonolog.svg)](http://travis-ci.org/inpsyde/Wonolog)
 [![Downloads](https://img.shields.io/packagist/dt/inpsyde/wonolog.svg)](https://packagist.org/packages/inpsyde/wonolog)
-[![License](https://img.shields.io/packagist/l/inpsyde/wonolog.svg)](https://packagist.org/packages/inpsyde/wonolog)
+![PHP quality assurance](https://github.com/inpsyde/Wonolog/workflows/PHP%20quality%20assurance/badge.svg)
+![PHP integration tests](https://github.com/inpsyde/Wonolog/workflows/PHP%20integration%20tests/badge.svg)
 
 ![Wonolog](assets/images/banner.png)
 
