@@ -15,7 +15,7 @@ namespace Inpsyde\Wonolog\Tests;
 
 use Symfony\Component\Process\Process;
 
-abstract class IntegrationTestCase extends TestCase
+abstract class IntegrationTestCase extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var bool
@@ -25,7 +25,7 @@ abstract class IntegrationTestCase extends TestCase
     /***
      * @return void
      */
-    abstract protected function bootstrap(): void;
+    abstract protected function bootstrapWonolog(): void;
 
     /**
      * @return void
@@ -41,12 +41,11 @@ abstract class IntegrationTestCase extends TestCase
         self::initializeWp();
 
         require_once ABSPATH . 'wp-includes/plugin.php';
-        require_once getenv('LIBRARY_PATH') . '/vendor/autoload.php';
 
         add_action(
             'muplugins_loaded',
             function () {
-                $this->bootstrap();
+                $this->bootstrapWonolog();
             }
         );
 

@@ -11,9 +11,6 @@
 
 declare(strict_types=1);
 
-putenv('TESTS_PATH=' . __DIR__);
-putenv('LIBRARY_PATH=' . dirname(__DIR__));
-
 $vendor = dirname(__DIR__) . '/vendor';
 
 if (!realpath($vendor)) {
@@ -28,4 +25,11 @@ error_reporting(E_ALL); // phpcs:ignore
 
 require_once "{$vendor}/antecedent/patchwork/Patchwork.php";
 require_once "{$vendor}/autoload.php";
+
+putenv('VENDOR_DIR=' . $vendor);
+putenv('TESTS_PATH=' . __DIR__);
+putenv('LIBRARY_PATH=' . dirname(__DIR__));
+
+defined('ABSPATH') or define('ABSPATH', "{$vendor}/wordpress/wordpress/");
+
 unset($vendor);
