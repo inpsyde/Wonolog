@@ -26,8 +26,6 @@ class FunctionalTestCase extends \PHPUnit\Framework\TestCase
 
     protected $didActions = [];
 
-    private $currentFilter = null;
-
     protected function setUp(): void
     {
         $stubsPath = getenv('TESTS_PATH') . '/stubs';
@@ -91,13 +89,6 @@ class FunctionalTestCase extends \PHPUnit\Framework\TestCase
                 }
             );
 
-        Functions\when('current_filter')
-            ->alias(
-                function (): ?string {
-                    return $this->currentFilter;
-                }
-            );
-
         Functions\expect('get_option')
             ->with('permalink_structure')
             ->andReturn(false);
@@ -130,13 +121,11 @@ class FunctionalTestCase extends \PHPUnit\Framework\TestCase
         // phpcs:enable Inpsyde.CodeQuality.ReturnTypeDeclaration
 
         $filter or $this->didActions[] = $hook;
-        $this->currentFilter = $hook;
+
 
         $callbacks = empty($this->callbacks[$hook]) ? [] : $this->callbacks[$hook];
 
         if (!$callbacks) {
-            $this->currentFilter = null;
-
             return $filter && $args ? reset($args) : null;
         }
 
@@ -154,8 +143,6 @@ class FunctionalTestCase extends \PHPUnit\Framework\TestCase
                 );
             }
         );
-
-        $this->currentFilter = null;
 
         return $filter && isset($args[0]) ? $args[0] : null;
     }

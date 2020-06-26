@@ -15,7 +15,6 @@ namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\Data\HookLogFactory;
 use Inpsyde\Wonolog\Data\LogDataInterface;
-use Monolog\Logger;
 
 /**
  * Main package object, where "things happen".
@@ -62,13 +61,17 @@ class LogActionSubscriber
      * @wp-hook wonolog.log.alert
      * @wp-hook wonolog.log.emergency
      */
-    public function listen(): void
+    public function listen(array $args = [], ?string $level = null): void
     {
         if (!did_action(Controller::ACTION_LOADED)) {
             return;
         }
 
-        $logs = $this->logFactory->logsFromHookArguments(func_get_args(), $this->hookLevel());
+        $levelValue = $level === null
+            ? 0
+            : LogLevel::instance()->checkLevel($level);
+
+        $logs = $this->logFactory->logsFromHookArguments($args, $levelValue);
 
         array_walk($logs, [$this, 'update']);
     }
@@ -99,23 +102,5 @@ class LogActionSubscriber
 
             return false;
         }
-    }
-
-    /**
-     * @return int
-     */
-    private function hookLevel(): int
-    {
-        $currentFilter = current_filter();
-        if ($currentFilter === LOG) {
-            return 0;
-        }
-
-        $parts = explode('.', $currentFilter, 3);
-        if (isset($parts[2])) {
-            return LogLevel::instance()->checkLevel($parts[2]);
-        }
-
-        return Logger::DEBUG;
     }
 }

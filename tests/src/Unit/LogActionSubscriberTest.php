@@ -45,9 +45,6 @@ class LogActionSubscriberTest extends TestCase
 
     public function testListenCallUpdate()
     {
-        Functions\when('current_filter')
-            ->justReturn(Wonolog\LOG);
-
         $log = \Mockery::mock(LogDataInterface::class);
         $log
             ->shouldReceive('level')
