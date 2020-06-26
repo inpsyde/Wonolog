@@ -55,6 +55,7 @@ class DefaultHandlerFactoryTest extends TestCase
     public function testEnforcedInstanceIsReturned()
     {
         $handler = \Mockery::mock(HandlerInterface::class);
+        $handler->shouldReceive('close')->andReturnNull();
         $factory = DefaultHandlerFactory::new($handler);
 
         self::assertSame($handler, $factory->createDefaultHandler());

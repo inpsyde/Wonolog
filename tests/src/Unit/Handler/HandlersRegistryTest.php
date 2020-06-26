@@ -33,6 +33,7 @@ class HandlersRegistryTest extends TestCase
 
         /** @var HandlerInterface $handlerOne */
         $handlerOne = \Mockery::mock(HandlerInterface::class);
+        $handlerOne->shouldReceive('close')->andReturnNull();
         $handlerTwo = clone $handlerOne;
         $handlerThree = clone $handlerOne;
 
@@ -51,6 +52,7 @@ class HandlersRegistryTest extends TestCase
 
         /** @var HandlerInterface $handlerOne */
         $handlerOne = \Mockery::mock(HandlerInterface::class);
+        $handlerOne->shouldReceive('close')->andReturnNull();
         $handlerTwo = clone $handlerOne;
         $handlerThree = clone $handlerOne;
 
@@ -91,6 +93,7 @@ class HandlersRegistryTest extends TestCase
 
         /** @var HandlerInterface $handlerOne */
         $handlerOne = \Mockery::mock(HandlerInterface::class);
+        $handlerOne->shouldReceive('close')->andReturnNull();
         $handlerTwo = clone $handlerOne;
 
         Actions\expectDone(HandlersRegistry::ACTION_REGISTER)

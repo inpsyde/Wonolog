@@ -20,6 +20,7 @@ use Inpsyde\Wonolog\Exception\InvalidChannelNameException;
 use Inpsyde\Wonolog\Handler\HandlersRegistry;
 use Inpsyde\Wonolog\Processor\ProcessorsRegistry;
 use Inpsyde\Wonolog\Tests\TestCase;
+use Mockery\MockInterface;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
 
@@ -80,6 +81,7 @@ class ChannelsTest extends TestCase
         $processors = \Mockery::mock(ProcessorsRegistry::class);
 
         $defaultHandler = \Mockery::mock(HandlerInterface::class);
+        $defaultHandler->shouldReceive('close')->andReturnNull();
 
         $handlers->shouldReceive('find')
             ->once()
@@ -124,6 +126,7 @@ class ChannelsTest extends TestCase
         $processors = \Mockery::mock(ProcessorsRegistry::class);
 
         $defaultHandler = \Mockery::mock(HandlerInterface::class);
+        $defaultHandler->shouldReceive('close')->andReturnNull();
 
         $handlers->shouldReceive('find')
             ->once()
@@ -145,8 +148,9 @@ class ChannelsTest extends TestCase
             ->with(true, \Mockery::type(Logger::class), 'strtolower')
             ->andReturn(false);
 
-        /** @var $customHandler HandlerInterface $handler */
+        /** @var $customHandler \Mockery|MockInterface|HandlerInterface $handler */
         $customHandler = \Mockery::mock(HandlerInterface::class);
+        $customHandler->shouldReceive('close')->andReturnNull();
 
         Actions\expectDone(Channels::ACTION_LOGGER)
             ->once()

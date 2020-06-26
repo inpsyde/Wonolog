@@ -139,8 +139,9 @@ class ControllerTest extends TestCase
             ->twice();
 
         $controller = new Controller();
-        /** @var HandlerInterface $handler */
+        /** @var \Mockery\MockInterface|HandlerInterface $handler */
         $handler = \Mockery::mock(HandlerInterface::class);
+        $handler->shouldReceive('close')->andReturnNull();
 
         static::assertSame($controller, $controller->useHandler($handler));
         static::assertSame($controller, $controller->useHandler($handler));
