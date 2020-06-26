@@ -20,4 +20,4 @@ jobs:
 
             -   name: Run integration tests
                 working-directory: ./tests/docker
-                run: docker-compose run -T ${{ matrix.php-versions }} sh -c "wait-for.sh fasti-mysql:3306 -t 15 -- composer install -q -n -a --no-progress --prefer-dist && composer tests:integration"
+                run: docker-compose run -T ${{ matrix.php-versions }} sh -c "wait-for.sh wonolog-mysql:3306 -t 15 -- composer install -q -n -a --no-progress --prefer-dist && composer tests:integration"
