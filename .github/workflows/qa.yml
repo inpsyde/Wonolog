@@ -1,4 +1,4 @@
-name: Testing
+name: PHP quality assurance
 on: [push]
 jobs:
     build:
