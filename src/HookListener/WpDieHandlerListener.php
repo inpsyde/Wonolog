@@ -14,16 +14,28 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\HookListener;
 
 use Inpsyde\Wonolog\Channels;
-use Inpsyde\Wonolog\Data\Error;
+use Inpsyde\Wonolog\Data\Log;
+use Inpsyde\Wonolog\LogActionUpdater;
+use Inpsyde\Wonolog\LogLevel;
+use Monolog\Logger;
 
 /**
- * Looks a wp_die() and try to find and log db errors.
- *
- * @package wonolog
+ * Looks a wp_die() and try to find and log DB errors.
  */
-final class WpDieHandlerListener implements FilterListenerInterface
+final class WpDieHandlerListener implements FilterListener
 {
-    use ListenerIdByClassNameTrait;
+    /**
+     * @var int
+     */
+    private $logLevel;
+
+    /**
+     * @param int $logLevel
+     */
+    public function __construct(int $logLevel = Logger::ERROR)
+    {
+        $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? Logger::ERROR;
+    }
 
     /**
      * @return array<string>
@@ -43,10 +55,10 @@ final class WpDieHandlerListener implements FilterListenerInterface
      *
      * @param string $hook
      * @param array $args
-     *
+     * @param LogActionUpdater $subscriber
      * @return mixed
      */
-    public function filter(string $hook, array $args)
+    public function filter(string $hook, array $args, LogActionUpdater $subscriber)
     {
         $handler = $args ? reset($args) : null;
 
@@ -54,18 +66,21 @@ final class WpDieHandlerListener implements FilterListenerInterface
             return $handler;
         }
 
-        // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-        // phpcs:disable Inpsyde.CodeQuality.ReturnTypeDeclaration
-        return static function ($message, $title = '', $args = []) use ($handler) {
-            // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-            // phpcs:enable Inpsyde.CodeQuality.ReturnTypeDeclaration
+        $level = $this->logLevel;
+        $updater = static function (string $msg, array $context) use ($subscriber, $level) {
+            // Log the wp_die() error message.
+            $subscriber->update(new Log($msg, $level, Channels::DB, $context));
+        };
 
-            $msg = filter_var($message, FILTER_SANITIZE_STRING) ?: '';
+        /**
+         * @wp-hook wp_die_ajax_handler
+         * @wp-hook wp_die_handler
+         */
+        return static function ($message, $title = '', $args = []) use ($handler, $updater) {
+            $msg = (string)(filter_var($message ?: $title, FILTER_SANITIZE_STRING) ?: '');
             $context = is_array($args) ? $args : [];
             $context['title'] = $title;
-
-            // Log the wp_die() error message.
-            do_action(\Inpsyde\Wonolog\LOG, new Error($msg, Channels::DB, $context));
+            $updater($msg, $context);
 
             return $handler($message, $title, $args);
         };

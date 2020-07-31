@@ -15,13 +15,7 @@ namespace Inpsyde\Wonolog\Data;
 
 use Monolog\Logger;
 
-/**
- * A log event with predefined level set to ERROR.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- */
-final class Error implements LogDataInterface
+final class Error implements LogData
 {
     use LogDataTrait;
 

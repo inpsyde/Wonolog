@@ -46,7 +46,7 @@
         "phpunit/phpunit": "^8",
         "brain/monkey": "^2.2.0",
         "mikey179/vfsstream": "~1.6.4",
-        "inpsyde/php-coding-standards": "^1",
+        "inpsyde/php-coding-standards": "dev-master",
         "vimeo/psalm": "@stable",
         "roots/wordpress": "@stable",
         "symfony/process": "^4.4",
@@ -54,7 +54,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Inpsyde\\Wonolog\\": "src"
+            "Inpsyde\\Wonolog\\": "src/"
         },
         "files": [
             "inc/bootstrap.php"
@@ -62,7 +62,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Inpsyde\\Wonolog\\Tests\\": "tests/src"
+            "Inpsyde\\Wonolog\\Tests\\": "tests/src/",
+            "Inpsyde\\Wonolog\\Tests\\Unit\\": "tests/unit/",
+            "Inpsyde\\Wonolog\\Tests\\Integration\\": "tests/integration/"
         }
     },
     "config": {
@@ -70,15 +72,16 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.0.x-dev"
+            "dev-master": "1.0.x-dev",
+            "dev-2.x": "2.0.x-dev"
         },
         "wordpress-install-dir": "vendor/wordpress/wordpress"
     },
     "scripts": {
         "cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
         "psalm": "@php ./vendor/vimeo/psalm/psalm",
-        "tests:unit": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=Unit,Functional",
-        "tests:unit:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=Unit,Functional --no-coverage",
-        "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=Integration --no-coverage"
+        "tests:unit": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit",
+        "tests:unit:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --no-coverage",
+        "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=integration --no-coverage"
     }
 }

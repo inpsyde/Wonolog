@@ -15,13 +15,7 @@ namespace Inpsyde\Wonolog\Data;
 
 use Monolog\Logger;
 
-/**
- * A log event with predefined level set to NOTICE.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- */
-final class Notice implements LogDataInterface
+final class Notice implements LogData
 {
     use LogDataTrait;
 

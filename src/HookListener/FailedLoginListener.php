@@ -14,18 +14,13 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\HookListener;
 
 use Inpsyde\Wonolog\Data\FailedLogin;
-use Inpsyde\Wonolog\Data\LogDataInterface;
+use Inpsyde\Wonolog\LogActionUpdater;
 
 /**
  * Listens to failed login attempts and logs them.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
  */
-final class FailedLoginListener implements ActionListenerInterface
+final class FailedLoginListener implements ActionListener
 {
-    use ListenerIdByClassNameTrait;
-
     /**
      * @return array<string>
      */
@@ -35,20 +30,17 @@ final class FailedLoginListener implements ActionListenerInterface
     }
 
     /**
-     * Logs failed login attempts.
-     *
      * @param string $hook
      * @param array $args
-     *
-     * @return LogDataInterface
+     * @return void
      *
      * @wp-hook wp_login_failed
-     * @see \Inpsyde\Wonolog\Data\FailedLogin
+     * @see FailedLogin
      */
-    public function update(string $hook, array $args): LogDataInterface
+    public function update(string $hook, array $args, LogActionUpdater $updater): void
     {
         $username = $args ? reset($args) : 'Unknown user';
 
-        return new FailedLogin($username);
+        $updater->update(new FailedLogin((string)$username));
     }
 }

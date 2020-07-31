@@ -13,41 +13,36 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Inpsyde\Wonolog\Exception\InvalidChannelNameException;
-use Inpsyde\Wonolog\Handler\HandlersRegistry;
-use Inpsyde\Wonolog\Processor\ProcessorsRegistry;
-use Monolog\Handler\HandlerInterface;
+use Inpsyde\Wonolog\Data\LogData;
+use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\Logger;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
-/**
- * Class that acts as a sort of service provider for loggers, creating them first time or just
- * returning on subsequent requests.
- * We don't use Monolog registry to be able to register handle here as constants the list of Wonolog
- * default channels and to initialize via hooks the logger the first time is retrieved.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- */
 class Channels
 {
-
     public const HTTP = 'HTTP';
     public const DB = 'DB';
     public const PHP_ERROR = 'PHP-ERROR';
     public const SECURITY = 'SECURITY';
     public const DEBUG = 'DEBUG';
-
-    public const FILTER_CHANNELS = 'wonolog.channels';
+    public const CRON = 'CRON';
     public const ACTION_LOGGER = 'wonolog.logger';
-    public const FILTER_USE_DEFAULT_HANDLER = 'wonolog.use-default-handler';
-    public const FILTER_USE_DEFAULT_PROCESSOR = 'wonolog.use-default-processor';
 
     public const DEFAULT_CHANNELS = [
-        Channels::HTTP,
-        Channels::DB,
-        Channels::SECURITY,
-        Channels::DEBUG,
+        self::HTTP,
+        self::DB,
+        self::SECURITY,
+        self::DEBUG,
+        self::CRON,
     ];
+
+    private const ALL_CHANNELS = '~*~';
+
+    /**
+     * @var array<string, int>
+     */
+    private $channels;
 
     /**
      * @var HandlersRegistry
@@ -60,168 +55,300 @@ class Channels
     private $processorsRegistry;
 
     /**
-     * @var Logger[]
+     * @var \DateTimeZone|null
+     */
+    private $timezone;
+
+    /**
+     * @var array<string, LoggerInterface>|null
      */
     private $loggers = [];
 
     /**
-     * @var string[]
+     * @var array<string, array{callable(string, ?\DateTimeZone):LoggerInterface|null, bool}>
      */
-    private $channels = [];
+    private $loggerFactoryData = [];
 
     /**
-     * @var string[]
+     * @var array<string, array{string, array<string, int|null>}>
      */
-    private $channelsInitialized = [];
+    private $ignoreList = [];
 
     /**
-     * @return array<string>
+     * @param HandlersRegistry $handlers
+     * @param ProcessorsRegistry $processors
+     * @return Channels
      */
-    public static function all(): array
+    public static function new(HandlersRegistry $handlers, ProcessorsRegistry $processors): Channels
     {
-        /**
-         * Filters the channels to use.
-         *
-         * @param string[] $channels
-         */
-        $channels = apply_filters(self::FILTER_CHANNELS, self::DEFAULT_CHANNELS);
-
-        return is_array($channels) ? array_unique(array_filter($channels, 'is_string')) : [];
+        return new static($handlers, $processors);
     }
 
     /**
      * @param HandlersRegistry $handlers
      * @param ProcessorsRegistry $processors
      */
-    public function __construct(HandlersRegistry $handlers, ProcessorsRegistry $processors)
+    private function __construct(HandlersRegistry $handlers, ProcessorsRegistry $processors)
     {
-        $this->channels = self::all();
         $this->handlersRegistry = $handlers;
         $this->processorsRegistry = $processors;
+        $this->channels = array_fill_keys(self::DEFAULT_CHANNELS, 1);
     }
 
     /**
      * @param string $channel
-     *
+     * @return $this
+     */
+    public function addChannel(string $channel): Channels
+    {
+        $this->channels[$channel] = 1;
+
+        return $this;
+    }
+
+    /**
+     * @param string $channel
+     * @return $this
+     */
+    public function removeChannel(string $channel): Channels
+    {
+        unset($this->channels[$channel]);
+
+        return $this;
+    }
+
+    /**
+     * @param callable(string, ?\DateTimeZone):LoggerInterface $factory
+     * @param string ...$channels
+     * @return $this
+     */
+    public function withLoggerFactory(callable $factory, string ...$channels): Channels
+    {
+        if (!$channels) {
+            $this->loggerFactoryData[self::ALL_CHANNELS] = [$factory, true];
+
+            return $this;
+        }
+
+        foreach ($channels as $channel) {
+            $this->loggerFactoryData[$channel] = [$factory, true];
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string ...$channels
+     * @return $this
+     */
+    public function withoutLoggerFactory(string ...$channels): Channels
+    {
+        if (!$channels) {
+            $this->loggerFactoryData = [];
+
+            return $this;
+        }
+
+        foreach ($channels as $channel) {
+            $this->loggerFactoryData[$channel] = [null, false];
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $ignorePattern Regular XP pattern *without* delimiters
+     * @param int|null $levelThreshold If provided, will not blacklist logs with severity above it
+     * @param string ...$channels Apply blacklist only to this channels. Not provided means all.
+     * @return Channels
+     */
+    public function withIgnorePattern(
+        string $ignorePattern,
+        ?int $levelThreshold = null,
+        string ...$channels
+    ): Channels {
+
+        if (!$ignorePattern) {
+            return $this;
+        }
+
+        $id = 'L' . substr(md5($ignorePattern), -12, 10) . bin2hex(random_bytes(3));
+        $ignorePattern = "(?<{$id}>{$ignorePattern})";
+
+        $channels or $channels = [self::ALL_CHANNELS];
+        foreach ($channels as $channel) {
+            [$pattern, $levels] = $this->ignoreList[$channel] ?? ['', []];
+            $pattern and $pattern .= '|';
+            $pattern .= $ignorePattern;
+            $levels[$id] = $levelThreshold;
+
+            $this->ignoreList[$channel] = [$pattern, $levels];
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param LogData $log
+     * @return bool
+     */
+    public function isIgnored(LogData $log): bool
+    {
+        [$pattern, $levels] = $this->ignoreList[$log->channel()]
+            ?? $this->ignoreList[self::ALL_CHANNELS]
+            ?? [null, []];
+
+        if (!$pattern) {
+            return false;
+        }
+
+        $matches = [];
+        try {
+            $pattern = str_replace('~', '\~', $pattern);
+            // phpcs:disable WordPress.PHP.NoSilencedErrors
+            @preg_match("~{$pattern}~i", $log->message(), $matches, PREG_UNMATCHED_AS_NULL);
+            // phpcs:enable WordPress.PHP.NoSilencedErrors
+            if (!$matches) {
+                return false;
+            }
+        } catch (\Throwable $throwable) {
+            return false;
+        }
+
+        $minLevel = null;
+        foreach ($levels as $key => $level) {
+            if (
+                $level !== null
+                && !empty($matches[$key])
+                && ($minLevel === null || ($level < $minLevel))
+            ) {
+                $minLevel = $level;
+            }
+        }
+
+        return ($minLevel === null) || ($log->level() < $minLevel);
+    }
+
+    /**
+     * @param \DateTimeZone $zone
+     * @return $this
+     */
+    public function useTimezone(\DateTimeZone $zone): Channels
+    {
+        $this->timezone = $zone;
+
+        return $this;
+    }
+
+    /**
+     * @param string $channel
      * @return bool
      */
     public function hasChannel(string $channel): bool
     {
-        return in_array($channel, $this->channels, true);
+        return (bool)($this->channels[$channel] ?? false);
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function allNames(): array
+    {
+        return array_keys($this->channels);
     }
 
     /**
      * @param string $channel
-     *
-     * @return Logger
+     * @return LoggerInterface
      */
-    public function logger(string $channel): Logger
+    public function logger(string $channel): LoggerInterface
     {
         if (!$this->hasChannel($channel)) {
-            throw InvalidChannelNameException::forUnregisteredChannel($channel);
+            return new NullLogger();
         }
 
-        if (!array_key_exists($channel, $this->loggers)) {
-            $this->loggers[$channel] = new Logger($channel);
+        $logger = $this->loggers[$channel] ?? null;
+        if ($logger) {
+            return $logger;
         }
 
-        if (!in_array($channel, $this->channelsInitialized, true)) {
-            $this->channelsInitialized[] = $channel;
+        $loggerProcessors = $this->processorsRegistry->allForLogger($channel);
 
-            return $this->initializeLogger($this->loggers[$channel]);
+        [$factory, $factoryEnabled] = $this->loggerFactoryData[$channel]
+            ?? $this->loggerFactoryData[self::ALL_CHANNELS]
+            ?? [null, false];
+
+        if ($factory && $factoryEnabled) {
+            return $this->factoryLoggerFromCallback(
+                $factory,
+                $channel,
+                $loggerProcessors,
+                $this->timezone
+            );
         }
 
-        return $this->loggers[$channel];
+        $handlers = $this->handlersRegistry->findForChannel($channel);
+        if (!$handlers) {
+            return new NullLogger();
+        }
+
+        $logger = new Logger($channel, $handlers, $loggerProcessors, $this->timezone);
+
+        return $this->initializeLogger($logger, $channel);
     }
 
     /**
-     * @param Logger $logger
-     *
-     * @return Logger
+     * @param callable(string, ?\DateTimeZone):LoggerInterface $factory
+     * @param string $channel
+     * @param array<callable(array):array> $loggerProcessors
+     * @param \DateTimeZone|null $timezone
+     * @return LoggerInterface
      */
-    private function initializeLogger(Logger $logger): Logger
-    {
-        $defaultHandler = $this->useDefaultHandler($logger);
-        $defaultHandler and $logger = $logger->pushHandler($defaultHandler);
+    private function factoryLoggerFromCallback(
+        callable $factory,
+        string $channel,
+        array $loggerProcessors,
+        ?\DateTimeZone $timezone
+    ): LoggerInterface {
 
-        $defaultProcessor = $this->useDefaultProcessor($logger);
-        $defaultProcessor and $logger = $logger->pushProcessor($defaultProcessor);
+        $logger = $factory($channel, $timezone);
 
-        /**
-         * Fires right before a logger is used for the first time.
-         *
-         * Hook here to set up the logger (e.g., add handlers or processors).
-         *
-         * @param Logger $logger
-         * @param HandlersRegistry $handlers_registry
-         * @param ProcessorsRegistry $processors_registry
-         */
-        do_action(
-            self::ACTION_LOGGER,
-            $logger,
-            $this->handlersRegistry,
-            $this->processorsRegistry
-        );
+        /** @psalm-suppress DocblockTypeContradiction */
+        if (!$logger instanceof LoggerInterface) {
+            $logger = new NullLogger();
+        }
 
-        // shutdown the logger
-        register_shutdown_function(
-            function () use ($logger) {
-                $logger->close();
+        if ($logger instanceof ProcessableHandlerInterface && $loggerProcessors) {
+            foreach ($loggerProcessors as $loggerProcessor) {
+                $logger->pushProcessor($loggerProcessor);
             }
-        );
+        }
+
+        $this->loggers[$channel] = $logger;
+
+        return $this->initializeLogger($logger, $channel);
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     * @param string $channel
+     * @return LoggerInterface
+     */
+    private function initializeLogger(LoggerInterface $logger, string $channel): LoggerInterface
+    {
+        /**
+         * Fires right after the Logger is instantiated.
+         *
+         * Can be used to push handlers and/or processors.
+         *
+         * @params Logger $logger
+         * @params HandlersRegistry $handlersRegistry
+         * @params ProcessorsRegistry $processorsRegistry
+         */
+        do_action(self::ACTION_LOGGER, $logger, $this->handlersRegistry, $this->processorsRegistry);
+
+        $this->loggers[$channel] = $logger;
 
         return $logger;
-    }
-
-    /**
-     * @param Logger $logger
-     *
-     * @return HandlerInterface|null
-     */
-    private function useDefaultHandler(Logger $logger): ?HandlerInterface
-    {
-        $handler = $this->handlersRegistry->find(HandlersRegistry::DEFAULT_NAME);
-        if (!$handler instanceof HandlerInterface) {
-            return null;
-        }
-
-        /**
-         * Filters whether to use the default handler.
-         *
-         * @param bool $use_default_handler
-         * @param Logger $logger
-         * @param HandlerInterface $handler
-         */
-        if (!apply_filters(self::FILTER_USE_DEFAULT_HANDLER, true, $logger, $handler)) {
-            return null;
-        }
-
-        return $handler;
-    }
-
-    /**
-     * @param Logger $logger
-     *
-     * @return callable|null
-     */
-    private function useDefaultProcessor(Logger $logger): ?callable
-    {
-        $processor = $this->processorsRegistry->find(ProcessorsRegistry::DEFAULT_NAME);
-        if (!$processor) {
-            return null;
-        }
-
-        /**
-         * Filters whether to use the default processor.
-         *
-         * @param bool $useDefaultProcessor
-         * @param Logger $logger
-         * @param callable $processor
-         */
-        if (apply_filters(self::FILTER_USE_DEFAULT_PROCESSOR, true, $logger, $processor)) {
-            return $processor;
-        }
-
-        return null;
     }
 }

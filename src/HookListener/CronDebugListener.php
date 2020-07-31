@@ -14,23 +14,13 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\HookListener;
 
 use Inpsyde\Wonolog\Channels;
-use Inpsyde\Wonolog\Data\Info;
-use Inpsyde\Wonolog\Data\LogDataInterface;
-use Inpsyde\Wonolog\Data\NullLog;
+use Inpsyde\Wonolog\Data\Log;
+use Inpsyde\Wonolog\LogActionUpdater;
+use Inpsyde\Wonolog\LogLevel;
+use Monolog\Logger;
 
-/**
- * Listens to WP Cron requests and logs the performed actions and their performance.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- */
-final class CronDebugListener implements ActionListenerInterface
+final class CronDebugListener implements ActionListener
 {
-    use ListenerIdByClassNameTrait;
-
-    public const IS_CLI = 1;
-    public const IS_CRON = 2;
-
     /**
      * @var bool
      */
@@ -39,19 +29,19 @@ final class CronDebugListener implements ActionListenerInterface
     /**
      * @var int
      */
-    private $flags = 0;
+    private $logLevel;
 
     /**
-     * @var array[]
+     * @var array<string, array{float, string|null}>
      */
     private $done = [];
 
     /**
-     * @param int $flags
+     * @param int $logLevel
      */
-    public function __construct(int $flags = 0)
+    public function __construct(int $logLevel = Logger::INFO)
     {
-        $this->flags = $flags;
+        $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? Logger::INFO;
     }
 
     /**
@@ -63,106 +53,122 @@ final class CronDebugListener implements ActionListenerInterface
     }
 
     /**
-     * @return bool
-     */
-    public function isCli(): bool
-    {
-        return ($this->flags & self::IS_CLI) || (defined('WP_CLI') && WP_CLI);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCron(): bool
-    {
-        return ($this->flags & self::IS_CRON) || (defined('DOING_CRON') && DOING_CRON);
-    }
-
-    /**
      * Logs all the cron hook performed and their performance.
      *
      * @param string $hook
      * @param array $args
-     *
-     * @return NullLog
+     * @param LogActionUpdater $updater
+     * @return void
      *
      * @wp-hook wp_loaded
      */
-    public function update(string $hook, array $args): LogDataInterface
+    public function update(string $hook, array $args, LogActionUpdater $updater): void
     {
-        if (self::$ran) {
-            return new NullLog();
+        if (!self::$ran && (wp_doing_cron() || (defined('WP_CLI') && WP_CLI))) {
+            $this->registerEventListener($updater);
         }
 
-        if ($this->isCron() || $this->isCli()) {
-            $this->registerEventListener($hook);
-        }
-
-        return new NullLog();
+        self::$ran = true;
     }
 
     /**
      * Logs all the cron hook performed and their performance.
      *
-     * @param string $hook
+     * @param LogActionUpdater $updater
+     * @return void
      */
-    private function registerEventListener(string $hook): void
+    private function registerEventListener(LogActionUpdater $updater): void
     {
+        if (!wp_doing_cron()) {
+            return;
+        }
+
         $cronArray = _get_cron_array();
         if (!$cronArray || !is_array($cronArray)) {
             return;
         }
 
-        $hooks = array_reduce(
-            $cronArray,
-            static function (array $hooks, array $crons): array {
-                return array_merge($hooks, array_keys($crons));
-            },
-            []
-        );
+        foreach ($cronArray as $cronData) {
+            foreach ($cronData as $hook => $data) {
+                $this->registerEventListenerForHook((string)$hook, $updater);
+            }
+        }
 
-        $profileCallback = function () use ($hook) {
-            $this->cronActionProfile($hook);
-        };
-
-        array_walk(
-            $hooks,
-            static function (string $hook) use ($profileCallback) {
-                // Please note that "(int)(PHP_INT_MAX +  )" is the lowest possible integer.
-                add_action($hook, $profileCallback, (int)(PHP_INT_MAX + 1));
-                add_action($hook, $profileCallback, PHP_INT_MAX);
+        register_shutdown_function(
+            function () use ($updater) {
+                $this->logUnfinishedHooks($updater);
             }
         );
+    }
 
-        self::$ran = true;
+    /**
+     * @param string $hook
+     * @param LogActionUpdater $updater
+     * @return void
+     */
+    private function registerEventListenerForHook(string $hook, LogActionUpdater $updater): void
+    {
+        $profileCallback = function () use ($hook, $updater) {
+            $this->cronActionProfile($hook, $updater);
+        };
+
+        // Note that `(int)(PHP_INT_MAX + 1)` is the lowest possible integer.
+        add_action($hook, $profileCallback, (int)(PHP_INT_MAX + 1));
+        add_action($hook, $profileCallback, PHP_INT_MAX);
     }
 
     /**
      * Run before and after that any cron action ran, logging it and its performance.
      *
      * @param string $hook
+     * @param LogActionUpdater $updater
      */
-    private function cronActionProfile(string $hook): void
+    private function cronActionProfile(string $hook, LogActionUpdater $updater): void
     {
-        if (!defined('DOING_CRON') || !DOING_CRON) {
+        if (!wp_doing_cron()) {
             return;
         }
 
         if (!isset($this->done[$hook])) {
-            $this->done[$hook]['start'] = microtime(true);
+            $this->done[$hook] = [(float)microtime(true), null];
 
             return;
         }
 
-        if (!isset($this->done[$hook]['duration'])) {
-            $duration = number_format(microtime(true) - $this->done[$hook]['start'], 2);
-            $this->done[$hook]['duration'] = $duration . ' s';
-
-            // Log the cron action performed.
-            do_action(
-                \Inpsyde\Wonolog\LOG,
-                new Info("Cron action \"{$hook}\" performed.", Channels::DEBUG, $this->done[$hook])
-            );
+        [$start, $duration] = $this->done[$hook] ?? [null, null];
+        if (!is_float($start) || ($duration !== null)) {
+            return;
         }
+
+        $duration = number_format((float)microtime(true) - $start, 2);
+        $this->done[$hook] = [$start, $duration];
+
+        $message = sprintf('Cron action "%s" performed. Duration: %s seconds.', $hook, $duration);
+
+        $updater->update(new Log($message, $this->logLevel, Channels::CRON));
+    }
+
+    /**
+     * @param LogActionUpdater $updater
+     * @return void
+     */
+    private function logUnfinishedHooks(LogActionUpdater $updater): void
+    {
+        $unfinished = [];
+        foreach ($this->done as $hook => [, $duration]) {
+            ($duration === null) and $unfinished[] = $hook;
+        }
+
+        if (!$unfinished) {
+            return;
+        }
+
+        $message = sprintf(
+            'Hook action%s "%s" started, but never completed.',
+            count($unfinished) === 1 ? '' : 's',
+            implode('", "', $unfinished)
+        );
+
+        $updater->update(new Log($message, $this->logLevel, Channels::CRON));
     }
 }

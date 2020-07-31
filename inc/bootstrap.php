@@ -13,61 +13,35 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Monolog\Handler\HandlerInterface;
-
 // We want to load this file just once.
 // Being loaded by Composer autoload, and being in WordPress context,
 // we have to put special care on this.
+use Monolog\Handler\HandlerInterface;
+
 if (defined(__NAMESPACE__ . '\\LOG')) {
     return;
 }
 
 const LOG = 'wonolog.log';
-const LOG_PHP_ERRORS = 1;
-const USE_DEFAULT_HOOK_LISTENERS = 2;
-const USE_DEFAULT_HANDLER = 4;
-const USE_DEFAULT_PROCESSOR = 8;
-const USE_DEFAULT_ALL = 15;
-const USE_DEFAULT_NONE = 0;
 
 /**
- * @param HandlerInterface|NULL $defaultHandler
- * @param int $flags
- * @param int $logHookPriority
- *
- * @return Controller
+ * @param HandlerInterface|null $handler
+ * @return Configurator
  */
-function bootstrap(
-    HandlerInterface $defaultHandler = null,
-    int $flags = USE_DEFAULT_ALL,
-    int $logHookPriority = 100
-): Controller {
+function bootstrap(?HandlerInterface $handler = null): Configurator
+{
 
-    static $controller;
-    if ($controller) {
-        // This should run once, but we avoid to break return type,
-        // just in case it is called more than once
-        return $controller;
+    static $config;
+    if (!$config) {
+        $config = Configurator::new();
+        if ($handler) {
+            $config = $config
+                ->enableDefaultHandler()
+                ->pushHandler($handler, DefaultHandler::id());
+        }
+
+        add_action('muplugins_loaded', [$config, 'setup'], PHP_INT_MAX);
     }
 
-    $controller = new Controller();
-    is_int($flags) or $flags = USE_DEFAULT_NONE;
-
-    if ($flags & LOG_PHP_ERRORS) {
-        $controller->logPhpErrors();
-    }
-
-    if ($flags & USE_DEFAULT_HOOK_LISTENERS) {
-        $controller->useDefaultHookListeners();
-    }
-
-    if ($defaultHandler || ($flags & USE_DEFAULT_HANDLER)) {
-        $controller->useDefaultHandler($defaultHandler);
-    }
-
-    if ($flags & USE_DEFAULT_PROCESSOR) {
-        $controller->useDefaultProcessor();
-    }
-
-    return $controller->setup($logHookPriority);
+    return $config;
 }

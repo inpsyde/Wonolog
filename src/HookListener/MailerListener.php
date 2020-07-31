@@ -16,17 +16,27 @@ namespace Inpsyde\Wonolog\HookListener;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\Log;
-use Inpsyde\Wonolog\Data\LogDataInterface;
-use Inpsyde\Wonolog\Data\NullLog;
+use Inpsyde\Wonolog\LogActionUpdater;
+use Inpsyde\Wonolog\LogLevel;
 use Monolog\Logger;
 
 /**
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
+ * Try to log any error in PHPMailer.
  */
-class MailerListener implements ActionListenerInterface
+class MailerListener implements ActionListener
 {
-    use ListenerIdByClassNameTrait;
+    /**
+     * @var int
+     */
+    private $errorLogLevel;
+
+    /**
+     * @param int $errorLogLevel
+     */
+    public function __construct(int $errorLogLevel = Logger::ERROR)
+    {
+        $this->errorLogLevel = LogLevel::normalizeLevel($errorLogLevel) ?? Logger::ERROR;
+    }
 
     /**
      * @return array<string>
@@ -39,50 +49,47 @@ class MailerListener implements ActionListenerInterface
     /**
      * @param string $hook
      * @param array $args
-     *
-     * @return LogDataInterface
+     * @param LogActionUpdater $updater
+     * @return void
      */
-    public function update(string $hook, array $args): LogDataInterface
+    public function update(string $hook, array $args, LogActionUpdater $updater): void
     {
         switch ($hook) {
             case 'phpmailer_init':
-                return $this->onMailerInit($args);
+                $this->onMailerInit($args, $updater);
+                break;
             case 'wp_mail_failed':
-                return $this->onMailFailed($args);
+                $this->onMailFailed($args, $updater);
+                break;
         }
-
-        return new NullLog();
     }
 
     /**
      * @param array $args
-     * @return LogDataInterface
+     * @param LogActionUpdater $updater
+     * @return void
      */
-    private function onMailFailed(array $args): LogDataInterface
+    private function onMailFailed(array $args, LogActionUpdater $updater): void
     {
         $error = $args ? reset($args) : null;
-        if (is_wp_error($error)) {
-            return Log::fromWpError($error, Logger::ERROR, Channels::HTTP);
+        if ($error instanceof \WP_Error) {
+            $updater->update(Log::fromWpError($error, $this->errorLogLevel, Channels::HTTP));
         }
-
-        return new NullLog();
     }
 
     /**
      * @param array $args
-     * @return LogDataInterface
+     * @param LogActionUpdater $updater
+     * @return void
      */
-    private function onMailerInit(array $args): LogDataInterface
+    private function onMailerInit(array $args, LogActionUpdater $updater): void
     {
         $mailer = $args ? reset($args) : null;
         if ($mailer instanceof \PHPMailer) {
             $mailer->SMTPDebug = 2;
-            $mailer->Debugoutput = static function (string $message): void {
-                // Log the mailer debug message.
-                do_action(\Inpsyde\Wonolog\LOG, new Debug($message, Channels::HTTP));
+            $mailer->Debugoutput = static function (string $message) use ($updater): void {
+                $updater->update(new Debug($message, Channels::HTTP));
             };
         }
-
-        return new NullLog();
     }
 }

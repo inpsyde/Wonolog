@@ -14,19 +14,29 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\HookListener;
 
 use Inpsyde\Wonolog\Channels;
-use Inpsyde\Wonolog\Data\Debug;
-use Inpsyde\Wonolog\Data\LogDataInterface;
-use Inpsyde\Wonolog\Data\NullLog;
+use Inpsyde\Wonolog\Data\Log;
+use Inpsyde\Wonolog\LogActionUpdater;
+use Inpsyde\Wonolog\LogLevel;
+use Monolog\Logger;
 
 /**
  * Looks at fronted requests and to find and log any errors.
- *
- * @package wonolog
  */
-final class QueryErrorsListener implements ActionListenerInterface
+final class QueryErrorsListener implements ActionListener
 {
-    use ListenerIdByClassNameTrait;
+    /**
+     * @var int
+     */
+    private $logLevel;
 
+    /**
+     * @param int $logLevel
+     */
+    public function __construct(int $logLevel = Logger::DEBUG)
+    {
+        $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? Logger::DEBUG;
+    }
+    
     /**
      * @return array<string>
      */
@@ -40,17 +50,17 @@ final class QueryErrorsListener implements ActionListenerInterface
      *
      * @param string $hook
      * @param array $args
-     *
-     * @return LogDataInterface
+     * @param LogActionUpdater $updater
+     * @return void
      *
      * @wp-hook wp
      */
-    public function update(string $hook, array $args): LogDataInterface
+    public function update(string $hook, array $args, LogActionUpdater $updater): void
     {
         $wp = $args ? reset($args) : null;
 
         if (!$wp instanceof \WP) {
-            return new NullLog();
+            return;
         }
 
         $error = [];
@@ -58,7 +68,7 @@ final class QueryErrorsListener implements ActionListenerInterface
         is_404() and $error[] = '404 Page not found';
 
         if (empty($error)) {
-            return new NullLog();
+            return;
         }
 
         $url = filter_var(add_query_arg([]), FILTER_SANITIZE_URL);
@@ -69,6 +79,6 @@ final class QueryErrorsListener implements ActionListenerInterface
             'matched_rule' => $wp->matched_rule,
         ];
 
-        return new Debug($message, Channels::HTTP, $context);
+        $updater->update(new Log($message, $this->logLevel, Channels::HTTP, $context));
     }
 }

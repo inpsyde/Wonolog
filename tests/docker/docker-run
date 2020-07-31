@@ -1,9 +1,45 @@
 #!/usr/bin/env bash
 
+DB_SERVICE_NAME=mysql
+DB_SERVICE_HOST=wonolog-mysql
+PHP_VERSIONS=('7.2' '7.3' '7.4')
+PHP_SERVICE_NAMES=('php72' 'php73' 'php74')
+PHP_VERSION_DEFAULT='7.4'
+
+function printHelp() {
+	local VERSIONS_HELP=''
+	for VER in "${PHP_VERSIONS[@]}"
+	do :
+		DEF=''
+		if [[ "${VER}" = "${PHP_VERSION_DEFAULT}" ]]; then
+		    DEF=' (default)'
+		fi
+
+		VERSIONS_HELP="${VERSIONS_HELP}${VER}${DEF}"$'\n'"    "
+	done
+
+	cat << USAGE >&2
+
+docker-run command [php-version]
+docker-run -h
+
+Commands:
+    tests:unit            Execute PHP unit tests.
+    cs                    Check code styles with PHPCS.
+    psalm                 Check code with Psalm.
+    qa                    Execute all the above
+    tests:integration     Execute PHP integration tests.
+    down                  Shortcut to 'docker-compose down --volumes'.
+    help                  Print this help. Equals to 'docker-run -h'.
+
+PHP versions:
+    ${VERSIONS_HELP}
+USAGE
+}
+
 function dispatch() {
-  local COMMANDS=('tests:unit' 'tests:integration' 'cs' 'psalm' 'help' '-h' 'down')
-  local PHP_VERSIONS=('7.2' '7.3' '7.4')
-  local BASE_CMD="composer install -q -n -a --no-progress --prefer-dist && composer"
+  local COMMANDS=('tests:unit' 'tests:integration' 'qa' 'cs' 'psalm' 'help' '-h' 'down')
+  local BASE_CMD="composer dump-autoload && composer"
   local COMMAND=$1
   local PHP_VER=$2
   local CMD_PARAMS=$3
@@ -24,28 +60,15 @@ function dispatch() {
   fi
 
   if [[ ! " ${PHP_VERSIONS[*]} " =~ " $PHP_VER " ]]; then
-    PHP_VER='7.4'
+    if [[ ! ${CMD_PARAMS} ]] && [[ "${PHP_VER::1}" = "-" ]]; then
+        CMD_PARAMS="$PHP_VER"
+    fi
+
+    PHP_VER="$PHP_VERSION_DEFAULT"
   fi
 
   if [[ "$COMMAND" = "help" ]] || [[ "$COMMAND" = "-h" ]]; then
-      cat << USAGE >&2
-
-docker-run command [php-version]
-docker-run -h
-
-Commands:
-    tests:unit            Execute PHP unit tests.
-    tests:integration     Execute PHP integration tests.
-    cs                    Check code styles with PHPCS.
-    psalm                 Check code with Psalm.
-    down                  Shortcut to 'docker-compose down --volumes'.
-    help                  Print this help. Equals to 'docker-run -h'.
-
-PHP versions:
-    7.2
-    7.3
-    7.4    (default)
-USAGE
+    printHelp
     exit ${ERROR}
   fi
 
@@ -60,12 +83,12 @@ USAGE
 
   CMD="$BASE_CMD $COMMAND"
 
-  if [[ "$COMMAND" = "tests:integration" ]]; then
-    CMD="wait-for.sh wonolog-mysql:3306 -t 15 -- $CMD"
-  fi
-
   if [[ "$CMD_PARAMS" ]]; then
     CMD="$CMD -- $CMD_PARAMS"
+  fi
+
+  if [[ "$COMMAND" = "tests:integration" ]] || [[ "$COMMAND" = "qa" ]]; then
+    CMD="wait-for.sh $DB_SERVICE_HOST:3306 -t 15 -- $CMD"
   fi
 
   local WAIT_FOR_PATH="./php${PHP_VER/./}/wait-for.sh"
@@ -75,17 +98,19 @@ USAGE
 
   printf "Executing:\n  %s\n  in PHP v%s\n\n" "$CMD" "$PHP_VER"
 
-  case "$PHP_VER" in
-    7.2)
-      docker-compose run --rm -T php72 sh -c "$CMD"
-      ;;
-    7.3)
-      docker-compose run --rm -T php73 sh -c "$CMD"
-      ;;
-    *)
-      docker-compose run --rm -T php74 sh -c "$CMD"
-      ;;
-  esac
+  local VER
+  local PHP_SERVICE
+  local PHP_SERVICE_I=0
+  for VER in "${PHP_VERSIONS[@]}"
+  do :
+    PHP_SERVICE=${PHP_SERVICE_NAMES[$PHP_SERVICE_I]}
+    if [[ "${VER}" = "${PHP_VER}" ]]; then
+        docker-compose run --rm -T ${PHP_SERVICE} sh -c "$CMD"
+        docker-compose down --volumes
+        exit
+    fi
+    PHP_SERVICE_I=$((PHP_SERVICE_I+1))
+  done
 }
 
 # And go!

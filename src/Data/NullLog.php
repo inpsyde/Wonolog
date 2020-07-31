@@ -13,15 +13,7 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Data;
 
-/**
- * Implements the interface doing nothing.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- *
- * @codeCoverageIgnore
- */
-final class NullLog implements LogDataInterface
+final class NullLog implements LogData
 {
     private const LOG_LEVEL = -1;
 

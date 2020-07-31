@@ -14,19 +14,28 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\HookListener;
 
 use Inpsyde\Wonolog\Channels;
-use Inpsyde\Wonolog\Data\Error;
-use Inpsyde\Wonolog\Data\LogDataInterface;
-use Inpsyde\Wonolog\Data\NullLog;
+use Inpsyde\Wonolog\Data\Log;
+use Inpsyde\Wonolog\LogActionUpdater;
+use Inpsyde\Wonolog\LogLevel;
+use Monolog\Logger;
 
 /**
  * At the end of any request looks for database errors and logs them if found.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
  */
-final class DbErrorListener implements ActionListenerInterface
+final class DbErrorListener implements ActionListener
 {
-    use ListenerIdByClassNameTrait;
+    /**
+     * @var int
+     */
+    private $logLevel;
+
+    /**
+     * @param int $logLevel
+     */
+    public function __construct(int $logLevel = Logger::ERROR)
+    {
+        $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? Logger::ERROR;
+    }
 
     /**
      * @return array<string>
@@ -43,26 +52,27 @@ final class DbErrorListener implements ActionListenerInterface
      *
      * @param string $hook
      * @param array $args
-     *
-     * @return LogDataInterface
+     * @param LogActionUpdater $updater
+     * @return void
      *
      * @wp-hook shutdown
      */
-    public function update(string $hook, array $args): LogDataInterface
+    public function update(string $hook, array $args, LogActionUpdater $updater): void
     {
         // phpcs:disable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
-        /** @var array $EZSQL_ERROR */
         global $EZSQL_ERROR;
         if (empty($EZSQL_ERROR)) {
-            return new NullLog();
+            return;
         }
 
+        /** @var non-empty-array<array> $errors */
         $errors = $EZSQL_ERROR;
         // phpcs:enable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
 
         $last = end($errors);
-        $context = ['last_query' => $last['query'], 'errors' => $errors];
+        $message = isset($last['error_str']) ? (string)$last['error_str'] : 'DB error.';
+        $context = ['last_wpdb_query' => $last['query'] ?? '', 'last_wpdb_errors' => $errors];
 
-        return new Error($last['error_str'], Channels::DB, $context);
+        $updater->update(new Log($message, $this->logLevel, Channels::DB, $context));
     }
 }

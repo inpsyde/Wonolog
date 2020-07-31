@@ -15,13 +15,7 @@ namespace Inpsyde\Wonolog\Data;
 
 use Monolog\Logger;
 
-/**
- * A log event with predefined level set to EMERGENCY.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- */
-final class Emergency implements LogDataInterface
+final class Emergency implements LogData
 {
     use LogDataTrait;
 

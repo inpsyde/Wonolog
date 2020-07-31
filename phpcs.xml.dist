@@ -3,7 +3,7 @@
 
     <file>./src</file>
     <file>./inc</file>
-    <file>./tests</file>
+    <file>./tests/src</file>
 
 	<arg value="sp"/>
 	<arg name="colors"/>
@@ -28,7 +28,7 @@
             <property
                     name="psr4"
                     type="array"
-                    value="Inpsyde\Wonolog=>src,Inpsyde\Wonolog\Tests=>tests/src"/>
+                    value="Inpsyde\Wonolog=>src,Inpsyde\Wonolog\Tests=>tests/src,Inpsyde\Wonolog\Tests\Unit=>tests/unit,Inpsyde\Wonolog\Tests\Integration==>tests/integration"/>
         </properties>
     </rule>
 

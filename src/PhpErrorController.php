@@ -18,15 +18,9 @@ use Inpsyde\Wonolog\Data\Log;
 
 /**
  * Handler for PHP core errors, used to log those errors mapping error types to Monolog log levels.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
  */
 class PhpErrorController
 {
-
-    public const FILTER_REPORT_SILENCED_ERRORS = 'wonolog.report-silenced-errors';
-
     private const ERROR_LEVELS_MAP = [
         E_USER_ERROR => Logger::CRITICAL,
         E_USER_NOTICE => Logger::NOTICE,
@@ -66,6 +60,43 @@ class PhpErrorController
     ];
 
     /**
+     * @var bool
+     */
+    private $logSilencedErrors;
+
+    /**
+     * @param int $errorTypes
+     * @return bool
+     */
+    public static function typesMaskContainsFatals(int $errorTypes): bool
+    {
+        foreach (self::FATALS as $errorType) {
+            if (($errorType & $errorTypes) === $errorType) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param bool $logSilencedErrors
+     * @return PhpErrorController
+     */
+    public static function new(bool $logSilencedErrors): PhpErrorController
+    {
+        return new static($logSilencedErrors);
+    }
+
+    /**
+     * @param bool $logSilencedErrors
+     */
+    private function __construct(bool $logSilencedErrors)
+    {
+        $this->logSilencedErrors = $logSilencedErrors;
+    }
+
+    /**
      * Error handler.
      *
      * @param int $num
@@ -84,19 +115,11 @@ class PhpErrorController
     ): bool {
 
         $level = self::ERROR_LEVELS_MAP[$num] ?? Logger::ERROR;
-
-        $reportSilenced = apply_filters(
-            self::FILTER_REPORT_SILENCED_ERRORS,
-            error_reporting() !== 0, // phpcs:ignore
-            $num,
-            $str,
-            $file ?? '',
-            $line ?? 0
-        );
-
-        if (!$reportSilenced) {
+        // phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
+        if ((error_reporting() === 0) && !$this->logSilencedErrors) {
             return false;
         }
+        // phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
 
         $logContext = [];
         if ($context) {

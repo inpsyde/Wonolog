@@ -16,13 +16,8 @@ namespace Inpsyde\Wonolog\Data;
 use Inpsyde\Wonolog\Channels;
 use Monolog\Logger;
 
-/**
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- */
-final class FailedLogin implements LogDataInterface
+final class FailedLogin implements LogData
 {
-
     public const TRANSIENT_NAME = 'wonolog.failed-login-count';
 
     /**
@@ -33,17 +28,17 @@ final class FailedLogin implements LogDataInterface
     /**
      * Contains the actual IP and the method used to retrieve it
      *
-     * @var array
+     * @var array{string, string}|null
      */
     private $ipData;
 
     /**
-     * @var array
+     * @var array<string, array{'count':int, 'last_logged':int}>|null
      */
     private $attemptsData;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $attempts;
 
@@ -89,6 +84,9 @@ final class FailedLogin implements LogDataInterface
      * Use a site transient to count them.
      *
      * @param int $ttl transient time to live in seconds
+     *
+     * @psalm-assert array<string, array{'count':int, 'last_logged':int}> $this->attemptsData
+     * @psalm-assert int $this->attempts
      */
     private function countAttempts(int $ttl = 300): void
     {
@@ -103,15 +101,22 @@ final class FailedLogin implements LogDataInterface
         is_array($attempts) or $attempts = [];
 
         // Seems the first time a failed attempt for this IP
-        if (!$attempts || !array_key_exists($userIp, $attempts)) {
+        if (
+            !$attempts
+            || empty($attempts[$userIp])
+            || !isset($attempts[$userIp]['count'])
+            || !isset($attempts[$userIp]['last_logged'])
+        ) {
             $attempts[$userIp] = ['count' => 0, 'last_logged' => 0];
         }
 
+        /** @psalm-suppress MixedOperand */
         $attempts[$userIp]['count']++;
+        /** @psalm-suppress MixedPropertyTypeCoercion */
         $this->attemptsData = $attempts;
 
-        $count = $attempts[$userIp]['count'];
-        $lastLogged = $attempts[$userIp]['last_logged'];
+        $count = (int)$attempts[$userIp]['count'];
+        $lastLogged = (int)$attempts[$userIp]['last_logged'];
 
         /**
          * During a brute force attack, logging all the failed attempts
@@ -137,7 +142,9 @@ final class FailedLogin implements LogDataInterface
     }
 
     /**
-     * Try to sniff the current client IP.
+     * @return void
+     *
+     * @psalm-assert array{string, string} $this->ipData
      */
     private function sniffIp(): void
     {
@@ -146,7 +153,7 @@ final class FailedLogin implements LogDataInterface
         }
 
         if (PHP_SAPI === 'cli') {
-            $this->ipData = ['127.0.0.1', 'CLI'];
+            $this->ipData = ['0.0.0.0', 'CLI'];
 
             return;
         }
@@ -158,7 +165,7 @@ final class FailedLogin implements LogDataInterface
         ];
 
         $ips = array_intersect_key($_SERVER, $ipServerKeys);
-        $this->ipData = $ips ? [reset($ips), key($ips)] : ['0.0.0.0', 'Hidden IP'];
+        $this->ipData = $ips ? [(string)reset($ips), (string)key($ips)] : ['0.0.0.0', 'Hidden IP'];
     }
 
     /**
@@ -187,13 +194,15 @@ final class FailedLogin implements LogDataInterface
         }
 
         $this->sniffIp();
-        if (!isset($this->attemptsData[$this->ipData[0]]['count'])) {
+
+        $count = $this->attemptsData[$this->ipData[0]]['count'] ?? null;
+        if (!is_numeric($count)) {
             return '';
         }
 
         return sprintf(
             "%d failed login attempts from username '%s' in last 5 minutes",
-            (int)$this->attemptsData[$this->ipData[0]]['count'],
+            (int)$count,
             $this->username
         );
     }

@@ -18,53 +18,41 @@ use Monolog\Logger;
 /**
  * Utility object used to build default min logging level based WordPress and environment settings.
  * It also has a method to check the validity of a value as level identifier.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
  */
-class LogLevel
+abstract class LogLevel
 {
+    /**
+     * @var array<string, int>|null
+     */
+    private static $allLevels;
 
     /**
-     * @var int
+     * @var int|null
      */
     private static $minLevel;
 
     /**
-     * @return LogLevel
-     */
-    public static function instance(): LogLevel
-    {
-
-        return new static();
-    }
-
-    /**
-     * Returns the minimum default log level based on environment variable or WordPress debug settings
-     * (in this order of priority).
+     * Returns the minimum default log level based on environment variable or WordPress debug
+     * settings (in this order of priority).
      *
      * The level is set once per request and it is filterable.
      *
      * @return int
      */
-    public function defaultMinLevel(): int
+    final public static function defaultMinLevel(): int
     {
-
         if (self::$minLevel !== null) {
             return self::$minLevel;
         }
 
         $envLevel = getenv('WONOLOG_DEFAULT_MIN_LEVEL');
-        // here $minLevel is a string (raw env vars are always strings) or false
-        $minLevel = $envLevel;
 
-        $levels = Logger::getLevels();
-        $minLevel = $this->checkLevel($minLevel, $levels);
-        // Now here $min_level is surely a integer, but could be 0,
-        // and in that case we set it from WP constants
+        $minLevel = static::normalizeLevel($envLevel ?: null);
+
+        // If no valid level is defined via env var, then let's resort to WP constants.
         if (!$minLevel) {
             $const = defined('WP_DEBUG_LOG') ? 'WP_DEBUG_LOG' : 'WP_DEBUG';
-            $minLevel = (defined($const) && constant($const)) ? Logger::DEBUG : Logger::ERROR;
+            $minLevel = (defined($const) && constant($const)) ? Logger::DEBUG : Logger::WARNING;
         }
 
         self::$minLevel = $minLevel;
@@ -73,46 +61,48 @@ class LogLevel
     }
 
     /**
-     * In Monolog/Wonolog are 2 ways to indicate a logger level: an numeric value and level "names".
-     * Names are defined in the PSR-3 spec, int are used in Monolog for severity comparison.
+     * In Monolog/Wonolog there're two ways to indicate a logger level:
+     * - a integer value
+     * - level "names".
+     * Names are defined in the PSR-3 specification, integers are used in Monolog to allow severity
+     * comparison: the higher the number, the higher the severity.
+     *
      * This method always return a numerical representation of a log level.
      *
-     * When a name is provided, the numeric value is obtained looking into a provided array of levels.
-     * If that array is not provided `Monolog\Logger::getLevels()` is used.
+     * When a name is provided, the numeric value is obtained doing a lookup in
+     * `Monolog\Logger::getLevels()` that returns a map of level names to level integer values.
      *
-     * If there's no way to resolve the given level, `0` is returned. Any code that use this method
-     * should check that returned value is a positive number before us it.
+     * If there's no way to resolve the given level, null is returned.
      *
-     * @param int|string $level
-     * @param array $levels
-     * @return int
+     * @param mixed $level
+     * @return int|null
      *
      * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
      */
-    public function checkLevel($level, array $levels = []): int
+    final public static function normalizeLevel($level): ?int
     {
         // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
 
         if (!$level) {
-            return 0;
+            return null;
+        }
+
+        if (self::$allLevels === null) {
+            /** @var array<string, int> $loggerLevels */
+            $loggerLevels = Logger::getLevels();
+            self::$allLevels = $loggerLevels;
         }
 
         if (is_numeric($level)) {
-            return (int)$level > 0 ? (int)$level : 0;
+            $level = (int)$level;
+
+            return in_array($level, self::$allLevels, true) ? $level : null;
         }
 
         if (!is_string($level)) {
-            return 0;
+            return null;
         }
 
-        $level = strtoupper(trim($level));
-
-        $levels or $levels = Logger::getLevels();
-
-        if (array_key_exists($level, $levels)) {
-            return $levels[$level];
-        }
-
-        return 0;
+        return self::$allLevels[strtoupper(trim($level))] ?? null;
     }
 }

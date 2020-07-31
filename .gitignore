@@ -10,20 +10,19 @@ logs
 *.log
 
 # Composer
-composer.phar
-composer.lock
-vendor
+/composer.phar
+/composer.lock
+/vendor/
 
 # PhpStorm
-.idea
+/.idea/
 
 # PHPUnit
-coverage.xml
-phpunit.xml
+/coverage.xml
+/phpunit.xml
 /tests/docker/php72/wait-for.sh
 /tests/docker/php73/wait-for.sh
 /tests/docker/php74/wait-for.sh
-
 
 # Git
 !.gitkeep

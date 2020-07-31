@@ -16,21 +16,23 @@
 declare(strict_types=1);
 
 use Inpsyde\Wonolog\HookListener\WpDieHandlerListener;
+use Inpsyde\Wonolog\LogActionUpdater;
 
 if (class_exists('wpdb')) {
     return;
 }
 
-/**
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- */
 class wpdb // phpcs:ignore
 {
     /**
      * @var WpDieHandlerListener
      */
     public $wp_die_listener;
+
+    /**
+     * @var LogActionUpdater
+     */
+    public $logActionUpdater;
 
     /**
      * @param string $message
@@ -65,7 +67,7 @@ class wpdb // phpcs:ignore
         };
 
         $listener = $this->wp_die_listener;
-        $handler = $listener->filter('a', [$handler]);
+        $handler = $listener->filter('a', [$handler], $this->logActionUpdater);
 
         return $handler;
     }
