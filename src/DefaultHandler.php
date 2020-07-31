@@ -197,7 +197,7 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
     }
 
     /**
-     * @param callable(array):array|ProcessorInterface $callback
+     * @param callable(array):array|\Monolog\Processor\ProcessorInterface $callback
      * @return HandlerInterface
      */
     public function pushProcessor(callable $callback): HandlerInterface
@@ -388,7 +388,8 @@ HTACCESS;
 
         $uploads = (array)wp_upload_dir(null, false);
         if (empty($uploads['error']) && !empty($uploads['basedir'])) {
-            $uploadsBaseDir = [rtrim((string)wp_normalize_path($uploads['basedir']), '/') ?: null];
+            $baseDir = (string)$uploads['basedir'];
+            $uploadsBaseDir = [rtrim((string)wp_normalize_path($baseDir), '/') ?: null];
 
             return $uploadsBaseDir[0];
         }

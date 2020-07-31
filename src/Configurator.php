@@ -850,7 +850,7 @@ class Configurator
         $enabled = array_keys((array)($config[self::ENABLED] ?? []));
         $disabled = array_keys((array)($config[self::DISABLED] ?? []));
 
-        /** @var array<class-string<HookListener\HookListener> $enabled */
+        /** @var array<class-string<HookListener\HookListener>> $enabled */
         $enabled and $enabled = array_intersect($enabled, self::DEFAULT_HOOK_LISTENERS);
         /** @var array<class-string<HookListener\HookListener>> $disabled */
         $disabled and $disabled = array_intersect($disabled, self::DEFAULT_HOOK_LISTENERS);
