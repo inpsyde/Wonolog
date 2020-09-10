@@ -91,7 +91,9 @@ final class CronDebugListener implements ActionListener
 
         foreach ($cronArray as $cronData) {
             foreach ($cronData as $hook => $data) {
-                $this->registerEventListenerForHook((string)$hook, $updater);
+                if ($hook && $data && is_string($hook) && is_array($data)) {
+                    $this->registerEventListenerForHook((string)$hook, $updater);
+                }
             }
         }
 
@@ -113,8 +115,7 @@ final class CronDebugListener implements ActionListener
             $this->cronActionProfile($hook, $updater);
         };
 
-        // Note that `(int)(PHP_INT_MAX + 1)` is the lowest possible integer.
-        add_action($hook, $profileCallback, (int)(PHP_INT_MAX + 1));
+        add_action($hook, $profileCallback, PHP_INT_MIN);
         add_action($hook, $profileCallback, PHP_INT_MAX);
     }
 
