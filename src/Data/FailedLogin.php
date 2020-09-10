@@ -33,7 +33,7 @@ final class FailedLogin implements LogData
     private $ipData;
 
     /**
-     * @var array<string, array{'count':int, 'last_logged':int}>|null
+     * @var array<string, array{count:int, last_logged:int}>|null
      */
     private $attemptsData;
 
@@ -85,7 +85,7 @@ final class FailedLogin implements LogData
      *
      * @param int $ttl transient time to live in seconds
      *
-     * @psalm-assert array<string, array{'count':int, 'last_logged':int}> $this->attemptsData
+     * @psalm-assert array<string, array{count:int, last_logged:int}> $this->attemptsData
      * @psalm-assert int $this->attempts
      */
     private function countAttempts(int $ttl = 300): void
@@ -95,6 +95,7 @@ final class FailedLogin implements LogData
         }
 
         $this->sniffIp();
+        /** @var string $userIp */
         $userIp = $this->ipData[0];
 
         $attempts = get_site_transient(self::TRANSIENT_NAME);
@@ -112,7 +113,7 @@ final class FailedLogin implements LogData
 
         /** @psalm-suppress MixedOperand */
         $attempts[$userIp]['count']++;
-        /** @psalm-suppress MixedPropertyTypeCoercion */
+        /** @psalm-suppress PropertyTypeCoercion */
         $this->attemptsData = $attempts;
 
         $count = (int)$attempts[$userIp]['count'];

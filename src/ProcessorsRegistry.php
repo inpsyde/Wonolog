@@ -22,7 +22,7 @@ class ProcessorsRegistry implements \Countable
 
     public static function new(): ProcessorsRegistry
     {
-        return new static();
+        return new self();
     }
 
     private function __construct()

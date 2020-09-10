@@ -25,7 +25,7 @@ class WpContextProcessor
      */
     public static function new(): WpContextProcessor
     {
-        return new static();
+        return new self();
     }
 
     private function __construct()

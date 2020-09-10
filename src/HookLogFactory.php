@@ -29,7 +29,7 @@ class HookLogFactory
      */
     public static function new(Channels $channels): HookLogFactory
     {
-        return new static($channels);
+        return new self($channels);
     }
 
     /**

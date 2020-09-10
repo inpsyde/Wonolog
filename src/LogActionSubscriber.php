@@ -35,7 +35,7 @@ class LogActionSubscriber
         HookLogFactory $factory
     ): LogActionSubscriber {
 
-        return new static($updater, $factory);
+        return new self($updater, $factory);
     }
 
     /**

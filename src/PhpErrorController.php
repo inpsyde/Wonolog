@@ -85,7 +85,7 @@ class PhpErrorController
      */
     public static function new(bool $logSilencedErrors): PhpErrorController
     {
-        return new static($logSilencedErrors);
+        return new self($logSilencedErrors);
     }
 
     /**

@@ -46,7 +46,7 @@ class HandlersRegistry implements \Countable
      */
     public static function new(ProcessorsRegistry $processorsRegistry): HandlersRegistry
     {
-        return new static($processorsRegistry);
+        return new self($processorsRegistry);
     }
 
     /**

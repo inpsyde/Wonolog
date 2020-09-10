@@ -81,7 +81,7 @@ class Channels
      */
     public static function new(HandlersRegistry $handlers, ProcessorsRegistry $processors): Channels
     {
-        return new static($handlers, $processors);
+        return new self($handlers, $processors);
     }
 
     /**

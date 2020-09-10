@@ -83,11 +83,11 @@ class Configurator
     ];
 
     /**
-     * @return static
+     * @return Configurator
      */
     public static function new(): Configurator
     {
-        return new static(Factory::new());
+        return new self(Factory::new());
     }
 
     /**

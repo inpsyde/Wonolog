@@ -68,7 +68,7 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
      */
     public static function new(): DefaultHandler
     {
-        return new static();
+        return new self();
     }
 
     /**

@@ -58,7 +58,7 @@ final class Log implements LogData
 
         $logData = (array)array_filter((array)(filter_var_array($logData, self::FILTERS) ?: []));
 
-        return new static(
+        return new self(
             (string)($logData[self::MESSAGE] ?? 'Unknown error'),
             (int)($logData[self::LEVEL] ?? $defaultLevel ?? Logger::DEBUG),
             (string)($logData[self::CHANNEL] ?? $defaultChannel ?? Channels::DEBUG),
@@ -95,7 +95,7 @@ final class Log implements LogData
             $level = Logger::NOTICE;
         }
 
-        return new static((string)$message, (int)$level, (string)$channel, $context);
+        return new self((string)$message, (int)$level, (string)$channel, $context);
     }
 
     /**
@@ -124,7 +124,7 @@ final class Log implements LogData
             'trace' => $throwable->getTrace(),
         ];
 
-        return new static($throwable->getMessage(), (int)$level, $channel, $context);
+        return new self($throwable->getMessage(), (int)$level, $channel, $context);
     }
 
     /**

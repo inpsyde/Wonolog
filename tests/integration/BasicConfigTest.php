@@ -12,7 +12,7 @@ use Psr\Log\LogLevel;
 /**
  * @runTestsInSeparateProcesses
  */
-class BasicConfigurationTest extends IntegrationTestCase
+class BasicConfigTest extends IntegrationTestCase
 {
     /**
      * @var TestHandler

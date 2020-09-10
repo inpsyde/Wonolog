@@ -55,7 +55,7 @@ class Factory
      */
     public static function new(): Factory
     {
-        return new static();
+        return new self();
     }
 
     private function __construct()

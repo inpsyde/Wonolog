@@ -40,7 +40,7 @@ class HookListenersRegistry
      */
     public static function new(LogActionUpdater $updater): HookListenersRegistry
     {
-        return new static($updater);
+        return new self($updater);
     }
 
     /**

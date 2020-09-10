@@ -22,7 +22,7 @@ class WpErrorChannel
      */
     public static function new(): WpErrorChannel
     {
-        return new static();
+        return new self();
     }
 
     private function __construct()

@@ -31,7 +31,7 @@ class LogActionUpdater
      */
     public static function new(Channels $channels): LogActionUpdater
     {
-        return new static($channels);
+        return new self($channels);
     }
 
     /**
