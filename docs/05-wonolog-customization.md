@@ -491,7 +491,7 @@ The handler is passed as first argument, and can be configured as needed.
 The second argument contains the handler ID that was used with `use_handler()`.
 If no handler ID was used (it is optional), the second argument will contain an ID calculated via `spl_object_hash()` that guarantees uniqueness, but unfortunately is not predicable.
 
-Finally, the third argument contains an instance of thw `ProcessorsRegistry` class.
+Finally, the third argument contains an instance of the `ProcessorsRegistry` class.
 This object allows to "find" processors that where added via controller methods `use_processor()` and `use_processor_for_handlers()`.
 
 For example, let's assume Wonolog bootstrapping was something like the following:
