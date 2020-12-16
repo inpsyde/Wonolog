@@ -44,7 +44,7 @@ class HookListenersRegistry
     }
 
     /**
-     * @param LogActionUpdater $subscriber
+     * @param LogActionUpdater $updater
      */
     private function __construct(LogActionUpdater $updater)
     {
@@ -108,7 +108,7 @@ class HookListenersRegistry
      * @param string $identifier
      * @param ActionListener $listener
      * @param int $priority
-     * @return $this
+     * @return static
      */
     public function addActionListenerWithPriority(
         string $identifier,
@@ -127,7 +127,7 @@ class HookListenersRegistry
      * @param string $identifier
      * @param FilterListener $listener
      * @param int $priority
-     * @return $this
+     * @return static
      */
     public function addFilterListenerWithPriority(
         string $identifier,
@@ -143,8 +143,8 @@ class HookListenersRegistry
     }
 
     /**
-     * @param HookListener $listener
-     * @return HookListenersRegistry
+     * @param string $identifier
+     * @return static
      */
     public function removeListener(string $identifier): HookListenersRegistry
     {
@@ -154,7 +154,7 @@ class HookListenersRegistry
     }
 
     /**
-     * @param HookListener $listener
+     * @param string $identifier
      * @return bool
      */
     public function hasListener(string $identifier): bool

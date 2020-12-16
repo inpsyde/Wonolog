@@ -88,7 +88,6 @@ abstract class LogLevel
         }
 
         if (self::$allLevels === null) {
-            /** @var array<string, int> $loggerLevels */
             $loggerLevels = Logger::getLevels();
             self::$allLevels = $loggerLevels;
         }

@@ -97,12 +97,10 @@ class PhpErrorController
     }
 
     /**
-     * Error handler.
-     *
      * @param int $num
      * @param string $str
-     * @param string $file
-     * @param int $line
+     * @param string|null $file
+     * @param int|null $line
      * @param array|null $context
      * @return bool
      */

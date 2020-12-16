@@ -56,7 +56,7 @@ final class Log implements LogData
             $logData[self::LEVEL] = LogLevel::normalizeLevel($logData[self::LEVEL]);
         }
 
-        $logData = (array)array_filter((array)(filter_var_array($logData, self::FILTERS) ?: []));
+        $logData = array_filter((array)(filter_var_array($logData, self::FILTERS) ?: []));
 
         return new self(
             (string)($logData[self::MESSAGE] ?? 'Unknown error'),
@@ -95,7 +95,7 @@ final class Log implements LogData
             $level = Logger::NOTICE;
         }
 
-        return new self((string)$message, (int)$level, (string)$channel, $context);
+        return new self((string)$message, $level, $channel, $context);
     }
 
     /**
@@ -124,7 +124,7 @@ final class Log implements LogData
             'trace' => $throwable->getTrace(),
         ];
 
-        return new self($throwable->getMessage(), (int)$level, $channel, $context);
+        return new self($throwable->getMessage(), $level, $channel, $context);
     }
 
     /**

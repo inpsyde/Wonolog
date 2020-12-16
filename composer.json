@@ -19,16 +19,6 @@
             "email": "hello@inpsyde.com",
             "homepage": "https://inpsyde.com",
             "role": "Company"
-        },
-        {
-            "name": "Giuseppe Mazzapica",
-            "email": "giuseppe.mazzapica@gmail.com",
-            "role": "Developer"
-        },
-        {
-            "name": "Christian Leucht",
-            "email": "c.leucht@inpsyde.com",
-            "role": "Developer"
         }
     ],
     "support": {
@@ -47,7 +37,7 @@
         "brain/monkey": "^2.2.0",
         "mikey179/vfsstream": "~1.6.4",
         "inpsyde/php-coding-standards": "dev-master",
-        "vimeo/psalm": "@stable",
+        "vimeo/psalm": "dev-master",
         "roots/wordpress": "@stable",
         "symfony/process": "^4.4",
         "globalis/wp-cli-bin": "^2.4"

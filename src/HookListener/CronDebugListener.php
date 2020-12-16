@@ -90,11 +90,7 @@ final class CronDebugListener implements ActionListener
         }
 
         foreach ($cronArray as $cronData) {
-            foreach ($cronData as $hook => $data) {
-                if ($hook && $data && is_string($hook) && is_array($data)) {
-                    $this->registerEventListenerForHook((string)$hook, $updater);
-                }
-            }
+            $this->registerEventListenerForHooks((array)$cronData, $updater);
         }
 
         register_shutdown_function(
@@ -102,6 +98,20 @@ final class CronDebugListener implements ActionListener
                 $this->logUnfinishedHooks($updater);
             }
         );
+    }
+
+    /**
+     * @param array $cronData
+     * @param LogActionUpdater $updater
+     * @return void
+     */
+    private function registerEventListenerForHooks(array $cronData, LogActionUpdater $updater): void
+    {
+        foreach ($cronData as $hook => $data) {
+            if ($hook && $data && is_string($hook) && is_array($data)) {
+                $this->registerEventListenerForHook($hook, $updater);
+            }
+        }
     }
 
     /**

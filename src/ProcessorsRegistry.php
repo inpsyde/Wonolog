@@ -32,8 +32,8 @@ class ProcessorsRegistry implements \Countable
     /**
      * @param callable(array):array $processor
      * @param string $identifier
-     * @param string ...$identifiers
-     * @return ProcessorsRegistry
+     * @param string ...$channels
+     * @return $this
      */
     public function addProcessor(
         callable $processor,
@@ -100,7 +100,7 @@ class ProcessorsRegistry implements \Countable
 
     /**
      * @param string $identifier
-     * @param string $handler
+     * @param string $channel
      * @return bool
      */
     public function hasProcessorForLogger(string $identifier, string $channel): bool

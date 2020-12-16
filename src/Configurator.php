@@ -115,7 +115,6 @@ class Configurator
 
     /**
      * @param string $channel
-     * @param string ...$channels
      * @return static
      */
     public function withDefaultChannel(string $channel): Configurator
@@ -283,6 +282,7 @@ class Configurator
     /**
      * @param string $identifier
      * @param ActionListener $listener
+     * @param int $priority
      * @return static
      */
     public function addActionListenerWithPriority(
@@ -312,6 +312,7 @@ class Configurator
     /**
      * @param string $identifier
      * @param FilterListener $listener
+     * @param int $priority
      * @return static
      */
     public function addFilterListenerWithPriority(
@@ -410,7 +411,7 @@ class Configurator
     }
 
     /**
-     * @param int $priority
+     * @param int $errorTypes
      * @return static
      */
     public function logPhpErrorsTypes(int $errorTypes): Configurator
@@ -455,7 +456,9 @@ class Configurator
     }
 
     /**
-     * @return static
+     * @param string $channel
+     * @param string ...$channels
+     * @return $this
      */
     public function enableDefaultHandlerForChannels(
         string $channel,
@@ -466,6 +469,8 @@ class Configurator
     }
 
     /**
+     * @param string $channel
+     * @param string ...$channels
      * @return static
      */
     public function disableDefaultHandlerForChannels(
@@ -599,10 +604,8 @@ class Configurator
         // Prevent endless recursion if any callback attached to `ACTION_SETUP` this method.
         $doingSetup = true;
 
-        /**
-         * Fires right before Wonolog is set up.
-         */
-        do_action(self::ACTION_SETUP);
+        /** Fires right before Wonolog is set up. */
+        do_action(self::ACTION_SETUP, $this);
 
         $doingSetup = false;
 
@@ -613,7 +616,7 @@ class Configurator
         $this->setupWpContextProcessor();
         $this->setupPhpErrorListener();
 
-        $maxSeverity = (int)max(Logger::getLevels());
+        $maxSeverity = (int)max(Logger::getLevels() ?: [Logger::EMERGENCY]);
         $defaultChannel = (string)$this->config[self::CONF_DEFAULT_CHANNEL];
         $this->setupLogActionSubscriberForHook(LOG, $defaultChannel, $maxSeverity);
 
@@ -624,9 +627,7 @@ class Configurator
 
         $this->setupHookListeners();
 
-        /**
-         * Fires right after Wonolog has been set up.
-         */
+        /** Fires right after Wonolog has been set up.*/
         do_action(self::ACTION_LOADED, $this->factory);
     }
 
@@ -656,6 +657,9 @@ class Configurator
     }
 
     /**
+     * @param bool $trueForEnable
+     * @param string $channel
+     * @param string ...$channels
      * @return static
      */
     private function toggleDefaultHandlerForChannels(
@@ -690,8 +694,9 @@ class Configurator
     }
 
     /**
-     * @param class-string<HookListener\HookListener> $listener
-     * @param class-string<HookListener\HookListener> ...$listeners
+     * @param bool $trueForEnable
+     * @param string $listener
+     * @param string ...$listeners
      * @return static
      */
     private function toggleDefaultHookListeners(
@@ -777,7 +782,7 @@ class Configurator
             }
 
             /*
-             * `$handlers->removeHandlerFromChannels` might remove the handler if there're no
+             * `$handlers->removeHandlerFromChannels` might remove the handler if there are no
              * channels for it anymore.
              * So in the case default was the only handler we need to be sure it is still added.
              */

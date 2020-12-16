@@ -136,7 +136,6 @@ class HookLogFactory
 
     /**
      * @param \Throwable $value
-     * @param array $arguments
      * @param int $defaultLevel
      * @param string $defaultChannel
      * @return LogData

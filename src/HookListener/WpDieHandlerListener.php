@@ -73,6 +73,11 @@ final class WpDieHandlerListener implements FilterListener
         };
 
         /**
+         * @param string $message
+         * @param string $title
+         * @param array $args
+         * @return mixed
+         *
          * @wp-hook wp_die_ajax_handler
          * @wp-hook wp_die_handler
          */

@@ -318,7 +318,7 @@ class Channels
             $logger = new NullLogger();
         }
 
-        if ($logger instanceof ProcessableHandlerInterface && $loggerProcessors) {
+        if (($logger instanceof ProcessableHandlerInterface) && $loggerProcessors) {
             foreach ($loggerProcessors as $loggerProcessor) {
                 $logger->pushProcessor($loggerProcessor);
             }
@@ -341,7 +341,7 @@ class Channels
          *
          * Can be used to push handlers and/or processors.
          *
-         * @params Logger $logger
+         * @params LoggerInterface $logger
          * @params HandlersRegistry $handlersRegistry
          * @params ProcessorsRegistry $processorsRegistry
          */

@@ -30,6 +30,7 @@ class WpErrorChannel
     }
 
     /**
+     * @param \WP_Error $error
      * @return string|null
      */
     public function channelFor(\WP_Error $error): ?string

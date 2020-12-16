@@ -36,7 +36,7 @@ final class QueryErrorsListener implements ActionListener
     {
         $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? Logger::DEBUG;
     }
-    
+
     /**
      * @return array<string>
      */

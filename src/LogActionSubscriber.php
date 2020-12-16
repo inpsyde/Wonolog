@@ -26,7 +26,7 @@ class LogActionSubscriber
     private $factory;
 
     /**
-     * @param Channels $channels
+     * @param LogActionUpdater $updater
      * @param HookLogFactory $factory
      * @return LogActionSubscriber
      */

@@ -108,12 +108,12 @@ final class HttpApiListener implements ActionListener
 
         /** @var LogData|null $log */
         $log = null;
-        if (($response instanceof \WP_Error) || $this->isError($response, (array)$httpArgs)) {
+        if (($response instanceof \WP_Error) || $this->isError($response, $httpArgs)) {
             if (($response instanceof \WP_Error)) {
                 $response = ['response' => ['message' => $errorMessage]];
             }
 
-            $log = $this->logHttpError((array)$response, $context, $class, $httpArgs, $url);
+            $log = $this->logHttpError($response, $context, $class, $httpArgs, $url);
         } elseif ($this->isCron($url)) {
             /** @var array $response */
             $log = $this->logCron($response, $context, $class, $httpArgs, $url);

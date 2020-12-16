@@ -57,9 +57,7 @@ class HandlersRegistry implements \Countable
         static $name;
         $name or $name = '~*~' . bin2hex(random_bytes(8));
 
-        /** @var string $name */
-
-        return $name;
+        return (string)$name;
     }
 
     /**
@@ -110,9 +108,8 @@ class HandlersRegistry implements \Countable
     }
 
     /**
-     * @param HandlerInterface $handler
-     * @param string $name
-     * @return HandlersRegistry
+     * @param string $identifier
+     * @return $this
      */
     public function removeHandler(string $identifier): HandlersRegistry
     {
@@ -122,9 +119,10 @@ class HandlersRegistry implements \Countable
     }
 
     /**
-     * @param HandlerInterface $handler
-     * @param string $name
-     * @return HandlersRegistry
+     * @param string $identifier
+     * @param string $channel
+     * @param string ...$channels
+     * @return $this
      */
     public function removeHandlerFromChannels(
         string $identifier,
@@ -159,7 +157,8 @@ class HandlersRegistry implements \Countable
     }
 
     /**
-     * @param string|HandlerInterface $name
+     * @param string $identifier
+     * @param string $channel
      * @return bool
      */
     public function hasHandlerForChannel(string $identifier, string $channel): bool

@@ -203,7 +203,7 @@ final class FailedLogin implements LogData
 
         return sprintf(
             "%d failed login attempts from username '%s' in last 5 minutes",
-            (int)$count,
+            $count,
             $this->username
         );
     }

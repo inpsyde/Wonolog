@@ -58,9 +58,7 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
         static $id;
         $id or $id = 'wonolog-std-' . bin2hex(random_bytes(3));
 
-        /** @var string $id */
-
-        return $id;
+        return (string)$id;
     }
 
     /**
@@ -245,7 +243,7 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
         }
 
         if ($this->folder === null && defined('WP_CONTENT_DIR') && WP_CONTENT_DIR) {
-            $content = (string)trailingslashit((string)WP_CONTENT_DIR);
+            $content = (string)trailingslashit(WP_CONTENT_DIR);
             $this->folder = (string)wp_normalize_path($content . 'logs/wonolog');
         }
 
