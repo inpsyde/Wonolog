@@ -50,7 +50,7 @@ class PsrBridge extends AbstractLogger
      * @param string $defaultChannel
      * @return static
      */
-    public function withDefaultChannel(string $defaultChannel)
+    public function withDefaultChannel(string $defaultChannel): PsrBridge
     {
         $this->channels->addChannel($defaultChannel);
         $this->defaultChannel = $defaultChannel;
@@ -60,25 +60,39 @@ class PsrBridge extends AbstractLogger
 
     /**
      * @param mixed $level
-     * @param string $message
+     * @param mixed $message
      * @param array $context
      * @return void
      */
     public function log($level, $message, array $context = [])
     {
-        $channel = $context[LogData::CHANNEL]
-            ?? $this->defaultChannel
-            ?? $this->channels->defaultChannel();
+        /** @see https://www.php-fig.org/psr/psr-3/#13-context */
+        $throwable = $context['exception'] ?? null;
+        if ($throwable && !($throwable instanceof \Throwable)) {
+            $throwable = null;
+        }
 
+        $channel = $context[LogData::CHANNEL] ?? null;
+        if (!$channel || !is_string($channel)) {
+            $channel = $throwable
+                ? Channels::PHP_ERROR
+                : ($this->defaultChannel ?? $this->channels->defaultChannel());
+        }
         unset($context[LogData::CHANNEL]);
 
-        $this->updater->update(
-            new Log(
-                (string)$message,
-                LogLevel::normalizeLevel($level) ?? Logger::DEBUG,
-                $channel,
-                $context
-            )
-        );
+        if (!$message || !is_string($message)) {
+            if ($throwable) {
+                $message = $throwable->getMessage();
+            } elseif (!is_object($message) || !is_callable([$message, '__toString'])) {
+                $message = var_export($message, true);
+            }
+        }
+
+        $level = LogLevel::normalizeLevel($level) ?? Logger::DEBUG;
+        if ($throwable && ($level < Logger::ERROR)) {
+            $level = Logger::ERROR;
+        }
+
+        $this->updater->update(new Log((string)$message, $level, $channel, $context));
     }
 }

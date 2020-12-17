@@ -53,7 +53,7 @@ class Factory
     private $logActionUpdater;
 
     /**
-     * @var LoggerInterface[]
+     * @var PsrBridge[]
      */
     private $psr3Loggers = [];
 

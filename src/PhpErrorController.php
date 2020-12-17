@@ -85,6 +85,26 @@ class PhpErrorController
     }
 
     /**
+     * @param \Throwable $throwable
+     * @param string|null $message
+     * @return Log
+     */
+    public static function factoryThrowableLog(\Throwable $throwable, ?string $message = null): Log
+    {
+        return new Log(
+            $message ?? $throwable->getMessage(),
+            Logger::CRITICAL,
+            Channels::PHP_ERROR,
+            [
+                'exception' => get_class($throwable),
+                'file' => $throwable->getFile(),
+                'line' => $throwable->getLine(),
+                'trace' => $throwable->getTraceAsString(),
+            ]
+        );
+    }
+
+    /**
      * @param bool $logSilencedErrors
      * @param LogActionUpdater $updater
      * @return PhpErrorController
@@ -151,19 +171,7 @@ class PhpErrorController
     public function onException(\Throwable $throwable): void
     {
         // Log the PHP exception.
-        $this->updater->update(
-            new Log(
-                $throwable->getMessage(),
-                Logger::CRITICAL,
-                Channels::PHP_ERROR,
-                [
-                    'exception' => get_class($throwable),
-                    'file' => $throwable->getFile(),
-                    'line' => $throwable->getLine(),
-                    'trace' => $throwable->getTraceAsString(),
-                ]
-            )
-        );
+        $this->updater->update(static::factoryThrowableLog($throwable));
 
         // after logging let's reset handler and throw the exception
         restore_exception_handler();
