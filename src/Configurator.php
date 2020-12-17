@@ -236,6 +236,46 @@ class Configurator
     }
 
     /**
+     * @param string $channel
+     * @param string $handlerIdentifier
+     * @param string ...$handlerIdentifiers
+     * @return static
+     */
+    public function enableHandlersForChannel(
+        string $channel,
+        string $handlerIdentifier,
+        string ...$handlerIdentifiers
+    ): Configurator {
+
+        $this->withChannels($channel);
+
+        $this->factory->channels()
+            ->enableHandlersForChannel($channel, $handlerIdentifier, ...$handlerIdentifiers);
+
+        return $this;
+    }
+
+    /**
+     * @param string $handlerIdentifier
+     * @param string $channel
+     * @param string ...$channels
+     * @return static
+     */
+    public function enableHandlerForChannels(
+        string $handlerIdentifier,
+        string $channel,
+        string ...$channels
+    ): Configurator {
+
+        $this->withChannels($channel, ...$channels);
+
+        $this->factory->channels()
+            ->enableHandlerForChannels($handlerIdentifier, $channel, ...$channels);
+
+        return $this;
+    }
+
+    /**
      * @param string $identifier
      * @param callable(array):array $processor
      * @return static

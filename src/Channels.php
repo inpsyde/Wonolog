@@ -259,6 +259,50 @@ class Channels
 
     /**
      * @param string $channel
+     * @param string $handlerIdentifier
+     * @param string ...$handlerIdentifiers
+     * @return static
+     */
+    public function enableHandlersForChannel(
+        string $channel,
+        string $handlerIdentifier,
+        string ...$handlerIdentifiers
+    ): Channels {
+
+        array_unshift($handlerIdentifiers, $handlerIdentifier);
+
+        foreach (array_unique($handlerIdentifiers) as $identifier) {
+            $handler = $this->handlersRegistry->findById($identifier);
+            if ($handler) {
+                $this->handlersRegistry->addHandler($handler, $identifier, $channel);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $identifier
+     * @param string $channel
+     * @param string ...$channels
+     * @return $this
+     */
+    public function enableHandlerForChannels(
+        string $identifier,
+        string $channel,
+        string ...$channels
+    ): Channels {
+
+        $handler = $this->handlersRegistry->findById($identifier);
+        if ($handler) {
+            $this->handlersRegistry->addHandler($handler, $identifier, $channel, ...$channels);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $channel
      * @return LoggerInterface
      */
     public function logger(string $channel): LoggerInterface
