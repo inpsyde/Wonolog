@@ -294,6 +294,38 @@ class Configurator
 
     /**
      * @param string $identifier
+     * @return static
+     */
+    public function removeHandler(string $identifier): Configurator
+    {
+        $this->factory->handlersRegistry()->removeHandler($identifier);
+
+        return $this;
+    }
+
+    /**
+     * @param string $identifier
+     * @param string $channel
+     * @param string ...$channels
+     * @return static
+     */
+    public function removeHandlerFromChannels(
+        string $identifier,
+        string $channel,
+        string ...$channels
+    ): Configurator {
+
+        $this->factory->handlersRegistry()->removeHandlerFromChannels(
+            $identifier,
+            $channel,
+            ...$channels
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param string $identifier
      * @param callable(array):array $processor
      * @return static
      */
@@ -320,6 +352,35 @@ class Configurator
 
         $this->factory->processorsRegistry()
             ->addProcessor($processor, $identifier, $channel, ...$channels);
+
+        return $this;
+    }
+
+    /**
+     * @param string $identifier
+     * @return static
+     */
+    public function removeProcessor(string $identifier): Configurator
+    {
+        $this->factory->processorsRegistry()->removeProcessor($identifier);
+
+        return $this;
+    }
+
+    /**
+     * @param string $identifier
+     * @param string $channel
+     * @param string ...$channels
+     * @return static
+     */
+    public function removeProcessorFromChannels(
+        string $identifier,
+        string $channel,
+        string ...$channels
+    ): Configurator {
+
+        $this->factory->processorsRegistry()
+            ->removeProcessorFromLoggers($identifier, $channel, ...$channels);
 
         return $this;
     }
