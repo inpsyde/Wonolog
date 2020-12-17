@@ -53,7 +53,7 @@ function makeLogger(?string $forChannel = null): LoggerInterface
 
 (static function () {
     $hook = 'muplugins_loaded';
-    $priority = 5;
+    $priority = PHP_INT_MIN;
     $callback = [Configurator::new(), 'setup'];
 
     $addActionExists = function_exists('add_action');
