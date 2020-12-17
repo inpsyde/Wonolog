@@ -342,8 +342,8 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
         // We will create .htaccess only if target dir is inside one of the two directories we
         // assume are publicly accessible.
         if (
-            ($contentDir && (strpos($targetDir, $contentDir) !== 0))
-            || ($uploadDir && (strpos($targetDir, $uploadDir) !== 0))
+            (!$contentDir || (strpos($targetDir, $contentDir) !== 0))
+            && (!$uploadDir || (strpos($targetDir, $uploadDir) !== 0))
         ) {
             return $targetDir;
         }
@@ -354,7 +354,6 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
          * Silence looks like best option here.
          *
          * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
-         * @psalm-suppress MixedArgumentTypeCoercion
          */
         set_error_handler('__return_true');
         $htaccess = <<<'HTACCESS'
