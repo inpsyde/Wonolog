@@ -65,6 +65,11 @@ class PhpErrorController
     private $logSilencedErrors;
 
     /**
+     * @var LogActionUpdater
+     */
+    private $updater;
+
+    /**
      * @param int $errorTypes
      * @return bool
      */
@@ -81,19 +86,22 @@ class PhpErrorController
 
     /**
      * @param bool $logSilencedErrors
+     * @param LogActionUpdater $updater
      * @return PhpErrorController
      */
-    public static function new(bool $logSilencedErrors): PhpErrorController
+    public static function new(bool $logSilencedErrors, LogActionUpdater $updater): PhpErrorController
     {
-        return new self($logSilencedErrors);
+        return new self($logSilencedErrors, $updater);
     }
 
     /**
      * @param bool $logSilencedErrors
+     * @param LogActionUpdater $updater
      */
-    private function __construct(bool $logSilencedErrors)
+    private function __construct(bool $logSilencedErrors, LogActionUpdater $updater)
     {
         $this->logSilencedErrors = $logSilencedErrors;
+        $this->updater = $updater;
     }
 
     /**
@@ -130,10 +138,7 @@ class PhpErrorController
         $logContext['line'] = $line;
 
         // Log the PHP error.
-        do_action(
-            \Inpsyde\Wonolog\LOG,
-            new Log($str, $level, Channels::PHP_ERROR, $logContext)
-        );
+        $this->updater->update(new Log($str, $level, Channels::PHP_ERROR, $logContext));
 
         return false;
     }
@@ -146,8 +151,7 @@ class PhpErrorController
     public function onException(\Throwable $throwable): void
     {
         // Log the PHP exception.
-        do_action(
-            \Inpsyde\Wonolog\LOG,
+        $this->updater->update(
             new Log(
                 $throwable->getMessage(),
                 Logger::CRITICAL,

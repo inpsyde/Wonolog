@@ -945,7 +945,9 @@ class Configurator
 
         $this->withChannels(Channels::PHP_ERROR);
 
-        $controller = PhpErrorController::new((bool)$this->config[self::CONF_SILENCED_ERRORS]);
+        $updater = $this->factory->logActionUpdater();
+        $logSilenced = (bool)$this->config[self::CONF_SILENCED_ERRORS];
+        $controller = PhpErrorController::new($logSilenced, $updater);
 
         $exceptions and set_exception_handler([$controller, 'onException']);
 
