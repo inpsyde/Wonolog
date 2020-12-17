@@ -75,6 +75,11 @@ class Channels
     private $ignoreList = [];
 
     /**
+     * @var string
+     */
+    private $defaultChannel;
+
+    /**
      * @param HandlersRegistry $handlers
      * @param ProcessorsRegistry $processors
      * @return Channels
@@ -93,6 +98,19 @@ class Channels
         $this->handlersRegistry = $handlers;
         $this->processorsRegistry = $processors;
         $this->channels = array_fill_keys(self::DEFAULT_CHANNELS, 1);
+        $this->defaultChannel = self::DEBUG;
+    }
+
+    /**
+     * @param string $channel
+     * @return $this
+     */
+    public function useDefaultChannel(string $channel): Channels
+    {
+        $this->addChannel($channel);
+        $this->defaultChannel = $channel;
+
+        return $this;
     }
 
     /**
@@ -186,6 +204,14 @@ class Channels
         }
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function defaultChannel(): string
+    {
+        return $this->defaultChannel;
     }
 
     /**

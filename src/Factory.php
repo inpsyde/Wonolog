@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
+use Psr\Log\LoggerInterface;
+
 class Factory
 {
     /**
@@ -49,6 +51,11 @@ class Factory
      * @var LogActionUpdater|null
      */
     private $logActionUpdater;
+
+    /**
+     * @var LoggerInterface[]
+     */
+    private $psr3Loggers = [];
 
     /**
      * @return Factory
@@ -147,5 +154,20 @@ class Factory
         }
 
         return $this->logActionUpdater;
+    }
+
+    /**
+     * @return PsrBridge
+     */
+    public function psr3Logger(?string $defaultChannel = null): PsrBridge
+    {
+        $key = $defaultChannel ?? 1;
+        if (!isset($this->psr3Loggers[$key])) {
+            $bridge = PsrBridge::new($this->logActionUpdater(), $this->channels());
+            $defaultChannel and $bridge = $bridge->withDefaultChannel($defaultChannel);
+            $this->psr3Loggers[$key] = $bridge;
+        }
+
+        return $this->psr3Loggers[$key];
     }
 }

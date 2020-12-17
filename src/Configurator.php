@@ -24,6 +24,7 @@ use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
 use Inpsyde\Wonolog\HookListener\WpDieHandlerListener;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 
 class Configurator
 {
@@ -39,7 +40,6 @@ class Configurator
     private const CONF_DEFAULT_LISTENERS = 'use-default-hook-listeners';
     private const CONF_HOOK_ALIASES = 'log-hook-aliases';
     private const CONF_SILENCED_ERRORS = 'log-silenced-errors';
-    private const CONF_DEFAULT_CHANNEL = 'default-channel';
     private const ALL = 'all';
     private const ENABLED = 'enabled';
     private const DISABLED = 'disabled';
@@ -64,7 +64,6 @@ class Configurator
      */
     private $config = [
         self::CONF_MAIN_HOOK_PRIORITY => 100,
-        self::CONF_DEFAULT_CHANNEL => Channels::DEBUG,
         self::CONF_ERROR_TYPES => null,
         self::CONF_LOG_EXCEPTIONS => true,
         self::CONF_WP_CONTEXT_PROCESSOR => true,
@@ -120,8 +119,7 @@ class Configurator
     public function withDefaultChannel(string $channel): Configurator
     {
         if ($channel) {
-            $this->factory->channels()->addChannel($channel);
-            $this->config[self::CONF_DEFAULT_CHANNEL] = $channel;
+            $this->factory->channels()->useDefaultChannel($channel);
         }
 
         return $this;
@@ -735,7 +733,7 @@ class Configurator
         $this->setupPhpErrorListener();
 
         $maxSeverity = (int)max(Logger::getLevels() ?: [Logger::EMERGENCY]);
-        $defaultChannel = (string)$this->config[self::CONF_DEFAULT_CHANNEL];
+        $defaultChannel = $this->factory->channels()->defaultChannel();
         $this->setupLogActionSubscriberForHook(LOG, $defaultChannel, $maxSeverity);
 
         foreach ((array)$this->config[self::CONF_HOOK_ALIASES] as $alias => $aliasChannel) {
@@ -745,8 +743,29 @@ class Configurator
 
         $this->setupHookListeners();
 
-        /** Fires right after Wonolog has been set up.*/
-        do_action(self::ACTION_LOADED, $this->factory);
+        /** @var callable(?string):LoggerInterface $factoryCb */
+        $factoryCb = [$this->factory, 'psr3Logger'];
+        $psr3Factory = static function (?string $channel = null) use ($factoryCb): LoggerInterface {
+            return $factoryCb($channel);
+        };
+
+        /**
+         * Fires right after Wonolog has been set up.
+         *
+         * Passes a factory that creates an PSR-3 Logger that can be injected into any object that
+         * can make use of it, e. g. any object implementing `LoggerAwareInterface`.
+         * This hook can only be used in MU plugins.
+         */
+        do_action(self::ACTION_LOADED, $psr3Factory);
+        remove_all_actions(self::ACTION_LOADED);
+
+        /**
+         * Fires on `plugins_loaded` to allow plugins the access the PSR-3 logger factory.
+         */
+        add_action('plugins_loaded', static function () use ($psr3Factory) {
+            do_action(self::ACTION_LOADED, $psr3Factory);
+            remove_all_actions(self::ACTION_LOADED);
+        });
     }
 
     /**
