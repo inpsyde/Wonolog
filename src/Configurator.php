@@ -199,6 +199,23 @@ class Configurator
 
     /**
      * @param HandlerInterface $handler
+     * @return static
+     */
+    public function useAsDefaultHandler(HandlerInterface $handler): Configurator
+    {
+        $registry = $this->factory->handlersRegistry();
+        $identifier = DefaultHandler::id();
+        if ($registry->findById($identifier)) {
+            $registry->removeHandler($identifier);
+        }
+
+        $registry->addHandler($handler, $identifier);
+
+        return $this;
+    }
+
+    /**
+     * @param HandlerInterface $handler
      * @param string|null $identifier
      * @return static
      */
@@ -801,7 +818,7 @@ class Configurator
         }
 
         if ($enabledForAll || $disabledForAll) {
-            if ($enabledForAll) {
+            if ($enabledForAll && !$defaultAdded) {
                 $handlers->addHandler(DefaultHandler::new(), $identifier);
                 $handlersNum++;
             }
