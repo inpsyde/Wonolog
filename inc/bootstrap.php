@@ -37,7 +37,6 @@ const LOG = 'wonolog.log';
 
         return;
     }
-
     /**
      * If here, this file is loaded very early, probably _too_ early, before ABSPATH is defined.
      * Only option we have is to "manually" write in global `$wp_filter` array.
@@ -47,7 +46,9 @@ const LOG = 'wonolog.log';
     global $wp_filter;
     is_array($wp_filter) or $wp_filter = [];
     is_array($wp_filter[$hook] ?? null) or $wp_filter[$hook] = [];
+    /** @psalm-suppress MixedArrayAssignment */
     is_array($wp_filter[$hook][$priority] ?? null) or $wp_filter[$hook][$priority] = [];
     $callbackId = spl_object_hash($callback[0]) . 'setup';
+    /** @psalm-suppress MixedArrayAssignment */
     $wp_filter[$hook][$priority][$callbackId] = ['function' => $callback, 'accepted_args' => 0];
 })();
