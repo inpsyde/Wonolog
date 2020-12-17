@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Tests\Integration;
 
 use Inpsyde\Wonolog\Channels;
+use Inpsyde\Wonolog\Configurator;
 use Inpsyde\Wonolog\Tests\IntegrationTestCase;
 use Monolog\Handler\TestHandler;
 use Psr\Log\LogLevel;
@@ -20,13 +21,13 @@ class BasicConfigTest extends IntegrationTestCase
     private $handler;
 
     /**
+     * @param Configurator $configurator
      * @return void
      */
-    protected function bootstrapWonolog(): void
+    protected function bootstrapWonolog(Configurator $configurator): void
     {
         $this->handler = new TestHandler();
-
-        \Inpsyde\Wonolog\bootstrap($this->handler);
+        $configurator->useAsDefaultHandler($this->handler);
     }
 
     /**

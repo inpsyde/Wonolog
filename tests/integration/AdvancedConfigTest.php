@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Tests\Integration;
 
 use Inpsyde\Wonolog\Channels;
+use Inpsyde\Wonolog\Configurator;
 use Inpsyde\Wonolog\Data\Notice;
 use Inpsyde\Wonolog\DefaultHandler;
 use Inpsyde\Wonolog\HookListener\ActionListener;
@@ -33,9 +34,10 @@ class AdvancedConfigTest extends IntegrationTestCase
     private $testHandler;
 
     /**
+     * @param Configurator $configurator
      * @return void
      */
-    protected function bootstrapWonolog(): void
+    protected function bootstrapWonolog(Configurator $configurator): void
     {
         $listener = new class implements ActionListener {
             public function listenTo(): array
@@ -58,7 +60,8 @@ class AdvancedConfigTest extends IntegrationTestCase
         $this->logFile = $dir->url() . '/logs/wonolog.log';
         $this->testHandler = new TestHandler();
 
-        \Inpsyde\Wonolog\bootstrap($defaultHandler)
+        $configurator
+            ->useAsDefaultHandler($defaultHandler)
             ->withChannels('TESTS')
             ->withIgnorePattern('cron job performed in [0-9\.]+ seconds')
             ->disableDefaultHandlerForChannels(Channels::SECURITY)
