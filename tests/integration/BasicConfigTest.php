@@ -8,7 +8,9 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Configurator;
 use Inpsyde\Wonolog\Tests\IntegrationTestCase;
 use Monolog\Handler\TestHandler;
+use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use function Inpsyde\Wonolog\makeLogger;
 
 /**
  * @runTestsInSeparateProcesses
@@ -82,5 +84,17 @@ class BasicConfigTest extends IntegrationTestCase
         do_action('wonolog.log.info', 'Hello, I\'m there');
 
         static::assertTrue($this->handler->hasInfoThatContains('Hello, I\'m there'));
+    }
+
+    /**
+     * @test
+     */
+    public function testPsrLogger()
+    {
+        $logger = makeLogger('test');
+        $logger->alert('From PSR-3 with love.', ['foo' => 'bar']);
+
+        static::assertTrue($logger instanceof LoggerInterface);
+        static::assertTrue($this->handler->hasAlertThatContains('From PSR-3 with love.'));
     }
 }

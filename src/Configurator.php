@@ -743,6 +743,9 @@ class Configurator
 
         $this->setupHookListeners();
 
+        // This ensures the `add_action` inside `makeLogger` function is fired.
+        \Inpsyde\Wonolog\makeLogger();
+
         /** @var callable(?string):LoggerInterface $factoryCb */
         $factoryCb = [$this->factory, 'psr3Logger'];
         $psr3Factory = static function (?string $channel = null) use ($factoryCb): LoggerInterface {
@@ -754,18 +757,11 @@ class Configurator
          *
          * Passes a factory that creates an PSR-3 Logger that can be injected into any object that
          * can make use of it, e. g. any object implementing `LoggerAwareInterface`.
-         * This hook can only be used in MU plugins.
+         * This hook can only be used in MU plugins. Plugins/themes/etc can use `logger()` if they
+         * need a PSR-3 compliant logger.
          */
         do_action(self::ACTION_LOADED, $psr3Factory);
         remove_all_actions(self::ACTION_LOADED);
-
-        /**
-         * Fires on `plugins_loaded` to allow plugins the access the PSR-3 logger factory.
-         */
-        add_action('plugins_loaded', static function () use ($psr3Factory) {
-            do_action(self::ACTION_LOADED, $psr3Factory);
-            remove_all_actions(self::ACTION_LOADED);
-        });
     }
 
     /**

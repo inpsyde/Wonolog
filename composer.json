@@ -42,6 +42,9 @@
         "symfony/process": "^4.4",
         "globalis/wp-cli-bin": "^2.4"
     },
+    "provide": {
+        "psr/log-implementation": "1.0.0"
+    },
     "autoload": {
         "psr-4": {
             "Inpsyde\\Wonolog\\": "src/"

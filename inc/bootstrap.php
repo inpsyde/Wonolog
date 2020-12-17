@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
 // We want to load this file just once.
 // Being loaded by Composer autoload, and being in WordPress context,
 // we have to put special care on this.
@@ -21,6 +24,32 @@ if (defined(__NAMESPACE__ . '\\LOG')) {
 }
 
 const LOG = 'wonolog.log';
+
+/**
+ * @param string|null $forChannel
+ * @return LoggerInterface
+ */
+function makeLogger(?string $forChannel = null): LoggerInterface
+{
+    /** @var null|callable(?string):LoggerInterface $loggerFactory */
+    static $loggerFactory, $actionAdded = false;
+    if ($loggerFactory) {
+        return $loggerFactory($forChannel);
+    }
+
+    if (!$actionAdded && function_exists('add_action')) {
+        $actionAdded = add_action(
+            Configurator::ACTION_LOADED,
+            /** @param callable(?string):LoggerInterface $factory */
+            static function (callable $factory) use (&$loggerFactory): void {
+                $loggerFactory = $factory;
+            },
+            PHP_INT_MIN
+        );
+    }
+
+    return new NullLogger();
+}
 
 (static function () {
     $hook = 'muplugins_loaded';
