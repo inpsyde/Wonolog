@@ -90,6 +90,7 @@ class ConfiguratorTest extends UnitTestCase
      */
     public function testEnabledViaCustomHandler()
     {
+        Monkey\Functions\when('remove_all_actions')->justReturn();
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
         Monkey\Actions\expectDone(Configurator::ACTION_LOADED)->once();
 
@@ -108,6 +109,7 @@ class ConfiguratorTest extends UnitTestCase
      */
     public function testGivenDefaultHandlerDisabledInOneChannel()
     {
+        Monkey\Functions\when('remove_all_actions')->justReturn();
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
         Monkey\Actions\expectDone(Configurator::ACTION_LOADED)->once();
 
@@ -141,6 +143,7 @@ class ConfiguratorTest extends UnitTestCase
      */
     public function testGivenDefaultHandlerEnabledInSpecificChannels()
     {
+        Monkey\Functions\when('remove_all_actions')->justReturn();
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
         Monkey\Actions\expectDone(Configurator::ACTION_LOADED)->once();
 
@@ -178,6 +181,7 @@ class ConfiguratorTest extends UnitTestCase
      */
     public function testAutoDefaultHandlerEnabledInSpecificChannels()
     {
+        Monkey\Functions\when('remove_all_actions')->justReturn();
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
         Monkey\Actions\expectDone(Configurator::ACTION_LOADED)->once();
 
