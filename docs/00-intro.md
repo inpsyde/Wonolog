@@ -87,12 +87,12 @@ use Inpsyde\Wonolog;
 class PluginNameWonologCompat implements Wonolog\HookListener\ActionListener {
      
     public function listenTo(): array {
-		return ['prefix_product_added_to_cart'];
-	}
+        return ['prefix_product_added_to_cart'];
+    }
 
-	public function update(string $hook, array $args, Wonolog\LogActionUpdater $updater): void {
-		$updater->update(new Wonolog\Data\Info($hook, "plugin-name" $args[0]->ID);
-	}
+    public function update(string $hook, array $args, Wonolog\LogActionUpdater $updater): void {
+        $updater->update(new Wonolog\Data\Info($hook, "plugin-name", $args[0]->ID));
+    }
 }
 ```
 
