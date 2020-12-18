@@ -62,7 +62,7 @@ Using hooks (aka the "*WordPress way*") can be a simple still powerful way to im
 
 
 
-## Logging code not "natively compatible" with Wonolog
+### Logging code not "natively compatible" with Wonolog
 
 It might be desirable to log "things" done by 3rd party plugins we don't control or plugins that we don't want to change.
 
