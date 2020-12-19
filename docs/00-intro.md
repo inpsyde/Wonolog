@@ -44,7 +44,7 @@ When talking of WordPress code, to "emit events" can be accomplished without cus
 do_action("my_plugin_log", $thing_to_log);
 ```
 
-will be *natively compatible* with Wonolog. But what about $thing_to_log? Wonolog supports out of the box arbitrary strings, throwable objects, WP_Error object, and array having a message key pointing to a log message. Even if more details will be provided where due, it is worth mentioning here that Wonolog supports out-of-the-box action hooks in the format "{$hook_name}.{$log_level}" where log level is one of the PSR-3 log levels, e. g. action hooks like "my_plugin_log.error", "my_plugin_log.critical" etc, are very well supported.
+will be *natively compatible* with Wonolog. But what about $thing_to_log? Wonolog supports out of the box arbitrary strings, throwable objects, WP_Error object, and array having a message key pointing to a log message. Even if more details will be provided where due, it is worth mentioning here that Wonolog supports out-of-the-box action hooks in the format `"{$hook_name}.{$log_level}"` where log level is one of the PSR-3 log levels, e. g. action hooks like `"my_plugin_log.error"`, `"my_plugin_log.critical"` etc, are very well supported.
 
 #### The "PSR way"
 
