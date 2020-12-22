@@ -28,6 +28,8 @@ class Channels
     public const DEBUG = 'DEBUG';
     public const CRON = 'CRON';
     public const ACTION_LOGGER = 'wonolog.logger';
+    public const ACTION_MONOLOG_LOGGER = 'wonolog.monolog-logger';
+    public const ACTION_PROCESSABLE_LOGGER = 'wonolog.processable-logger';
 
     public const DEFAULT_CHANNELS = [
         self::HTTP,
@@ -406,16 +408,49 @@ class Channels
      */
     private function initializeLogger(LoggerInterface $logger, string $channel): LoggerInterface
     {
+        if ($logger instanceof Logger) {
+            /**
+             * Fires right after a Monolog `Logger` is instantiated.
+             *
+             * Can be used to push handlers from the registry.
+             *
+             * @params Logger $logger
+             * @params string $channel
+             * @params HandlersRegistry $handlersRegistry
+             */
+            do_action(
+                self::ACTION_MONOLOG_LOGGER,
+                $logger,
+                $channel,
+                $this->handlersRegistry
+            );
+        }
+
+        if ($logger instanceof ProcessableHandlerInterface) {
+            /**
+             * Fires right after a `ProcessableHandlerInterface` logger is instantiated.
+             *
+             * Can be used to push processors from the registry.
+             *
+             * @params ProcessableHandlerInterface $logger
+             * @params string $channel
+             * @params ProcessorsRegistry $processorsRegistry
+             */
+            do_action(
+                self::ACTION_PROCESSABLE_LOGGER,
+                $logger,
+                $channel,
+                $this->processorsRegistry
+            );
+        }
+
         /**
-         * Fires right after the Logger is instantiated.
-         *
-         * Can be used to push handlers and/or processors.
+         * Fires right after a logger is instantiated.
          *
          * @params LoggerInterface $logger
-         * @params HandlersRegistry $handlersRegistry
-         * @params ProcessorsRegistry $processorsRegistry
+         * @params string $channel
          */
-        do_action(self::ACTION_LOGGER, $logger, $this->handlersRegistry, $this->processorsRegistry);
+        do_action(self::ACTION_LOGGER, $logger, $channel);
 
         $this->loggers[$channel] = $logger;
 
