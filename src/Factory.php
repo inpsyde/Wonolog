@@ -123,7 +123,7 @@ class Factory
     public function hookLogFactory(): HookLogFactory
     {
         if (!$this->hookLogFactory) {
-            $this->hookLogFactory = HookLogFactory::new($this->channels());
+            $this->hookLogFactory = HookLogFactory::new();
         }
 
         return $this->hookLogFactory;

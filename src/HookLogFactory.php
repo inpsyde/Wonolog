@@ -19,24 +19,11 @@ use Inpsyde\Wonolog\Data\LogData;
 class HookLogFactory
 {
     /**
-     * @var Channels
-     */
-    private $channels;
-
-    /**
      * @return HookLogFactory
      */
-    public static function new(Channels $channels): HookLogFactory
+    public static function new(): HookLogFactory
     {
-        return new self($channels);
-    }
-
-    /**
-     * @param Channels $channels
-     */
-    private function __construct(Channels $channels)
-    {
-        $this->channels = $channels;
+        return new self();
     }
 
     /**
