@@ -101,7 +101,7 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
     /**
      * @param string $format
      * @param string $extension
-     * @return $this
+     * @return static
      */
     public function withDateBasedFileFormat(
         string $format,
@@ -404,12 +404,15 @@ HTACCESS;
         }
 
         if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && is_string(WP_DEBUG_LOG)) {
-            $isBool = filter_var(WP_DEBUG_LOG, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+            $isBool = filter_var(WP_DEBUG_LOG, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
             ($isBool === null) and $maybeLogFiles[] = WP_DEBUG_LOG;
         }
 
+        /** @var string $maybeLogFile */
         foreach ($maybeLogFiles as $maybeLogFile) {
+            // phpcs:disable WordPress.PHP.NoSilencedErrors
             $dirByConstant = @dirname($maybeLogFile);
+            // phpcs:enable WordPress.PHP.NoSilencedErrors
             if ($dirByConstant && $dirByConstant !== '.') {
                 $folder = wp_normalize_path((string)trailingslashit($dirByConstant) . 'wonolog');
 

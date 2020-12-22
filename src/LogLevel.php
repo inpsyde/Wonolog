@@ -30,8 +30,6 @@ abstract class LogLevel
     public const ALERT = Logger::ALERT;
     public const EMERGENCY = Logger::EMERGENCY;
 
-    private static $allLevels;
-
     /**
      * @var int|null
      */
@@ -42,11 +40,7 @@ abstract class LogLevel
      */
     final public static function allLevels(): array
     {
-        if (self::$allLevels === null) {
-            self::$allLevels = Logger::getLevels();
-        }
-
-        return self::$allLevels;
+        return Logger::getLevels();
     }
 
     /**

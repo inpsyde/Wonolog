@@ -16,13 +16,11 @@ trait MethodNamesByHookTrait
 
     /**
      * @param string $prefix
-     * @return static
+     * @return void
      */
-    public function withHookPrefix(string $prefix)
+    public function withHookPrefix(string $prefix): void
     {
         $this->prefix = $prefix;
-
-        return $this;
     }
 
     /**

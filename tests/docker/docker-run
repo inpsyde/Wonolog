@@ -39,7 +39,7 @@ USAGE
 
 function dispatch() {
   local COMMANDS=('tests:unit' 'tests:integration' 'qa' 'cs' 'psalm' 'help' '-h' 'down')
-  local BASE_CMD="composer dump-autoload && composer"
+  local BASE_CMD="composer config --global process-timeout 0 && composer dump-autoload && composer"
   local COMMAND=$1
   local PHP_VER=$2
   local CMD_PARAMS=$3
