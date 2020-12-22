@@ -13,15 +13,7 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Inpsyde\Wonolog\HookListener\ActionListener;
-use Inpsyde\Wonolog\HookListener\CronDebugListener;
-use Inpsyde\Wonolog\HookListener\DbErrorListener;
-use Inpsyde\Wonolog\HookListener\FailedLoginListener;
-use Inpsyde\Wonolog\HookListener\FilterListener;
-use Inpsyde\Wonolog\HookListener\HttpApiListener;
-use Inpsyde\Wonolog\HookListener\MailerListener;
-use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
-use Inpsyde\Wonolog\HookListener\WpDieHandlerListener;
+use Inpsyde\Wonolog\HookListener;
 use Monolog\Handler\HandlerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -44,13 +36,13 @@ class Configurator
     private const DISABLED = 'disabled';
 
     private const DEFAULT_HOOK_LISTENERS = [
-        DbErrorListener::class,
-        FailedLoginListener::class,
-        HttpApiListener::class,
-        MailerListener::class,
-        QueryErrorsListener::class,
-        CronDebugListener::class,
-        WpDieHandlerListener::class,
+        HookListener\DbErrorListener::class,
+        HookListener\FailedLoginListener::class,
+        HookListener\HttpApiListener::class,
+        HookListener\MailerListener::class,
+        HookListener\QueryErrorsListener::class,
+        HookListener\CronDebugListener::class,
+        HookListener\WpDieHandlerListener::class,
     ];
 
     /**
@@ -383,29 +375,34 @@ class Configurator
     }
 
     /**
-     * @param string $identifier
-     * @param ActionListener $listener
+     * @param HookListener\ActionListener $listener
+     * @param string|null $identifier
      * @return static
      */
-    public function addActionListener(string $identifier, ActionListener $listener): Configurator
-    {
+    public function addActionListener(
+        HookListener\ActionListener $listener,
+        ?string $identifier = null
+    ): Configurator {
+
+        $identifier = $identifier ?? get_class($listener);
         $this->factory->listenersRegistry()->addActionListener($identifier, $listener);
 
         return $this;
     }
 
     /**
-     * @param string $identifier
-     * @param ActionListener $listener
+     * @param HookListener\ActionListener $listener
      * @param int $priority
+     * @param string|null $identifier
      * @return static
      */
     public function addActionListenerWithPriority(
-        string $identifier,
-        ActionListener $listener,
-        int $priority
+        HookListener\ActionListener $listener,
+        int $priority,
+        ?string $identifier = null
     ): Configurator {
 
+        $identifier = $identifier ?? get_class($listener);
         $this->factory->listenersRegistry()
             ->addActionListenerWithPriority($identifier, $listener, $priority);
 
@@ -413,29 +410,34 @@ class Configurator
     }
 
     /**
-     * @param string $identifier
-     * @param FilterListener $listener
+     * @param HookListener\FilterListener $listener
+     * @param string|null $identifier
      * @return static
      */
-    public function addFilterListener(string $identifier, FilterListener $listener): Configurator
-    {
+    public function addFilterListener(
+        HookListener\FilterListener $listener,
+        ?string $identifier = null
+    ): Configurator {
+
+        $identifier = $identifier ?? get_class($listener);
         $this->factory->listenersRegistry()->addFilterListener($identifier, $listener);
 
         return $this;
     }
 
     /**
-     * @param string $identifier
-     * @param FilterListener $listener
+     * @param HookListener\FilterListener $listener
      * @param int $priority
+     * @param string|null $identifier
      * @return static
      */
     public function addFilterListenerWithPriority(
-        string $identifier,
-        FilterListener $listener,
-        int $priority
+        HookListener\FilterListener $listener,
+        int $priority,
+        ?string $identifier = null
     ): Configurator {
 
+        $identifier = $identifier ?? get_class($listener);
         $this->factory->listenersRegistry()
             ->addFilterListenerWithPriority($identifier, $listener, $priority);
 
@@ -754,10 +756,10 @@ class Configurator
         /**
          * Fires right after Wonolog has been set up.
          *
-         * Passes a factory that creates an PSR-3 LoggerInterface that can be injected into any object that
-         * can make use of it, e. g. any object implementing `LoggerAwareInterface`.
-         * This hook can only be used in MU plugins. Plugins/themes/etc can use `logger()` if they
-         * need a PSR-3 compliant logger.
+         * Passes a factory that creates an PSR-3 LoggerInterface that can be injected into any
+         * object that can make use of it, e. g. any object implementing `LoggerAwareInterface`.
+         * This hook can only be used in MU plugins.
+         * Plugins/themes/etc can use `makeLogger()` if they need a PSR-3 compliant logger.
          */
         do_action(self::ACTION_LOADED, $psr3Factory);
         remove_all_actions(self::ACTION_LOADED);
@@ -1000,9 +1002,9 @@ class Configurator
             : array_diff(array_intersect(self::DEFAULT_HOOK_LISTENERS, $enabled), $disabled);
 
         foreach ($toEnable as $class) {
-            /** @var ActionListener|FilterListener $listener */
+            /** @var HookListener\ActionListener|HookListener\FilterListener $listener */
             $listener = new $class();
-            if ($listener instanceof ActionListener) {
+            if ($listener instanceof HookListener\ActionListener) {
                 $listeners->addActionListener($class, $listener);
                 continue;
             }
