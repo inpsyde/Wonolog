@@ -62,7 +62,7 @@ class WpDieHandlerListenerUnitTest extends UnitTestCase
         $updater->shouldReceive('update')
             ->once()
             ->andReturnUsing(static function (LogData $log) {
-                static::assertSame(Logger::ERROR, $log->level());
+                static::assertSame(Logger::CRITICAL, $log->level());
                 static::assertSame('Error!', $log->message());
                 static::assertSame(Channels::DB, $log->channel());
             });
