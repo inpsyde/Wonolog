@@ -21,15 +21,33 @@ use Monolog\Logger;
  */
 abstract class LogLevel
 {
-    /**
-     * @var array<string, int>|null
-     */
+    public const DEBUG = Logger::DEBUG;
+    public const INFO = Logger::INFO;
+    public const NOTICE = Logger::NOTICE;
+    public const WARNING = Logger::WARNING;
+    public const ERROR = Logger::ERROR;
+    public const CRITICAL = Logger::CRITICAL;
+    public const ALERT = Logger::ALERT;
+    public const EMERGENCY = Logger::EMERGENCY;
+
     private static $allLevels;
 
     /**
      * @var int|null
      */
     private static $minLevel;
+
+    /**
+     * @return array<string, int>
+     */
+    final public static function allLevels(): array
+    {
+        if (self::$allLevels === null) {
+            self::$allLevels = Logger::getLevels();
+        }
+
+        return self::$allLevels;
+    }
 
     /**
      * Returns the minimum default log level based on environment variable or WordPress debug
@@ -61,6 +79,41 @@ abstract class LogLevel
     }
 
     /**
+     * @param int $numLevel
+     * @return string
+     */
+    final public static function toPsrLevel(int $numLevel): string
+    {
+        switch ($numLevel) {
+            case self::EMERGENCY:
+                return \Psr\Log\LogLevel::EMERGENCY;
+            case self::ALERT:
+                return \Psr\Log\LogLevel::ALERT;
+            case self::CRITICAL:
+                return \Psr\Log\LogLevel::CRITICAL;
+            case self::ERROR:
+                return \Psr\Log\LogLevel::ERROR;
+            case self::WARNING:
+                return \Psr\Log\LogLevel::WARNING;
+            case self::NOTICE:
+                return \Psr\Log\LogLevel::NOTICE;
+            case self::INFO:
+                return \Psr\Log\LogLevel::INFO;
+        }
+
+        return \Psr\Log\LogLevel::DEBUG;
+    }
+
+    /**
+     * @param string $psrLevel
+     * @return int
+     */
+    final public static function toNumericLevel(string $psrLevel): int
+    {
+        return static::normalizeLevel($psrLevel) ?? self::DEBUG;
+    }
+
+    /**
      * In Monolog/Wonolog there're two ways to indicate a logger level:
      * - a integer value
      * - level "names".
@@ -68,9 +121,6 @@ abstract class LogLevel
      * comparison: the higher the number, the higher the severity.
      *
      * This method always return a numerical representation of a log level.
-     *
-     * When a name is provided, the numeric value is obtained doing a lookup in
-     * `Monolog\Logger::getLevels()` that returns a map of level names to level integer values.
      *
      * If there's no way to resolve the given level, null is returned.
      *
@@ -87,21 +137,20 @@ abstract class LogLevel
             return null;
         }
 
-        if (self::$allLevels === null) {
-            $loggerLevels = Logger::getLevels();
-            self::$allLevels = $loggerLevels;
-        }
-
         if (is_numeric($level)) {
             $level = (int)$level;
 
-            return in_array($level, self::$allLevels, true) ? $level : null;
+            return in_array($level, self::allLevels(), true) ? $level : null;
         }
 
         if (!is_string($level)) {
             return null;
         }
 
-        return self::$allLevels[strtoupper(trim($level))] ?? null;
+        try {
+            return static::normalizeLevel(Logger::toMonologLevel(trim($level)));
+        } catch (\Throwable $exception) {
+            return null;
+        }
     }
 }

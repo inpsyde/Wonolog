@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Data;
 
-use Monolog\Logger;
+use Inpsyde\Wonolog\LogLevel;
 
 final class Debug implements LogData
 {
@@ -21,6 +21,6 @@ final class Debug implements LogData
 
     public function level(): int
     {
-        return Logger::DEBUG;
+        return LogLevel::DEBUG;
     }
 }

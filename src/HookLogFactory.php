@@ -15,7 +15,6 @@ namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\Data\LogData;
-use Monolog\Logger;
 
 class HookLogFactory
 {
@@ -53,7 +52,7 @@ class HookLogFactory
     ): array {
 
         ($defaultChannel === null) and $defaultChannel = Channels::DEBUG;
-        ($defaultLevel === null) and $defaultLevel = Logger::DEBUG;
+        ($defaultLevel === null) and $defaultLevel = LogLevel::DEBUG;
 
         // When no arguments are passed, there's not much we can do
         if (!$params) {
@@ -129,7 +128,7 @@ class HookLogFactory
             $value->add_data($arguments);
         }
 
-        $log = Log::fromWpError($value, Logger::NOTICE, $defaultChannel);
+        $log = Log::fromWpError($value, LogLevel::NOTICE, $defaultChannel);
 
         return $this->maybeRaiseLevel($defaultLevel, $log);
     }
@@ -146,7 +145,7 @@ class HookLogFactory
         string $defaultChannel
     ): LogData {
 
-        $log = Log::fromThrowable($value, Logger::ERROR, $defaultChannel);
+        $log = Log::fromThrowable($value, LogLevel::ERROR, $defaultChannel);
 
         return $this->maybeRaiseLevel($defaultLevel, $log);
     }

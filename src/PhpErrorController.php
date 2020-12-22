@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Monolog\Logger;
 use Inpsyde\Wonolog\Data\Log;
 
 /**
@@ -22,21 +21,21 @@ use Inpsyde\Wonolog\Data\Log;
 class PhpErrorController
 {
     private const ERROR_LEVELS_MAP = [
-        E_USER_ERROR => Logger::CRITICAL,
-        E_USER_NOTICE => Logger::NOTICE,
-        E_USER_WARNING => Logger::WARNING,
-        E_USER_DEPRECATED => Logger::NOTICE,
-        E_RECOVERABLE_ERROR => Logger::ERROR,
-        E_WARNING => Logger::WARNING,
-        E_NOTICE => Logger::NOTICE,
-        E_DEPRECATED => Logger::NOTICE,
-        E_STRICT => Logger::NOTICE,
-        E_ERROR => Logger::CRITICAL,
-        E_PARSE => Logger::CRITICAL,
-        E_CORE_ERROR => Logger::CRITICAL,
-        E_CORE_WARNING => Logger::CRITICAL,
-        E_COMPILE_ERROR => Logger::CRITICAL,
-        E_COMPILE_WARNING => Logger::CRITICAL,
+        E_USER_ERROR => LogLevel::CRITICAL,
+        E_USER_NOTICE => LogLevel::NOTICE,
+        E_USER_WARNING => LogLevel::WARNING,
+        E_USER_DEPRECATED => LogLevel::NOTICE,
+        E_RECOVERABLE_ERROR => LogLevel::ERROR,
+        E_WARNING => LogLevel::WARNING,
+        E_NOTICE => LogLevel::NOTICE,
+        E_DEPRECATED => LogLevel::NOTICE,
+        E_STRICT => LogLevel::NOTICE,
+        E_ERROR => LogLevel::CRITICAL,
+        E_PARSE => LogLevel::CRITICAL,
+        E_CORE_ERROR => LogLevel::CRITICAL,
+        E_CORE_WARNING => LogLevel::CRITICAL,
+        E_COMPILE_ERROR => LogLevel::CRITICAL,
+        E_COMPILE_WARNING => LogLevel::CRITICAL,
     ];
 
     private const FATALS = [
@@ -93,7 +92,7 @@ class PhpErrorController
     {
         return new Log(
             $message ?? $throwable->getMessage(),
-            Logger::CRITICAL,
+            LogLevel::CRITICAL,
             Channels::PHP_ERROR,
             [
                 'exception' => get_class($throwable),
@@ -140,7 +139,7 @@ class PhpErrorController
         ?array $context = null
     ): bool {
 
-        $level = self::ERROR_LEVELS_MAP[$num] ?? Logger::ERROR;
+        $level = self::ERROR_LEVELS_MAP[$num] ?? LogLevel::ERROR;
         // phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
         if ((error_reporting() === 0) && !$this->logSilencedErrors) {
             return false;

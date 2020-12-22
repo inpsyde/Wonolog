@@ -18,7 +18,6 @@ use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel;
-use Monolog\Logger;
 
 /**
  * Try to log any error in PHPMailer.
@@ -33,9 +32,9 @@ class MailerListener implements ActionListener
     /**
      * @param int $errorLogLevel
      */
-    public function __construct(int $errorLogLevel = Logger::ERROR)
+    public function __construct(int $errorLogLevel = LogLevel::ERROR)
     {
-        $this->errorLogLevel = LogLevel::normalizeLevel($errorLogLevel) ?? Logger::ERROR;
+        $this->errorLogLevel = LogLevel::normalizeLevel($errorLogLevel) ?? LogLevel::ERROR;
     }
 
     /**

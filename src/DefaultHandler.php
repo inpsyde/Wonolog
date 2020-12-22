@@ -229,12 +229,8 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
             return $this->logFilePath;
         }
 
-        if (($this->folder === null) && defined('WP_DEBUG_LOG') && is_string(WP_DEBUG_LOG)) {
-            $dirByConstant = dirname((string)WP_DEBUG_LOG);
-            if ($dirByConstant && $dirByConstant !== '.') {
-                $folder = wp_normalize_path((string)trailingslashit($dirByConstant) . 'wonolog');
-                $this->folder = (string)$folder;
-            }
+        if ($this->folder === null) {
+            $this->folder = $this->maybeDetermineFolderByConstant();
         }
 
         if ($this->folder === null) {
@@ -392,6 +388,34 @@ HTACCESS;
         }
 
         $uploadsBaseDir = [null];
+
+        return null;
+    }
+
+    /**
+     * @return string|null
+     */
+    private function maybeDetermineFolderByConstant(): ?string
+    {
+        $maybeLogFiles = [];
+
+        if (defined('ERRORLOGFILE') && ERRORLOGFILE && is_string(ERRORLOGFILE)) {
+            $maybeLogFiles[] = ERRORLOGFILE;
+        }
+
+        if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && is_string(WP_DEBUG_LOG)) {
+            $isBool = filter_var(WP_DEBUG_LOG, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+            ($isBool === null) and $maybeLogFiles[] = WP_DEBUG_LOG;
+        }
+
+        foreach ($maybeLogFiles as $maybeLogFile) {
+            $dirByConstant = @dirname($maybeLogFile);
+            if ($dirByConstant && $dirByConstant !== '.') {
+                $folder = wp_normalize_path((string)trailingslashit($dirByConstant) . 'wonolog');
+
+                return (string)$folder;
+            }
+        }
 
         return null;
     }

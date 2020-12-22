@@ -17,7 +17,6 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel;
-use Monolog\Logger;
 
 /**
  * At the end of any request looks for database errors and logs them if found.
@@ -32,9 +31,9 @@ final class DbErrorListener implements ActionListener
     /**
      * @param int $logLevel
      */
-    public function __construct(int $logLevel = Logger::ERROR)
+    public function __construct(int $logLevel = LogLevel::ERROR)
     {
-        $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? Logger::ERROR;
+        $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? LogLevel::ERROR;
     }
 
     /**

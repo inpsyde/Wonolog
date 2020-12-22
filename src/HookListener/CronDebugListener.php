@@ -17,7 +17,6 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel;
-use Monolog\Logger;
 
 final class CronDebugListener implements ActionListener
 {
@@ -39,9 +38,9 @@ final class CronDebugListener implements ActionListener
     /**
      * @param int $logLevel
      */
-    public function __construct(int $logLevel = Logger::INFO)
+    public function __construct(int $logLevel = LogLevel::INFO)
     {
-        $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? Logger::INFO;
+        $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? LogLevel::INFO;
     }
 
     /**

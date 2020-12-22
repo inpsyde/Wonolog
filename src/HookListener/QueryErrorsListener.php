@@ -17,7 +17,6 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel;
-use Monolog\Logger;
 
 /**
  * Looks at fronted requests and to find and log any errors.
@@ -32,9 +31,9 @@ final class QueryErrorsListener implements ActionListener
     /**
      * @param int $logLevel
      */
-    public function __construct(int $logLevel = Logger::DEBUG)
+    public function __construct(int $logLevel = LogLevel::DEBUG)
     {
-        $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? Logger::DEBUG;
+        $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? LogLevel::DEBUG;
     }
 
     /**

@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Data;
 
 use Inpsyde\Wonolog\Channels;
-use Monolog\Logger;
+use Inpsyde\Wonolog\LogLevel;
 
 final class FailedLogin implements LogData
 {
@@ -61,19 +61,19 @@ final class FailedLogin implements LogData
         $this->countAttempts(300);
 
         if ($this->attempts > 2 && $this->attempts <= 100) {
-            return Logger::NOTICE;
+            return LogLevel::NOTICE;
         }
 
         if ($this->attempts > 100 && $this->attempts <= 590) {
-            return Logger::WARNING;
+            return LogLevel::WARNING;
         }
 
         if ($this->attempts > 590 && $this->attempts <= 990) {
-            return Logger::ERROR;
+            return LogLevel::ERROR;
         }
 
         if ($this->attempts > 990) {
-            return Logger::CRITICAL;
+            return LogLevel::CRITICAL;
         }
 
         return 0;

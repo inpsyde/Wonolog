@@ -16,7 +16,6 @@ namespace Inpsyde\Wonolog\Data;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\WpErrorChannel;
-use Monolog\Logger;
 
 final class Log implements LogData
 {
@@ -60,7 +59,7 @@ final class Log implements LogData
 
         return new self(
             (string)($logData[self::MESSAGE] ?? 'Unknown error'),
-            (int)($logData[self::LEVEL] ?? $defaultLevel ?? Logger::DEBUG),
+            (int)($logData[self::LEVEL] ?? $defaultLevel ?? LogLevel::DEBUG),
             (string)($logData[self::CHANNEL] ?? $defaultChannel ?? Channels::DEBUG),
             (array)($logData[self::CONTEXT] ?? [])
         );
@@ -76,11 +75,11 @@ final class Log implements LogData
      */
     public static function fromWpError(
         \WP_Error $error,
-        ?int $defaultLevel = Logger::NOTICE,
+        ?int $defaultLevel = LogLevel::NOTICE,
         ?string $defaultChannel = null
     ): Log {
 
-        $level = LogLevel::normalizeLevel($defaultLevel) ?? Logger::NOTICE;
+        $level = LogLevel::normalizeLevel($defaultLevel) ?? LogLevel::NOTICE;
         $message = (string)$error->get_error_message();
         $context = (array)($error->get_error_data() ?: []);
 
@@ -89,10 +88,10 @@ final class Log implements LogData
         $channel = self::$wpErrorChannel->channelFor($error) ?? $defaultChannel ?? Channels::DEBUG;
 
         // Raise level for "guessed" channels
-        if ($channel === Channels::SECURITY && $level < Logger::ERROR) {
-            $level = Logger::ERROR;
-        } elseif ($channel !== Channels::DEBUG && $level < Logger::NOTICE) {
-            $level = Logger::NOTICE;
+        if ($channel === Channels::SECURITY && $level < LogLevel::ERROR) {
+            $level = LogLevel::ERROR;
+        } elseif ($channel !== Channels::DEBUG && $level < LogLevel::NOTICE) {
+            $level = LogLevel::NOTICE;
         }
 
         return new self((string)$message, $level, $channel, $context);
@@ -109,12 +108,12 @@ final class Log implements LogData
      */
     public static function fromThrowable(
         \Throwable $throwable,
-        ?int $level = Logger::ERROR,
+        ?int $level = LogLevel::ERROR,
         string $channel = Channels::DEBUG,
         array $context = []
     ): Log {
 
-        $level = LogLevel::normalizeLevel($level) ?? Logger::ERROR;
+        $level = LogLevel::normalizeLevel($level) ?? LogLevel::ERROR;
         $channel or $channel = Channels::DEBUG;
 
         $context['throwable'] = [
@@ -135,7 +134,7 @@ final class Log implements LogData
      */
     public function __construct(
         string $message = '',
-        int $level = Logger::DEBUG,
+        int $level = LogLevel::DEBUG,
         string $channel = Channels::DEBUG,
         array $context = []
     ) {

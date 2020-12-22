@@ -6,7 +6,6 @@ namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\Data\LogData;
-use Monolog\Logger;
 use Psr\Log\AbstractLogger;
 
 class PsrBridge extends AbstractLogger
@@ -88,9 +87,9 @@ class PsrBridge extends AbstractLogger
             }
         }
 
-        $level = LogLevel::normalizeLevel($level) ?? Logger::DEBUG;
-        if ($throwable && ($level < Logger::ERROR)) {
-            $level = Logger::ERROR;
+        $level = LogLevel::normalizeLevel($level) ?? LogLevel::DEBUG;
+        if ($throwable && ($level < LogLevel::ERROR)) {
+            $level = LogLevel::ERROR;
         }
 
         $this->updater->update(new Log((string)$message, $level, $channel, $context));

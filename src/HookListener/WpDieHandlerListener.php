@@ -17,7 +17,6 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel;
-use Monolog\Logger;
 
 /**
  * Looks a wp_die() and try to find and log DB errors.
@@ -32,9 +31,9 @@ final class WpDieHandlerListener implements FilterListener
     /**
      * @param int $logLevel
      */
-    public function __construct(int $logLevel = Logger::ERROR)
+    public function __construct(int $logLevel = LogLevel::CRITICAL)
     {
-        $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? Logger::ERROR;
+        $this->logLevel = LogLevel::normalizeLevel($logLevel) ?? LogLevel::CRITICAL;
     }
 
     /**

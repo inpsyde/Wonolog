@@ -23,7 +23,6 @@ use Inpsyde\Wonolog\HookListener\MailerListener;
 use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
 use Inpsyde\Wonolog\HookListener\WpDieHandlerListener;
 use Monolog\Handler\HandlerInterface;
-use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
 class Configurator
@@ -732,7 +731,7 @@ class Configurator
         $this->setupWpContextProcessor();
         $this->setupPhpErrorListener();
 
-        $maxSeverity = (int)max(Logger::getLevels() ?: [Logger::EMERGENCY]);
+        $maxSeverity = (int)max(LogLevel::allLevels() ?: [LogLevel::EMERGENCY]);
         $defaultChannel = $this->factory->channels()->defaultChannel();
         $this->setupLogActionSubscriberForHook(LOG, $defaultChannel, $maxSeverity);
 
@@ -744,7 +743,7 @@ class Configurator
         $this->setupHookListeners();
 
         // This ensures the `add_action` inside `makeLogger` function is fired.
-        \Inpsyde\Wonolog\makeLogger();
+        makeLogger();
 
         /** @var callable(?string):LoggerInterface $factoryCb */
         $factoryCb = [$this->factory, 'psr3Logger'];
@@ -755,7 +754,7 @@ class Configurator
         /**
          * Fires right after Wonolog has been set up.
          *
-         * Passes a factory that creates an PSR-3 Logger that can be injected into any object that
+         * Passes a factory that creates an PSR-3 LoggerInterface that can be injected into any object that
          * can make use of it, e. g. any object implementing `LoggerAwareInterface`.
          * This hook can only be used in MU plugins. Plugins/themes/etc can use `logger()` if they
          * need a PSR-3 compliant logger.
@@ -1060,11 +1059,7 @@ class Configurator
 
         $listenWithLevel = [];
 
-        /**
-         * @var string $level
-         * @var int $severity
-         */
-        foreach (Logger::getLevels() as $level => $severity) {
+        foreach (LogLevel::allLevels() as $level => $severity) {
             $callable = static function (...$args) use ($subscriber, $level, $defaultChannel) {
                 $subscriber->listen($args, $level, $defaultChannel);
             };
