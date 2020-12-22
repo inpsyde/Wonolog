@@ -54,10 +54,10 @@ final class WpDieHandlerListener implements FilterListener
      *
      * @param string $hook
      * @param array $args
-     * @param LogActionUpdater $subscriber
+     * @param LogActionUpdater $updater
      * @return mixed
      */
-    public function filter(string $hook, array $args, LogActionUpdater $subscriber)
+    public function filter(string $hook, array $args, LogActionUpdater $updater)
     {
         $handler = $args ? reset($args) : null;
 
@@ -66,9 +66,9 @@ final class WpDieHandlerListener implements FilterListener
         }
 
         $level = $this->logLevel;
-        $updater = static function (string $msg, array $context) use ($subscriber, $level) {
+        $updater = static function (string $msg, array $context) use ($updater, $level) {
             // Log the wp_die() error message.
-            $subscriber->update(new Log($msg, $level, Channels::DB, $context));
+            $updater->update(new Log($msg, $level, Channels::DB, $context));
         };
 
         /**

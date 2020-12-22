@@ -14,13 +14,13 @@ trait FilterFromUpdateTrait
     /**
      * @param string $hook
      * @param array $args
-     * @param LogActionUpdater $subscriber
+     * @param LogActionUpdater $updater
      * @return mixed
      */
-    public function filter(string $hook, array $args, LogActionUpdater $subscriber) {
-
+    public function filter(string $hook, array $args, LogActionUpdater $updater)
+    {
         $value = $args ? reset($args) : null;
-        $this->update($hook, $args, $subscriber);
+        $this->update($hook, $args, $updater);
 
         return $value;
     }
