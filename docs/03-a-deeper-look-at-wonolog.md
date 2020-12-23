@@ -5,7 +5,7 @@
 - [Wonolog Channels](#wonolog-channels)
 - [Wonolog PHP Error Handler](#wonolog-php-error-handler)
 - [Default Handler Minimum Log Level](#default-handler-minimum-log-level)
-- [The "Logging Dilemma"](#the-logging-dilemma")
+- [The "Logging Dilemma"](#the-logging-dilemma)
 
 
 ## Wonolog Channels
