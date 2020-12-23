@@ -74,7 +74,7 @@ class PsrBridge extends AbstractLogger
         $channel = $context[LogData::CHANNEL] ?? null;
         if (!$channel || !is_string($channel)) {
             $channel = $throwable
-                ? Channels::PHP_ERROR
+                ? ($this->defaultChannel ?? Channels::PHP_ERROR)
                 : ($this->defaultChannel ?? $this->channels->defaultChannel());
         }
         unset($context[LogData::CHANNEL]);
@@ -87,9 +87,9 @@ class PsrBridge extends AbstractLogger
             }
         }
 
-        $level = LogLevel::normalizeLevel($level) ?? LogLevel::DEBUG;
-        if ($throwable && ($level < LogLevel::ERROR)) {
-            $level = LogLevel::ERROR;
+        $level = LogLevel::normalizeLevel($level);
+        if (!$level) {
+            $level = $throwable ? LogLevel::CRITICAL : LogLevel::DEBUG;
         }
 
         $this->updater->update(new Log((string)$message, $level, $channel, $context));
