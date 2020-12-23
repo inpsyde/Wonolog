@@ -10,9 +10,9 @@ In those cases, the only left possibility to use Wonolog is to write a “compat
 
 ## Hook listeners
 
-Hook listeners are objects implementing the `Inpsyde\Wonolog\HookListener\HookListener` interface, even if to be able to do anything useful, these objects have to implement either `Inpsyde\Wonolog\HookListener\ActionListener` or `Inpsyde\Wonolog\HookListener\FilterListener`, both extending the “base” HookListener interface.
+Hook listeners are objects implementing the `Inpsyde\Wonolog\HookListener\HookListener` interface, even if to be able to do anything useful, these objects have to implement either `Inpsyde\Wonolog\HookListener\ActionListener` or `Inpsyde\Wonolog\HookListener\FilterListener` (both extending the `HookListener` interface).
 
-Hook listeners are mentioned in the “*What is logged by default*” channel, as Wonolog uses to log WordPress core events. That should not come as a surprise: WordPress is not natively compatible with Wonolog, so we need hook listeners to introduce a compatibility layer between WordPress and Wonolog. 
+Hook listeners are mentioned in the “*What is logged by default*” channel, because Wonolog uses them to log WordPress core events. That should not come as a surprise: WordPress is not natively compatible with Wonolog, so we need hook listeners to introduce a compatibility layer between WordPress and Wonolog. 
 
 Hook listeners used for the core and shipped with Wonolog are references as “default hook listeners”, but it is possible to write hook listeners as a compatibility layer with any WordPress plugin/theme/package.
 
@@ -69,7 +69,7 @@ The interfaces are quite simple. The idea behind them should also be straightfor
 
 ### Utility traits
 
-When forced to use `FilterListener`, a trait shipped with Wonolog, `Inpsyde\Wonolog\HookListener\FilterFromUpdateTrait` might come in handy. It allows writing `FilterListener` as they would be `ActionListener`. For example:
+When forced to use `FilterListener`, a trait shipped with Wonolog, `Inpsyde\Wonolog\HookListener\FilterFromUpdateTrait` might come in handy. It allows writing a `FilterListener` as it would be an `ActionListener`. For example:
 
 ```php
 use Inpsyde\Wonolog\{HookListener, Data, LogActionUpdater};
@@ -90,7 +90,7 @@ class MyFilterListener implements HookListener\FilterListener
 }
 ```
 
-For hook listeners that listen to multiple hooks, there's another trait, `Inpsyde\Wonolog\HookListener\MethodNamesByHookTrait`, that might also come in handy. It allows to don't write any `update` method at all, but instead write methods named after the hooks. For example:
+For hook listeners that listen to multiple hooks, there's another trait, `Inpsyde\Wonolog\HookListener\MethodNamesByHookTrait`, that might also come in handy. It allows to don't write any `update` method at all, but instead write methods named after the listened hooks. For example:
 
 ```php
 use Inpsyde\Wonolog\{HookListener, Data};
@@ -121,7 +121,9 @@ class MyActionListener implements HookListener\ActionListener
 }
 ```
 
-The method `hookOne` is called for the "hook_one" hook, the method `hookTwo` is called for the "hook_two" hook, and so on. The name of the method in the snippet above is the "camelCase" version of the hook name, but the "snake_case" (e.g., `hook_one`) would have worked too, so it is possible to use method names that fit anyone code style.
+The method `hookOne` is called for the `"hook_one"` hook, the method `hookTwo` is called for the `"hook_two"` hook, and so on.
+
+The methods name in the snippet above are the "camelCase" version of the hook names, but the "snake_case" (e.g., `hook_one`) would have worked too, so it is possible to use method names that fit anyone code style.
 
 It is worth noting that the method name is created by “splitting words” of the hook by any non-alphanumeric character and then merging the words either in “camelCase” or “snake_case”. For example, for a hook `foo.bar.baz`, the called method would be `foo_bar_baz` or `fooBarBaz`, depending on what’s defined.
 
@@ -179,7 +181,7 @@ add_action('wp_ajax_nopriv_xy', 'Awesome\Premium\Plugin\perform_ajax_call');
 
 And let’s assume we would like to log AJAX calls handled by the plugin. That is particularly tricky because no action is explicitly fired, and `wp_send_json` exits the request, so nothing is executed after that.
 
-However, we know that [`wp_send_json`](https://developer.wordpress.org/reference/functions/wp_send_json/) internally calls [`wp_die`](https://developer.wordpress.org/reference/functions/wp_die/), and for AJAX calls, wp_die will fire [`wp_die_ajax_handler` filter](https://developer.wordpress.org/reference/hooks/wp_die_ajax_handler/), which allows us to write a hook listener like the following:
+However, we know that [`wp_send_json`](https://developer.wordpress.org/reference/functions/wp_send_json/) internally calls [`wp_die`](https://developer.wordpress.org/reference/functions/wp_die/), and for AJAX calls, `wp_die` will fire [`wp_die_ajax_handler` filter](https://developer.wordpress.org/reference/hooks/wp_die_ajax_handler/), which allows us to write a hook listener like the following:
 
 ```php
 use Inpsyde\Wonolog\{HookListener, Data};
@@ -197,7 +199,7 @@ class AwesomePremiumPluginListener implements HookListener\FilterListener
     private function wpDieAjaxHandler(): ?Data\LogData
     {
         // this method is called for each "wp_die_ajax_handler" filter
-        // we nened to be sure we target only the right action.
+        // we need to be sure we target only the right action.
         if (($_POST['action'] ?? null) !== 'xy') {
             return null;
         }
@@ -212,7 +214,9 @@ class AwesomePremiumPluginListener implements HookListener\FilterListener
 }
 ```
 
-The above listener works and shows both the utility traits in action, but it calculates the log “context”, duplicating the logic used by the plugin. An alternative would be to leverage the fact that filter listeners can change the filtered value so that we could wrap the AJAX handler callback:
+The above listener works and shows both the utility traits in action, but it calculates the log “context”, duplicating the logic used by the plugin.
+
+An alternative is to leverage the fact that filter listeners can change the filtered value, so we could wrap the AJAX handler callback:
 
 ```php
 use Inpsyde\Wonolog\{HookListener, Data, LogActionUpdater};
@@ -244,7 +248,7 @@ class AwesomePremiumPluginListener implements HookListener\FilterListener
 }
 ```
 
-The example above has proved that hook listeners are quite powerful, flexible, and simple to write. It also demonstrates that it’s infrequent that there’s no way to capture desired data to log: even for a case that at first look seemed very tricky, it was possible to find two alternatives to capture the data to log.
+The example above has proved that hook listeners are quite powerful, flexible, and simple to write. It also demonstrates that it’s infrequent that there’s no way to capture desired data to log: even for a case that at first look seemed very tricky, it was possible to find not one, but two alternatives to capture the data to log.
 
 
 
@@ -261,11 +265,13 @@ add_action(
 );
 ```
 
-besides `addFilterListener` there’s also `addActionListener`. It is preferable not to implement both `FilterListener` and `ActionListener` interfaces, but if that is the case, `addFilterListener` should be used to add a listener that implements both.
+besides `addFilterListener` there’s also `addActionListener`.
+
+Even if it is preferable not to implement both `FilterListener` and `ActionListener` interfaces for a listener, if that is the case, `addFilterListener` should be used to add a listener that implements both.
 
 ### Hook listeners priority
 
-Sometimes, listening to an hook the _priority_ might be relevant. Usually Wonolog automatically calculates it, but it might be passed explicitly using `Configurator::addActionListenerWithPriority` or `Configurator::addFilterListenerWithPriority` method:
+Sometimes, listening to an hook the _priority_ might be relevant. Usually Wonolog calculates it, but it might be passed explicitly using `Configurator::addActionListenerWithPriority` or `Configurator::addFilterListenerWithPriority` method:
 
 ```php
 add_action(
@@ -278,7 +284,7 @@ add_action(
 
 ### Hook listeners identifier
 
-Internally, Wonolog keeps a “registry” of added hook listeners. The registry uses a map of unique identifiers to listeners. By default, the class name of the added listener is used as an identifier. However, if multiple instances of the same class are purposely added because they have different behavior (thanks to different internal state), the default identifier-by-class strategy won’t work. In that case it is necessary to pass the listener identifier explicitly, either as the second parameter of `addActionListener` / `addFilterListener` or as the third parameter of `Configurator::addActionListenerWithPriority` or `Configurator::addFilterListenerWithPriority`:
+Internally, Wonolog keeps a “registry” of added hook listeners. The registry uses a map of unique identifiers to listeners. By default, the fully-qualified class name of the added listener is used as an identifier. However, if multiple instances of the same class are purposely added because they have different behavior (thanks to different internal state), the default identifier-by-class strategy won’t work. In that case it is necessary to pass the listener identifier explicitly, either as the second parameter of `addActionListener` / `addFilterListener` or as the third parameter of `Configurator::addActionListenerWithPriority` or `Configurator::addFilterListenerWithPriority`:
 
 ```php
 add_action(

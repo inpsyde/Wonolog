@@ -17,7 +17,7 @@ As soon as Wonolog is installed, it starts working, even without any configurati
 
 The chapter *"What is logged by default"* contains all the details on *what* exactly is logged, and the chapter "*Bootstrap and configuration gateway"* will describe and *where* and *how* those logs are saved by default. For now, it suffices to say that by default, there's a daily log file saved in a `/wonolog` sub-folder inside WordPress "uploads" folder.
 
-The rest of documentation will show how exceptionally configurable Wonolog is. It's straightforward, for example, to granularly configure *what* it logs, and thanks to [Monolog](https://seldaek.github.io/monolog/) under its hood, there are countless possibilities about *how* and *where* to save logs.
+The rest of documentation will show how configurable Wonolog is. It's straightforward, for example, to granularly configure *what* it logs, and thanks to [Monolog](https://seldaek.github.io/monolog/) under its hood, there are countless possibilities about *how* and *where* to save logs.
 
 
 
@@ -40,19 +40,24 @@ The chapter "*Design packages for Wonolog*" provides all the details about writi
 
 #### The "WordPressy way"
 
-When talking of WordPress code, to "emit events" can be accomplished without custom code or 3rd party dependencies by **firing an action hook**. That's all is needed to make any WordPress code "natively compatible" with Wonolog: having action hooks designed specifically to emit log "events". For example, a plugin that has a code like this:
+When talking of WordPress code, to "emit events" can be accomplished without custom code or 3rd party dependencies by **firing an action hook**. Having action hooks designed specifically to emit log "events" is enough to make any WordPress code "natively compatible" with Wonolog. For example, a plugin that has a code like the following will be *natively compatible* with Wonolog:
 
 ```php
 do_action("my_plugin_log", $thing_to_log);
 ```
 
-will be *natively compatible* with Wonolog. But what about `$thing_to_log`? Wonolog supports out of the box arbitrary strings, throwable objects, `WP_Error` objects, and arrays having a `"message"` key pointing to a log message. Even if more details will be provided where due, it is worth mentioning here that Wonolog supports out-of-the-box action hooks in the format `"{$hook_name}.{$log_level}"` where log level is one of the PSR-3 log levels, e. g. action hooks like `"my_plugin_log.error"`, `"my_plugin_log.critical"` etc, are very well supported.
+But what about `$thing_to_log`? Wonolog supports out of the box:
+
+- arbitrary strings
+- `Throwable` objects
+- `WP_Error` objects
+- arrays having a `"message"` key pointing to a log message.
 
 #### The "PSR way"
 
 Wonolog uses [Monolog](https://seldaek.github.io/monolog/) under the hood, and Monolog is the most popular implementation of [the PSR-3 standard](https://www.php-fig.org/psr/psr-3/). This means that Wonolog is itself a package that provides a PSR-3 implementation. You can leverage that in your plugin/themes/packages/etc.
 
-When code has a dependency on PSR-3, one thing that is worth doing is implementing the [PSR-3 `LoggerAware` interface](https://www.php-fig.org/psr/psr-3/#4-psrlogloggerawareinterface) for package's objects that need to perform logs, also implementing a way for external code to "inject" Wonolog PSR-3 logger implementation and make use of it to log events in plugins/themes/packages without them being dependant on (or aware of) Wonolog.
+When code has a dependency on PSR-3, one thing that is worth doing is implementing the [PSR-3 `LoggerAware` interface](https://www.php-fig.org/psr/psr-3/#4-psrlogloggerawareinterface) for package's objects that need to perform logs, also implementing a way for external code to "inject" a PSR-3 logger implementation. Code that does that can make use of Wonolog PSR-3 implementation, and so use Wonolog to log events without being dependant on (or aware of) it.
 
 #### Which one is better?
 
@@ -72,32 +77,8 @@ Because we can't or don't want to change the code, assuming that code is not "na
 
 Because, in any case, we are talking about *WordPress* code, it **will** use hooks, but they will not be "logging hooks". What we need is a "compatibility layer" that listens to those "generic" WordPress hooks and map them to "loggable objects".
 
-The "compatibility layer" in Wonolog is represented by "hook listeners": objects that, as the name suggests, listen to hooks use Wonolog to perform logs.
+The "compatibility layer" in Wonolog is represented by "**hook listeners**": objects that, as the name suggests, listen to hooks use Wonolog to perform logs.
 
-For example, let's assume there's a 3rd party plugin for e-commerce that at some point add products in a cart, doing something like:
+Please note that is precisely the approach Wonolog uses to log WordPress "events", considering WordPress is not natively compatible with Wonolog. In fact, Wonolog comes with a few defaults `ActionListener` that "listen to" core WordPress hooks.
 
-```php
-save_product_in_cart($product);
-do_action('prefix_product_added_to_cart', $product);
-```
-
-We could write a compatibility layer for it. That should be a MU plugin or a package to be installed at the website level, so it could be dependant on Wonolog and make use of its `ActionListener` interface, writing something more or less like this:
-
-```php
-use Inpsyde\Wonolog; 
-
-class PluginNameWonologCompat implements Wonolog\HookListener\ActionListener {
-     
-    public function listenTo(): array {
-        return ['prefix_product_added_to_cart'];
-    }
-
-    public function update(string $hook, array $args, Wonolog\LogActionUpdater $updater): void {
-        $updater->update(new Wonolog\Data\Info($hook, "plugin-name", $args[0]->ID));
-    }
-}
-```
-
-Please note that is precisely the approach Wonolog uses to log WordPress "events" as WordPress is not natively compatible with Wonolog. In fact, Wonolog comes with a few defaults `ActionListener` that "listen to" core WordPress hooks.
-
-This approach indeed requires *some* work, especially considering that real code is not as trivial as the exalpe above, but when there's no possibility of changing the source code that performs tasks we want to log, this approach provides a well-working structure that is easy to use and re-use.
+The chapter *"What is logged by default"* contains all the details about "hook listeners" Wonolog ships for core, and the chapter "*Logging code not designed for Wonolog*" will document how to write such a compatibility layer for custom code.
