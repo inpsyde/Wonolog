@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Psr\Log\LoggerInterface;
-
 class Factory
 {
     /**
