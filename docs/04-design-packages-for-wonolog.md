@@ -1,11 +1,11 @@
 # Design packages for Wonolog
 
-- Wonolog advocates a pattern in which plugins/themes/packages do not write log entries (because that requires knowledge of the infrastructure that is only available at the website level). Instead, they “emit log events” that will be “listened” by Wonolog to persist them.
+Wonolog advocates a pattern in which plugins/themes/packages do not write log entries (because that requires knowledge of the infrastructure that is only available at the website level). Instead, they “emit log events” that will be “listened” by Wonolog to persist them.
 
-    That pattern can be put in place in packages without depending on Wonolog. There are two ways that Wonolog supports “natively” to do it:
+That pattern can be put in place in packages without depending on Wonolog. There are two ways that Wonolog supports “natively” to do it:
 
-    - the “WordPressy way”, AKA using log-specific WordPress action hooks
-    - leverage the PSR-3 standard
+ - the “WordPressy way”, AKA using log-specific WordPress action hooks
+ - leverage the PSR-3 standard
 
 
 
