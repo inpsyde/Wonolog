@@ -109,7 +109,7 @@ class MethodNamesByHookTraitTest extends UnitTestCase
             }
         };
 
-        $listener = $listener->withHookPrefix('prefix');
+        $listener->withHookPrefix('prefix');
 
         $listener->update('prefix.one', [], $updater);
         $listener->update('prefix_two', [], $updater);
@@ -145,8 +145,9 @@ class MethodNamesByHookTraitTest extends UnitTestCase
             }
         };
 
+        $listener->withHookPrefix('client.project');
         $value = new \stdClass();
-        $filtered = $listener->withHookPrefix('client.project')->filter('log', [$value], $updater);
+        $filtered = $listener->filter('log', [$value], $updater);
 
         static::assertSame('logged!', $logMessage);
         static::assertSame($value, $filtered);
