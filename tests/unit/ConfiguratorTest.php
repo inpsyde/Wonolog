@@ -18,7 +18,7 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Configurator;
 use Inpsyde\Wonolog\DefaultHandler;
 use Inpsyde\Wonolog\Factory;
-use Inpsyde\Wonolog\HandlersRegistry;
+use Inpsyde\Wonolog\Registry\HandlersRegistry;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Handler\HandlerInterface;
 

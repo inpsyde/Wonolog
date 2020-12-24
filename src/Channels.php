@@ -82,20 +82,20 @@ class Channels
     private $defaultChannel;
 
     /**
-     * @param HandlersRegistry $handlers
-     * @param ProcessorsRegistry $processors
+     * @param Registry\HandlersRegistry $handlers
+     * @param Registry\ProcessorsRegistry $processors
      * @return Channels
      */
-    public static function new(HandlersRegistry $handlers, ProcessorsRegistry $processors): Channels
+    public static function new(Registry\HandlersRegistry $handlers, Registry\ProcessorsRegistry $processors): Channels
     {
         return new self($handlers, $processors);
     }
 
     /**
-     * @param HandlersRegistry $handlers
-     * @param ProcessorsRegistry $processors
+     * @param Registry\HandlersRegistry $handlers
+     * @param Registry\ProcessorsRegistry $processors
      */
-    private function __construct(HandlersRegistry $handlers, ProcessorsRegistry $processors)
+    private function __construct(Registry\HandlersRegistry $handlers, Registry\ProcessorsRegistry $processors)
     {
         $this->handlersRegistry = $handlers;
         $this->processorsRegistry = $processors;

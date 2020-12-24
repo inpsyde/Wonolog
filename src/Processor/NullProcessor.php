@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Inpsyde\Wonolog;
+namespace Inpsyde\Wonolog\Processor;
 
 class NullProcessor
 {

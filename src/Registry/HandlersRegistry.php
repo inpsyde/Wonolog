@@ -11,8 +11,9 @@
 
 declare(strict_types=1);
 
-namespace Inpsyde\Wonolog;
+namespace Inpsyde\Wonolog\Registry;
 
+use Inpsyde\Wonolog\DefaultHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\ProcessableHandlerInterface;
 
@@ -72,7 +73,7 @@ class HandlersRegistry implements \Countable
      * @param HandlerInterface $handler
      * @param string|null $identifier
      * @param string ...$channels
-     * @return $this
+     * @return static
      */
     public function addHandler(
         HandlerInterface $handler,
@@ -109,7 +110,7 @@ class HandlersRegistry implements \Countable
 
     /**
      * @param string $identifier
-     * @return $this
+     * @return static
      */
     public function removeHandler(string $identifier): HandlersRegistry
     {
@@ -122,7 +123,7 @@ class HandlersRegistry implements \Countable
      * @param string $identifier
      * @param string $channel
      * @param string ...$channels
-     * @return $this
+     * @return static
      */
     public function removeHandlerFromChannels(
         string $identifier,

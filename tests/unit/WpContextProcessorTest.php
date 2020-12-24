@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Tests\Unit;
 
 use Brain\Monkey\Functions;
-use Inpsyde\Wonolog\WpContextProcessor;
+use Inpsyde\Wonolog\Processor\WpContextProcessor;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
 class WpContextProcessorTest extends UnitTestCase

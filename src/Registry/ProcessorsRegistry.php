@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Inpsyde\Wonolog;
+namespace Inpsyde\Wonolog\Registry;
 
 class ProcessorsRegistry implements \Countable
 {
@@ -33,7 +33,7 @@ class ProcessorsRegistry implements \Countable
      * @param callable(array):array $processor
      * @param string $identifier
      * @param string ...$channels
-     * @return $this
+     * @return static
      */
     public function addProcessor(
         callable $processor,
@@ -53,7 +53,7 @@ class ProcessorsRegistry implements \Countable
 
     /**
      * @param string $identifier
-     * @return ProcessorsRegistry
+     * @return static
      */
     public function removeProcessor(string $identifier): ProcessorsRegistry
     {
@@ -66,7 +66,7 @@ class ProcessorsRegistry implements \Countable
      * @param string $identifier
      * @param string $channel
      * @param string ...$channels
-     * @return ProcessorsRegistry
+     * @return static
      */
     public function removeProcessorFromLoggers(
         string $identifier,

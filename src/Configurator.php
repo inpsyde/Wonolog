@@ -16,6 +16,7 @@ namespace Inpsyde\Wonolog;
 use Inpsyde\Wonolog\HookListener;
 use Monolog\Handler\HandlerInterface;
 use Psr\Log\LoggerInterface;
+use Inpsyde\Wonolog\Processor\WpContextProcessor;
 
 class Configurator
 {

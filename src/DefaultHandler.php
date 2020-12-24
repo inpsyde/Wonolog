@@ -217,7 +217,7 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
             return $this->handler->popProcessor();
         }
 
-        return new NullProcessor();
+        return new Processor\NullProcessor();
     }
 
     /**

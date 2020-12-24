@@ -11,11 +11,12 @@
 
 declare(strict_types=1);
 
-namespace Inpsyde\Wonolog;
+namespace Inpsyde\Wonolog\Registry;
 
 use Inpsyde\Wonolog\HookListener\ActionListener;
 use Inpsyde\Wonolog\HookListener\FilterListener;
 use Inpsyde\Wonolog\HookListener\HookListener;
+use Inpsyde\Wonolog\LogActionUpdater;
 
 class HookListenersRegistry
 {
@@ -74,7 +75,7 @@ class HookListenersRegistry
 
     /**
      * @param ActionListener $listener
-     * @return HookListenersRegistry
+     * @return static
      */
     public function addActionListener(
         string $identifier,
@@ -90,7 +91,7 @@ class HookListenersRegistry
 
     /**
      * @param FilterListener $listener
-     * @return HookListenersRegistry
+     * @return static
      */
     public function addFilterListener(
         string $identifier,

@@ -21,17 +21,17 @@ class Factory
     private $channels;
 
     /**
-     * @var HandlersRegistry|null
+     * @var Registry\HandlersRegistry|null
      */
     private $handlersRegistry;
 
     /**
-     * @var ProcessorsRegistry|null
+     * @var Registry\ProcessorsRegistry|null
      */
     private $processorsRegistry;
 
     /**
-     * @var HookListenersRegistry|null
+     * @var Registry\HookListenersRegistry|null
      */
     private $listenersRegistry;
 
@@ -80,36 +80,36 @@ class Factory
     }
 
     /**
-     * @return HandlersRegistry
+     * @return Registry\HandlersRegistry
      */
-    public function handlersRegistry(): HandlersRegistry
+    public function handlersRegistry(): Registry\HandlersRegistry
     {
         if (!$this->handlersRegistry) {
-            $this->handlersRegistry = HandlersRegistry::new($this->processorsRegistry());
+            $this->handlersRegistry = Registry\HandlersRegistry::new($this->processorsRegistry());
         }
 
         return $this->handlersRegistry;
     }
 
     /**
-     * @return ProcessorsRegistry
+     * @return Registry\ProcessorsRegistry
      */
-    public function processorsRegistry(): ProcessorsRegistry
+    public function processorsRegistry(): Registry\ProcessorsRegistry
     {
         if (!$this->processorsRegistry) {
-            $this->processorsRegistry = ProcessorsRegistry::new();
+            $this->processorsRegistry = Registry\ProcessorsRegistry::new();
         }
 
         return $this->processorsRegistry;
     }
 
     /**
-     * @return HookListenersRegistry
+     * @return Registry\HookListenersRegistry
      */
-    public function listenersRegistry(): HookListenersRegistry
+    public function listenersRegistry(): Registry\HookListenersRegistry
     {
         if (!$this->listenersRegistry) {
-            $this->listenersRegistry = HookListenersRegistry::new($this->logActionUpdater());
+            $this->listenersRegistry = Registry\HookListenersRegistry::new($this->logActionUpdater());
         }
 
         return $this->listenersRegistry;
