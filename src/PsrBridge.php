@@ -6,6 +6,7 @@ namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\Data\LogData;
+use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\AbstractLogger;
 
 class PsrBridge extends AbstractLogger
@@ -26,6 +27,11 @@ class PsrBridge extends AbstractLogger
     private $defaultChannel;
 
     /**
+     * @var PsrLogMessageProcessor
+     */
+    private $processor;
+
+    /**
      * @param LogActionUpdater $updater
      * @param Channels $channels
      * @return PsrBridge
@@ -43,6 +49,7 @@ class PsrBridge extends AbstractLogger
     {
         $this->updater = $updater;
         $this->channels = $channels;
+        $this->processor = new PsrLogMessageProcessor(null, true);
     }
 
     /**
@@ -92,6 +99,8 @@ class PsrBridge extends AbstractLogger
             $level = $throwable ? LogLevel::CRITICAL : LogLevel::DEBUG;
         }
 
-        $this->updater->update(new Log((string)$message, $level, $channel, $context));
+        $record = ($this->processor)(compact('message', 'context'));
+
+        $this->updater->update(new Log($record['message'], $level, $channel, $context));
     }
 }

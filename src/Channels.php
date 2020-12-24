@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\Data\LogData;
-use Monolog\Handler\ProcessableHandlerInterface;
+use Inpsyde\Wonolog\Processor\ProcessablePsrLogger;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -29,7 +29,6 @@ class Channels
     public const CRON = 'CRON';
     public const ACTION_LOGGER = 'wonolog.logger';
     public const ACTION_MONOLOG_LOGGER = 'wonolog.monolog-logger';
-    public const ACTION_PROCESSABLE_LOGGER = 'wonolog.processable-logger';
 
     public const DEFAULT_CHANNELS = [
         self::HTTP,
@@ -390,10 +389,12 @@ class Channels
             $logger = new NullLogger();
         }
 
-        if (($logger instanceof ProcessableHandlerInterface) && $loggerProcessors) {
-            foreach ($loggerProcessors as $loggerProcessor) {
-                $logger->pushProcessor($loggerProcessor);
-            }
+        if (!($logger instanceof Logger) && $loggerProcessors) {
+            $logger = new ProcessablePsrLogger($logger, $channel, $timezone);
+        }
+
+        foreach ($loggerProcessors as $loggerProcessor) {
+            $logger->pushProcessor($loggerProcessor);
         }
 
         $this->loggers[$channel] = $logger;
@@ -414,43 +415,31 @@ class Channels
              *
              * Can be used to push handlers from the registry.
              *
-             * @params Logger $logger
-             * @params string $channel
-             * @params HandlersRegistry $handlersRegistry
+             * @param Logger $logger
+             * @param HandlersRegistry $handlersRegistry
              */
             do_action(
                 self::ACTION_MONOLOG_LOGGER,
                 $logger,
-                $channel,
                 $this->handlersRegistry
-            );
-        }
-
-        if ($logger instanceof ProcessableHandlerInterface) {
-            /**
-             * Fires right after a `ProcessableHandlerInterface` logger is instantiated.
-             *
-             * Can be used to push processors from the registry.
-             *
-             * @params ProcessableHandlerInterface $logger
-             * @params string $channel
-             * @params ProcessorsRegistry $processorsRegistry
-             */
-            do_action(
-                self::ACTION_PROCESSABLE_LOGGER,
-                $logger,
-                $channel,
-                $this->processorsRegistry
             );
         }
 
         /**
          * Fires right after a logger is instantiated.
          *
-         * @params LoggerInterface $logger
-         * @params string $channel
+         * Can be used to push processors from the registry.
+         *
+         * @param Logger|ProcessablePsrLogger $logger
+         * @param string $channel
+         * @param ProcessorsRegistry $processorsRegistry
          */
-        do_action(self::ACTION_LOGGER, $logger, $channel);
+        do_action(
+            self::ACTION_LOGGER,
+            $logger,
+            $channel,
+            $this->processorsRegistry
+        );
 
         $this->loggers[$channel] = $logger;
 
