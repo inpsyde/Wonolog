@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Registry;
 
-use Inpsyde\Wonolog\DefaultHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\ProcessableHandlerInterface;
 
@@ -35,11 +34,6 @@ class HandlersRegistry implements \Countable
      * @var array<int, string>
      */
     private $initialized = [];
-
-    /**
-     * @var string[]
-     */
-    private $disabledForDefault = [];
 
     /**
      * @param ProcessorsRegistry $processorsRegistry
@@ -82,10 +76,7 @@ class HandlersRegistry implements \Countable
     ): HandlersRegistry {
 
         if ($identifier === null) {
-            $class = get_class($handler);
-            $defaultId = DefaultHandler::id();
-            $useDefaultId = $class === DefaultHandler::class && empty($this->handlers[$defaultId]);
-            $identifier = $useDefaultId ? $defaultId : $class;
+            $identifier = get_class($handler);
         }
 
         $allChannels = self::allChannelsName();
@@ -164,16 +155,24 @@ class HandlersRegistry implements \Countable
      */
     public function hasHandlerForChannel(string $identifier, string $channel): bool
     {
-        if (
-            $identifier === DefaultHandler::id()
-            && in_array($channel, $this->disabledForDefault, true)
-        ) {
-            return false;
-        }
-
         [$handler, $channels] = $this->handlers[$identifier] ?? [null, []];
 
         return $handler && ($channels[$channel] ?? $channels[self::allChannelsName()] ?? false);
+    }
+
+    /**
+     * @param string $channel
+     * @return bool
+     */
+    public function hasAnyHandlerForChannel(string $channel): bool
+    {
+        foreach ($this->handlers as $identifier => $data) {
+            if ($this->hasHandlerForChannel($identifier, $channel)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

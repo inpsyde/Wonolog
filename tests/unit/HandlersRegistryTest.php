@@ -15,7 +15,7 @@ namespace Inpsyde\Wonolog\Tests\Unit;
 
 use Brain\Monkey\Actions;
 use Inpsyde\Wonolog\Channels;
-use Inpsyde\Wonolog\DefaultHandler;
+use Inpsyde\Wonolog\WonologFileHandler;
 use Inpsyde\Wonolog\Factory;
 use Inpsyde\Wonolog\Registry\HandlersRegistry;
 use Inpsyde\Wonolog\Registry\ProcessorsRegistry;
@@ -106,14 +106,14 @@ class HandlersRegistryTest extends UnitTestCase
         $registry = Factory::new()->handlersRegistry();
 
         $registry->addHandler(new TestHandler(), 'test', Channels::HTTP, Channels::CRON);
-        $registry->addHandler(DefaultHandler::new(), DefaultHandler::id());
-        $registry->removeHandlerFromChannels(DefaultHandler::id(), Channels::HTTP);
+        $registry->addHandler(WonologFileHandler::new(), 'default');
+        $registry->removeHandlerFromChannels('default', Channels::HTTP);
 
         Actions\expectDone(HandlersRegistry::ACTION_SETUP)
             ->once()
             ->with(
-                \Mockery::type(DefaultHandler::class),
-                DefaultHandler::id(),
+                \Mockery::type(WonologFileHandler::class),
+                'default',
                 \Mockery::type(ProcessorsRegistry::class)
             );
 
@@ -134,32 +134,32 @@ class HandlersRegistryTest extends UnitTestCase
         $cron = $registry->findForChannel(Channels::CRON);
         static::assertCount(2, $cron);
         static::assertInstanceOf(TestHandler::class, $cron[0]);
-        static::assertInstanceOf(DefaultHandler::class, $cron[1]);
+        static::assertInstanceOf(WonologFileHandler::class, $cron[1]);
 
         $debug = $registry->findForChannel(Channels::DEBUG);
         static::assertCount(1, $debug);
-        static::assertInstanceOf(DefaultHandler::class, $debug[0]);
+        static::assertInstanceOf(WonologFileHandler::class, $debug[0]);
 
         $db = $registry->findForChannel(Channels::DB);
         static::assertCount(1, $db);
-        static::assertInstanceOf(DefaultHandler::class, $db[0]);
+        static::assertInstanceOf(WonologFileHandler::class, $db[0]);
 
         $registry->removeHandler('test');
         static::assertSame([], $registry->findForChannel(Channels::HTTP));
 
         $cronAgain = $registry->findForChannel(Channels::CRON);
         static::assertCount(1, $cronAgain);
-        static::assertInstanceOf(DefaultHandler::class, $cronAgain[0]);
+        static::assertInstanceOf(WonologFileHandler::class, $cronAgain[0]);
 
         $dbAgain = $registry->findForChannel(Channels::DB);
         static::assertCount(1, $dbAgain);
-        static::assertInstanceOf(DefaultHandler::class, $dbAgain[0]);
+        static::assertInstanceOf(WonologFileHandler::class, $dbAgain[0]);
 
-        $registry->removeHandlerFromChannels(DefaultHandler::id(), Channels::CRON);
+        $registry->removeHandlerFromChannels('default', Channels::CRON);
         static::assertSame([], $registry->findForChannel(Channels::CRON));
 
         $dbThirdTime = $registry->findForChannel(Channels::DB);
         static::assertCount(1, $dbThirdTime);
-        static::assertInstanceOf(DefaultHandler::class, $dbThirdTime[0]);
+        static::assertInstanceOf(WonologFileHandler::class, $dbThirdTime[0]);
     }
 }

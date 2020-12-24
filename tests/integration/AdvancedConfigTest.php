@@ -7,7 +7,7 @@ namespace Inpsyde\Wonolog\Tests\Integration;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Configurator;
 use Inpsyde\Wonolog\Data\Notice;
-use Inpsyde\Wonolog\DefaultHandler;
+use Inpsyde\Wonolog\WonologFileHandler;
 use Inpsyde\Wonolog\HookListener\ActionListener;
 use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
 use Inpsyde\Wonolog\LogActionUpdater;
@@ -52,7 +52,7 @@ class AdvancedConfigTest extends IntegrationTestCase
         };
 
         $dir = vfsStream::setup('root', 0777);
-        $defaultHandler = DefaultHandler::new()
+        $defaultHandler = WonologFileHandler::new()
             ->withFolder($dir->url() . '/logs')
             ->withFilename('wonolog.log')
             ->withMinimumLevel(Logger::NOTICE);

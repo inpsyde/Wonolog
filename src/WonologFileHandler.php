@@ -18,7 +18,7 @@ use Monolog\Handler\NullHandler;
 use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\Handler\StreamHandler;
 
-class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
+class WonologFileHandler implements HandlerInterface, ProcessableHandlerInterface
 {
     /**
      * @var string|null
@@ -51,20 +51,9 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
     private $logFilePath;
 
     /**
-     * @return string
+     * @return WonologFileHandler
      */
-    public static function id(): string
-    {
-        static $id;
-        $id or $id = 'wonolog-std-' . bin2hex(random_bytes(3));
-
-        return (string)$id;
-    }
-
-    /**
-     * @return DefaultHandler
-     */
-    public static function new(): DefaultHandler
+    public static function new(): WonologFileHandler
     {
         return new self();
     }
@@ -80,7 +69,7 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
      * @param string $folder
      * @return $this
      */
-    public function withFolder(string $folder): DefaultHandler
+    public function withFolder(string $folder): WonologFileHandler
     {
         $this->folder = wp_normalize_path($folder);
 
@@ -89,9 +78,9 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
 
     /**
      * @param string $filename
-     * @return DefaultHandler
+     * @return WonologFileHandler
      */
-    public function withFilename(string $filename): DefaultHandler
+    public function withFilename(string $filename): WonologFileHandler
     {
         $this->filename = $filename;
 
@@ -106,7 +95,7 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
     public function withDateBasedFileFormat(
         string $format,
         string $extension = 'log'
-    ): DefaultHandler {
+    ): WonologFileHandler {
 
         $date = date($format);
         if (!$date) {
@@ -122,9 +111,9 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
 
     /**
      * @param int $level
-     * @return DefaultHandler
+     * @return WonologFileHandler
      */
-    public function withMinimumLevel(int $level): DefaultHandler
+    public function withMinimumLevel(int $level): WonologFileHandler
     {
         $this->minLevel = LogLevel::normalizeLevel($level);
 
@@ -132,9 +121,9 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
     }
 
     /**
-     * @return DefaultHandler
+     * @return WonologFileHandler
      */
-    public function enableBubbling(): DefaultHandler
+    public function enableBubbling(): WonologFileHandler
     {
         $this->bubble = true;
 
@@ -144,7 +133,7 @@ class DefaultHandler implements HandlerInterface, ProcessableHandlerInterface
     /**
      * @return $this
      */
-    public function disableBubbling(): DefaultHandler
+    public function disableBubbling(): WonologFileHandler
     {
         $this->bubble = false;
 

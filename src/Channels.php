@@ -176,6 +176,25 @@ class Channels
     }
 
     /**
+     * @param string|null $channel
+     * @return bool
+     */
+    public function hasLoggerFactory(?string $channel = null): bool
+    {
+        foreach ($this->loggerFactoryData as $forChannel => [, $enabled]) {
+            if ($channel && ($forChannel !== $channel)) {
+                continue;
+            }
+
+            if ($channel || $enabled) {
+                return $enabled;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param string $ignorePattern Regular XP pattern *without* delimiters
      * @param int|null $levelThreshold If provided, will not blacklist logs with severity above it
      * @param string ...$channels Apply blacklist only to this channels. Not provided means all.
@@ -417,7 +436,7 @@ class Channels
              * Can be used to push handlers from the registry.
              *
              * @param Logger $logger
-             * @param HandlersRegistry $handlersRegistry
+             * @param Registry\HandlersRegistry $handlersRegistry
              */
             do_action(
                 self::ACTION_MONOLOG_LOGGER,

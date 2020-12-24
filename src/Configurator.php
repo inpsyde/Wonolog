@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\HookListener;
+use Inpsyde\Wonolog\Registry\HandlersRegistry;
 use Monolog\Handler\HandlerInterface;
 use Psr\Log\LoggerInterface;
 use Inpsyde\Wonolog\Processor\WpContextProcessor;
@@ -27,7 +28,7 @@ class Configurator
     private const CONF_MAIN_HOOK_PRIORITY = 'main-hook-priority';
     private const CONF_ERROR_TYPES = 'php-error-types';
     private const CONF_LOG_EXCEPTIONS = 'php-exceptions';
-    private const CONF_DEFAULT_HANDLER = 'use-default-handler';
+    private const CONF_FALLBACK_HANDLER = 'use-default-handler';
     private const CONF_WP_CONTEXT_PROCESSOR = 'use-wp-context-processor';
     private const CONF_DEFAULT_LISTENERS = 'use-default-hook-listeners';
     private const CONF_HOOK_ALIASES = 'log-hook-aliases';
@@ -61,7 +62,7 @@ class Configurator
         self::CONF_WP_CONTEXT_PROCESSOR => true,
         self::CONF_HOOK_ALIASES => [],
         self::CONF_SILENCED_ERRORS => false,
-        self::CONF_DEFAULT_HANDLER => [
+        self::CONF_FALLBACK_HANDLER => [
             self::ALL => null,
             self::ENABLED => [],
             self::DISABLED => [],
@@ -183,23 +184,6 @@ class Configurator
     ): Configurator {
 
         $this->factory->channels()->withoutLoggerFactory($channel, ...$channels);
-
-        return $this;
-    }
-
-    /**
-     * @param HandlerInterface $handler
-     * @return static
-     */
-    public function useAsDefaultHandler(HandlerInterface $handler): Configurator
-    {
-        $registry = $this->factory->handlersRegistry();
-        $identifier = DefaultHandler::id();
-        if ($registry->findById($identifier)) {
-            $registry->removeHandler($identifier);
-        }
-
-        $registry->addHandler($handler, $identifier);
 
         return $this;
     }
@@ -562,9 +546,9 @@ class Configurator
     /**
      * @return static
      */
-    public function enableDefaultHandler(): Configurator
+    public function enableFallbackHandler(): Configurator
     {
-        $this->config[self::CONF_DEFAULT_HANDLER] = [
+        $this->config[self::CONF_FALLBACK_HANDLER] = [
             self::ALL => true,
             self::ENABLED => [],
             self::DISABLED => [],
@@ -578,12 +562,12 @@ class Configurator
      * @param string ...$channels
      * @return $this
      */
-    public function enableDefaultHandlerForChannels(
+    public function enableFallbackHandlerForChannels(
         string $channel,
         string ...$channels
     ): Configurator {
 
-        return $this->toggleDefaultHandlerForChannels(true, $channel, ...$channels);
+        return $this->toggleFallbackHandlerForChannels(true, $channel, ...$channels);
     }
 
     /**
@@ -591,20 +575,20 @@ class Configurator
      * @param string ...$channels
      * @return static
      */
-    public function disableDefaultHandlerForChannels(
+    public function disableFallbackHandlerForChannels(
         string $channel,
         string ...$channels
     ): Configurator {
 
-        return $this->toggleDefaultHandlerForChannels(false, $channel, ...$channels);
+        return $this->toggleFallbackHandlerForChannels(false, $channel, ...$channels);
     }
 
     /**
      * @return static
      */
-    public function disableDefaultHandler(): Configurator
+    public function disableFallbackHandler(): Configurator
     {
-        $this->config[self::CONF_DEFAULT_HANDLER] = [
+        $this->config[self::CONF_FALLBACK_HANDLER] = [
             self::ALL => false,
             self::ENABLED => [],
             self::DISABLED => [],
@@ -727,7 +711,9 @@ class Configurator
 
         $doingSetup = false;
 
-        if (!$this->setupDefaultHandler()) {
+        $channels = $this->factory->channels();
+
+        if (!$this->setupFallbackHandler($channels)) {
             return;
         }
 
@@ -735,7 +721,7 @@ class Configurator
         $this->setupPhpErrorListener();
 
         $maxSeverity = (int)max(LogLevel::allLevels() ?: [LogLevel::EMERGENCY]);
-        $defaultChannel = $this->factory->channels()->defaultChannel();
+        $defaultChannel = $channels->defaultChannel();
         $this->setupLogActionSubscriberForHook(LOG, $defaultChannel, $maxSeverity);
 
         foreach ((array)$this->config[self::CONF_HOOK_ALIASES] as $alias => $aliasChannel) {
@@ -797,13 +783,13 @@ class Configurator
      * @param string ...$channels
      * @return static
      */
-    private function toggleDefaultHandlerForChannels(
+    private function toggleFallbackHandlerForChannels(
         bool $trueForEnable,
         string $channel,
         string ...$channels
     ): Configurator {
 
-        $config = (array)($this->config[self::CONF_DEFAULT_HANDLER] ?? []);
+        $config = (array)($this->config[self::CONF_FALLBACK_HANDLER] ?? []);
         $config[self::ALL] = null;
 
         $enabled = (array)($config[self::ENABLED] ?? []);
@@ -823,7 +809,7 @@ class Configurator
 
         $config[self::ENABLED] = $enabled;
         $config[self::DISABLED] = $disabled;
-        $this->config[self::CONF_DEFAULT_HANDLER] = $config;
+        $this->config[self::CONF_FALLBACK_HANDLER] = $config;
 
         return $this;
     }
@@ -868,73 +854,54 @@ class Configurator
     /**
      * @return bool
      */
-    private function setupDefaultHandler(): bool
+    private function setupFallbackHandler(Channels $channels): bool
     {
-        $config = (array)($this->config[self::CONF_DEFAULT_HANDLER] ?? []);
+        $allChannels = $channels->allNames();
+        $handlers = $this->factory->handlersRegistry();
+        $handlersCount = count($handlers);
+        $missing = ($handlersCount === 0) ? $allChannels : $this->channelsWithoutHandler($channels, $handlers);
+        if (!$missing) {
+            return true;
+        }
 
-        $enabledForAll = ($config[self::ALL] ?? null) === true;
-        $disabledForAll = ($config[self::ALL] ?? null) === false;
+        $config = (array)($this->config[self::CONF_FALLBACK_HANDLER] ?? []);
+        $toEnableForAll = ($config[self::ALL] ?? null) === true;
+        $toDisableForAll = ($config[self::ALL] ?? null) === false;
         /** @var array<string> $enabledChannels */
         $enabledChannels = array_keys((array)$config[self::ENABLED]);
         /** @var array<string> $disabledChannels */
-        $disabledChannels = array_keys((array)$config[self::DISABLED]);
+        $disabledChannels = array_diff(array_keys((array)$config[self::DISABLED]), $enabledChannels);
 
-        if (!$enabledForAll && !$disabledForAll && !$enabledChannels && !$disabledChannels) {
-            $enabledForAll = true;
+        if (!$toEnableForAll && !$toDisableForAll && !$enabledChannels && !$disabledChannels) {
+            $toEnableForAll = true;
         }
 
-        $identifier = DefaultHandler::id();
-        $handlers = $this->factory->handlersRegistry();
-        $defaultAdded = $handlers->findById($identifier);
-        $handlersNum = count($handlers);
-        $onlyDefaultAdded = $defaultAdded && ($handlersNum === 1);
-
-        // If the only registered handler is the default one, and default handler is disabled
-        // we need to disable Wonolog.
-        if ($onlyDefaultAdded && $disabledForAll) {
-            return false;
+        $toEnable = ($toDisableForAll || $toEnableForAll) ? [] : array_diff($missing, $disabledChannels);
+        if (!$toEnable && !$toEnableForAll) {
+            return $handlersCount || $channels->hasLoggerFactory();
         }
 
-        if ($enabledForAll || $disabledForAll) {
-            if ($enabledForAll && !$defaultAdded) {
-                $handlers->addHandler(DefaultHandler::new(), $identifier);
-                $handlersNum++;
-            }
-
-            return $handlersNum > 0;
-        }
-
-        // If default handler is already added, we need to make sure that it will not be used for
-        // channels that were explicitly disabled or not explicitly enabled.
-        if ($defaultAdded) {
-            if ($disabledChannels) {
-                $handlers->removeHandlerFromChannels($identifier, ...$disabledChannels);
-            }
-            if ($enabledChannels) {
-                $allChannels = $this->factory->channels()->allNames();
-                $toDisable = array_diff($allChannels, $enabledChannels, $disabledChannels);
-                $toDisable and $handlers->removeHandlerFromChannels($identifier, ...$toDisable);
-            }
-
-            /*
-             * `$handlers->removeHandlerFromChannels` might remove the handler if there are no
-             * channels for it anymore.
-             * So in the case default was the only handler we need to be sure it is still added.
-             */
-
-            return $onlyDefaultAdded ? count($handlers) > 0 : true;
-        }
-
-        // If default handler is not added, and according to settings we can't add it we need to
-        // disable Wonolog if there are no other handlers.
-        $toEnable = array_diff($enabledChannels, $disabledChannels);
-        if (!$toEnable) {
-            return $handlersNum > 0;
-        }
-
-        $handlers->addHandler(DefaultHandler::new(), $identifier, ...$toEnable);
+        $id = 'wonolog-def-hander-' . bin2hex(random_bytes(3));
+        $handlers->addHandler(WonologFileHandler::new(), $id, ...$toEnable);
 
         return true;
+    }
+
+    /**
+     * @param Channels $channels
+     * @param HandlersRegistry $handlers
+     * @return array|bool
+     */
+    private function channelsWithoutHandler(Channels $channels, HandlersRegistry $handlers): array
+    {
+        $missing = [];
+        foreach ($channels->allNames() as $channel) {
+            if (!$handlers->hasAnyHandlerForChannel($channel)) {
+                $missing[] = $channel;
+            }
+        }
+
+        return $missing;
     }
 
     /**

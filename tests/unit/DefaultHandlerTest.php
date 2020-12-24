@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Tests\Unit;
 
 use Brain\Monkey;
-use Inpsyde\Wonolog\DefaultHandler;
+use Inpsyde\Wonolog\WonologFileHandler;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use org\bovigo\vfs\vfsStream;
 
@@ -62,7 +62,7 @@ class DefaultHandlerTest extends UnitTestCase
         define('WP_DEBUG_LOG', "{$wpContent}/logs/debug.log");
         Monkey\Functions\when('wp_upload_dir')->justReturn(['basedir' => "{$wpContent}/uploads"]);
 
-        $actual = DefaultHandler::new()->withDateBasedFileFormat('Ymd')->logFilePath();
+        $actual = WonologFileHandler::new()->withDateBasedFileFormat('Ymd')->logFilePath();
 
         $date = date('Ymd');
         static::assertSame("{$wpContent}/logs/wonolog/{$date}.log", $actual);
@@ -81,7 +81,7 @@ class DefaultHandlerTest extends UnitTestCase
         define('WP_CONTENT_DIR', $wpContent);
         Monkey\Functions\when('wp_upload_dir')->justReturn(['basedir' => "{$wpContent}/uploads"]);
 
-        $actual = DefaultHandler::new()->withDateBasedFileFormat('Ymd')->logFilePath();
+        $actual = WonologFileHandler::new()->withDateBasedFileFormat('Ymd')->logFilePath();
 
         $date = date('Ymd');
         static::assertSame("{$wpContent}/uploads/wonolog/{$date}.log", $actual);
@@ -100,7 +100,7 @@ class DefaultHandlerTest extends UnitTestCase
         define('WP_CONTENT_DIR', $wpContent);
         Monkey\Functions\when('wp_upload_dir')->justReturn(['error' => 'meh']);
 
-        $actual = DefaultHandler::new()->withDateBasedFileFormat('Ymd')->logFilePath();
+        $actual = WonologFileHandler::new()->withDateBasedFileFormat('Ymd')->logFilePath();
 
         $date = date('Ymd');
         static::assertSame("{$wpContent}/logs/wonolog/{$date}.log", $actual);
@@ -133,7 +133,7 @@ class DefaultHandlerTest extends UnitTestCase
         define('WP_CONTENT_DIR', "{$public}/wp-content");
         Monkey\Functions\when('wp_upload_dir')->justReturn(['basedir' => "{$public}/uploads"]);
 
-        $actual = DefaultHandler::new()
+        $actual = WonologFileHandler::new()
             ->withFolder($dir->url() . '/logs')
             ->withFilename('wonolog.log')
             ->logFilePath();

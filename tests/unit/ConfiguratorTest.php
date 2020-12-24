@@ -16,11 +16,12 @@ namespace Inpsyde\Wonolog\Tests\Unit;
 use Brain\Monkey;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Configurator;
-use Inpsyde\Wonolog\DefaultHandler;
+use Inpsyde\Wonolog\WonologFileHandler;
 use Inpsyde\Wonolog\Factory;
 use Inpsyde\Wonolog\Registry\HandlersRegistry;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Handler\HandlerInterface;
+use Monolog\Handler\NoopHandler;
 
 class ConfiguratorTest extends UnitTestCase
 {
@@ -80,7 +81,7 @@ class ConfiguratorTest extends UnitTestCase
             ->disableWpContextProcessor()
             ->doNotLogPhpErrorsNorExceptions()
             ->disableAllDefaultHookListeners()
-            ->disableDefaultHandler()
+            ->disableFallbackHandler()
             ->setup();
     }
 
@@ -98,7 +99,7 @@ class ConfiguratorTest extends UnitTestCase
             ->disableWpContextProcessor()
             ->doNotLogPhpErrorsNorExceptions()
             ->disableAllDefaultHookListeners()
-            ->disableDefaultHandler()
+            ->disableFallbackHandler()
             ->pushHandler(\Mockery::mock(HandlerInterface::class))
             ->setup();
     }
@@ -117,9 +118,9 @@ class ConfiguratorTest extends UnitTestCase
             ->disableWpContextProcessor()
             ->doNotLogPhpErrorsNorExceptions()
             ->disableAllDefaultHookListeners()
-            ->enableDefaultHandler()
-            ->pushHandler(DefaultHandler::new())
-            ->disableDefaultHandlerForChannels(Channels::HTTP);
+            ->pushHandler(new NoopHandler())
+            ->removeHandlerFromChannels(NoopHandler::class, Channels::HTTP, Channels::DB)
+            ->disableFallbackHandlerForChannels(Channels::DB);
 
         $config->setup();
 
@@ -131,10 +132,13 @@ class ConfiguratorTest extends UnitTestCase
 
         $debugHandlers = $handlers->findForChannel(Channels::DEBUG);
         $httpHandlers = $handlers->findForChannel(Channels::HTTP);
+        $dbHandlers = $handlers->findForChannel(Channels::DB);
 
         static::assertCount(1, $debugHandlers);
-        static::assertCount(0, $httpHandlers);
-        static::assertInstanceOf(DefaultHandler::class, $debugHandlers[0]);
+        static::assertCount(1, $httpHandlers);
+        static::assertCount(0, $dbHandlers);
+        static::assertInstanceOf(NoopHandler::class, $debugHandlers[0]);
+        static::assertInstanceOf(WonologFileHandler::class, $httpHandlers[0]);
     }
 
     /**
@@ -151,10 +155,8 @@ class ConfiguratorTest extends UnitTestCase
             ->disableWpContextProcessor()
             ->doNotLogPhpErrorsNorExceptions()
             ->disableAllDefaultHookListeners()
-            ->enableDefaultHandler()
-            ->pushHandler(DefaultHandler::new())
-            ->disableDefaultHandlerForChannels(Channels::DEBUG)
-            ->enableDefaultHandlerForChannels(Channels::SECURITY, Channels::DB);
+            ->enableFallbackHandlerForChannels(Channels::DEBUG)
+            ->disableFallbackHandlerForChannels(Channels::SECURITY, Channels::DB);
 
         $config->setup();
 
@@ -166,47 +168,11 @@ class ConfiguratorTest extends UnitTestCase
 
         foreach (Channels::DEFAULT_CHANNELS as $channel) {
             $handlers = $handlersRegistry->findForChannel($channel);
-            $expecting = $channel === Channels::SECURITY || $channel === Channels::DB;
+            $notExpecting = $channel === Channels::SECURITY || $channel === Channels::DB;
 
-            static::assertCount($expecting ? 1 : 0, $handlers, "For channel {$channel}.");
-            if ($expecting) {
-                static::assertInstanceOf(DefaultHandler::class, $handlers[0]);
-            }
-        }
-    }
-
-    /**
-     * @test
-     * @runInSeparateProcess
-     */
-    public function testAutoDefaultHandlerEnabledInSpecificChannels()
-    {
-        Monkey\Functions\when('remove_all_actions')->justReturn();
-        Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
-        Monkey\Actions\expectDone(Configurator::ACTION_LOADED)->once();
-
-        $config = Configurator::new()
-            ->disableWpContextProcessor()
-            ->doNotLogPhpErrorsNorExceptions()
-            ->disableAllDefaultHookListeners()
-            ->enableDefaultHandlerForChannels(Channels::SECURITY, Channels::DEBUG, Channels::DB)
-            ->disableDefaultHandlerForChannels(Channels::DEBUG);
-
-        $config->setup();
-
-        /** @var HandlersRegistry $handlersRegistry */
-        $handlersRegistry = (function (): Factory {
-            /** @noinspection PhpUndefinedFieldInspection */
-            return $this->factory;
-        })->call($config)->handlersRegistry();
-
-        foreach (Channels::DEFAULT_CHANNELS as $channel) {
-            $handlers = $handlersRegistry->findForChannel($channel);
-            $expecting = $channel === Channels::SECURITY || $channel === Channels::DB;
-
-            static::assertCount($expecting ? 1 : 0, $handlers, "For channel {$channel}.");
-            if ($expecting) {
-                static::assertInstanceOf(DefaultHandler::class, $handlers[0]);
+            static::assertCount($notExpecting ? 0 : 1, $handlers, "For channel {$channel}.");
+            if (!$notExpecting) {
+                static::assertInstanceOf(WonologFileHandler::class, $handlers[0]);
             }
         }
     }
