@@ -46,12 +46,12 @@ class Channels
     private $channels;
 
     /**
-     * @var HandlersRegistry
+     * @var Registry\HandlersRegistry
      */
     private $handlersRegistry;
 
     /**
-     * @var ProcessorsRegistry
+     * @var Registry\ProcessorsRegistry
      */
     private $processorsRegistry;
 
@@ -394,6 +394,7 @@ class Channels
         }
 
         foreach ($loggerProcessors as $loggerProcessor) {
+            /** @var Logger|ProcessablePsrLogger $logger */
             $logger->pushProcessor($loggerProcessor);
         }
 
@@ -432,7 +433,7 @@ class Channels
          *
          * @param Logger|ProcessablePsrLogger $logger
          * @param string $channel
-         * @param ProcessorsRegistry $processorsRegistry
+         * @param Registry\ProcessorsRegistry $processorsRegistry
          */
         do_action(
             self::ACTION_LOGGER,

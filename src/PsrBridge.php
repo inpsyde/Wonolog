@@ -99,6 +99,7 @@ class PsrBridge extends AbstractLogger
             $level = $throwable ? LogLevel::CRITICAL : LogLevel::DEBUG;
         }
 
+        /** @var array{message:string} $record */
         $record = ($this->processor)(compact('message', 'context'));
 
         $this->updater->update(new Log($record['message'], $level, $channel, $context));

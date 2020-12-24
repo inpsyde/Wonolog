@@ -90,7 +90,7 @@ class ProcessablePsrLogger extends AbstractLogger
         ];
 
         foreach ($this->processors as $processor) {
-            $record = $processor($record);
+            $record = (array)$processor($record);
         }
 
         $message = (string)($record['message'] ?? $message);
@@ -113,7 +113,7 @@ class ProcessablePsrLogger extends AbstractLogger
             $context = $this->addExtra($extra, $context);
         }
 
-        $newLevel = LogLevel::normalizeLevel($record['level'] ?? $level);
+        $newLevel = LogLevel::normalizeLevel($record['level'] ?? $level) ?? LogLevel::DEBUG;
         $psrLevel = LogLevel::toPsrLevel($newLevel);
 
         $this->logger->log($psrLevel, $message, $context);
