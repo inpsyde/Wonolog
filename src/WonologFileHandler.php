@@ -13,12 +13,19 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
+use Monolog\Formatter\FormatterInterface;
+use Monolog\Handler\FormattableHandlerInterface;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\Handler\StreamHandler;
+use Monolog\ResettableInterface;
 
-class WonologFileHandler implements HandlerInterface, ProcessableHandlerInterface
+class WonologFileHandler implements
+    HandlerInterface,
+    ProcessableHandlerInterface,
+    FormattableHandlerInterface,
+    ResettableInterface
 {
     /**
      * @var string|null
@@ -67,7 +74,7 @@ class WonologFileHandler implements HandlerInterface, ProcessableHandlerInterfac
 
     /**
      * @param string $folder
-     * @return $this
+     * @return static
      */
     public function withFolder(string $folder): WonologFileHandler
     {
@@ -78,7 +85,7 @@ class WonologFileHandler implements HandlerInterface, ProcessableHandlerInterfac
 
     /**
      * @param string $filename
-     * @return WonologFileHandler
+     * @return static
      */
     public function withFilename(string $filename): WonologFileHandler
     {
@@ -95,7 +102,8 @@ class WonologFileHandler implements HandlerInterface, ProcessableHandlerInterfac
     public function withDateBasedFileFormat(
         string $format,
         string $extension = 'log'
-    ): WonologFileHandler {
+    ): WonologFileHandler
+    {
 
         $date = date($format);
         if (!$date) {
@@ -111,7 +119,7 @@ class WonologFileHandler implements HandlerInterface, ProcessableHandlerInterfac
 
     /**
      * @param int $level
-     * @return WonologFileHandler
+     * @return static
      */
     public function withMinimumLevel(int $level): WonologFileHandler
     {
@@ -121,7 +129,7 @@ class WonologFileHandler implements HandlerInterface, ProcessableHandlerInterfac
     }
 
     /**
-     * @return WonologFileHandler
+     * @return static
      */
     public function enableBubbling(): WonologFileHandler
     {
@@ -131,7 +139,7 @@ class WonologFileHandler implements HandlerInterface, ProcessableHandlerInterfac
     }
 
     /**
-     * @return $this
+     * @return static
      */
     public function disableBubbling(): WonologFileHandler
     {
@@ -185,7 +193,7 @@ class WonologFileHandler implements HandlerInterface, ProcessableHandlerInterfac
 
     /**
      * @param callable(array):array|\Monolog\Processor\ProcessorInterface $callback
-     * @return HandlerInterface
+     * @return static
      */
     public function pushProcessor(callable $callback): HandlerInterface
     {
@@ -202,11 +210,56 @@ class WonologFileHandler implements HandlerInterface, ProcessableHandlerInterfac
      */
     public function popProcessor(): callable
     {
+        $this->ensureHandler();
         if ($this->handler instanceof ProcessableHandlerInterface) {
             return $this->handler->popProcessor();
         }
 
         return new Processor\NullProcessor();
+    }
+
+    /**
+     * @param FormatterInterface $formatter
+     * @return static
+     */
+    public function setFormatter(FormatterInterface $formatter): HandlerInterface
+    {
+        $this->ensureHandler();
+        if ($this->handler instanceof FormattableHandlerInterface) {
+            $this->handler->setFormatter($formatter);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return FormatterInterface
+     */
+    public function getFormatter(): FormatterInterface
+    {
+        $this->ensureHandler();
+        if ($this->handler instanceof FormattableHandlerInterface) {
+            return $this->handler->getFormatter();
+        }
+
+        static $formatter;
+        $formatter or $formatter = new class implements FormatterInterface {
+            public function format(array $record) { return $record; }
+            public function formatBatch(array $records) { return $records; }
+        };
+
+        return $formatter;
+    }
+
+    /**
+     * @return void
+     */
+    public function reset()
+    {
+        $this->ensureHandler();
+        if ($this->handler instanceof ResettableInterface) {
+            $this->handler->reset();
+        }
     }
 
     /**
@@ -218,29 +271,14 @@ class WonologFileHandler implements HandlerInterface, ProcessableHandlerInterfac
             return $this->logFilePath;
         }
 
-        if ($this->folder === null) {
-            $this->folder = $this->maybeDetermineFolderByConstant();
-        }
+        $folder = LogsFolder::determineFolder($this->folder);
 
-        if ($this->folder === null) {
-            $uploadDir = $this->uploadsBaseDir();
-            $uploadDir and $this->folder = (string)wp_normalize_path($uploadDir . '/wonolog');
-        }
-
-        if ($this->folder === null && defined('WP_CONTENT_DIR') && WP_CONTENT_DIR) {
-            $content = (string)trailingslashit(WP_CONTENT_DIR);
-            $this->folder = (string)wp_normalize_path($content . 'logs/wonolog');
-        }
-
-        if (!$this->folder || !wp_mkdir_p($this->folder)) {
+        if (!$folder) {
             throw new \Exception('Could not determine or create valid log file path.');
         }
 
-        $this->folder = (string)trailingslashit($this->maybeCreateHtaccess($this->folder));
-
         $logFileName = $this->filename ?? (date('Y/m/d') . '.log');
-        $logFilePath = $this->folder . ltrim($logFileName, '/\\');
-
+        $logFilePath = $folder . ltrim($logFileName, '/\\');
         $logFileFir = dirname($logFilePath);
         if (!$logFileFir || $logFileFir === '.') {
             throw new \Exception('Could not determine valid log file path.');
@@ -278,137 +316,5 @@ class WonologFileHandler implements HandlerInterface, ProcessableHandlerInterfac
         } catch (\Throwable $throwable) {
             $this->handler = new NullHandler();
         }
-    }
-
-    /**
-     * When the log root folder is publicly accessible, it means logs can be exposed and that can
-     * easily be a privacy-leakage issue and/or a security threat.
-     *
-     * In that case we try to write a .htaccess file to prevent access to logs.
-     * This guarantees **nothing**, because .htaccess can be ignored depending which web server is
-     * used and which is its configuration, but at least we tried.
-     * The right thing to do is to configure log folder to be outside web root and that is also
-     * highly recommended in documentation.
-     *
-     * @param string $folder
-     * @return string
-     */
-    private function maybeCreateHtaccess(string $folder): string
-    {
-        if (!is_dir($folder) || file_exists("{$folder}/.htaccess")) {
-            return $folder;
-        }
-
-        $targetDir = rtrim((string)wp_normalize_path($folder), '/');
-        if (!$targetDir) {
-            return '';
-        }
-
-        $contentDir = defined('WP_CONTENT_DIR')
-            ? rtrim((string)wp_normalize_path(WP_CONTENT_DIR), '/')
-            : null;
-
-        $uploadDir = $this->uploadsBaseDir();
-        if ($uploadDir && $contentDir && (strpos($uploadDir, $contentDir) === 0)) {
-            $uploadDir = null;
-        }
-
-        if (!$contentDir && !$uploadDir) {
-            return $targetDir;
-        }
-
-        if (($targetDir === $contentDir) || ($targetDir === $uploadDir)) {
-            $targetDir .= '/wonolog';
-            if (!wp_mkdir_p($targetDir)) {
-                return '';
-            }
-        }
-
-        // We will create .htaccess only if target dir is inside one of the two directories we
-        // assume are publicly accessible.
-        if (
-            (!$contentDir || (strpos($targetDir, $contentDir) !== 0))
-            && (!$uploadDir || (strpos($targetDir, $uploadDir) !== 0))
-        ) {
-            return $targetDir;
-        }
-
-        /**
-         * Let's disable error reporting: too much file operations which might fail, nothing can log
-         * them, and package is fully functional even if failing happens.
-         * Silence looks like best option here.
-         *
-         * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
-         */
-        set_error_handler('__return_true');
-        $htaccess = <<<'HTACCESS'
-<IfModule mod_authz_core.c>
-	Require all denied
-</IfModule>
-<IfModule !mod_authz_core.c>
-	Deny from all
-</IfModule>
-HTACCESS;
-        // phpcs:disable WordPress.PHP.NoSilencedErrors
-        @file_put_contents("{$targetDir}/.htaccess", $htaccess);
-        // phpcs:enable WordPress.PHP.NoSilencedErrors
-        restore_error_handler();
-
-        return $targetDir;
-    }
-
-    /**
-     * @return string|null
-     */
-    private function uploadsBaseDir(): ?string
-    {
-        /** @var array{string|null}|null $uploadsBaseDir */
-        static $uploadsBaseDir;
-        if (isset($uploadsBaseDir)) {
-            return $uploadsBaseDir[0];
-        }
-
-        $uploads = (array)wp_upload_dir(null, false);
-        if (empty($uploads['error']) && !empty($uploads['basedir'])) {
-            $baseDir = (string)$uploads['basedir'];
-            $uploadsBaseDir = [rtrim((string)wp_normalize_path($baseDir), '/') ?: null];
-
-            return $uploadsBaseDir[0];
-        }
-
-        $uploadsBaseDir = [null];
-
-        return null;
-    }
-
-    /**
-     * @return string|null
-     */
-    private function maybeDetermineFolderByConstant(): ?string
-    {
-        $maybeLogFiles = [];
-
-        if (defined('ERRORLOGFILE') && ERRORLOGFILE && is_string(ERRORLOGFILE)) {
-            $maybeLogFiles[] = ERRORLOGFILE;
-        }
-
-        if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && is_string(WP_DEBUG_LOG)) {
-            $isBool = filter_var(WP_DEBUG_LOG, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-            ($isBool === null) and $maybeLogFiles[] = WP_DEBUG_LOG;
-        }
-
-        /** @var string $maybeLogFile */
-        foreach ($maybeLogFiles as $maybeLogFile) {
-            // phpcs:disable WordPress.PHP.NoSilencedErrors
-            $dirByConstant = @dirname($maybeLogFile);
-            // phpcs:enable WordPress.PHP.NoSilencedErrors
-            if ($dirByConstant && $dirByConstant !== '.') {
-                $folder = wp_normalize_path((string)trailingslashit($dirByConstant) . 'wonolog');
-
-                return (string)$folder;
-            }
-        }
-
-        return null;
     }
 }
