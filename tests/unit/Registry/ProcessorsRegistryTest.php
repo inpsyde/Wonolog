@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Inpsyde\Wonolog\Tests\Unit;
+namespace Inpsyde\Wonolog\Tests\Unit\Registry;
 
 use Inpsyde\Wonolog\Factory;
 use Inpsyde\Wonolog\Tests\UnitTestCase;

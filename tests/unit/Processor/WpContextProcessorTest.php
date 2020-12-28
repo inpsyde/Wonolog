@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Inpsyde\Wonolog\Tests\Unit;
+namespace Inpsyde\Wonolog\Tests\Unit\Processor;
 
 use Brain\Monkey\Functions;
 use Inpsyde\Wonolog\Processor\WpContextProcessor;

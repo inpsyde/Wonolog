@@ -24,6 +24,29 @@ class UnitTestCase extends \PHPUnit\Framework\TestCase
     {
         parent::setUp();
         Monkey\setUp();
+
+        Monkey\Functions\when('wp_is_stream')->alias(static function (string $path): bool {
+            return strpos($path, '://') !== false;
+        });
+
+        Monkey\Functions\when('wp_normalize_path')->alias(static function (string $path): string {
+            $wrapper = '';
+            if (wp_is_stream($path)) {
+                [$wrapper, $path] = explode('://', $path, 2);
+                $wrapper .= '://';
+            }
+
+            $path = preg_replace( '|(?<=.)/+|', '/', str_replace('\\', '/', $path));
+            ($path[0] === ':') and $path = ucfirst($path);
+
+            return $wrapper . $path;
+        });
+
+        Monkey\Functions\when('wp_mkdir_p')->alias(static function (string $path): bool {
+            $path = wp_normalize_path($path);
+
+            return file_exists($path) ? is_dir($path) : mkdir($path, 0777, true);
+        });
     }
 
     protected function tearDown(): void

@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Inpsyde\Wonolog\Tests\Unit;
+namespace Inpsyde\Wonolog\Tests\Unit\Registry;
 
 use Brain\Monkey\Actions;
 use Inpsyde\Wonolog\Channels;
