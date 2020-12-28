@@ -69,7 +69,7 @@ class LogsFolder
             restore_error_handler();
         }
     }
-    
+
     /**
      * When the log root folder is publicly accessible, it means logs can be exposed and that can
      * easily be a privacy-leakage issue and/or a security threat.

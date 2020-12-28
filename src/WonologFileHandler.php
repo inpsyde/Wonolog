@@ -102,8 +102,7 @@ class WonologFileHandler implements
     public function withDateBasedFileFormat(
         string $format,
         string $extension = 'log'
-    ): WonologFileHandler
-    {
+    ): WonologFileHandler {
 
         $date = date($format);
         if (!$date) {
@@ -199,7 +198,7 @@ class WonologFileHandler implements
     {
         $this->ensureHandler();
         if ($this->handler instanceof ProcessableHandlerInterface) {
-            return $this->handler->pushProcessor($callback);
+            $this->handler->pushProcessor($callback);
         }
 
         return $this;
@@ -221,9 +220,12 @@ class WonologFileHandler implements
     /**
      * @param FormatterInterface $formatter
      * @return static
+     *
+     * phpcs:disable Inpsyde.CodeQuality.NoAccessors
      */
     public function setFormatter(FormatterInterface $formatter): HandlerInterface
     {
+        // phpcs:enable Inpsyde.CodeQuality.NoAccessors
         $this->ensureHandler();
         if ($this->handler instanceof FormattableHandlerInterface) {
             $this->handler->setFormatter($formatter);
@@ -234,19 +236,25 @@ class WonologFileHandler implements
 
     /**
      * @return FormatterInterface
+     *
+     * phpcs:disable Inpsyde.CodeQuality.NoAccessors
      */
     public function getFormatter(): FormatterInterface
     {
+        // phpcs:disable Inpsyde.CodeQuality.NoAccessors
         $this->ensureHandler();
         if ($this->handler instanceof FormattableHandlerInterface) {
             return $this->handler->getFormatter();
         }
 
+        /** @var FormatterInterface|null $formatter */
         static $formatter;
+        // phpcs:disable
         $formatter or $formatter = new class implements FormatterInterface {
             public function format(array $record) { return $record; }
             public function formatBatch(array $records) { return $records; }
         };
+        // phpcs:enable
 
         return $formatter;
     }

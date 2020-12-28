@@ -18,6 +18,9 @@ use Monolog\DateTimeImmutable;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 
+/**
+ * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+ */
 class ProcessablePsrLogger extends AbstractLogger
 {
     /**

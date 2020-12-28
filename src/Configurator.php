@@ -867,15 +867,16 @@ class Configurator
         $config = (array)($this->config[self::CONF_FALLBACK_HANDLER] ?? []);
         $toEnableForAll = ($config[self::ALL] ?? null) === true;
         $toDisableForAll = ($config[self::ALL] ?? null) === false;
-        /** @var array<string> $enabledChannels */
+        /** @var list<string> $enabledChannels */
         $enabledChannels = array_keys((array)$config[self::ENABLED]);
-        /** @var array<string> $disabledChannels */
+        /** @var list<string> $disabledChannels */
         $disabledChannels = array_diff(array_keys((array)$config[self::DISABLED]), $enabledChannels);
 
         if (!$toEnableForAll && !$toDisableForAll && !$enabledChannels && !$disabledChannels) {
             $toEnableForAll = true;
         }
 
+        /** @var list<string> $toEnable */
         $toEnable = ($toDisableForAll || $toEnableForAll) ? [] : array_diff($missing, $disabledChannels);
         if (!$toEnable && !$toEnableForAll) {
             return $handlersCount || $channels->hasLoggerFactory();
@@ -890,7 +891,7 @@ class Configurator
     /**
      * @param Channels $channels
      * @param HandlersRegistry $handlers
-     * @return array|bool
+     * @return array
      */
     private function channelsWithoutHandler(Channels $channels, HandlersRegistry $handlers): array
     {

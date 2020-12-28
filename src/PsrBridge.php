@@ -111,9 +111,13 @@ class PsrBridge extends AbstractLogger
      * @param mixed $message
      * @param int $level
      * @return string
+     *
+     * phpcs:disable Generic.Metrics.CyclomaticComplexity
      */
     private function serializeMessage($message, int $level = 0): string
     {
+        // phpcs:enable Generic.Metrics.CyclomaticComplexity
+
         if (is_string($message)) {
             return $message;
         }
@@ -177,43 +181,52 @@ class PsrBridge extends AbstractLogger
         if (is_object($message)) {
             try {
                 return $this->maybeSerializeObjectMessage($message, !$isIterable);
-            } catch (\Throwable $t) {
+            } catch (\Throwable $throwable) {
                 // noop
             }
         }
 
-        if ($isIterable) {
-            $iterated = [];
-            foreach ($message as $key => $value) {
-                if (in_array($key, ['password', 'user_password', 'secret', 'token'], true)) {
-                    $iterated[$key] = '********';
-                    continue;
-                }
-
-                if ($level > 0) {
-                    $iterated[$key] = $keepArray
-                        ? $value
-                        : $this->serializeMessage($value, $level + 1);
-                    continue;
-                }
-
-                $iterated[$key] = ($keepArray && !is_resource($value))
-                    ? $this->maybeSerializeComplex($value, $level + 1, true)
-                    : $this->serializeMessage($value, $level + 1);
-            }
-            $message = $iterated;
+        if (!$isIterable) {
+            return $message;
         }
 
-        return $message;
+        $iterated = [];
+        foreach ($message as $key => $value) {
+            if (in_array($key, ['password', 'user_password', 'secret', 'token'], true)) {
+                $iterated[$key] = '********';
+                continue;
+            }
+
+            if ($level > 0) {
+                $iterated[$key] = $keepArray
+                    ? $value
+                    : $this->serializeMessage($value, $level + 1);
+                continue;
+            }
+
+            $iterated[$key] = ($keepArray && !is_resource($value))
+                ? $this->maybeSerializeComplex($value, $level + 1, true)
+                : $this->serializeMessage($value, $level + 1);
+        }
+
+        return $iterated;
     }
 
     /**
      * @param object $object
      * @param bool $forceString
-     * @return object|string
+     * @return mixed
+     *
+     * phpcs:disable Generic.Metrics.CyclomaticComplexity
+     * phpcs:disable Inpsyde.CodeQuality.NestingLevel.High
+     * phpcs:disable Inpsyde.CodeQuality.ReturnTypeDeclaration
      */
     private function maybeSerializeObjectMessage(object $object, bool $forceString)
     {
+        // phpcs:enable Generic.Metrics.CyclomaticComplexity
+        // phpcs:enable Inpsyde.CodeQuality.NestingLevel.High
+        // phpcs:enable Inpsyde.CodeQuality.ReturnTypeDeclaration
+
         switch (true) {
             case ($object instanceof \DateTimeInterface):
                 return $object->format('r');
@@ -237,7 +250,7 @@ class PsrBridge extends AbstractLogger
                 return (string)$object;
             case ($object instanceof \JsonSerializable):
                 $encoded = json_encode($object);
-                if (($object === false) || (json_last_error() !== JSON_ERROR_NONE)) {
+                if (($encoded === false) || (json_last_error() !== JSON_ERROR_NONE)) {
                     throw new \Exception(json_last_error_msg() ?: 'error');
                 }
                 return $encoded;

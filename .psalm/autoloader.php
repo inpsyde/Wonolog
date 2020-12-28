@@ -9,7 +9,13 @@ define('WPINC', 'wp-includes');
 define('OBJECT', 'OBJECT');
 
 require ABSPATH . WPINC . '/class-wp.php';
+require ABSPATH . WPINC . '/class-wp-post.php';
+require ABSPATH . WPINC . '/class-wp-term.php';
+require ABSPATH . WPINC . '/class-wp-user.php';
+require ABSPATH . WPINC . '/class-wp-comment.php';
 require ABSPATH . WPINC . '/class-wp-error.php';
+require ABSPATH . WPINC . '/class-wp-taxonomy.php';
+require ABSPATH . WPINC . '/class-wp-post-type.php';
 require ABSPATH . WPINC . '/class-wp-rewrite.php';
 require ABSPATH . WPINC . '/class-phpmailer.php';
 require ABSPATH . WPINC . '/shortcodes.php';

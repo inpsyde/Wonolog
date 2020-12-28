@@ -36,7 +36,7 @@ class UnitTestCase extends \PHPUnit\Framework\TestCase
                 $wrapper .= '://';
             }
 
-            $path = preg_replace( '|(?<=.)/+|', '/', str_replace('\\', '/', $path));
+            $path = preg_replace('|(?<=.)/+|', '/', str_replace('\\', '/', $path));
             ($path[0] === ':') and $path = ucfirst($path);
 
             return $wrapper . $path;
