@@ -896,7 +896,7 @@ class Configurator
     {
         $missing = [];
         foreach ($channels->allNames() as $channel) {
-            if (!$handlers->hasAnyHandlerForChannel($channel)) {
+            if (!$handlers->hasAnyHandlerForChannel($channel) && !$channels->hasLoggerFactory($channel)) {
                 $missing[] = $channel;
             }
         }

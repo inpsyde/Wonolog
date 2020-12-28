@@ -176,17 +176,17 @@ class Channels
     }
 
     /**
-     * @param string|null $channel
+     * @param string|null $forChannel
      * @return bool
      */
-    public function hasLoggerFactory(?string $channel = null): bool
+    public function hasLoggerFactory(?string $forChannel = null): bool
     {
-        foreach ($this->loggerFactoryData as $forChannel => [, $enabled]) {
-            if ($channel && ($forChannel !== $channel)) {
+        foreach ($this->loggerFactoryData as $channel => [, $enabled]) {
+            if ($forChannel && ($forChannel !== $channel)) {
                 continue;
             }
 
-            if ($channel || $enabled) {
+            if ($forChannel || $enabled) {
                 return $enabled;
             }
         }
