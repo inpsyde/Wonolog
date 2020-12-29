@@ -160,7 +160,7 @@ final class HttpApiListener implements ActionListener
      * @param string $url
      * @return Debug
      */
-    private function logCron(
+    protected function logCron(
         array $data,
         string $context,
         string $class,
@@ -192,7 +192,7 @@ final class HttpApiListener implements ActionListener
      * @param string $url
      * @return LogData
      */
-    private function logHttpError(
+    protected function logHttpError(
         array $data,
         string $context,
         string $class,

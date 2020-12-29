@@ -68,7 +68,7 @@ class MailerListener implements ActionListener
      * @param LogActionUpdater $updater
      * @return void
      */
-    private function onMailFailed(array $args, LogActionUpdater $updater): void
+    protected function onMailFailed(array $args, LogActionUpdater $updater): void
     {
         $error = $args ? reset($args) : null;
         if ($error instanceof \WP_Error) {
@@ -81,7 +81,7 @@ class MailerListener implements ActionListener
      * @param LogActionUpdater $updater
      * @return void
      */
-    private function onMailerInit(array $args, LogActionUpdater $updater): void
+    protected function onMailerInit(array $args, LogActionUpdater $updater): void
     {
         $mailer = $args ? reset($args) : null;
         if ($mailer instanceof \PHPMailer) {
