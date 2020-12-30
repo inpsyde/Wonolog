@@ -24,7 +24,7 @@ class Configurator
     public const ACTION_SETUP = 'wonolog.setup';
     public const FILTER_DISABLE = 'wonolog.disable';
 
-    protected const CONF_MAIN_HOOK_PRIORITY = 'main-hook-priority';
+    protected const CONF_BASE_HOOK_PRIORITY = 'main-hook-priority';
     protected const CONF_ERROR_TYPES = 'php-error-types';
     protected const CONF_LOG_EXCEPTIONS = 'php-exceptions';
     protected const CONF_FALLBACK_HANDLER = 'use-default-handler';
@@ -55,7 +55,7 @@ class Configurator
      * @var array
      */
     protected $config = [
-        self::CONF_MAIN_HOOK_PRIORITY => 100,
+        self::CONF_BASE_HOOK_PRIORITY => 100,
         self::CONF_ERROR_TYPES => null,
         self::CONF_LOG_EXCEPTIONS => true,
         self::CONF_HOOK_ALIASES => [],
@@ -110,19 +110,6 @@ class Configurator
 
     /**
      * @param string $channel
-     * @return static
-     */
-    public function withDefaultChannel(string $channel): Configurator
-    {
-        if ($channel) {
-            $this->factory->channels()->useDefaultChannel($channel);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param string $channel
      * @param string ...$channels
      * @return static
      */
@@ -131,6 +118,19 @@ class Configurator
         $this->factory->channels()->removeChannel($channel);
         foreach ($channels as $channel) {
             $this->factory->channels()->removeChannel($channel);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $channel
+     * @return static
+     */
+    public function withDefaultChannel(string $channel): Configurator
+    {
+        if ($channel) {
+            $this->factory->channels()->useDefaultChannel($channel);
         }
 
         return $this;
@@ -247,293 +247,6 @@ class Configurator
     }
 
     /**
-     * @param string $identifier
-     * @param callable(array):array $processor
-     * @return static
-     */
-    public function pushProcessor(string $identifier, callable $processor): Configurator
-    {
-        $this->factory->processorsRegistry()->addProcessor($processor, $identifier);
-
-        return $this;
-    }
-
-    /**
-     * @param string $identifier
-     * @param callable(array):array $processor
-     * @param string $channel
-     * @param string ...$channels
-     * @return static
-     */
-    public function pushProcessorForChannels(
-        string $identifier,
-        callable $processor,
-        string $channel,
-        string ...$channels
-    ): Configurator {
-
-        $this->withChannels($channel, ...$channels);
-
-        $this->factory->processorsRegistry()
-            ->addProcessor($processor, $identifier, $channel, ...$channels);
-
-        return $this;
-    }
-
-    /**
-     * @param string $identifier
-     * @return static
-     */
-    public function removeProcessor(string $identifier): Configurator
-    {
-        $this->factory->processorsRegistry()->removeProcessor($identifier);
-
-        return $this;
-    }
-
-    /**
-     * @param string $identifier
-     * @param string $channel
-     * @param string ...$channels
-     * @return static
-     */
-    public function removeProcessorFromChannels(
-        string $identifier,
-        string $channel,
-        string ...$channels
-    ): Configurator {
-
-        $this->factory->processorsRegistry()
-            ->removeProcessorFromChannels($identifier, $channel, ...$channels);
-
-        return $this;
-    }
-
-    /**
-     * @param string $identifier
-     * @param string $channel
-     * @param string ...$channels
-     * @return static
-     */
-    public function enableProcessorForChannels(
-        string $identifier,
-        string $channel,
-        string ...$channels
-    ): Configurator {
-
-        $this->withChannels($channel, ...$channels);
-
-        $this->factory->processorsRegistry()
-            ->enableProcessorForChannels($identifier, $channel, ...$channels);
-
-        return $this;
-    }
-
-    /**
-     * @param string $channel
-     * @param string $identifier
-     * @param string ...$identifiers
-     * @return static
-     */
-    public function enableProcessorsForChannel(
-        string $channel,
-        string $identifier,
-        string ...$identifiers
-    ): Configurator {
-
-        $this->withChannels($channel);
-
-        $this->factory->processorsRegistry()
-            ->enableProcessorsForChannel($channel, $identifier, ...$identifiers);
-
-        return $this;
-    }
-
-    /**
-     * @param HookListener\ActionListener $listener
-     * @param string|null $identifier
-     * @return static
-     */
-    public function addActionListener(
-        HookListener\ActionListener $listener,
-        ?string $identifier = null
-    ): Configurator {
-
-        $identifier = $identifier ?? get_class($listener);
-        $this->factory->listenersRegistry()->addActionListener($identifier, $listener);
-
-        return $this;
-    }
-
-    /**
-     * @param HookListener\ActionListener $listener
-     * @param int $priority
-     * @param string|null $identifier
-     * @return static
-     */
-    public function addActionListenerWithPriority(
-        HookListener\ActionListener $listener,
-        int $priority,
-        ?string $identifier = null
-    ): Configurator {
-
-        $identifier = $identifier ?? get_class($listener);
-        $this->factory->listenersRegistry()
-            ->addActionListenerWithPriority($identifier, $listener, $priority);
-
-        return $this;
-    }
-
-    /**
-     * @param HookListener\FilterListener $listener
-     * @param string|null $identifier
-     * @return static
-     */
-    public function addFilterListener(
-        HookListener\FilterListener $listener,
-        ?string $identifier = null
-    ): Configurator {
-
-        $identifier = $identifier ?? get_class($listener);
-        $this->factory->listenersRegistry()->addFilterListener($identifier, $listener);
-
-        return $this;
-    }
-
-    /**
-     * @param HookListener\FilterListener $listener
-     * @param int $priority
-     * @param string|null $identifier
-     * @return static
-     */
-    public function addFilterListenerWithPriority(
-        HookListener\FilterListener $listener,
-        int $priority,
-        ?string $identifier = null
-    ): Configurator {
-
-        $identifier = $identifier ?? get_class($listener);
-        $this->factory->listenersRegistry()
-            ->addFilterListenerWithPriority($identifier, $listener, $priority);
-
-        return $this;
-    }
-
-    /**
-     * @param string $ignorePattern
-     * @param int|null $levelThreshold
-     * @param string ...$channels
-     * @return static
-     */
-    public function withIgnorePattern(
-        string $ignorePattern,
-        ?int $levelThreshold = null,
-        string ...$channels
-    ): Configurator {
-
-        $this->factory
-            ->channels()
-            ->withIgnorePattern($ignorePattern, $levelThreshold, ...$channels);
-
-        return $this;
-    }
-
-    /**
-     * @param \DateTimeZone $zone
-     * @return static
-     */
-    public function useTimezone(\DateTimeZone $zone): Configurator
-    {
-        $this->factory->channels()->useTimezone($zone);
-
-        return $this;
-    }
-
-    /**
-     * @param int $priority
-     * @return static
-     */
-    public function withMainHookPriority(int $priority): Configurator
-    {
-        $this->config[self::CONF_MAIN_HOOK_PRIORITY] = $priority;
-
-        return $this;
-    }
-
-    /**
-     * @return static
-     */
-    public function logPhpErrorsAndExceptions(): Configurator
-    {
-        $this->config[self::CONF_ERROR_TYPES] = E_ALL;
-        $this->config[self::CONF_LOG_EXCEPTIONS] = true;
-
-        return $this;
-    }
-
-    /**
-     * @return static
-     */
-    public function doNotLogPhpErrorsNorExceptions(): Configurator
-    {
-        $this->config[self::CONF_ERROR_TYPES] = -1;
-        $this->config[self::CONF_LOG_EXCEPTIONS] = false;
-
-        return $this;
-    }
-
-    /**
-     * @return static
-     */
-    public function doNotLogPhpErrors(): Configurator
-    {
-        $this->config[self::CONF_ERROR_TYPES] = -1;
-
-        return $this;
-    }
-
-    /**
-     * @return static
-     */
-    public function doNotLogPhpExceptions(): Configurator
-    {
-        $this->config[self::CONF_LOG_EXCEPTIONS] = false;
-
-        return $this;
-    }
-
-    /**
-     * @param int $errorTypes
-     * @return static
-     */
-    public function logPhpErrorsTypes(int $errorTypes): Configurator
-    {
-        $this->config[self::CONF_ERROR_TYPES] = $errorTypes;
-
-        return $this;
-    }
-
-    /**
-     * @return static
-     */
-    public function logSilencedPhpErrors(): Configurator
-    {
-        $this->config[self::CONF_SILENCED_ERRORS] = true;
-
-        return $this;
-    }
-
-    /**
-     * @return static
-     */
-    public function dontLogSilencedPhpErrors(): Configurator
-    {
-        $this->config[self::CONF_SILENCED_ERRORS] = true;
-
-        return $this;
-    }
-
-    /**
      * @return static
      */
     public function enableFallbackHandler(): Configurator
@@ -587,6 +300,109 @@ class Configurator
     ): Configurator {
 
         return $this->toggleEnabledDisabledConfig(self::CONF_FALLBACK_HANDLER, false, $channel, ...$channels);
+    }
+
+    /**
+     * @param string $identifier
+     * @param callable(array):array $processor
+     * @return static
+     */
+    public function pushProcessor(string $identifier, callable $processor): Configurator
+    {
+        $this->factory->processorsRegistry()->addProcessor($processor, $identifier);
+
+        return $this;
+    }
+
+    /**
+     * @param string $identifier
+     * @param callable(array):array $processor
+     * @param string $channel
+     * @param string ...$channels
+     * @return static
+     */
+    public function pushProcessorForChannels(
+        string $identifier,
+        callable $processor,
+        string $channel,
+        string ...$channels
+    ): Configurator {
+
+        $this->withChannels($channel, ...$channels);
+
+        $this->factory->processorsRegistry()
+            ->addProcessor($processor, $identifier, $channel, ...$channels);
+
+        return $this;
+    }
+
+    /**
+     * @param string $channel
+     * @param string $identifier
+     * @param string ...$identifiers
+     * @return static
+     */
+    public function enableProcessorsForChannel(
+        string $channel,
+        string $identifier,
+        string ...$identifiers
+    ): Configurator {
+
+        $this->withChannels($channel);
+
+        $this->factory->processorsRegistry()
+            ->enableProcessorsForChannel($channel, $identifier, ...$identifiers);
+
+        return $this;
+    }
+
+    /**
+     * @param string $identifier
+     * @param string $channel
+     * @param string ...$channels
+     * @return static
+     */
+    public function enableProcessorForChannels(
+        string $identifier,
+        string $channel,
+        string ...$channels
+    ): Configurator {
+
+        $this->withChannels($channel, ...$channels);
+
+        $this->factory->processorsRegistry()
+            ->enableProcessorForChannels($identifier, $channel, ...$channels);
+
+        return $this;
+    }
+
+    /**
+     * @param string $identifier
+     * @return static
+     */
+    public function removeProcessor(string $identifier): Configurator
+    {
+        $this->factory->processorsRegistry()->removeProcessor($identifier);
+
+        return $this;
+    }
+
+    /**
+     * @param string $identifier
+     * @param string $channel
+     * @param string ...$channels
+     * @return static
+     */
+    public function removeProcessorFromChannels(
+        string $identifier,
+        string $channel,
+        string ...$channels
+    ): Configurator {
+
+        $this->factory->processorsRegistry()
+            ->removeProcessorFromChannels($identifier, $channel, ...$channels);
+
+        return $this;
     }
 
     /**
@@ -691,11 +507,81 @@ class Configurator
     }
 
     /**
+     * @param HookListener\ActionListener $listener
+     * @param string|null $identifier
+     * @return static
+     */
+    public function addActionListener(
+        HookListener\ActionListener $listener,
+        ?string $identifier = null
+    ): Configurator {
+
+        $identifier = $identifier ?? get_class($listener);
+        $this->factory->listenersRegistry()->addActionListener($identifier, $listener);
+
+        return $this;
+    }
+
+    /**
+     * @param HookListener\ActionListener $listener
+     * @param int $priority
+     * @param string|null $identifier
+     * @return static
+     */
+    public function addActionListenerWithPriority(
+        HookListener\ActionListener $listener,
+        int $priority,
+        ?string $identifier = null
+    ): Configurator {
+
+        $identifier = $identifier ?? get_class($listener);
+        $this->factory->listenersRegistry()
+            ->addActionListenerWithPriority($identifier, $listener, $priority);
+
+        return $this;
+    }
+
+    /**
+     * @param HookListener\FilterListener $listener
+     * @param string|null $identifier
+     * @return static
+     */
+    public function addFilterListener(
+        HookListener\FilterListener $listener,
+        ?string $identifier = null
+    ): Configurator {
+
+        $identifier = $identifier ?? get_class($listener);
+        $this->factory->listenersRegistry()->addFilterListener($identifier, $listener);
+
+        return $this;
+    }
+
+    /**
+     * @param HookListener\FilterListener $listener
+     * @param int $priority
+     * @param string|null $identifier
+     * @return static
+     */
+    public function addFilterListenerWithPriority(
+        HookListener\FilterListener $listener,
+        int $priority,
+        ?string $identifier = null
+    ): Configurator {
+
+        $identifier = $identifier ?? get_class($listener);
+        $this->factory->listenersRegistry()
+            ->addFilterListenerWithPriority($identifier, $listener, $priority);
+
+        return $this;
+    }
+
+    /**
      * @param string $alias
      * @param string|null $defaultChannel
      * @return static
      */
-    public function registerLogHookAlias(
+    public function registerLogHook(
         string $alias,
         ?string $defaultChannel = null
     ): Configurator {
@@ -711,6 +597,120 @@ class Configurator
         if ($defaultChannel) {
             $this->withChannels($defaultChannel);
         }
+
+        return $this;
+    }
+
+    /**
+     * @param int $priority
+     * @return static
+     */
+    public function withBaseHookPriority(int $priority): Configurator
+    {
+        $this->config[self::CONF_BASE_HOOK_PRIORITY] = $priority;
+
+        return $this;
+    }
+
+    /**
+     * @return static
+     */
+    public function logPhpErrorsAndExceptions(): Configurator
+    {
+        $this->config[self::CONF_ERROR_TYPES] = E_ALL;
+        $this->config[self::CONF_LOG_EXCEPTIONS] = true;
+
+        return $this;
+    }
+
+    /**
+     * @return static
+     */
+    public function doNotLogPhpErrorsNorExceptions(): Configurator
+    {
+        $this->config[self::CONF_ERROR_TYPES] = -1;
+        $this->config[self::CONF_LOG_EXCEPTIONS] = false;
+
+        return $this;
+    }
+
+    /**
+     * @return static
+     */
+    public function doNotLogPhpErrors(): Configurator
+    {
+        $this->config[self::CONF_ERROR_TYPES] = -1;
+
+        return $this;
+    }
+
+    /**
+     * @return static
+     */
+    public function doNotLogPhpExceptions(): Configurator
+    {
+        $this->config[self::CONF_LOG_EXCEPTIONS] = false;
+
+        return $this;
+    }
+
+    /**
+     * @param int $errorTypes
+     * @return static
+     */
+    public function logPhpErrorsTypes(int $errorTypes): Configurator
+    {
+        $this->config[self::CONF_ERROR_TYPES] = $errorTypes;
+
+        return $this;
+    }
+
+    /**
+     * @return static
+     */
+    public function logSilencedPhpErrors(): Configurator
+    {
+        $this->config[self::CONF_SILENCED_ERRORS] = true;
+
+        return $this;
+    }
+
+    /**
+     * @return static
+     */
+    public function dontLogSilencedPhpErrors(): Configurator
+    {
+        $this->config[self::CONF_SILENCED_ERRORS] = true;
+
+        return $this;
+    }
+
+    /**
+     * @param \DateTimeZone $zone
+     * @return static
+     */
+    public function useTimezone(\DateTimeZone $zone): Configurator
+    {
+        $this->factory->channels()->useTimezone($zone);
+
+        return $this;
+    }
+
+    /**
+     * @param string $ignorePattern
+     * @param int|null $levelThreshold
+     * @param string ...$channels
+     * @return static
+     */
+    public function withIgnorePattern(
+        string $ignorePattern,
+        ?int $levelThreshold = null,
+        string ...$channels
+    ): Configurator {
+
+        $this->factory
+            ->channels()
+            ->withIgnorePattern($ignorePattern, $levelThreshold, ...$channels);
 
         return $this;
     }
@@ -735,12 +735,17 @@ class Configurator
 
         $channels = $this->factory->channels();
 
+        [$errorTypes, $exceptions] = $this->shouldlogErrorsAndExceptions();
+        if (($errorTypes > 0) || $exceptions) {
+            $channels->addChannel(Channels::PHP_ERROR);
+        }
+
         if (!$this->setupFallbackHandler($channels)) {
             return;
         }
 
+        $this->setupPhpErrorListener($errorTypes, $exceptions);
         $this->setupWpContextProcessor($channels);
-        $this->setupPhpErrorListener();
 
         $maxSeverity = (int)max(LogLevel::allLevels() ?: [LogLevel::EMERGENCY]);
         $defaultChannel = $channels->defaultChannel();
@@ -800,6 +805,17 @@ class Configurator
     }
 
     /**
+     * @return array{int, bool}
+     */
+    private function shouldlogErrorsAndExceptions(): array
+    {
+        $errorTypes = (int)($this->config[self::CONF_ERROR_TYPES] ?? (E_ALL | E_STRICT));
+        $exceptions = (bool)($this->config[self::CONF_LOG_EXCEPTIONS] ?? false);
+
+        return [$errorTypes, $exceptions];
+    }
+
+    /**
      * @param bool $trueForEnable
      * @param string $configValue
      * @param string ...$configValues
@@ -840,7 +856,7 @@ class Configurator
     /**
      * @param string $key
      * @param list<string> $allValues
-     * @return array|null
+     * @return list<string>|null
      */
     private function parseEnabledDisabledConfig(string $key, array $allValues): ?array
     {
@@ -860,16 +876,23 @@ class Configurator
             return $allValues;
         }
 
+        $toEnable = null;
         switch (true) {
             case ($enabled && $disabled):
-                return array_intersect(array_diff($enabled, $disabled), $allValues) ?: null;
+                /** @var list<string> $toEnable */
+                $toEnable = array_intersect(array_diff($enabled, $disabled), $allValues) ?: null;
+                break;
             case ($enabled):
-                return array_intersect($enabled, $allValues) ?: null;
+                /** @var list<string> $toEnable */
+                $toEnable = array_intersect($enabled, $allValues) ?: null;
+                break;
             case ($disabled):
-                return array_diff($allValues, $disabled) ?: null;
+                /** @var list<string> $toEnable */
+                $toEnable = array_diff($allValues, $disabled) ?: null;
+                break;
         }
 
-        return null;
+        return $toEnable;
     }
 
     /**
@@ -921,6 +944,7 @@ class Configurator
 
         $listeners = $this->factory->listenersRegistry();
 
+        /** @var class-string<HookListener\HookListener> $class */
         foreach ($toEnable as $class) {
             /** @var HookListener\ActionListener|HookListener\FilterListener $listener */
             $listener = new $class();
@@ -932,28 +956,20 @@ class Configurator
             $listeners->addFilterListener($class, $listener);
         }
 
-        $listeners->listenAll((int)$this->config[self::CONF_MAIN_HOOK_PRIORITY]);
+        $listeners->listenAll((int)$this->config[self::CONF_BASE_HOOK_PRIORITY]);
     }
 
     /**
-     * @return void
+     * @param int $errorTypes
+     * @param bool $logExceptions
      */
-    protected function setupPhpErrorListener(): void
+    protected function setupPhpErrorListener(int $errorTypes, bool $logExceptions): void
     {
-        $errorTypes = (int)($this->config[self::CONF_ERROR_TYPES] ?? (E_ALL | E_STRICT));
-        $exceptions = (bool)($this->config[self::CONF_LOG_EXCEPTIONS] ?? false);
-
-        if (($errorTypes <= 0) && !$exceptions) {
-            return;
-        }
-
-        $this->withChannels(Channels::PHP_ERROR);
-
         $updater = $this->factory->logActionUpdater();
         $logSilenced = (bool)$this->config[self::CONF_SILENCED_ERRORS];
         $controller = PhpErrorController::new($logSilenced, $updater);
 
-        $exceptions and set_exception_handler([$controller, 'onException']);
+        $logExceptions and set_exception_handler([$controller, 'onException']);
 
         if ($errorTypes <= 0) {
             return;
@@ -979,7 +995,7 @@ class Configurator
 
         [$listen, $listenWithLevel] = $this->listenCallbacksData($defaultChannel);
 
-        $basePriority = (int)$this->config[self::CONF_MAIN_HOOK_PRIORITY];
+        $basePriority = (int)$this->config[self::CONF_BASE_HOOK_PRIORITY];
         add_action($hook, $listen, $basePriority + $maxSeverity + 1, PHP_INT_MAX);
 
         foreach ($listenWithLevel as $levelName => [$callback, $severity]) {
@@ -992,7 +1008,7 @@ class Configurator
 
     /**
      * @param Channels $channels
-     * @return array
+     * @return list<string>
      */
     private function channelsWithoutHandler(Channels $channels): array
     {

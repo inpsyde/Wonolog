@@ -232,7 +232,7 @@ class Channels
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function allNames(): array
     {
@@ -277,6 +277,9 @@ class Channels
         }
 
         $loggerProcessors = $this->processorsRegistry->findForChannel($channel);
+        if (!$this->timezone && function_exists('wp_timezone')) {
+            $this->timezone = wp_timezone();
+        }
 
         $logger = new Logger($channel, $handlers, $loggerProcessors, $this->timezone);
 
