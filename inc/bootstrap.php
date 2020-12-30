@@ -27,7 +27,7 @@ const LOG = 'wonolog.log';
  */
 function makeLogger(?string $forChannel = null): \Psr\Log\LoggerInterface
 {
-    /** @var null|callable(?string):LoggerInterface $loggerFactory */
+    /** @var null|callable(?string):\Psr\Log\LoggerInterface $loggerFactory */
     static $loggerFactory, $actionAdded = false;
     if ($loggerFactory) {
         return $loggerFactory($forChannel);
@@ -36,7 +36,7 @@ function makeLogger(?string $forChannel = null): \Psr\Log\LoggerInterface
     if (!$actionAdded && function_exists('add_action')) {
         $actionAdded = add_action(
             Configurator::ACTION_LOADED,
-            /** @param callable(?string):LoggerInterface $factory */
+            /** @param callable(?string):\Psr\Log\LoggerInterface $factory */
             static function (callable $factory) use (&$loggerFactory): void {
                 $loggerFactory = $factory;
             },
