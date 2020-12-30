@@ -50,16 +50,16 @@ class ProcessorsRegistryTest extends UnitTestCase
 
         $registry->addProcessor($cb1, 'x', 'A', 'B');
         $registry->addProcessor($cb2, 'y', 'C', 'D');
-        $registry->removeProcessorFromLoggers('x', 'B');
+        $registry->removeProcessorFromChannels('x', 'B');
 
-        static::assertTrue($registry->hasProcessor('x'));
-        static::assertTrue($registry->hasProcessor('y'));
-        static::assertTrue($registry->hasProcessorForLogger('x', 'A'));
-        static::assertFalse($registry->hasProcessorForLogger('x', 'B'));
-        static::assertTrue($registry->hasProcessorForLogger('y', 'C'));
-        static::assertTrue($registry->hasProcessorForLogger('y', 'D'));
-        static::assertFalse($registry->hasProcessorForLogger('x', 'Meh'));
-        static::assertFalse($registry->hasProcessorForLogger('y', 'Meh'));
+        static::assertTrue($registry->hasProcessorForAnyChannel('x'));
+        static::assertTrue($registry->hasProcessorForAnyChannel('y'));
+        static::assertTrue($registry->hasProcessorForChannel('x', 'A'));
+        static::assertFalse($registry->hasProcessorForChannel('x', 'B'));
+        static::assertTrue($registry->hasProcessorForChannel('y', 'C'));
+        static::assertTrue($registry->hasProcessorForChannel('y', 'D'));
+        static::assertFalse($registry->hasProcessorForChannel('x', 'Meh'));
+        static::assertFalse($registry->hasProcessorForChannel('y', 'Meh'));
     }
 
     /**
@@ -75,10 +75,10 @@ class ProcessorsRegistryTest extends UnitTestCase
         $registry->addProcessor($cb1, 'x', 'A', 'B');
         $registry->addProcessor($cb2, 'y', 'A', 'C');
 
-        $aProc = $registry->allForLogger('A');
-        $bProc = $registry->allForLogger('B');
-        $cProc = $registry->allForLogger('C');
-        $dProc = $registry->allForLogger('D');
+        $aProc = $registry->findForChannel('A');
+        $bProc = $registry->findForChannel('B');
+        $cProc = $registry->findForChannel('C');
+        $dProc = $registry->findForChannel('D');
 
         static::assertSame([$cb1, $cb2], $aProc);
         static::assertSame([$cb1], $bProc);

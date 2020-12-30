@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\Data\LogData;
-use Inpsyde\Wonolog\Processor\ProcessablePsrLogger;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -64,11 +63,6 @@ class Channels
      * @var array<string, LoggerInterface>|null
      */
     private $loggers = [];
-
-    /**
-     * @var array<string, array{callable(string, ?\DateTimeZone):LoggerInterface|null, bool}>
-     */
-    private $loggerFactoryData = [];
 
     /**
      * @var array<string, array{string, array<string, int|null>}>
@@ -134,64 +128,6 @@ class Channels
         unset($this->channels[$channel]);
 
         return $this;
-    }
-
-    /**
-     * @param callable(string, ?\DateTimeZone):LoggerInterface $factory
-     * @param string ...$channels
-     * @return $this
-     */
-    public function withLoggerFactory(callable $factory, string ...$channels): Channels
-    {
-        if (!$channels) {
-            $this->loggerFactoryData[self::ALL_CHANNELS] = [$factory, true];
-
-            return $this;
-        }
-
-        foreach ($channels as $channel) {
-            $this->loggerFactoryData[$channel] = [$factory, true];
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param string ...$channels
-     * @return $this
-     */
-    public function withoutLoggerFactory(string ...$channels): Channels
-    {
-        if (!$channels) {
-            $this->loggerFactoryData = [];
-
-            return $this;
-        }
-
-        foreach ($channels as $channel) {
-            $this->loggerFactoryData[$channel] = [null, false];
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param string|null $forChannel
-     * @return bool
-     */
-    public function hasLoggerFactory(?string $forChannel = null): bool
-    {
-        foreach ($this->loggerFactoryData as $channel => [, $enabled]) {
-            if ($forChannel && ($forChannel !== $channel)) {
-                continue;
-            }
-
-            if ($forChannel || $enabled) {
-                return $enabled;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -305,46 +241,19 @@ class Channels
 
     /**
      * @param string $channel
-     * @param string $handlerIdentifier
-     * @param string ...$handlerIdentifiers
-     * @return static
+     * @return bool
      */
-    public function enableHandlersForChannel(
-        string $channel,
-        string $handlerIdentifier,
-        string ...$handlerIdentifiers
-    ): Channels {
-
-        array_unshift($handlerIdentifiers, $handlerIdentifier);
-
-        foreach (array_unique($handlerIdentifiers) as $identifier) {
-            $handler = $this->handlersRegistry->findById($identifier);
-            if ($handler) {
-                $this->handlersRegistry->addHandler($handler, $identifier, $channel);
-            }
+    public function canLogChannel(string $channel): bool
+    {
+        if (!$this->hasChannel($channel)) {
+            return false;
         }
 
-        return $this;
-    }
-
-    /**
-     * @param string $identifier
-     * @param string $channel
-     * @param string ...$channels
-     * @return $this
-     */
-    public function enableHandlerForChannels(
-        string $identifier,
-        string $channel,
-        string ...$channels
-    ): Channels {
-
-        $handler = $this->handlersRegistry->findById($identifier);
-        if ($handler) {
-            $this->handlersRegistry->addHandler($handler, $identifier, $channel, ...$channels);
+        if (!empty($this->loggers[$channel])) {
+            return true;
         }
 
-        return $this;
+        return $this->handlersRegistry->hasAnyHandlerForChannel($channel);
     }
 
     /**
@@ -362,25 +271,12 @@ class Channels
             return $logger;
         }
 
-        $loggerProcessors = $this->processorsRegistry->allForLogger($channel);
-
-        [$factory, $factoryEnabled] = $this->loggerFactoryData[$channel]
-            ?? $this->loggerFactoryData[self::ALL_CHANNELS]
-            ?? [null, false];
-
-        if ($factory && $factoryEnabled) {
-            return $this->factoryLoggerFromCallback(
-                $factory,
-                $channel,
-                $loggerProcessors,
-                $this->timezone
-            );
-        }
-
         $handlers = $this->handlersRegistry->findForChannel($channel);
         if (!$handlers) {
             return new NullLogger();
         }
+
+        $loggerProcessors = $this->processorsRegistry->findForChannel($channel);
 
         $logger = new Logger($channel, $handlers, $loggerProcessors, $this->timezone);
 
@@ -388,76 +284,26 @@ class Channels
     }
 
     /**
-     * @param callable(string, ?\DateTimeZone):LoggerInterface $factory
-     * @param string $channel
-     * @param array<callable(array):array> $loggerProcessors
-     * @param \DateTimeZone|null $timezone
-     * @return LoggerInterface
-     */
-    private function factoryLoggerFromCallback(
-        callable $factory,
-        string $channel,
-        array $loggerProcessors,
-        ?\DateTimeZone $timezone
-    ): LoggerInterface {
-
-        $logger = $factory($channel, $timezone);
-
-        /** @psalm-suppress DocblockTypeContradiction */
-        if (!$logger instanceof LoggerInterface) {
-            $logger = new NullLogger();
-        }
-
-        if (!($logger instanceof Logger) && $loggerProcessors) {
-            $logger = new ProcessablePsrLogger($logger, $channel, $timezone);
-        }
-
-        foreach ($loggerProcessors as $loggerProcessor) {
-            /** @var Logger|ProcessablePsrLogger $logger */
-            $logger->pushProcessor($loggerProcessor);
-        }
-
-        $this->loggers[$channel] = $logger;
-
-        return $this->initializeLogger($logger, $channel);
-    }
-
-    /**
-     * @param LoggerInterface $logger
+     * @param Logger $logger
      * @param string $channel
      * @return LoggerInterface
      */
-    private function initializeLogger(LoggerInterface $logger, string $channel): LoggerInterface
+    private function initializeLogger(Logger $logger, string $channel): LoggerInterface
     {
-        if ($logger instanceof Logger) {
-            /**
-             * Fires right after a Monolog `Logger` is instantiated.
-             *
-             * Can be used to push handlers from the registry.
-             *
-             * @param Logger $logger
-             * @param Registry\HandlersRegistry $handlersRegistry
-             */
-            do_action(
-                self::ACTION_MONOLOG_LOGGER,
-                $logger,
-                $this->handlersRegistry
-            );
-        }
-
         /**
          * Fires right after a logger is instantiated.
          *
          * Can be used to push processors from the registry.
          *
-         * @param Logger|ProcessablePsrLogger $logger
+         * @param Logger $logger
          * @param string $channel
+         * @param Registry\HandlersRegistry $handlersRegistry
          * @param Registry\ProcessorsRegistry $processorsRegistry
          */
         do_action(
             self::ACTION_LOGGER,
             $logger,
-            $channel,
+            $this->handlersRegistry,
             $this->processorsRegistry
         );
 

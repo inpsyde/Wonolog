@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\HookListener;
-use Inpsyde\Wonolog\Registry\HandlersRegistry;
 use Monolog\Handler\HandlerInterface;
 use Psr\Log\LoggerInterface;
 use Inpsyde\Wonolog\Processor\WpContextProcessor;
@@ -25,19 +24,19 @@ class Configurator
     public const ACTION_SETUP = 'wonolog.setup';
     public const FILTER_DISABLE = 'wonolog.disable';
 
-    private const CONF_MAIN_HOOK_PRIORITY = 'main-hook-priority';
-    private const CONF_ERROR_TYPES = 'php-error-types';
-    private const CONF_LOG_EXCEPTIONS = 'php-exceptions';
-    private const CONF_FALLBACK_HANDLER = 'use-default-handler';
-    private const CONF_WP_CONTEXT_PROCESSOR = 'use-wp-context-processor';
-    private const CONF_DEFAULT_LISTENERS = 'use-default-hook-listeners';
-    private const CONF_HOOK_ALIASES = 'log-hook-aliases';
-    private const CONF_SILENCED_ERRORS = 'log-silenced-errors';
-    private const ALL = 'all';
-    private const ENABLED = 'enabled';
-    private const DISABLED = 'disabled';
+    protected const CONF_MAIN_HOOK_PRIORITY = 'main-hook-priority';
+    protected const CONF_ERROR_TYPES = 'php-error-types';
+    protected const CONF_LOG_EXCEPTIONS = 'php-exceptions';
+    protected const CONF_FALLBACK_HANDLER = 'use-default-handler';
+    protected const CONF_WP_CONTEXT_PROCESSOR = 'use-wp-context-processor';
+    protected const CONF_DEFAULT_LISTENERS = 'use-default-hook-listeners';
+    protected const CONF_HOOK_ALIASES = 'log-hook-aliases';
+    protected const CONF_SILENCED_ERRORS = 'log-silenced-errors';
+    protected const ALL = 'all';
+    protected const ENABLED = 'enabled';
+    protected const DISABLED = 'disabled';
 
-    private const DEFAULT_HOOK_LISTENERS = [
+    protected const DEFAULT_HOOK_LISTENERS = [
         HookListener\DbErrorListener::class,
         HookListener\FailedLoginListener::class,
         HookListener\HttpApiListener::class,
@@ -50,20 +49,24 @@ class Configurator
     /**
      * @var Factory
      */
-    private $factory;
+    protected $factory;
 
     /**
      * @var array
      */
-    private $config = [
+    protected $config = [
         self::CONF_MAIN_HOOK_PRIORITY => 100,
         self::CONF_ERROR_TYPES => null,
         self::CONF_LOG_EXCEPTIONS => true,
-        self::CONF_WP_CONTEXT_PROCESSOR => true,
         self::CONF_HOOK_ALIASES => [],
         self::CONF_SILENCED_ERRORS => false,
+        self::CONF_WP_CONTEXT_PROCESSOR => [
+            self::ALL => true,
+            self::ENABLED => [],
+            self::DISABLED => [],
+        ],
         self::CONF_FALLBACK_HANDLER => [
-            self::ALL => null,
+            self::ALL => true,
             self::ENABLED => [],
             self::DISABLED => [],
         ],
@@ -85,7 +88,7 @@ class Configurator
     /**
      * @param Factory $factory
      */
-    private function __construct(Factory $factory)
+    protected function __construct(Factory $factory)
     {
         $this->factory = $factory;
     }
@@ -129,61 +132,6 @@ class Configurator
         foreach ($channels as $channel) {
             $this->factory->channels()->removeChannel($channel);
         }
-
-        return $this;
-    }
-
-    /**
-     * @param callable(string):\Psr\Log\LoggerInterface $factory
-     * @return $this
-     */
-    public function withLoggerFactory(callable $factory): Configurator
-    {
-        $this->factory->channels()->withLoggerFactory($factory);
-
-        return $this;
-    }
-
-    /**
-     * @param callable(string):\Psr\Log\LoggerInterface $factory
-     * @param string $channel
-     * @param string ...$channels
-     * @return static
-     */
-    public function withLoggerFactoryForChannels(
-        callable $factory,
-        string $channel,
-        string ...$channels
-    ): Configurator {
-
-        $this->factory->channels()->withLoggerFactory($factory, $channel, ...$channels);
-
-        $this->withChannels($channel, ...$channels);
-
-        return $this;
-    }
-
-    /**
-     * @return static
-     */
-    public function withoutLoggerFactory(): Configurator
-    {
-        $this->factory->channels()->withoutLoggerFactory();
-
-        return $this;
-    }
-
-    /**
-     * @param string $channel
-     * @param string ...$channels
-     * @return static
-     */
-    public function withoutLoggerFactoryForChannels(
-        string $channel,
-        string ...$channels
-    ): Configurator {
-
-        $this->factory->channels()->withoutLoggerFactory($channel, ...$channels);
 
         return $this;
     }
@@ -240,7 +188,7 @@ class Configurator
 
         $this->withChannels($channel);
 
-        $this->factory->channels()
+        $this->factory->handlersRegistry()
             ->enableHandlersForChannel($channel, $handlerIdentifier, ...$handlerIdentifiers);
 
         return $this;
@@ -260,7 +208,7 @@ class Configurator
 
         $this->withChannels($channel, ...$channels);
 
-        $this->factory->channels()
+        $this->factory->handlersRegistry()
             ->enableHandlerForChannels($handlerIdentifier, $channel, ...$channels);
 
         return $this;
@@ -324,6 +272,8 @@ class Configurator
         string ...$channels
     ): Configurator {
 
+        $this->withChannels($channel, ...$channels);
+
         $this->factory->processorsRegistry()
             ->addProcessor($processor, $identifier, $channel, ...$channels);
 
@@ -354,7 +304,47 @@ class Configurator
     ): Configurator {
 
         $this->factory->processorsRegistry()
-            ->removeProcessorFromLoggers($identifier, $channel, ...$channels);
+            ->removeProcessorFromChannels($identifier, $channel, ...$channels);
+
+        return $this;
+    }
+
+    /**
+     * @param string $identifier
+     * @param string $channel
+     * @param string ...$channels
+     * @return static
+     */
+    public function enableProcessorForChannels(
+        string $identifier,
+        string $channel,
+        string ...$channels
+    ): Configurator {
+
+        $this->withChannels($channel, ...$channels);
+
+        $this->factory->processorsRegistry()
+            ->enableProcessorForChannels($identifier, $channel, ...$channels);
+
+        return $this;
+    }
+
+    /**
+     * @param string $channel
+     * @param string $identifier
+     * @param string ...$identifiers
+     * @return static
+     */
+    public function enableProcessorsForChannel(
+        string $channel,
+        string $identifier,
+        string ...$identifiers
+    ): Configurator {
+
+        $this->withChannels($channel);
+
+        $this->factory->processorsRegistry()
+            ->enableProcessorsForChannel($channel, $identifier, ...$identifiers);
 
         return $this;
     }
@@ -558,32 +548,6 @@ class Configurator
     }
 
     /**
-     * @param string $channel
-     * @param string ...$channels
-     * @return $this
-     */
-    public function enableFallbackHandlerForChannels(
-        string $channel,
-        string ...$channels
-    ): Configurator {
-
-        return $this->toggleFallbackHandlerForChannels(true, $channel, ...$channels);
-    }
-
-    /**
-     * @param string $channel
-     * @param string ...$channels
-     * @return static
-     */
-    public function disableFallbackHandlerForChannels(
-        string $channel,
-        string ...$channels
-    ): Configurator {
-
-        return $this->toggleFallbackHandlerForChannels(false, $channel, ...$channels);
-    }
-
-    /**
      * @return static
      */
     public function disableFallbackHandler(): Configurator
@@ -598,11 +562,43 @@ class Configurator
     }
 
     /**
+     * @param string $channel
+     * @param string ...$channels
+     * @return $this
+     */
+    public function enableFallbackHandlerForChannels(
+        string $channel,
+        string ...$channels
+    ): Configurator {
+
+        $this->withChannels($channel, ...$channels);
+
+        return $this->toggleEnabledDisabledConfig(self::CONF_FALLBACK_HANDLER, true, $channel, ...$channels);
+    }
+
+    /**
+     * @param string $channel
+     * @param string ...$channels
+     * @return static
+     */
+    public function disableFallbackHandlerForChannels(
+        string $channel,
+        string ...$channels
+    ): Configurator {
+
+        return $this->toggleEnabledDisabledConfig(self::CONF_FALLBACK_HANDLER, false, $channel, ...$channels);
+    }
+
+    /**
      * @return static
      */
     public function enableWpContextProcessor(): Configurator
     {
-        $this->config[self::CONF_WP_CONTEXT_PROCESSOR] = true;
+        $this->config[self::CONF_WP_CONTEXT_PROCESSOR] = [
+            self::ALL => true,
+            self::ENABLED => [],
+            self::DISABLED => [],
+        ];
 
         return $this;
     }
@@ -612,9 +608,35 @@ class Configurator
      */
     public function disableWpContextProcessor(): Configurator
     {
-        $this->config[self::CONF_WP_CONTEXT_PROCESSOR] = false;
+        $this->config[self::CONF_WP_CONTEXT_PROCESSOR] = [
+            self::ALL => false,
+            self::ENABLED => [],
+            self::DISABLED => [],
+        ];
 
         return $this;
+    }
+
+    /**
+     * @param string $channel
+     * @param string ...$channels
+     * @return $this
+     */
+    public function enableWpContextProcessorForChannels(string $channel, string ...$channels): Configurator
+    {
+        $this->withChannels($channel, ...$channels);
+
+        return $this->toggleEnabledDisabledConfig(self::CONF_WP_CONTEXT_PROCESSOR, true, $channel, ...$channels);
+    }
+
+    /**
+     * @param string $channel
+     * @param string ...$channels
+     * @return $this
+     */
+    public function disableWpContextProcessorForChannels(string $channel, string ...$channels): Configurator
+    {
+        return $this->toggleEnabledDisabledConfig(self::CONF_WP_CONTEXT_PROCESSOR, false, $channel, ...$channels);
     }
 
     /**
@@ -632,13 +654,27 @@ class Configurator
     }
 
     /**
+     * @return static
+     */
+    public function disableAllDefaultHookListeners(): Configurator
+    {
+        $this->config[self::CONF_DEFAULT_LISTENERS] = [
+            self::ALL => false,
+            self::ENABLED => [],
+            self::DISABLED => [],
+        ];
+
+        return $this;
+    }
+
+    /**
      * @param class-string<HookListener\HookListener> $listener
      * @param class-string<HookListener\HookListener> ...$listeners
      * @return static
      */
     public function enableDefaultHookListeners(string $listener, string ...$listeners): Configurator
     {
-        return $this->toggleDefaultHookListeners(true, $listener, ...$listeners);
+        return $this->toggleEnabledDisabledConfig(self::CONF_DEFAULT_LISTENERS, true, $listener, ...$listeners);
     }
 
     /**
@@ -651,21 +687,7 @@ class Configurator
         string ...$listeners
     ): Configurator {
 
-        return $this->toggleDefaultHookListeners(false, $listener, ...$listeners);
-    }
-
-    /**
-     * @return static
-     */
-    public function disableAllDefaultHookListeners(): Configurator
-    {
-        $this->config[self::CONF_DEFAULT_LISTENERS] = [
-            self::ALL => false,
-            self::ENABLED => [],
-            self::DISABLED => [],
-        ];
-
-        return $this;
+        return $this->toggleEnabledDisabledConfig(self::CONF_DEFAULT_LISTENERS, false, $listener, ...$listeners);
     }
 
     /**
@@ -717,7 +739,7 @@ class Configurator
             return;
         }
 
-        $this->setupWpContextProcessor();
+        $this->setupWpContextProcessor($channels);
         $this->setupPhpErrorListener();
 
         $maxSeverity = (int)max(LogLevel::allLevels() ?: [LogLevel::EMERGENCY]);
@@ -755,7 +777,7 @@ class Configurator
     /**
      * @return bool
      */
-    private function shouldSetup(): bool
+    protected function shouldSetup(): bool
     {
         if (did_action(self::ACTION_SETUP)) {
             return false;
@@ -779,147 +801,144 @@ class Configurator
 
     /**
      * @param bool $trueForEnable
-     * @param string $channel
-     * @param string ...$channels
+     * @param string $configValue
+     * @param string ...$configValues
      * @return static
      */
-    private function toggleFallbackHandlerForChannels(
+    private function toggleEnabledDisabledConfig(
+        string $key,
         bool $trueForEnable,
-        string $channel,
-        string ...$channels
+        string $configValue,
+        string ...$configValues
     ): Configurator {
 
-        $config = (array)($this->config[self::CONF_FALLBACK_HANDLER] ?? []);
-        $config[self::ALL] = null;
+        $config = (array)($this->config[$key] ?? []);
 
         $enabled = (array)($config[self::ENABLED] ?? []);
         $disabled = (array)($config[self::DISABLED] ?? []);
+        $config[self::ALL] = null;
 
-        array_unshift($channels, $channel);
-        foreach ($channels as $channel) {
+        array_unshift($configValues, $configValue);
+        foreach ($configValues as $configValue) {
             if ($trueForEnable) {
-                $enabled[$channel] = 1;
-                unset($disabled[$channel]);
+                $enabled[$configValue] = 1;
+                unset($disabled[$configValue]);
                 continue;
             }
 
-            $disabled[$channel] = 1;
-            unset($enabled[$channel]);
+            $disabled[$configValue] = 1;
+            unset($enabled[$configValue]);
         }
 
         $config[self::ENABLED] = $enabled;
         $config[self::DISABLED] = $disabled;
-        $this->config[self::CONF_FALLBACK_HANDLER] = $config;
+        $this->config[$key] = $config;
 
         return $this;
     }
 
     /**
-     * @param bool $trueForEnable
-     * @param string $listener
-     * @param string ...$listeners
-     * @return static
+     * @param string $key
+     * @param list<string> $allValues
+     * @return array|null
      */
-    private function toggleDefaultHookListeners(
-        bool $trueForEnable,
-        string $listener,
-        string ...$listeners
-    ): Configurator {
+    private function parseEnabledDisabledConfig(string $key, array $allValues): ?array
+    {
+        /** @var array $config */
+        $config = $this->config[$key];
+        $allEnabled = ($config[self::ALL] ?? null) === true;
+        $allDisabled = ($config[self::ALL] ?? null) === false;
 
-        $config = (array)($this->config[self::CONF_DEFAULT_LISTENERS] ?? []);
-        $config[self::ALL] = null;
+        $enabled = array_keys((array)($config[self::ENABLED] ?? []));
+        $disabled = array_keys((array)($config[self::DISABLED] ?? []));
 
-        $enabled = (array)($config[self::ENABLED] ?? []);
-        $disabled = (array)($config[self::DISABLED] ?? []);
-
-        array_unshift($listeners, $listener);
-        foreach ($listeners as $listener) {
-            if ($trueForEnable) {
-                $enabled[$listener] = 1;
-                unset($disabled[$listener]);
-                continue;
-            }
-
-            $disabled[$listener] = 1;
-            unset($enabled[$listener]);
+        if ($allDisabled) {
+            return null;
         }
 
-        $config[self::ENABLED] = $enabled;
-        $config[self::DISABLED] = $disabled;
-        $this->config[self::CONF_DEFAULT_LISTENERS] = $config;
+        if ($allEnabled) {
+            return $allValues;
+        }
 
-        return $this;
+        switch (true) {
+            case ($enabled && $disabled):
+                return array_intersect(array_diff($enabled, $disabled), $allValues) ?: null;
+            case ($enabled):
+                return array_intersect($enabled, $allValues) ?: null;
+            case ($disabled):
+                return array_diff($allValues, $disabled) ?: null;
+        }
+
+        return null;
     }
 
     /**
      * @return bool
      */
-    private function setupFallbackHandler(Channels $channels): bool
+    protected function setupFallbackHandler(Channels $channels): bool
     {
-        $allChannels = $channels->allNames();
-        $handlers = $this->factory->handlersRegistry();
-        $handlersCount = count($handlers);
-        $missing = ($handlersCount === 0) ? $allChannels : $this->channelsWithoutHandler($channels, $handlers);
+        $missing = $this->channelsWithoutHandler($channels);
         if (!$missing) {
             return true;
         }
 
-        $config = (array)($this->config[self::CONF_FALLBACK_HANDLER] ?? []);
-        $toEnableForAll = ($config[self::ALL] ?? null) === true;
-        $toDisableForAll = ($config[self::ALL] ?? null) === false;
-        /** @var list<string> $enabledChannels */
-        $enabledChannels = array_keys((array)$config[self::ENABLED]);
-        /** @var list<string> $disabledChannels */
-        $disabledChannels = array_diff(array_keys((array)$config[self::DISABLED]), $enabledChannels);
+        $toEnable = $this->parseEnabledDisabledConfig(self::CONF_FALLBACK_HANDLER, $missing);
 
-        if (!$toEnableForAll && !$toDisableForAll && !$enabledChannels && !$disabledChannels) {
-            $toEnableForAll = true;
-        }
-
-        /** @var list<string> $toEnable */
-        $toEnable = ($toDisableForAll || $toEnableForAll) ? [] : array_diff($missing, $disabledChannels);
-        if (!$toEnable && !$toEnableForAll) {
-            return $handlersCount || $channels->hasLoggerFactory();
+        if ($toEnable === null) {
+            return $missing !== $channels->allNames();
         }
 
         $id = 'wonolog-def-hander-' . bin2hex(random_bytes(3));
-        $handlers->addHandler(WonologFileHandler::new(), $id, ...$toEnable);
+        $this->factory->handlersRegistry()->addHandler(WonologFileHandler::new(), $id, ...$toEnable);
 
         return true;
     }
 
     /**
      * @param Channels $channels
-     * @param HandlersRegistry $handlers
-     * @return array
+     * @return void
      */
-    private function channelsWithoutHandler(Channels $channels, HandlersRegistry $handlers): array
+    protected function setupWpContextProcessor(Channels $channels): void
     {
-        $missing = [];
-        foreach ($channels->allNames() as $channel) {
-            if (!$handlers->hasAnyHandlerForChannel($channel) && !$channels->hasLoggerFactory($channel)) {
-                $missing[] = $channel;
+        $allNames = $channels->allNames();
+        $toEnable = $this->parseEnabledDisabledConfig(self::CONF_WP_CONTEXT_PROCESSOR, $allNames);
+
+        if ($toEnable !== null) {
+            $this->factory->processorsRegistry()
+                ->addProcessor(WpContextProcessor::new(), WpContextProcessor::class, ...$toEnable);
+        }
+    }
+
+    /**
+     * @return void
+     */
+    protected function setupHookListeners(): void
+    {
+        $toEnable = $this->parseEnabledDisabledConfig(self::CONF_DEFAULT_LISTENERS, self::DEFAULT_HOOK_LISTENERS);
+        if ($toEnable === null) {
+            return;
+        }
+
+        $listeners = $this->factory->listenersRegistry();
+
+        foreach ($toEnable as $class) {
+            /** @var HookListener\ActionListener|HookListener\FilterListener $listener */
+            $listener = new $class();
+            if ($listener instanceof HookListener\ActionListener) {
+                $listeners->addActionListener($class, $listener);
+                continue;
             }
+
+            $listeners->addFilterListener($class, $listener);
         }
 
-        return $missing;
+        $listeners->listenAll((int)$this->config[self::CONF_MAIN_HOOK_PRIORITY]);
     }
 
     /**
      * @return void
      */
-    private function setupWpContextProcessor(): void
-    {
-        $processors = $this->factory->processorsRegistry();
-        if ($this->config[self::CONF_WP_CONTEXT_PROCESSOR]) {
-            $processors->addProcessor(WpContextProcessor::new(), WpContextProcessor::class);
-        }
-    }
-
-    /**
-     * @return void
-     */
-    private function setupPhpErrorListener(): void
+    protected function setupPhpErrorListener(): void
     {
         $errorTypes = (int)($this->config[self::CONF_ERROR_TYPES] ?? (E_ALL | E_STRICT));
         $exceptions = (bool)($this->config[self::CONF_LOG_EXCEPTIONS] ?? false);
@@ -947,50 +966,12 @@ class Configurator
     }
 
     /**
-     * @return void
-     */
-    private function setupHookListeners(): void
-    {
-        $listeners = $this->factory->listenersRegistry();
-
-        /** @var bool|array $config */
-        $config = $this->config[self::CONF_DEFAULT_LISTENERS];
-        $allEnabled = ($config[self::ALL] ?? null) === true;
-        $allDisabled = ($config[self::ALL] ?? null) === false;
-        $enabled = array_keys((array)($config[self::ENABLED] ?? []));
-        $disabled = array_keys((array)($config[self::DISABLED] ?? []));
-
-        /** @var array<class-string<HookListener\HookListener>> $enabled */
-        $enabled and $enabled = array_intersect($enabled, self::DEFAULT_HOOK_LISTENERS);
-        /** @var array<class-string<HookListener\HookListener>> $disabled */
-        $disabled and $disabled = array_intersect($disabled, self::DEFAULT_HOOK_LISTENERS);
-
-        /** @var array<class-string<HookListener\HookListener>> $toEnable */
-        $toEnable = ($allEnabled || $allDisabled)
-            ? ($allEnabled ? self::DEFAULT_HOOK_LISTENERS : [])
-            : array_diff(array_intersect(self::DEFAULT_HOOK_LISTENERS, $enabled), $disabled);
-
-        foreach ($toEnable as $class) {
-            /** @var HookListener\ActionListener|HookListener\FilterListener $listener */
-            $listener = new $class();
-            if ($listener instanceof HookListener\ActionListener) {
-                $listeners->addActionListener($class, $listener);
-                continue;
-            }
-
-            $listeners->addFilterListener($class, $listener);
-        }
-
-        $listeners->listenAll((int)$this->config[self::CONF_MAIN_HOOK_PRIORITY]);
-    }
-
-    /**
      * @param string $hook
      * @param string $defaultChannel
      * @param int $maxSeverity
      * @return void
      */
-    private function setupLogActionSubscriberForHook(
+    protected function setupLogActionSubscriberForHook(
         string $hook,
         string $defaultChannel,
         int $maxSeverity
@@ -1007,6 +988,22 @@ class Configurator
             $hookPriority = $basePriority + ($maxSeverity - $severity);
             add_action("{$hook}." . strtolower($levelName), $callback, $hookPriority, PHP_INT_MAX);
         }
+    }
+
+    /**
+     * @param Channels $channels
+     * @return array
+     */
+    private function channelsWithoutHandler(Channels $channels): array
+    {
+        $missing = [];
+        foreach ($channels->allNames() as $channel) {
+            if (!$channels->canLogChannel($channel)) {
+                $missing[] = $channel;
+            }
+        }
+
+        return $missing;
     }
 
     /**

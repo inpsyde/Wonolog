@@ -79,32 +79,6 @@ class ChannelsTest extends UnitTestCase
     /**
      * @test
      */
-    public function testLoggerIsCreatedFromFactory(): void
-    {
-        $factory = Factory::new();
-        $factory->handlersRegistry()->addHandler(new TestHandler());
-
-        $channels = $factory->channels();
-
-        $loggerMocked = \Mockery::mock(LoggerInterface::class);
-        $channels->withLoggerFactory(
-            static function () use ($loggerMocked) {
-                return $loggerMocked;
-            }
-        );
-
-        $channels->withoutLoggerFactory(Channels::HTTP);
-
-        $loggerDebug = $channels->logger(Channels::DEBUG);
-        $loggerHttp = $channels->logger(Channels::HTTP);
-
-        static::assertSame($loggerMocked, $loggerDebug);
-        static::assertInstanceOf(Logger::class, $loggerHttp);
-    }
-
-    /**
-     * @test
-     */
     public function testBlackList(): void
     {
         $channels = Factory::new()->channels();

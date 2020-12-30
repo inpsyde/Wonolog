@@ -25,6 +25,17 @@ class ProcessorsRegistry implements \Countable
         return new self();
     }
 
+    /**
+     * @return string
+     */
+    private static function allChannelsName(): string
+    {
+        static $name;
+        $name or $name = '~*~' . bin2hex(random_bytes(8));
+
+        return (string)$name;
+    }
+
     private function __construct()
     {
     }
@@ -41,12 +52,24 @@ class ProcessorsRegistry implements \Countable
         string ...$channels
     ): ProcessorsRegistry {
 
-        if (isset($this->processors[$identifier])) {
+        $allChannels = self::allChannelsName();
+        $channels or $channels = [$allChannels];
+
+        [$currentProcessor, $currentChannels] = $this->processors[$identifier] ?? [null, []];
+        if ($currentProcessor && $currentProcessor !== $processor) {
             return $this;
         }
 
-        $enabled = $channels ? array_fill_keys($channels, true) : null;
-        $this->processors[$identifier] = [$processor, $enabled];
+        $currentChannels or $currentChannels = [];
+        $alreadyAddedForAll = $currentChannels[$allChannels] ?? null;
+        unset($currentChannels[$allChannels]);
+
+        $enabledChannels = array_fill_keys($channels, true);
+        /** @var array<string, bool> $newChannels */
+        $newChannels = array_replace($currentChannels, $enabledChannels);
+        $alreadyAddedForAll and $newChannels[$allChannels] = $alreadyAddedForAll;
+
+        $this->processors[$identifier] = [$processor, $newChannels];
 
         return $this;
     }
@@ -68,34 +91,78 @@ class ProcessorsRegistry implements \Countable
      * @param string ...$channels
      * @return static
      */
-    public function removeProcessorFromLoggers(
+    public function removeProcessorFromChannels(
         string $identifier,
         string $channel,
         string ...$channels
     ): ProcessorsRegistry {
 
-        [$processor, $current] = $this->processors[$identifier] ?? [null, null];
+        [$processor, $currentChannels] = $this->processors[$identifier] ?? [null, []];
         if (!$processor) {
             return $this;
         }
 
-        ($current === null) and $current = [];
+        $allChannels = self::allChannelsName();
+        $currentChannels or $currentChannels = [];
+        $default = $currentChannels[$allChannels] ?? null;
+        unset($currentChannels[$allChannels]);
 
         array_unshift($channels, $channel);
-        $disabled = array_fill_keys($channels, false);
+        $disabledChannels = array_fill_keys($channels, false);
 
-        $this->processors[$identifier] = [$processor, array_replace($current, $disabled)];
+        /** @var array<string, bool> $newChannels */
+        $newChannels = array_replace($currentChannels, $disabledChannels);
+        $default and $newChannels[$allChannels] = $default;
+
+        if (!array_filter($newChannels)) {
+            unset($this->processors[$identifier]);
+
+            return $this;
+        }
+
+        $this->processors[$identifier] = [$processor, $newChannels];
 
         return $this;
     }
 
     /**
      * @param string $identifier
-     * @return bool
+     * @param string $channel
+     * @param string ...$channels
+     * @return static
      */
-    public function hasProcessor(string $identifier): bool
-    {
-        return !empty($this->processors[$identifier]);
+    public function enableProcessorForChannels(
+        string $identifier,
+        string $channel,
+        string ...$channels
+    ): ProcessorsRegistry {
+
+        [$processor, $currentChannels] = $this->processors[$identifier] ?? [null, null];
+        if ($processor && empty($currentChannels[self::allChannelsName()])) {
+            $this->addProcessor($processor, $identifier, $channel, ...$channels);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $channel
+     * @param string $identifier
+     * @param string ...$identifiers
+     * @return static
+     */
+    public function enableProcessorsForChannel(
+        string $channel,
+        string $identifier,
+        string ...$identifiers
+    ): ProcessorsRegistry {
+
+        array_unshift($identifiers, $identifier);
+        foreach ($identifiers as $identifier) {
+            $this->enableProcessorForChannels($identifier, $channel);
+        }
+
+        return $this;
     }
 
     /**
@@ -103,25 +170,61 @@ class ProcessorsRegistry implements \Countable
      * @param string $channel
      * @return bool
      */
-    public function hasProcessorForLogger(string $identifier, string $channel): bool
+    public function hasProcessorForChannel(string $identifier, string $channel): bool
     {
-        [$processor, $enabledFor] = $this->processors[$identifier] ?? [null, null];
+        [$processor, $channels] = $this->processors[$identifier] ?? [null, []];
+
+        return $processor && ($channels[$channel] ?? $channels[self::allChannelsName()] ?? false);
+    }
+
+    /**
+     * @param string $channel
+     * @return bool
+     */
+    public function hasAnyProcessorForChannel(string $channel): bool
+    {
+        foreach ($this->processors as $identifier => $data) {
+            if ($this->hasProcessorForChannel($identifier, $channel)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $identifier
+     * @return bool
+     */
+    public function hasProcessorForAnyChannel(string $identifier): bool
+    {
+        [$processor, $channels] = $this->processors[$identifier] ?? [null, null];
         if (!$processor) {
             return false;
         }
 
-        return $enabledFor === null || ($enabledFor[$channel] ?? false);
+        if ($channels[self::allChannelsName()] ?? false) {
+            return true;
+        }
+
+        foreach ((array)$channels as $enabled) {
+            if ($enabled) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * @param string $channel
      * @return array<int, callable(array):array>
      */
-    public function allForLogger(string $channel): array
+    public function findForChannel(string $channel): array
     {
         $found = [];
-        foreach ($this->processors as $id => [$processor]) {
-            if ($this->hasProcessorForLogger($id, $channel)) {
+        foreach ($this->processors as $identifier => [$processor]) {
+            if ($this->hasProcessorForChannel($identifier, $channel)) {
                 $found[] = $processor;
             }
         }

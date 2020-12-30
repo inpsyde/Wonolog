@@ -19,6 +19,7 @@ use Monolog\Handler\ProcessableHandlerInterface;
 class HandlersRegistry implements \Countable
 {
     public const ACTION_SETUP = 'wonolog.handler-setup';
+    public const ACTION_SETUP_PROCESSABLE = 'wonolog.processable-handler-setup';
 
     /**
      * @var array<string, array{HandlerInterface, array<string, bool>}>
@@ -151,6 +152,46 @@ class HandlersRegistry implements \Countable
     /**
      * @param string $identifier
      * @param string $channel
+     * @param string ...$channels
+     * @return static
+     */
+    public function enableHandlerForChannels(
+        string $identifier,
+        string $channel,
+        string ...$channels
+    ): HandlersRegistry {
+
+        [$handler, $currentChannels] = $this->handlers[$identifier] ?? [null, null];
+        if ($handler && empty($currentChannels[self::allChannelsName()])) {
+            $this->addHandler($handler, $identifier, $channel, ...$channels);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $channel
+     * @param string $identifier
+     * @param string ...$identifiers
+     * @return static
+     */
+    public function enableHandlersForChannel(
+        string $channel,
+        string $identifier,
+        string ...$identifiers
+    ): HandlersRegistry {
+
+        array_unshift($identifiers, $identifier);
+        foreach ($identifiers as $identifier) {
+            $this->enableHandlerForChannels($identifier, $channel);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $identifier
+     * @param string $channel
      * @return bool
      */
     public function hasHandlerForChannel(string $identifier, string $channel): bool
@@ -168,6 +209,30 @@ class HandlersRegistry implements \Countable
     {
         foreach ($this->handlers as $identifier => $data) {
             if ($this->hasHandlerForChannel($identifier, $channel)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $identifier
+     * @return bool
+     */
+    public function hasHandlerForAnyChannel(string $identifier): bool
+    {
+        [$handler, $channels] = $this->handlers[$identifier] ?? [null, null];
+        if (!$handler) {
+            return false;
+        }
+
+        if ($channels[self::allChannelsName()] ?? false) {
+            return true;
+        }
+
+        foreach ((array)$channels as $enabled) {
+            if ($enabled) {
                 return true;
             }
         }
@@ -224,18 +289,26 @@ class HandlersRegistry implements \Countable
             $processable = $handler instanceof ProcessableHandlerInterface;
 
             /**
+             * Fires right after a processable handler has been registered.
+             *
+             * @param HandlerInterface $handler
+             * @param string $identifier
+             * @param ProcessorsRegistry processorsRegistry
+             */
+            $processable and do_action(
+                self::ACTION_SETUP_PROCESSABLE,
+                $handler,
+                $identifier,
+                $this->processorsRegistry
+            );
+
+            /**
              * Fires right after a handler has been registered.
              *
              * @param HandlerInterface $handler
              * @param string $identifier
-             * @param ProcessorsRegistry|null processorsRegistry
              */
-            do_action(
-                self::ACTION_SETUP,
-                $handler,
-                $identifier,
-                $processable ? $this->processorsRegistry : null
-            );
+            do_action(self::ACTION_SETUP, $handler, $identifier);
 
             $this->initialized[] = $identifier;
         }

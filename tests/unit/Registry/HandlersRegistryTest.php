@@ -113,16 +113,14 @@ class HandlersRegistryTest extends UnitTestCase
             ->once()
             ->with(
                 \Mockery::type(WonologFileHandler::class),
-                'default',
-                \Mockery::type(ProcessorsRegistry::class)
+                'default'
             );
 
         Actions\expectDone(HandlersRegistry::ACTION_SETUP)
             ->once()
             ->with(
                 \Mockery::type(TestHandler::class),
-                'test',
-                \Mockery::type(ProcessorsRegistry::class)
+                'test'
             );
 
         self::assertCount(2, $registry);
