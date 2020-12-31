@@ -147,19 +147,19 @@ use Inpsyde\Wonolog\{HookListener, Data};
 class PrefixActionListener implements HookListener\ActionListener
 {
     use HookListener\MethodNamesByHookTrait;
-    
+
     public function listenTo(): array
     {
         $this->withHookPrefix('prefix_');
-        
+
         return ['prefix_something', 'prefix_foo'];
     }
-    
+
     public function something($arg1, $arg2): Data\Debug
     {
         return new Data\Debug('Action "prefix_something" just fired.', 'MY_PLUGIN');
     }
-    
+
     public function foo($arg1, $arg2, $arg3, $arg4): Data\Debug
     {
         return new Data\Debug('Action "prefix_foo" just fired.', 'MY_PLUGIN');
@@ -171,8 +171,6 @@ By setting the hook prefix, method names don’t need to be unnecessarily long t
 
 Of course, the two utility traits might be used together if necessary.
 
-
-
 ## An example
 
 Let's assume there's a 3rd party plugin that looks like the following:
@@ -181,9 +179,9 @@ Let's assume there's a 3rd party plugin that looks like the following:
 namespace Awesome\Premium\Plugin;
 
 function perform_ajax_call() {
-    $x = (int)sanitize_text_field($_POST['x'] ?? 0); 
+    $x = (int)sanitize_text_field($_POST['x'] ?? 0);
     $y = (int)sanitize_text_field($_POST['y'] ?? 0);
-    
+
     wp_send_json(compact('x', 'y'));
 }
 
@@ -202,12 +200,12 @@ class AwesomePremiumPluginListener implements HookListener\FilterListener
 {
     use HookListener\MethodNamesByHookTrait;
     use HookListener\FilterFromUpdateTrait;
-    
+
     public function listenTo(): array
     {
         return ['wp_die_ajax_handler'];
     }
-    
+
     private function wpDieAjaxHandler(): ?Data\LogData
     {
         // this method is called for each "wp_die_ajax_handler" filter
@@ -215,12 +213,12 @@ class AwesomePremiumPluginListener implements HookListener\FilterListener
         if (($_POST['action'] ?? null) !== 'xy') {
             return null;
         }
-        
+
         $context = filter_input_array(
             INPUT_POST,
             ['x' => FILTER_SANITIZE_NUMBER_INT, 'y' => FILTER_SANITIZE_NUMBER_INT]
         );
-        
+
         return new Data\Info('AJAX response sent', $context);
     }
 }
@@ -239,19 +237,19 @@ class AwesomePremiumPluginListener implements HookListener\FilterListener
     {
         return ['wp_die_ajax_handler'];
     }
-    
+
     public function filter(string $hook, array $args, LogActionUpdater $updater)
     {
         $handler = $args ? reset($args) : null;
-        
+
         if (($_POST['action'] ?? null) !== 'xy') {
             return $handler;
         }
-        
+
         return static function (...$args) use ($handler, $updater)
         {
             $updater->update(new Data\Info('AJAX response sent', 'HTTP', $args));
-            
+
             if (is_callable($handler)) {
                 $handler(...$args);
             }
@@ -312,9 +310,6 @@ add_action(
     }
 );
 ```
-
-
-
 
 ---
 

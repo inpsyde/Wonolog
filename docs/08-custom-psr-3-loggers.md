@@ -35,12 +35,12 @@ function awesome_hosting_logger(): Psr\Log\Loggerinterface
     		12201,
     		Gelf\Transport\UdpTransport::CHUNK_SIZE_LAN
 		);
-        
+
 		$publisher = new Gelf\Publisher();
 		$publisher->addTransport($transport);
 		$logger = new Gelf\Logger($publisher, home_url());
     }
-    
+
     return $logger;
 }
 ```

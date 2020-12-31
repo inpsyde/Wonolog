@@ -65,7 +65,7 @@ add_action(
             ->pushHandlerForChannels(new SmsHandler, 'SECURITY', 'URGENT')
             ->pushHandler(new SlackHandler)
             ->removeHandlerFromChannels(SlackHandler::class, 'SECURITY')
-            ->removeHandler(HandlerTwo::class);         
+            ->removeHandler(HandlerTwo::class);
     }
 );
 ```
@@ -85,7 +85,7 @@ Let's imagine, for example, that one MU plugin/package adds the configuration in
 add_action(
     'wonolog.setup',
     function (Inpsyde\Wonolog\Configurator $config) {
-        $config->enableHandlerForChannels(SmsHandler::class, 'IMPORTANT', 'SMS');       
+        $config->enableHandlerForChannels(SmsHandler::class, 'IMPORTANT', 'SMS');
     }
 );
 ```
@@ -197,6 +197,7 @@ add_action(
         }
     }
 );
+
 ```
 
 Note how the minimum level is set using a Wonolog `LogLevel` class constant. The reason is that PSR-3 log levels have a string form, so it is not possible to determine which level is higher/lower programmatically. Wonolog `LogLevel` class constants “map” PSR-3 log levels to numeric values to make comparison possible.

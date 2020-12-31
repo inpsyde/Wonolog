@@ -4,8 +4,8 @@ Wonolog advocates a pattern in which plugins/themes/packages do not write log re
 
 That pattern can be put in place in packages without depending on Wonolog. There are two ways that Wonolog supports “natively” to do it:
 
- - the “WordPressy way”, AKA using log-specific WordPress action hooks
- - leverage the PSR-3 standard
+- the “WordPressy way”, AKA using log-specific WordPress action hooks
+- leverage the PSR-3 standard
 
 ---
 
@@ -149,20 +149,20 @@ function prefix_call_api(string $endpoint, array $body = [], string $method = 'G
             'handler' => $stack,
         ]);
 
-        $body = $client->request($method, $endpoint)->getBody();   
+        $body = $client->request($method, $endpoint)->getBody();
         $json = json_decode($body, true);
         if (!$json || !is_array($json)) {
             $logger->error('Invalid response', compact('endpoint', 'body', 'method'));
 
             return null;
         }
-                     
+
         $logger->error('Valid response', compact('endpoint', 'method', 'json'));
 
         return $json;
     } catch (\Throwable $throwable) {
          $logger->error($throwable->getMessage(), compact('exception'));
-        
+
         return null;
     }
 }
@@ -243,8 +243,6 @@ add_action(
     }
 );
 ```
-
-
 
 ---
 

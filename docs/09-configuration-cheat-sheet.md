@@ -7,7 +7,7 @@ add_action(
 	'wonolog.setup',
     static function (Inpsyde\Wonolog\Configurator $config) {
         // configuration here
-    } 
+    }
 );
 ```
 
@@ -64,10 +64,10 @@ Adds an handler to be used for all channels. See [*"Log records handlers"*](./06
 
 ```php
 public function pushHandlerForChannels(
-	Monolog\Handler\HandlerInterface $handler,
-	?string $identifier,
-	string $channel,
-	string ...$channels
+    Monolog\Handler\HandlerInterface $handler,
+    ?string $identifier,
+    string $channel,
+    string ...$channels
 ): Inpsyde\Wonolog\Configurator
 ```
 
@@ -75,8 +75,8 @@ Adds an handler to be used for specific channels. See  [*"Log records handlers"*
 
 ```php
 public function enableHandlersForChannel(
-	string $channel,
-	string $handlerIdentifier,
+    string $channel,
+    string $handlerIdentifier,
     string ...$handlerIdentifiers
 ): Inpsyde\Wonolog\Configurator
 ```

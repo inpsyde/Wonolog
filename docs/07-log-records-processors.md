@@ -36,7 +36,7 @@ add_action(
             ->pushProcessor('my-processor', function (array $record) {
                 return $record;
             })
-            ->removeProcessor('my-processor');         
+            ->removeProcessor('my-processor');
     }
 );
 ```
@@ -61,7 +61,7 @@ add_action(
             	},
             	'channel-1',
             	'channel-2'
-        	);     
+        	);
     }
 );
 ```
@@ -82,7 +82,7 @@ add_action(
             'my-processor',
             'channel-3',
             'channel-4'
-        );     
+        );
     }
 );
 ```
@@ -114,14 +114,14 @@ add_action(
         if ($identifier !== SomeHandler::class) {
             retrun;
         }
-        
+
         // a new processor
         $handler->pushProcessor(function (array $record) {
             return $record;
-		}); 
+		});
         // a processor available in the registry
         $processor = $processors->findById('my-processor');
-        $processor and $handler->pushProcessor($processor); 
+        $processor and $handler->pushProcessor($processor);
     },
     10,
     3
@@ -158,7 +158,7 @@ The log record context passed to handlers will be something like this:
             'ms_switched' => false, // only on multisite
             'site_id' => 5,         // only on multisite
             'network_id' => 1,      // only on multisite
-        ],      
+        ],
     ],
 ];
 ```
@@ -171,7 +171,7 @@ It might be desirable to remove the default WordPress context processor, for all
 add_action(
     'wonolog.setup',
     function (Inpsyde\Wonolog\Configurator $config) {
-        $config->disableWpContextProcessor(); 
+        $config->disableWpContextProcessor();
         // or
         $config->disableWpContextProcessorForChannels('PLUGIN_1', 'PLUGIN_2');
     }
