@@ -30,6 +30,10 @@ putenv('VENDOR_DIR=' . $vendor);
 putenv('TESTS_PATH=' . __DIR__);
 putenv('LIBRARY_PATH=' . dirname(__DIR__));
 
+if (file_exists(__DIR__ . '/environment.php')) {
+    require_once __DIR__ . '/environment.php';
+}
+
 defined('ABSPATH') or define('ABSPATH', "{$vendor}/wordpress/wordpress/");
 
 unset($vendor);
