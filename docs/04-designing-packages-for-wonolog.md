@@ -1,17 +1,31 @@
-# Design packages for Wonolog
+# Designing packages for Wonolog
 
-Wonolog advocates a pattern in which plugins/themes/packages do not write log entries (because that requires knowledge of the infrastructure that is only available at the website level) but they “emit log events” that will be “listened” by Wonolog to persist them.
+Wonolog advocates a pattern in which plugins/themes/packages do not write log records (because that requires knowledge of the infrastructure that is only available at the website level) but they “emit log events” that will be “listened” by Wonolog to persist them.
 
 That pattern can be put in place in packages without depending on Wonolog. There are two ways that Wonolog supports “natively” to do it:
 
  - the “WordPressy way”, AKA using log-specific WordPress action hooks
  - leverage the PSR-3 standard
 
+---
+
+# Table of contents
+
+- [The "WordPressy" way](#the-wordPressy-way)
+  - [Integrate a package using "WordPressy" way](#integrate-a-package-using-wordPressy-way)
+  - [Log level for logging hooks](#log-level-for-logging-hooks)  
+- [The PSR way](#the-psr-way)
+- [About log channel](#about-log-channel)
+  - [Configuring default channel when using hooks](#configuring-default-channel-when-using-hooks)
+  - [Configuring default channel when using PSR logger](#configuring-default-channel-when-using-PSR-logger)
+  - [Global default channel](#global-default-channel)  
+
+---
 
 
 ## The "WordPressy" way
 
-Let's assume we write a plugin that sends API requests using the WordPress HTTP API. And let's assume we want the plugin log requests and responses. A bare minimum code could be like this:
+Let's assume there's a plugin that sends API requests using the WordPress HTTP API. And let's assume we want that plugin to log HTTP requests and responses. A bare minimum code could be like this:
 
 ```php
 /* Plugin name: Prefix API calls. */
@@ -34,7 +48,7 @@ function prefix_call_api(string $endpoint, array $body = [], string $method = 'G
         }
 
         $body = wp_remote_retrieve_body($response);        
-        $json = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+        $json = json_decode($body, true, 512);
         if (!$json || !is_array($json)) {
             $params['body'] = $body;
             # Log message string + context array
@@ -59,7 +73,7 @@ function prefix_call_api(string $endpoint, array $body = [], string $method = 'G
 }
 ```
 
-The function above uses a series of action hooks, whose name always starts with the same prefix, and then a dot is used to add one of the [PSR-3 log levels](https://www.php-fig.org/psr/psr-3/#5-psrlogloglevel).
+The function above uses a series of action hooks, whose name always starts with the same prefix, plus a dot, and then one of the [PSR-3 log levels](https://www.php-fig.org/psr/psr-3/#5-psrlogloglevel).
 
 The parameters passed by the action hooks are either:
 
@@ -68,19 +82,19 @@ The parameters passed by the action hooks are either:
 - one parameter being a `Throwable`
 - one parameter being an array with a `message` key plus other arbitrary "context" data.
 
-These are all “sources” accepted by Wonolog, and thanks to that, the plugin can be integrated with Wonolog with a single line of configuration. In other words, even if it is not dependant on Wonolog, the plugin is *natively compatible* with Wonolog.
+These are all “sources” accepted by Wonolog, and thanks to that, the plugin can be integrated with Wonolog with a single line of configuration. In other words, even if it is not dependent on Wonolog, the plugin is *natively compatible* with Wonolog.
 
 
 
 ### Integrate a package using "WordPressy" way
 
-As pretty much any Wonolog configuration, we need to use `wonolog.setup` to configure a plugin like the one above that uses hooks to perform logs. For example:
+As pretty much any other Wonolog configuration, we need to use `wonolog.setup` to configure a plugin like the one above that uses hooks to perform logs. For example:
 
 ```php
 add_action(
     'wonolog.setup',
-    funtion (Inpsyde\Wonolog\Configurator $config) {
-        $config->registerLogHookAlias('prefix_log');
+    function (Inpsyde\Wonolog\Configurator $config) {
+        $config->registerLogHook('prefix_log');
     }
 );
 ```
@@ -129,14 +143,14 @@ function prefix_call_api(string $endpoint, array $body = [], string $method = 'G
     try {
         $formatter = new MessageFormatter('{request} - {response}');
         $stack = HandlerStack::create();
-        $stack->push(Middleware::log($logger, $formatter);
+        $stack->push(Middleware::log($logger, $formatter));
         $client = new Client([
             'base_uri' => 'https://example.com/api/',
             'handler' => $stack,
         ]);
 
         $body = $client->request($method, $endpoint)->getBody();   
-        $json = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+        $json = json_decode($body, true);
         if (!$json || !is_array($json)) {
             $logger->error('Invalid response', compact('endpoint', 'body', 'method'));
 
@@ -146,7 +160,7 @@ function prefix_call_api(string $endpoint, array $body = [], string $method = 'G
         $logger->error('Valid response', compact('endpoint', 'method', 'json'));
 
         return $json;
-    } catch (\Throwable $exception) {
+    } catch (\Throwable $throwable) {
          $logger->error($throwable->getMessage(), compact('exception'));
         
         return null;
@@ -154,9 +168,9 @@ function prefix_call_api(string $endpoint, array $body = [], string $method = 'G
 }
 ```
 
-The function above uses the same logic as the previous plugin example but uses Guzzle instead of WP HTTP API. Because Guzzle has native support for PSR-3, it makes sense for the plugin to leverage PSR-3 for logs not directly triggered by Guzzle, e.g., to log the `Throwable`.
+The function above uses the same logic as the previous plugin example but uses Guzzle instead of WP HTTP API. Because Guzzle has native support for PSR-3, it makes sense for the plugin to leverage PSR-3 for log records not directly triggered by Guzzle, e.g., to log the `Throwable` object.
 
-Because the plugin can work with *any* PSR-3 implementation, it uses a filter hook, `"prefix_logger"` to allow consumers to decide which logger to use. Thanks to that filter, we can " inject" the Wonolog PSR-3 implementation, which returned by the `Inpsyde\Wonolog\makeLogger()` function:
+Because the plugin can work with *any* PSR-3 implementation, it uses a filter hook, `"prefix_logger"` to allow consumers to decide which logger implementation to use. Thanks to that filter, we can " inject" the Wonolog PSR-3 implementation, returned by the `Inpsyde\Wonolog\makeLogger()` function:
 
 ```php
 add_filter('prefix_logger', 'Inpsyde\Wonolog\makeLogger');
@@ -170,46 +184,46 @@ Using a filter to accept a PSR-3 `LoggerInterface` implementation is just one of
 
 ## About log channel
 
-Wonolog has the concept of "channel", which is a way to "categorize" logs. Each log always has one and one only channel.
+Wonolog has the concept of "channel", which is a way to "categorize" logs. Each log record always has one and one only channel.
 
-The log channel is used to determine the way logs are handled. For example, logs about "security" might be treated in a way, and logs about "database" might be treated in some other way.
+The channel is used to determine the way log records are handled. For example, log records about "security" might be treated in a way, and log records about "database" might be treated in some other way.
 
-Neither of the two ways of integrating with Monolog ("*WordPressy*" way and PSR-3 way) shows a way to assign a channel to a log entry, and that's because "channel" is something specific to Wonolog.
+Neither of the two ways of integrating with Monolog ("*WordPressy*" way and PSR-3 way) shows a way to assign a channel to a log record, and that's because "channel" is a concept specific to Wonolog.
 
-When a log entry has no channel, Wonolog tries to "automagically" determine the channel.
+When a log record has no channel, Wonolog tries to "automagically" determine one.
 
-- When the log "context" array has a key "channel", Wonolog uses that as the log channel.
-- When the log created using an action hook passes a `Throwable` as the hook argument or when a PSR-3 log context as an "exception" key that holds a `Throwable` instance, Wonolog uses the "PHP-ERROR" channel.
-- When the log is created using an action hook passing a `WP_Error` instance, Wonolog tries to determine the channel based on the error message, e.g., if it contains the word "database", Wonolog uses the "DB" channel.
+- When the log record "context" array has a key `channel`, Wonolog uses that context value as the log record channel.
+- When a log record created using an action hook passes a `Throwable` as the hook argument or when a PSR-3 log context as an "exception" key that holds a `Throwable` instance, Wonolog uses the "*PHP-ERROR*" channel.
+- When a log record is created using an action hook passing a `WP_Error` instance, Wonolog tries to determine the channel based on the error message, e.g., if it contains the word "*database*", Wonolog uses the "*DB*" channel.
 
 When none of the above applies, Wonolog uses a default channel.
 
-### Default channel when using hooks
+### Configuring default channel when using hooks
 
-When using action hooks to perform logs, it is possible to set a default channel when registering the hook alias. For example:
+When integrating plugins that make use of logging action hooks, it is possible to set a default channel when registering the hook alias. For example:
 
 ```php
 add_action(
     'wonolog.setup',
-    funtion (Inpsyde\Wonolog\Configurator $config) {
-        $config->registerLogHookAlias('prefix_log', Inpsyde\Wonolog\Channels::HTTP);
+    function (Inpsyde\Wonolog\Configurator $config) {
+        $config->registerLogHook('prefix_log', Inpsyde\Wonolog\Channels::HTTP);
     }
 );
 ```
 
-In the snippet above, the default "HTTP" channel is assigned as the default channel for all the logs triggered via `"prefix_log"` action hook. Passing a channel explicitly in hook context would still override that.
+In the snippet above, the default "*HTTP*" channel is used as the default channel for all the log records triggered via `"prefix_log"` action hook. Passing a channel explicitly in hook context would still override that.
 
-Please note that instead of a default channel would have been possible to use a custom channel, like "my-plugin", or anything else.
+Please note that instead of a default channel would have been possible to use a custom channel, like "*my-plugin*", or anything else.
 
 
 
-### Default channel when using PSR logger
+### Configuring default channel when using PSR logger
 
-When using the Wonolog PSR-3 logger obtained via `makeLogger()` function, it is possible to set a default channel when getting the logger. For example:
+When integrating plugins that make use of the Wonolog PSR-3 logger, it is possible to set a default channel when getting the logger instance. For example:
 
 ```php
-add_filter('prefix_logger', function static (): Psr\Log\LoggerInterface {
-    return Inpsyde\Wonolog\makeLogger("MY-PLUGIN");
+add_filter('prefix_logger', static function(): Psr\Log\LoggerInterface {
+    return Inpsyde\Wonolog\makeLogger('MY-PLUGIN');
 });
 ```
 
@@ -224,11 +238,27 @@ When it is not possible to determine the channel in any of the ways listed above
 ```php
 add_action(
     'wonolog.setup',
-    funtion (Inpsyde\Wonolog\Configurator $config) {
-        $config->withDefaultChannel("MY_APP");
+    function (Inpsyde\Wonolog\Configurator $config) {
+        $config->withDefaultChannel('MY_APP');
     }
 );
 ```
 
 
 
+---
+
+0. [Introduction](./00-introduction.md)
+1. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
+2. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
+3. [What is logged by default](./03-what-is-logged-by-default.md)
+4. **Designing packages for Wonolog**
+5. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
+6. [Log records handlers](./06-log-records-handlers.md)
+7. [Log records processors](./07-log-records-processors.md)
+8. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
+9. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
+
+---
+
+« [What is logged by default](./03-what-is-logged-by-default.md) || [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md) »

@@ -7,7 +7,7 @@ namespace Inpsyde\Wonolog\HookListener;
 use Inpsyde\Wonolog\LogActionUpdater;
 
 /**
- * @method update(string $hook, array $args, LogActionUpdater $subscriber)
+ * @method update(string $hook, array $args, LogActionUpdater $updater)
  */
 trait FilterFromUpdateTrait
 {

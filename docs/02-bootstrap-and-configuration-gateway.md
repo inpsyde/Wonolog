@@ -6,6 +6,17 @@ Wonolog v1 required a `bootstrap()` function to be called from a MU plugin, but 
 
 Nevertheless, most of the time, *some* configuration is needed. MU plugins, even in v2, are still the place where configuration goes.
 
+---
+
+# Table of contents
+
+- [The setup hook](#the-setup-hook)
+  - [Monolog](#monolog)
+  - [Default handler](#default-handler)  
+- [Wonolog writes logs](#wonolog-writes-logs)
+- [Disabling Wonolog](#disabling-wonolog)
+
+---
 
 
 ## The setup hook
@@ -17,7 +28,7 @@ For example:
 ```php
 add_action(
     'wonolog.setup',
-    funtion (Inpsyde\Wonolog\Configurator $config) {
+    function (Inpsyde\Wonolog\Configurator $config) {
         $config->doNotLogPhpErrors();
     }
 );
@@ -29,105 +40,52 @@ In v1, the necessity to call a `bootstrap()` function favorited the presence of 
 
 
 
-### Wonolog writes logs
+## Wonolog writes logs
 
-As soon as it is required in a project using Composer, even without any configuration at all, Wonolog starts working right away using its default settings. It means that Wonolog not only provides abstractions and APIs for plugins/themes/packages to log *their* stuff but also *writes* logs for WordPress core "events". The "*What is logged by default*" chapter explains which those "events" exactly are.
+As soon as it is required in a project using Composer, even without any configuration at all, Wonolog starts working right away using its default settings. It means that Wonolog not only provides abstractions and APIs for plugins/themes/packages to log *their* stuff but also *writes* logs for WordPress core "events". The [*"What is logged by default"*](./03-what-is-logged-by-default.md) chapter explains which those "events" exactly are.
 
 ### Monolog
 
 Anyway, to write logs, Wonolog needs a PSR-3 *implementation*, not just *abstraction*, and it uses [Monolog](https://seldaek.github.io/monolog/), the most popular PSR-3 implementation.
 
-In Monolog, logs are written using “handlers”. Each handler is free to do anything with a log entry, and multiple handlers might process each log entry.
+In Monolog, log records are written using “handlers”. Each handler is free to do anything with a log entry, and multiple handlers might process each log entry.
 
 The nice thing about Monolog is that there are [dozens of ready-made handlers](https://seldaek.github.io/monolog/doc/02-handlers-formatters-processors.html#handlers) that, for example, write log to files, Syslog, databases, send emails or alerts, connect to logging services, and so on.
 
-### Wonolog default handler
+### Default handler
 
-Because Wonolog needs at least one handler to start writing logs without any configuration, it instantiates a "default handler" that writes logs to files. 
+When Wonolog is used without any configuration, because it needs to instantiate a Monolog handler to write the log records it collects from WordPress core, it instantiates a custom handler that writes log records to file, and auto-tune its configuration to work well in WordPress context.
 
-Wonolog default handler creates daily log files in the path `/{$year}/{$month}/{$day}.log` under a folder that is determined by default by Wonolog. In absence of configuration the containing folder is a `/wonolog` folder inside WordPress "uploads" folder.
-
-Considering that logs should **not** be publicly accessible, Wonolog adds to that folder an `.htaccess` file that prevents access, but that only work if the web-server in use is Apache and it is configured to take into account `.htaccess` files.
-
-That is why it is essential to make sure that, when using Wonolog default handler, the folder that contains all logs is a folder that is not publicly accessible.
-
-#### Default handler folder
-
-When the constant [`WP_ERROR_LOG`](https://wordpress.org/support/article/debugging-in-wordpress/#wp_debug_log) contains a path to a file, Wonolog uses that file's folder as the parent folder for its logs. For example, if `wp-config.php` contains something like the following:
-
-```php
-define('WP_DEBUG_LOG', '/tmp/wp-errors.log');
-```
-
-Wonolog will write logs file in paths like `/tmp/wonolog/2021/09/30.log`, and that without the need of any additional configuration.
-
-If `WP_DEBUG_LOG` is not defined or is a boolean, the only way to change the Wonolog default handler folder is to instantiate and configure it. For example:
-
-```php
-use Inpsyde\Wonolog\{Configurator, DefaultHandler};
-
-add_action(
-    'wonolog.setup',
-    funtion (Configurator $config) {
-        $config->useAsDefaultHandler(DefaultHandler::new()->withFolder('/logs/wp/'));
-    }
-);
-```
-
-`DefaultHandler` class has some more configuration possibilities, e.g. it is possible to change the log file names.
-
-Please note how `useAsDefaultHandler` can be used with **any** Monolog handler.
-
-#### Default handler minimum level
-
-Many Monolog handlers have a "minimum log level", and they ignore any log below that level. For example, a handler that sends logs via SMS might have a minimum level of "critical" to don't disrupt anyone's phone (and serenity of life).
-
-Wonolog default handler has that. Its minimum level is, by default, calculated based on the value of the environment variable `WONOLOG_DEFAULT_MIN_LEVEL`. If that is not defined, Wonolog checks the value of the `WP_DEBUG_LOG` constant, and when that value is `false`, the default handler's minimum level will be "warning"; otherwise, it will be "debug".
-
-To explicitly set default handler minimum level it is possible to use its `withMinimumLevel` method:
-
-```php
-add_action(
-    'wonolog.setup',
-    funtion (Inpsyde\Wonolog\Configurator $config) {
-        $config->useAsDefaultHandler(
-            Inpsyde\Wonolog\DefaultHandler::new()
-                ->withFolder('/logs/wp/')
-                ->withMinimumLevel(Inpsyde\Wonolog\LogLevel::ERROR)
-        );
-    }
-);
-```
-
-Note how the minimum level is set using a Wonolog `LogLevel` class constant. The reason is that PSR-3 log levels have a string form, so it is not possible to determine which level is higher/lower programmatically. Wonolog `LogLevel` class constants “map” PSR-3 log levels to numeric values to make comparison possible.
-
-#### Why default handler, and how to disable it
-
-Wonolog ships a default handler in the first place because when there’s no configuration, Wonolog needs “a” handler to use.
-
-Even when there’s some configuration, the concept of “default handler” is still important, no matter if that is an instance of `Wonolog\DefaultHandler` or any other Monolog handler, and the reason is that not having a default handler, some log entries might be “lost”.
-
-In Wonolog, each log has a channel, and a channel *might* be assigned to one or more handlers. That means the log “channel” determines how the logentry is actually “handled”.
-
-When no handler is explicitly assigned to a log entry channel, Wonolog will default to its default handler, ensuring all log entries are somehow handled. Consequently, if there’s no default handler, any log having a channel without any assigned handler would not be handled at all.
-
-Anyway, the default handler might be disabled, if wanted:
-
-```php
-add_action(
-    'wonolog.setup',
-    funtion (Inpsyde\Wonolog\Configurator $config) {
-        $config->disableDefaultHandler();
-    }
-);
-```
+The chapter [*"Log records handlers"*](./06-log-records-handlers.md) have a detailed explanation on how the Wonolog default handler works.
 
 
 
-### About auto-calculated log level
+## Disabling Wonolog
 
-It is important to note that the “calculation” of minimum log level based on `WONOLOG_MIN_LEVEL` environment variable or `WP_DEBUG_LOG` constant only affects the Wonolog `DefaultHandler`.
+Considering Wonolog starts logging as soon as it is required, it might be desired to disable it completely, for example in some environment.
 
-Using a different handler (either as default handler or as channel-specific handler), it is responsibility of who adds the handler to configure its minimum level.
+To do that programmatically, Wonolog offers 3 ways:
 
-In the case it is desired to use the same calculation applied by `DefaultHander`, it is possible to use `Inpsyde\Wonolog\LogLevel::defaultMinLevel()` static method, the same `DefaultHandler` uses internally to determine the minimum level to use when none is explicitly configured.
+- `WONOLOG_DISABLE` environment variable
+- `WONOLOG_DISABLE` constant
+- the `wonolog.disable` filter
+
+The list above is in order of evaluation: the value of the constant might override the value of the environment variable and the filter can be used to override the other two.
+
+
+---
+
+0. [Introduction](./00-introduction.md)
+1. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
+2. **Bootstrap and configuration gateway**
+3. [What is logged by default](./03-what-is-logged-by-default.md)
+4. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
+5. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
+6. [Log records handlers](./06-log-records-handlers.md)
+7. [Log records processors](./07-log-records-processors.md)
+8. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
+9. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
+
+---
+
+« [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md) || [What is logged by default](./03-what-is-logged-by-default.md) »
