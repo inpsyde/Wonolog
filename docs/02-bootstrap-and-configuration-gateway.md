@@ -27,10 +27,10 @@ For example:
 
 ```php
 add_action(
-  'wonolog.setup',
-  function (Inpsyde\Wonolog\Configurator $config) {
-    $config->doNotLogPhpErrors();
-  }
+    'wonolog.setup',
+    function (Inpsyde\Wonolog\Configurator $config) {
+        $config->doNotLogPhpErrors();
+    }
 );
 ```
 

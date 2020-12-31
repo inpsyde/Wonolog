@@ -44,13 +44,13 @@ To configure which listeners are enabled (just like pretty much all Wonolog conf
 use Inpsyde\Wonolog\{Configurator, HookListener};
 
 add_action(
-  'wonolog.setup',
-  function (Configurator $config) {
-    $config->disableDefaultHookListeners(
-      HookListener\FailedLoginListener::class,
-      HookListener\MailerListener::class
-    );
-  }
+    'wonolog.setup',
+    function (Configurator $config) {
+        $config->disableDefaultHookListeners(
+            HookListener\FailedLoginListener::class,
+            HookListener\MailerListener::class
+        );
+    }
 );
 ```
 

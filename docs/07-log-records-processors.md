@@ -53,15 +53,12 @@ To add/remove channel-specific processors, it is necessary to hook `wonolog.setu
 add_action(
     'wonolog.setup',
     function (Inpsyde\Wonolog\Configurator $config) {
-        $config
-            ->pushProcessorForChannels(
-            	'my-processor',
-            	function (array $record) {
-                	return $record;
-            	},
-            	'channel-1',
-            	'channel-2'
-        	);
+        $config->pushProcessorForChannels(
+            'my-processor',
+            function (array $record) { return $record; },
+            'channel-1',
+            'channel-2'
+        );
     }
 );
 ```
@@ -116,9 +113,7 @@ add_action(
         }
 
         // a new processor
-        $handler->pushProcessor(function (array $record) {
-            return $record;
-		});
+        $handler->pushProcessor(function (array $record) { return $record; });
         // a processor available in the registry
         $processor = $processors->findById('my-processor');
         $processor and $handler->pushProcessor($processor);
