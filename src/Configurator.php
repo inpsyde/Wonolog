@@ -937,15 +937,12 @@ class Configurator
      */
     protected function setupHookListeners(): void
     {
-        $toEnable = $this->parseEnabledDisabledConfig(self::CONF_DEFAULT_LISTENERS, self::DEFAULT_HOOK_LISTENERS);
-        if ($toEnable === null) {
-            return;
-        }
-
         $listeners = $this->factory->listenersRegistry();
 
+        $defaults = $this->parseEnabledDisabledConfig(self::CONF_DEFAULT_LISTENERS, self::DEFAULT_HOOK_LISTENERS);
+
         /** @var class-string<HookListener\HookListener> $class */
-        foreach ($toEnable as $class) {
+        foreach (($defaults ?? [])  as $class) {
             /** @var HookListener\ActionListener|HookListener\FilterListener $listener */
             $listener = new $class();
             if ($listener instanceof HookListener\ActionListener) {

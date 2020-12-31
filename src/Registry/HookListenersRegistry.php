@@ -58,7 +58,7 @@ class HookListenersRegistry
      */
     public function listenAll(int $defaultPriority): void
     {
-        if ($this->booted) {
+        if ($this->booted || !$this->listeners) {
             return;
         }
 
@@ -152,6 +152,14 @@ class HookListenersRegistry
         unset($this->listeners[$identifier]);
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasListeners(): bool
+    {
+        return (bool)$this->listeners;
     }
 
     /**
