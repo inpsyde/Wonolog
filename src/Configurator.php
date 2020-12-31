@@ -942,7 +942,7 @@ class Configurator
         $defaults = $this->parseEnabledDisabledConfig(self::CONF_DEFAULT_LISTENERS, self::DEFAULT_HOOK_LISTENERS);
 
         /** @var class-string<HookListener\HookListener> $class */
-        foreach (($defaults ?? [])  as $class) {
+        foreach (($defaults ?? []) as $class) {
             /** @var HookListener\ActionListener|HookListener\FilterListener $listener */
             $listener = new $class();
             if ($listener instanceof HookListener\ActionListener) {
