@@ -4,7 +4,7 @@ All configuration in Wonolog is done calling methods on the `Inpsyde\Wonolog\Con
 
 ```php
 add_action(
-	'wonolog.setup',
+    'wonolog.setup',
     static function (Inpsyde\Wonolog\Configurator $config) {
         // configuration here
     }
