@@ -61,16 +61,16 @@ class AdvancedConfigTest extends IntegrationTestCase
         $this->testHandler = new TestHandler();
 
         $configurator
-            ->useAsDefaultHandler($defaultHandler)
-            ->withChannels('TESTS')
-            ->withIgnorePattern('cron job performed in [0-9\.]+ seconds')
-            ->disableDefaultHandlerForChannels(Channels::SECURITY)
-            ->pushHandlerForChannels($this->testHandler, 'test', Channels::DEBUG, 'TESTS')
+            ->disableFallbackHandler()
+            ->pushHandler($defaultHandler, 'default-handler')
+            ->removeHandlerFromChannels('default-handler', Channels::SECURITY)
+            ->pushHandlerForChannels($this->testHandler, 'test-handler', Channels::DEBUG, 'TESTS')
             ->disableAllDefaultHookListeners()
             ->addActionListener(new QueryErrorsListener(Logger::NOTICE))
             ->addActionListener($listener, 'test-listener')
-            ->registerLogHookAlias('my-plugin.log', 'MY_PLUGIN')
-            ->registerLogHookAlias('something.else.happened')
+            ->registerLogHook('my-plugin.log', 'MY_PLUGIN')
+            ->registerLogHook('something.else.happened')
+            ->withIgnorePattern('cron job performed in [0-9\.]+ seconds')
             ->disableWpContextProcessor()
             ->pushProcessor('test-processor', static function (array $record): array {
                 empty($record['extra']) and $record['extra'] = [];
@@ -258,7 +258,7 @@ class AdvancedConfigTest extends IntegrationTestCase
      * @param string $message
      * @param string $channel
      * @param string $level
-     * @param array $context
+     * @param array|null $context
      * @return void
      */
     private function assertLogFileHasLine(

@@ -29,7 +29,7 @@ class BasicConfigTest extends IntegrationTestCase
     protected function bootstrapWonolog(Configurator $configurator): void
     {
         $this->handler = new TestHandler();
-        $configurator->useAsDefaultHandler($this->handler);
+        $configurator->pushHandler($this->handler);
     }
 
     /**
