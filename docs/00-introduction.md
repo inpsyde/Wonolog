@@ -1,6 +1,6 @@
 # Introduction
 
-Wonolog is a package whos scope is logging "things that happen in WordPress and WordPress plugins/themes/packages.
+Wonolog is a package whose scope is logging "things that happen in WordPress and WordPress plugins/themes/packages.
 
 Logging means *to persist somewhere* information. When developing a plugin/theme/library, the infrastructure where the code runs is unknown, it is only known at *the website* level. That is why **Wonolog is a package to be used at the website level**.
 
@@ -14,7 +14,7 @@ Logging means *to persist somewhere* information. When developing a plugin/theme
 
 # Table of contents
 
-- [Logging WordPress](#logging-wordPress)
+- [Logging WordPress](#logging-wordpress)
 - [Logging other code](#logging-other-code)
     - [Logging code "natively compatible" with Wonolog](#logging-code-natively-compatible-with-wonolog)
     - [Logging code not "natively compatible" with Wonolog](#logging-code-not-natively-compatible-with-wonolog)
