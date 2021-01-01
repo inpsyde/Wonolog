@@ -99,7 +99,7 @@ add_action(
 );
 ```
 
-That’s it. Calling `Configurator::registerLogHookAlias()` passing to it the hook name used for logs, is enough to handle with Wonolog all log hooks performed by the plugin.
+That’s it. Calling `Configurator::registerLogHook()` passing to it the hook name used for logs, is enough to handle with Wonolog all log hooks performed by the plugin.
 
 
 
