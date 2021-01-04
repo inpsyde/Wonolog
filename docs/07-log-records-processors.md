@@ -43,7 +43,7 @@ add_action(
 
 The first parameter of `Configurator::pushProcessor()` is the processor identifier, which has to match the parameter passed to `Configurator::removeProcessor()` to remove the added processor.
 
-In Wonolog also handlers and hook listeners use identifiers, but when adding those passing an identifier is optional because being objects it is possible for Wonolog to default to class names, but considering processors are arbitrary callbacks passing the identifier is required.
+Wonolog handlers and hook listeners also use identifiers, but when adding handlers and hook listeners passing an identifier is optional, because being objects it is possible for Wonolog to default to class names. Considering processors are arbitrary callbacks passing the identifier is required.
 
 ### Channel-specific processors
 
