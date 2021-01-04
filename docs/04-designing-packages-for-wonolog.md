@@ -160,8 +160,8 @@ function prefix_call_api(string $endpoint, array $body = [], string $method = 'G
         $logger->error('Valid response', compact('endpoint', 'method', 'json'));
 
         return $json;
-    } catch (\Throwable $throwable) {
-         $logger->error($throwable->getMessage(), compact('exception'));
+    } catch (\Throwable $exception) {
+         $logger->error($exception->getMessage(), compact('exception'));
 
         return null;
     }
