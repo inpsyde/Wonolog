@@ -172,7 +172,6 @@ add_action(
     }
 );
 ```
-That's it. The custom PSR-3 logger is now fully integrated into Wonolog.
 
 
 
