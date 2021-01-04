@@ -15,22 +15,18 @@ namespace Inpsyde\Wonolog\HookListener;
 
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Debug;
-use Inpsyde\Wonolog\Data\Error;
-use Inpsyde\Wonolog\Data\LogDataInterface;
-use Inpsyde\Wonolog\Data\NullLog;
+use Inpsyde\Wonolog\Data\Log;
+use Inpsyde\Wonolog\Data\LogData;
+use Inpsyde\Wonolog\LogActionUpdater;
+use Inpsyde\Wonolog\LogLevel;
 
 /**
  * Listens to 'http_api_debug' hook to discover and log WP HTTP API errors.
  *
  * Differentiate between WP cron requests and other HTTP requests.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
  */
-final class HttpApiListener implements ActionListenerInterface
+final class HttpApiListener implements ActionListener
 {
-    use ListenerIdByClassNameTrait;
-
     private const HTTP_SUCCESS_CODES = [
         200,
         201,
@@ -52,6 +48,19 @@ final class HttpApiListener implements ActionListenerInterface
     ];
 
     /**
+     * @var int
+     */
+    private $errorLogLevel;
+
+    /**
+     * @param int $errorLogLevel
+     */
+    public function __construct(int $errorLogLevel = LogLevel::ERROR)
+    {
+        $this->errorLogLevel = LogLevel::normalizeLevel($errorLogLevel) ?? LogLevel::ERROR;
+    }
+
+    /**
      * @return array<string>
      */
     public function listenTo(): array
@@ -62,52 +71,58 @@ final class HttpApiListener implements ActionListenerInterface
     /**
      * Log HTTP cron requests.
      *
+     * @param string $hook
      * @param array $args
-     * @return LogDataInterface
+     * @param LogActionUpdater $updater
+     * @return void
      *
      * @wp-hook http_api_debug
      */
-    public function update(array $args): LogDataInterface
+    public function update(string $hook, array $args, LogActionUpdater $updater): void
     {
         /**
-         * @var \WP_Error|array|null $response
-         * @var string|null $context
-         * @var string|null $class
-         * @var array|null $httpArgs
-         * @var string|null $url
+         * @var mixed|null $response
+         * @var mixed|null $context
+         * @var mixed|null $class
+         * @var mixed|null $httpArgs
+         * @var mixed|null $url
          */
         [$response, $context, $class, $httpArgs, $url] = array_pad($args, 5, null);
 
         if (!$response || !$context || !$class || !is_string($context) || !is_string($class)) {
-            return new NullLog();
+            return;
         }
 
-        $isWpError = is_wp_error($response);
-        if (!$isWpError && !is_array($response)) {
-            return new NullLog();
+        $errorMessage = '';
+        if ($response instanceof \WP_Error) {
+            $errorMessage = $response->get_error_message();
         }
 
-        ($httpArgs && is_array($httpArgs)) or $httpArgs = [];
-        ($url && is_string($url)) or $url = '';
+        if (!($response instanceof \WP_Error) && !is_array($response)) {
+            return;
+        }
 
-        if ($isWpError || $this->isError($response, (array)$httpArgs)) {
-            if ($isWpError) {
-                $response = ['response' => ['message' => $response->get_error_message()]];
+        is_array($httpArgs) or $httpArgs = [];
+        is_string($url) or $url = '';
+
+        /** @var LogData|null $log */
+        $log = null;
+        if (($response instanceof \WP_Error) || $this->isError($response, $httpArgs)) {
+            if (($response instanceof \WP_Error)) {
+                $response = ['response' => ['message' => $errorMessage]];
             }
 
-            return $this->logHttpError($response, $context, $class, $httpArgs, $url);
-        }
-
-        if ($this->isCron($response, $url)) {
+            $log = $this->logHttpError($response, $context, $class, $httpArgs, $url);
+        } elseif ($this->isCron($url)) {
             /** @var array $response */
-            return $this->logCron($response, $context, $class, $httpArgs, $url);
+            $log = $this->logCron($response, $context, $class, $httpArgs, $url);
         }
 
-        return new NullLog();
+        $log and $updater->update($log);
     }
 
     /**
-     * @param array|\WP_Error $response
+     * @param array $response
      * @param array $httpArgs
      * @return bool
      */
@@ -127,15 +142,12 @@ final class HttpApiListener implements ActionListenerInterface
     }
 
     /**
-     * @param array|\WP_Error $response
      * @param string $url
      * @return bool
      */
-    private function isCron(array $response, string $url): bool
+    private function isCron(string $url): bool
     {
-        return
-            is_array($response)
-            && basename((string)parse_url($url, PHP_URL_PATH)) === 'wp-cron.php';
+        return basename((string)parse_url($url, PHP_URL_PATH)) === 'wp-cron.php';
     }
 
     /**
@@ -148,7 +160,7 @@ final class HttpApiListener implements ActionListenerInterface
      * @param string $url
      * @return Debug
      */
-    private function logCron(
+    protected function logCron(
         array $data,
         string $context,
         string $class,
@@ -178,16 +190,15 @@ final class HttpApiListener implements ActionListenerInterface
      * @param string $class
      * @param array $args
      * @param string $url
-     *
-     * @return Error
+     * @return LogData
      */
-    private function logHttpError(
+    protected function logHttpError(
         array $data,
         string $context,
         string $class,
         array $args,
         string $url
-    ): Error {
+    ): LogData {
 
         $msg = 'WP HTTP API Error';
         $response = isset($data['response']) && is_array($data['response'])
@@ -214,9 +225,9 @@ final class HttpApiListener implements ActionListenerInterface
         $code = $response['code'] ?? null;
         if ($code && is_scalar($code)) {
             $msg .= " - Response code: {$response[ 'code' ]}";
-            (is_array($data) && !empty($data['headers'])) and $logContext['headers'] = $data['headers'];
+            empty($data['headers']) or $logContext['headers'] = $data['headers'];
         }
 
-        return new Error($msg, Channels::HTTP, $logContext);
+        return new Log($msg, $this->errorLogLevel, Channels::HTTP, $logContext);
     }
 }

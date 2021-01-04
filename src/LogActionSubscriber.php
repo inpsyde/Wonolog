@@ -13,42 +13,39 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Inpsyde\Wonolog\Data\HookLogFactory;
-use Inpsyde\Wonolog\Data\LogDataInterface;
-use Monolog\Logger;
-
-/**
- * Main package object, where "things happen".
- *
- * It is the object that is used to listed to `wonolog.log` actions, build log data from received
- * arguments and pass them to Monolog for the actual logging.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- */
 class LogActionSubscriber
 {
-
-    public const ACTION_LOGGER_ERROR = 'wonolog.logger-error';
-
     /**
-     * @var Channels
+     * @var LogActionUpdater
      */
-    private $channels;
+    private $updater;
 
     /**
      * @var HookLogFactory
      */
-    private $logFactory;
+    private $factory;
 
     /**
-     * @param Channels $channels
-     * @param HookLogFactory|null $factory
+     * @param LogActionUpdater $updater
+     * @param HookLogFactory $factory
+     * @return LogActionSubscriber
      */
-    public function __construct(Channels $channels, HookLogFactory $factory = null)
+    public static function new(
+        LogActionUpdater $updater,
+        HookLogFactory $factory
+    ): LogActionSubscriber {
+
+        return new self($updater, $factory);
+    }
+
+    /**
+     * @param LogActionUpdater $updater
+     * @param HookLogFactory $factory
+     */
+    private function __construct(LogActionUpdater $updater, HookLogFactory $factory)
     {
-        $this->channels = $channels;
-        $this->logFactory = $factory ?: new HookLogFactory();
+        $this->updater = $updater;
+        $this->factory = $factory;
     }
 
     /**
@@ -62,60 +59,23 @@ class LogActionSubscriber
      * @wp-hook wonolog.log.alert
      * @wp-hook wonolog.log.emergency
      */
-    public function listen(): void
-    {
-        if (!did_action(Controller::ACTION_LOADED)) {
+    public function listen(
+        array $hookArguments = [],
+        ?string $hookLevel = null,
+        ?string $defaultChannel = null
+    ): void {
+
+        if (!did_action(Configurator::ACTION_LOADED)) {
             return;
         }
 
-        $logs = $this->logFactory->logsFromHookArguments(func_get_args(), $this->hookLevel());
-
-        array_walk($logs, [$this, 'update']);
-    }
-
-    /**
-     * @param LogDataInterface $log
-     *
-     * @return bool
-     */
-    public function update(LogDataInterface $log): bool
-    {
-        if (!did_action(Controller::ACTION_LOADED) || $log->level() < 1) {
-            return false;
+        if ($hookLevel !== null) {
+            $hookLevel = LogLevel::normalizeLevel($hookLevel);
         }
 
-        try {
-            return $this->channels
-                ->logger($log->channel())
-                ->addRecord($log->level(), $log->message(), $log->context());
-        } catch (\Throwable $throwable) {
-            /**
-             * Fires when the logger encounters an error.
-             *
-             * @param LogDataInterface $log
-             * @param \Exception|\Throwable $throwable
-             */
-            do_action(self::ACTION_LOGGER_ERROR, $log, $throwable);
-
-            return false;
+        $logs = $this->factory->logsFromHookArguments($hookArguments, $hookLevel, $defaultChannel);
+        foreach ($logs as $log) {
+            $this->updater->update($log);
         }
-    }
-
-    /**
-     * @return int
-     */
-    private function hookLevel(): int
-    {
-        $currentFilter = current_filter();
-        if ($currentFilter === LOG) {
-            return 0;
-        }
-
-        $parts = explode('.', $currentFilter, 3);
-        if (isset($parts[2])) {
-            return LogLevel::instance()->checkLevel($parts[2]);
-        }
-
-        return Logger::DEBUG;
     }
 }

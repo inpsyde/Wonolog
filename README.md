@@ -1,58 +1,40 @@
-# Wonolog 
+# Wonolog
+
+### _Monolog-based logging package for WordPress_
 
 [![Version](https://img.shields.io/packagist/v/inpsyde/wonolog.svg)](https://packagist.org/packages/inpsyde/wonolog)
 [![Downloads](https://img.shields.io/packagist/dt/inpsyde/wonolog.svg)](https://packagist.org/packages/inpsyde/wonolog)
 ![PHP quality assurance](https://github.com/inpsyde/Wonolog/workflows/PHP%20quality%20assurance/badge.svg)
 ![PHP integration tests](https://github.com/inpsyde/Wonolog/workflows/PHP%20integration%20tests/badge.svg)
 
-![Wonolog](assets/images/banner.png)
-
-> Monolog-based logging package for WordPress.
-
 ------
-
-## Table of Contents
-
-- [Introduction](#introduction)
-- [Minimum Requirements and Dependencies](#minimum-requirements-and-dependencies)
-- [Getting Started](#getting-started)
-- [Wonolog Defaults](#wonolog-defaults)
-- [Learn More](#learn-more)
-- [License and Copyright](#license-and-copyright)
-
-------
-
-## Introduction
 
 Wonolog is a Composer package (not a plugin) that allows to log anything that *happens* in a WordPress site.
 
-It is based on [Monolog](https://github.com/Seldaek/monolog), which, with its over 38 millions of downloads and thousands of dependent packages, is the most popular logging library for PHP, compatible with the PSR-3 standard.
+It is based on [Monolog](https://github.com/Seldaek/monolog), which, with its over 215 million of downloads and thousands of dependent packages, is the most popular logging library for PHP, compatible with the [PSR-3 standard](https://www.php-fig.org/psr/psr-3/).
+
+Wonolog v2 uses Monolog v2.
 
 
-## Minimum Requirements and Dependencies
+
+## Minimum requirements and dependencies
 
 Wonolog requires:
 
-- PHP 5.6+
-- WordPress 4.6+
+- PHP 7.2+
+- WordPress 5.0+
 
 Via [Composer](https://getcomposer.org), Wonolog requires `monolog/monolog` (MIT).
 
-When installed for development, via Composer, Wonolog also requires:
-
-- `phpunit/phpunit` (BSD-3-Clause)
-- `brain/monkey` (MIT)
-- `mikey179/vfsStream` (BSD-3-Clause)
 
 
-## Getting Started
+## Getting started
 
-Wonolog should be installed via Composer.
-Its package name is `inpsyde/wonolog`.
+Wonolog should be installed via Composer, it's available on packagist.org package name is `inpsyde/wonolog`.
 
 **The suggested way to use Wonolog is at website level.**
 
-If you don't use Composer to manage your whole website then Wonolog is probably not for you.
+If you don't use Composer to manage your whole website then Wonolog is probably **not** for you.
 You might be able to use it anyway, but support is not guaranteed.
 
 It's easily possible to develop plugins and themes compatible with Wonolog logging even without explicitly declaring it as a dependency.
@@ -62,65 +44,90 @@ A couple of noteworthy things:
 - all Wonolog configurations have to be done in a MU plugin;
 - in a WordPress multisite installation, all Wonolog configurations are _naturally_ site-wide.
 
-On the bright side, Wonolog comes with a super easy bootstrap routine and some out-of-the-box configurations that make it possible to have a working and effective logging system with zero effort.
+On the bright side, Wonolog is plug & play: just install it and an effective logging system is _already_ in place.
 
 To get started with defaults settings, this is required:
 
 1. install Wonolog via Composer;
-1. ensure Composer autoload is loaded in `wp-config.php` or anytime before the `'muplugins_loaded'` action is fired;
-1. create a **MU plugin** that, at least, contains this code:
+2. ensure Composer autoload is loaded in `wp-config.php` or anytime before the `'muplugins_loaded'` action is fired;
 
-```php
-<?php
-Inpsyde\Wonolog\bootstrap();
-```
+That's it: no configuration or code is strictly necessary if the default configuration is fine.
 
+## Understanding Wonolog
 
-## Wonolog Defaults
+The idea behind Wonolog is that when developing a plugin, theme, and such, there's absolutely no knowledge about the underline infrastructure that hosts the application (website) in which that plugin/theme/piece-of-code is running.
 
-The three steps described above are all that is necessary to have a working logging system that uses Monolog to write logs in a file.
-The path of that file changes based on current date, using the following format:
+However, writing log records assumes that knowledge. 
 
-- `{WP_CONTENT_DIR}/wonolog/{Y/m/d}.log`,
+This is why the workflow that Wonolog pursuit is the following:
 
-with `{Y/m/d}` being replaced by `date( 'Y/m/d' )`.
+1. plugins/themes/etc fire a WordPress action when they want to log something, passing the data to log as action parameters
+2. Wonolog listen to that action, and use Monolog to log the information passed as arguments.
 
-For example, a target file could be `/wp-content/2017/02/27.log`.
-
-What is actually logged depends on the value of `WP_DEBUG_LOG` constant.
-
-When `WP_DEBUG_LOG` is set to `true`, Wonolog will log *everything*.
-When `WP_DEBUG_LOG` is set to `false`, Wonolog will only log events with a log level higher or equal to `ERROR`, according to [PSR-3 log levels](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#5-psrlogloglevel).
-
-"Automatically" logged events include:
-
-- PHP core notices, warnings and (fatal) errors;
-- uncaught exceptions;
-- WordPress errors and events (e.g., DB errors, HTTP API errors, `wp_mail()` errors, and 404 errors).
-
-**This is just the default behavior.**
-
-The `bootstrap()` function provides entry points for many configurations and customizations.
-
-Moreover, the package provides both action and filter hooks, and can be configured via environment variables, which makes Wonolog **very** flexible, and exposes all the power that Monolog provides.
+In other words, Wonolog is a bridge in between WordPress and Monolog, that allows to use Monolog to write logs for "logging events" emitted by WordPress code, without requiring that WordPress code to be coupled with Wonolog and/or Monolog.
 
 
-## Learn More
 
-Documentation of Wonolog features, defaults, configuration and ways to extends it can be found in separate files:
+### Monolog in a nutshell
 
-- [01 - Monolog Primer](docs/01-monolog-primer.md) to learn a bit more about Monolog core concepts.
-- [02 - Basic Wonolog Concepts](docs/02-basic-wonolog-concepts.md) to learn the basics of logging with Wonolog.
-- [03 - A Deeper Look at Wonolog](docs/03-a-deeper-look-at-wonolog.md) to learn more advanced concepts and features of Wonolog.
-- [04 - Hook Listeners](docs/04-hook-listeners.md) to read about *hook listeners*, the powerful feature of Wonolog that allows for logging any WordPress code.
-- [05 - Wonolog Customization](docs/05-wonolog-customization.md) for a deep travel through all the possible configurations available for any aspect of the package.
-- [06 - Custom Hook Listeners](docs/06-custom-hook-listeners.md) to see a complete example of a custom hook listener, its integration in Wonolog, and all the things that you need to know in order to write reusable Wonolog extensions.
+We are not going to document Monolog here, there's already a quite good [documentation](https://seldaek.github.io/monolog/) for it.
+
+Its basic ideas are:
+
+- a *log record* is an array of information, including a "*message*", a "*severity*" (an integer with a 1:1 map with [PSR-3 log levels](https://www.php-fig.org/psr/psr-3/#5-psrlogloglevel)), a "*channel*" (think of it as a "category" for records), and some additional "*context*".
+- Each *log record*, before being actually logged, can be changed/extended by one or more *processor*: a PHP callable that takes the log record array as parameter and return the changed/extended array.
+- Based on the "*channel*" of the log record, it is assigned to one or more "logger". A *logger* is an object implementing [PSR-3 logger interface](https://www.php-fig.org/psr/psr-3/#3-psrlogloggerinterface) that will take care of logging the record.
+- A Monolog *logger* does not actually write log records anywhere. Instead, a Monolog *logger* contains one or more *"handler"*. An *handler* is an object that takes the log record and writes it "somewhere".
+    There can be handlers that write log records in files, send them via email or to external services, etc. Monolog ships [a few handlers](https://seldaek.github.io/monolog/doc/02-handlers-formatters-processors.html#handlers) and many more are written by 3rd parties, which means that using Monolog it is possible to write logs in a lot of different ways without having to write custom code.
+- When a *logger* contains multiple *handlers*, each of them will handle the record in ordered sequence, one after the other. Each handler in the sequence can decide to stop the sequence by setting its "*bubble*" property to false.
+- Each *handler* can be assigned to a "*minimum severity*", so that it will ignore any log record having a severity lower than that. For example, it might be desirable that an email/SMS handler is used only for emergencies and ignores anything with a lower severity.
+
+
+
+### Default WordPress log events
+
+Wonolog expects plugins/themes/etc to fire actions that will be logged.
+
+For example, a plugin could do: `do_action('wonolog.log', 'Something happened')` and Wonolog will pass that message to Monolog that will log the message based on its configuration.
+
+However, in WordPress there are a lot of "events" that are worth to be logged, and we can't expect WordPress to fire `wonolog.log` actions.
+
+This is why Wonolog, out of the box, creates 5 *channels* to be used to log WordPress "events":
+
+- `HTTP`
+- `DB`
+- `SECURITY`
+- `CRON`
+- `DEBUG`
+
+What Wonolog does under the hood is to hook default WordPress actions and filters, and based on the arguments passed to those, fire `'wonolog.log'` actions so that those events can be logged.
+
+
+
+### Logging PHP errors and exceptions
+
+PHP's exceptions and errors is something that is very likely worth logging.
+
+Wonolog, by default, adds (on top of the 5 channels mentioned above) a channel named `PHP-ERROR`. After that, it adds a [custom exception handler](https://www.php.net/manual/en/function.set-exception-handler.php), and a [custom error handler](https://www.php.net/manual/en/function.set-error-handler.php) that internally call `'wonolog.log'` so that Wonolog is able to log errors and exceptions via Monolog.
+
+
+
+### Default handler
+
+It has been said that, for log records to be actually written, Monolog needs one or more *logger* and each *logger* needs one or more *handler*.
+
+Wonolog ships with a default *logger* that is used for all the default channels. This logger has a single handler that write logs in a file whose path is inside WordPress "uploads" folder, in the sub-folder `/wonolog/{$year}/$month}/{$day}.log` (so it changes every day).
+
+This default handler can be disabled at all, customized, extended... just like pretty much any other aspect of the things Wonolog does.
+
+Note that is highly recommended to **don't** write log files to a publicly accessible folder. Wonolog attempts to write an `.htaccess` file in its default logs folder, preventing public access. but depending on server configuration that might not be enough. 
+
 
 
 ## License and Copyright
 
-Copyright (c) 2017 Inpsyde GmbH.
+Copyright (c) 2020 Inpsyde GmbH.
 
-Wonolog code is licensed under [MIT license](https://opensource.org/licenses/MIT).
+Wonolog code is licensed under GPL v2 or newer license.
 
 The team at [Inpsyde](https://inpsyde.com) is engineering the Web since 2006.

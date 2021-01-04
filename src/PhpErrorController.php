@@ -13,36 +13,29 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Monolog\Logger;
 use Inpsyde\Wonolog\Data\Log;
 
 /**
  * Handler for PHP core errors, used to log those errors mapping error types to Monolog log levels.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
  */
 class PhpErrorController
 {
-
-    public const FILTER_REPORT_SILENCED_ERRORS = 'wonolog.report-silenced-errors';
-
     private const ERROR_LEVELS_MAP = [
-        E_USER_ERROR => Logger::CRITICAL,
-        E_USER_NOTICE => Logger::NOTICE,
-        E_USER_WARNING => Logger::WARNING,
-        E_USER_DEPRECATED => Logger::NOTICE,
-        E_RECOVERABLE_ERROR => Logger::ERROR,
-        E_WARNING => Logger::WARNING,
-        E_NOTICE => Logger::NOTICE,
-        E_DEPRECATED => Logger::NOTICE,
-        E_STRICT => Logger::NOTICE,
-        E_ERROR => Logger::CRITICAL,
-        E_PARSE => Logger::CRITICAL,
-        E_CORE_ERROR => Logger::CRITICAL,
-        E_CORE_WARNING => Logger::CRITICAL,
-        E_COMPILE_ERROR => Logger::CRITICAL,
-        E_COMPILE_WARNING => Logger::CRITICAL,
+        E_USER_ERROR => LogLevel::CRITICAL,
+        E_USER_NOTICE => LogLevel::NOTICE,
+        E_USER_WARNING => LogLevel::WARNING,
+        E_USER_DEPRECATED => LogLevel::NOTICE,
+        E_RECOVERABLE_ERROR => LogLevel::ERROR,
+        E_WARNING => LogLevel::WARNING,
+        E_NOTICE => LogLevel::NOTICE,
+        E_DEPRECATED => LogLevel::NOTICE,
+        E_STRICT => LogLevel::NOTICE,
+        E_ERROR => LogLevel::CRITICAL,
+        E_PARSE => LogLevel::CRITICAL,
+        E_CORE_ERROR => LogLevel::CRITICAL,
+        E_CORE_WARNING => LogLevel::CRITICAL,
+        E_COMPILE_ERROR => LogLevel::CRITICAL,
+        E_COMPILE_WARNING => LogLevel::CRITICAL,
     ];
 
     private const FATALS = [
@@ -66,12 +59,75 @@ class PhpErrorController
     ];
 
     /**
-     * Error handler.
-     *
+     * @var bool
+     */
+    private $logSilencedErrors;
+
+    /**
+     * @var LogActionUpdater
+     */
+    private $updater;
+
+    /**
+     * @param int $errorTypes
+     * @return bool
+     */
+    public static function typesMaskContainsFatals(int $errorTypes): bool
+    {
+        foreach (self::FATALS as $errorType) {
+            if (($errorType & $errorTypes) === $errorType) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param \Throwable $throwable
+     * @param string|null $message
+     * @return Log
+     */
+    public static function factoryThrowableLog(\Throwable $throwable, ?string $message = null): Log
+    {
+        return new Log(
+            $message ?? $throwable->getMessage(),
+            LogLevel::CRITICAL,
+            Channels::PHP_ERROR,
+            [
+                'exception' => get_class($throwable),
+                'file' => $throwable->getFile(),
+                'line' => $throwable->getLine(),
+                'trace' => $throwable->getTraceAsString(),
+            ]
+        );
+    }
+
+    /**
+     * @param bool $logSilencedErrors
+     * @param LogActionUpdater $updater
+     * @return PhpErrorController
+     */
+    public static function new(bool $logSilencedErrors, LogActionUpdater $updater): PhpErrorController
+    {
+        return new self($logSilencedErrors, $updater);
+    }
+
+    /**
+     * @param bool $logSilencedErrors
+     * @param LogActionUpdater $updater
+     */
+    private function __construct(bool $logSilencedErrors, LogActionUpdater $updater)
+    {
+        $this->logSilencedErrors = $logSilencedErrors;
+        $this->updater = $updater;
+    }
+
+    /**
      * @param int $num
      * @param string $str
-     * @param string $file
-     * @param int $line
+     * @param string|null $file
+     * @param int|null $line
      * @param array|null $context
      * @return bool
      */
@@ -83,20 +139,12 @@ class PhpErrorController
         ?array $context = null
     ): bool {
 
-        $level = self::ERROR_LEVELS_MAP[$num] ?? Logger::ERROR;
-
-        $reportSilenced = apply_filters(
-            self::FILTER_REPORT_SILENCED_ERRORS,
-            error_reporting() !== 0, // phpcs:ignore
-            $num,
-            $str,
-            $file ?? '',
-            $line ?? 0
-        );
-
-        if (!$reportSilenced) {
+        $level = self::ERROR_LEVELS_MAP[$num] ?? LogLevel::ERROR;
+        // phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
+        if ((error_reporting() === 0) && !$this->logSilencedErrors) {
             return false;
         }
+        // phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
 
         $logContext = [];
         if ($context) {
@@ -109,10 +157,7 @@ class PhpErrorController
         $logContext['line'] = $line;
 
         // Log the PHP error.
-        do_action(
-            \Inpsyde\Wonolog\LOG,
-            new Log($str, $level, Channels::PHP_ERROR, $logContext)
-        );
+        $this->updater->update(new Log($str, $level, Channels::PHP_ERROR, $logContext));
 
         return false;
     }
@@ -125,20 +170,7 @@ class PhpErrorController
     public function onException(\Throwable $throwable): void
     {
         // Log the PHP exception.
-        do_action(
-            \Inpsyde\Wonolog\LOG,
-            new Log(
-                $throwable->getMessage(),
-                Logger::CRITICAL,
-                Channels::PHP_ERROR,
-                [
-                    'exception' => get_class($throwable),
-                    'file' => $throwable->getFile(),
-                    'line' => $throwable->getLine(),
-                    'trace' => $throwable->getTraceAsString(),
-                ]
-            )
-        );
+        $this->updater->update(static::factoryThrowableLog($throwable));
 
         // after logging let's reset handler and throw the exception
         restore_exception_handler();

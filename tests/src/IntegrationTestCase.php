@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Tests;
 
+use Inpsyde\Wonolog\Configurator;
 use Symfony\Component\Process\Process;
 
 abstract class IntegrationTestCase extends \PHPUnit\Framework\TestCase
@@ -22,10 +23,11 @@ abstract class IntegrationTestCase extends \PHPUnit\Framework\TestCase
      */
     private static $initialized = false;
 
-    /***
+    /**
+     * @param Configurator $configurator
      * @return void
      */
-    abstract protected function bootstrapWonolog(): void;
+    abstract protected function bootstrapWonolog(Configurator $configurator): void;
 
     /**
      * @return void
@@ -43,9 +45,9 @@ abstract class IntegrationTestCase extends \PHPUnit\Framework\TestCase
         require_once ABSPATH . 'wp-includes/plugin.php';
 
         add_action(
-            'muplugins_loaded',
-            function () {
-                $this->bootstrapWonolog();
+            Configurator::ACTION_SETUP,
+            function (Configurator $configurator) {
+                $this->bootstrapWonolog($configurator);
             }
         );
 
@@ -79,11 +81,11 @@ abstract class IntegrationTestCase extends \PHPUnit\Framework\TestCase
         $cliPath or $cliPath = getenv('VENDOR_DIR') . '/bin';
 
         array_unshift($command, "{$cliPath}/wp");
-        $command[] = "--path=" . ABSPATH;
-        $command[] = "--quiet";
-        $command[] = "--skip-plugins";
-        $command[] = "--skip-themes";
-        $command[] = "--allow-root";
+        $command[] = '--path=' . ABSPATH;
+        $command[] = '--quiet';
+        $command[] = '--skip-plugins';
+        $command[] = '--skip-themes';
+        $command[] = '--allow-root';
 
         [$dbHost, $dbName, $dbUser, $dbPwd] = self::loadEnvVars();
         $env = [

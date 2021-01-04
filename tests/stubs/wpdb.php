@@ -16,15 +16,12 @@
 declare(strict_types=1);
 
 use Inpsyde\Wonolog\HookListener\WpDieHandlerListener;
+use Inpsyde\Wonolog\LogActionUpdater;
 
 if (class_exists('wpdb')) {
     return;
 }
 
-/**
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- */
 class wpdb // phpcs:ignore
 {
     /**
@@ -33,13 +30,18 @@ class wpdb // phpcs:ignore
     public $wp_die_listener;
 
     /**
+     * @var LogActionUpdater
+     */
+    public $logActionUpdater;
+
+    /**
      * @param string $message
      * @param string $code
      * @return string
      */
     public function bail($message, $code = '500')
     {
-        $handler = $this->execute_die_listener($message);
+        $handler = $this->execute_die_listener();
 
         return $handler($message, 'Bail');
     }
@@ -50,23 +52,22 @@ class wpdb // phpcs:ignore
      */
     public function print_error($message = '')
     {
-        $handler = $this->execute_die_listener($message);
+        $handler = $this->execute_die_listener();
 
         return $handler($message, 'Bail');
     }
 
     /**
-     * @param string $message
      * @return callable
      */
-    private function execute_die_listener($message)
+    private function execute_die_listener()
     {
         $handler = static function ($message) {
             return "Handled: $message";
         };
 
         $listener = $this->wp_die_listener;
-        $handler = $listener->filter([$handler]);
+        $handler = $listener->filter('a', [$handler], $this->logActionUpdater);
 
         return $handler;
     }

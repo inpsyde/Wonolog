@@ -13,10 +13,6 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Data;
 
-/**
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- */
 trait LogDataTrait
 {
 

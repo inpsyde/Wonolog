@@ -13,20 +13,14 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Data;
 
-use Monolog\Logger;
+use Inpsyde\Wonolog\LogLevel;
 
-/**
- * A log event with predefined level set to WARNING.
- *
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- */
-final class Warning implements LogDataInterface
+final class Warning implements LogData
 {
     use LogDataTrait;
 
     public function level(): int
     {
-        return Logger::WARNING;
+        return LogLevel::WARNING;
     }
 }

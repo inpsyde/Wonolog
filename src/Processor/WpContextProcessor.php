@@ -13,49 +13,54 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Processor;
 
-/**
- * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
- */
 class WpContextProcessor
 {
-
     /**
-     * @var bool
+     * @var bool|null
      */
     private $isRestRequest;
+
+    /**
+     * @return WpContextProcessor
+     */
+    public static function new(): WpContextProcessor
+    {
+        return new self();
+    }
+
+    private function __construct()
+    {
+    }
 
     /**
      * @param array $record The complete log record containing 'message', 'context'
      *                      'level', 'level_name', 'channel', 'datetime' and 'extra'
      * @return array
      */
-    public function __invoke(array $record)
+    public function __invoke(array $record): array
     {
-        $record['extra']['wp'] = [
+        $data = [
             'doing_cron' => defined('DOING_CRON') && DOING_CRON,
             'doing_ajax' => defined('DOING_AJAX') && DOING_AJAX,
             'is_admin' => is_admin(),
+            'doing_rest' => $this->doingRest(),
         ];
 
-        // When doing_rest() returns false before 'parse_request'
-        // we can't be sure request will not be recognized as a
-        // REST request later and so we don't say `doing_rest` is
-        // false if we are not sure about that.
-        $doingRest = $this->doingRest();
-        if ($doingRest || did_action('parse_request')) {
-            $record['extra']['wp']['doing_rest'] = $doingRest;
-        }
-
         if (did_action('init')) {
-            $record['extra']['wp']['user_id'] = get_current_user_id();
+            $data['user_id'] = get_current_user_id();
         }
 
         if (is_multisite()) {
-            $record['extra']['wp']['ms_switched'] = ms_is_switched();
-            $record['extra']['wp']['site_id'] = get_current_blog_id();
-            $record['extra']['wp']['network_id'] = get_current_network_id();
+            $data['ms_switched'] = ms_is_switched();
+            $data['site_id'] = get_current_blog_id();
+            $data['network_id'] = get_current_network_id();
         }
+
+        if (!isset($record['extra']) || !is_array($record['extra'])) {
+            $record['extra'] = [];
+        }
+
+        $record['extra']['wp'] = $data;
 
         return $record;
     }
@@ -83,9 +88,9 @@ class WpContextProcessor
             $GLOBALS['wp_rewrite'] = new \WP_Rewrite();
         }
 
-        $restUrl = set_url_scheme(get_rest_url());
-        $currentUrl = set_url_scheme(add_query_arg([]));
-        $this->isRestRequest = strpos($currentUrl, set_url_scheme($restUrl)) === 0;
+        $restUrl = (string)set_url_scheme(get_rest_url());
+        $currentUrl = (string)set_url_scheme(add_query_arg([]));
+        $this->isRestRequest = strpos($currentUrl, (string)set_url_scheme($restUrl)) === 0;
 
         return $this->isRestRequest;
     }
