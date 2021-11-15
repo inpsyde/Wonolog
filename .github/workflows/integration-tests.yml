@@ -34,7 +34,7 @@ jobs:
         container:
             image: wordpress:cli-2.5-php7.4
             volumes:
-                - ${{ env.GITHUB_WORKSPACE }}/var/www
+                - "${{ env.GITHUB_WORKSPACE }}:/var/www"
             env:
                 WORDPRESS_DB_HOST: ${{ env.DB_HOST }}
                 WORDPRESS_DB_USER: ${{ env.DB_USER }}
