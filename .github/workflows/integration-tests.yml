@@ -20,6 +20,9 @@ jobs:
                 php-ver: [ '7.4' ]
         container:
             image: ${{ format('wordpress:cli-2.5-php{0}', matrix.php-ver) }}
+            volumes:
+                - ${{ github.workspace }}:/var/www/html
+            options: '--user root'
             env:
                 WORDPRESS_DB_HOST: ${{ env.DB_HOST }}
                 WORDPRESS_DB_USER: ${{ env.DB_USER }}
