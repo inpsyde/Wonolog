@@ -17,7 +17,7 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-ver: 7.4
+                    php-version: 7.4
                     coverage: none
                     tools: cs2pr
 
@@ -60,7 +60,7 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-ver: ${{ matrix.php-ver }}
+                    php-version: ${{ matrix.php-ver }}
                     ini-values: zend.assertions=1, error_reporting=-1, display_errors=On
                     coverage: ${{ ((env.USE_COVERAGE == 'yes') && 'xdebug') || 'none' }}
                     tools: cs2pr, parallel-lint
