@@ -10,9 +10,10 @@ concurrency:
 jobs:
     integration-tests:
         runs-on: ubuntu-latest
+        container: node:10.18-jessie
         if: ${{ !contains(github.event.head_commit.message, 'skip integration') }}
         env:
-            WORDPRESS_DB_HOST: mysql
+            WORDPRESS_DB_HOST: localhost
             WORDPRESS_DB_USER: wordpress
             WORDPRESS_DB_PASSWORD: wordpress
             WORDPRESS_DB_NAME: wordpress
