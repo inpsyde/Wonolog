@@ -40,12 +40,8 @@ jobs:
         strategy:
             fail-fast: true
             matrix:
-                php-ver: [ '7.2', '7.3', '7.4', '8.0', '8.1' ]
+                php-ver: [ '7.2', '7.3', '7.4', '8.0' ]
                 deps-mode: [ 'lowest', 'highest' ]
-                include:
-                    -   php-ver: '8.2'
-                        deps-mode: 'highest'
-                        composer-options: '--ignore-platform-reqs'
 
         continue-on-error: ${{ matrix.php-ver == '8.2' }}
 
