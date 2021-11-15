@@ -14,8 +14,12 @@ env:
 jobs:
     integration-tests:
         runs-on: ubuntu-latest
+        strategy:
+            fail-fast: true
+            matrix:
+                php-ver: [ '7.4' ]
         container:
-            image: wordpress:cli-2.5-php7.4
+            image: ${{ format('wordpress:cli-2.5-php{0}', matrix.php-ver) }}
             env:
                 WORDPRESS_DB_HOST: ${{ env.DB_HOST }}
                 WORDPRESS_DB_USER: ${{ env.DB_USER }}
@@ -29,9 +33,11 @@ jobs:
                     MYSQL_USER: ${{ env.DB_USER }}
                     MYSQL_PASSWORD: ${{ env.DB_PASSWORD }}
         steps:
+            -   name: Install Git in the container
+                run:
+                    apt-get update
+                    apt-get install -y git
+
             -   name: Checkout
                 uses: actions/checkout@v2
-
-            -   name: Run integration tests
-                working-directory: /var/www
-                run: ./vendor/bin/phpunit --testsuite=integration --no-coverage
+                working-directory: /var/www/html
