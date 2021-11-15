@@ -29,6 +29,7 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">=7.2",
+        "psr/log": "^1.1.4",
         "monolog/monolog": "^2.3.5"
     },
     "require-dev": {

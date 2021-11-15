@@ -11,9 +11,6 @@ jobs:
     integration-tests:
         runs-on: ubuntu-latest
         if: ${{ !contains(github.event.head_commit.message, 'skip integration') }}
-        strategy:
-            matrix:
-                php-ver: [ '7.2', '7.3', '7.4', '8.0' ]
         env:
             WORDPRESS_DB_HOST: mysql
             WORDPRESS_DB_USER: wordpress
@@ -22,6 +19,8 @@ jobs:
         services:
             mysql:
                 image: mysql:5.7
+                ports:
+                    - 3306:3306
                 env:
                     MYSQL_DATABASE: ${{ env.WORDPRESS_DB_NAME }}
                     MYSQL_USER: ${{ env.WORDPRESS_DB_USER }}
@@ -33,7 +32,7 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-ver: ${{ matrix.php-ver }}
+                    php-ver: 7.4
                     coverage: none
                     tools: wp-cli
 
