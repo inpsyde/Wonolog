@@ -11,7 +11,7 @@ jobs:
         runs-on: ubuntu-latest
         if: ${{ !contains(github.event.head_commit.message, 'skip qa') }}
         steps:
-            -   name: Chekout
+            -   name: Checkout
                 uses: actions/checkout@v2
 
             -   name: Setup PHP
@@ -50,7 +50,7 @@ jobs:
                 if: ${{ matrix.php-ver == '7.4' && matrix.deps-mode == 'highest' }}
                 run: echo "USE_COVERAGE=yes" >> $GITHUB_ENV
 
-            -   name: Chekout
+            -   name: Checkout
                 uses: actions/checkout@v2
 
             -   name: Setup PHP

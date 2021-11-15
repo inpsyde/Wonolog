@@ -10,31 +10,22 @@ concurrency:
 jobs:
     integration-tests:
         runs-on: ubuntu-latest
-        if: ${{ !contains(github.event.head_commit.message, 'skip integration') }}
+        container: cli-2.5-php7.4
         env:
-            WORDPRESS_DB_HOST: localhost
+            WORDPRESS_DB_HOST: mysql
             WORDPRESS_DB_USER: wordpress
             WORDPRESS_DB_PASSWORD: wordpress
             WORDPRESS_DB_NAME: wordpress
         services:
             mysql:
                 image: mysql:5.7
-                ports:
-                    - 3306:3306
                 env:
                     MYSQL_DATABASE: ${{ env.WORDPRESS_DB_NAME }}
                     MYSQL_USER: ${{ env.WORDPRESS_DB_USER }}
                     MYSQL_PASSWORD: ${{ env.WORDPRESS_DB_PASSWORD }}
         steps:
-            -   name: Chekout
+            -   name: Checkout
                 uses: actions/checkout@v2
-
-            -   name: Setup PHP
-                uses: shivammathur/setup-php@v2
-                with:
-                    php-version: 7.4
-                    coverage: none
-                    tools: wp-cli
 
             -   name: Install dependencies
                 uses: ramsey/composer-install@v1
