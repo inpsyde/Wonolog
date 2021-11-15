@@ -106,12 +106,16 @@ class LogLevelTest extends UnitTestCase
     /**
      * @test
      */
-    public function testCheckLevelAcceptsPositiveNumbers(): void
+    public function testNormalizeLevelNormalizeToClosestValidLevel(): void
     {
-        self::assertNull(LogLevel::normalizeLevel(0));
-        self::assertSame(null, LogLevel::normalizeLevel(27));
-        self::assertSame(250, LogLevel::normalizeLevel(250));
-        self::assertNull(LogLevel::normalizeLevel(-10));
+        self::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(0));
+        self::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(-10));
+        self::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(LogLevel::DEBUG - 10));
+        self::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(LogLevel::INFO - 1));
+        self::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::INFO));
+        self::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::INFO + 1));
+        self::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::NOTICE - 1));
+        self::assertSame(LogLevel::NOTICE, LogLevel::normalizeLevel(LogLevel::NOTICE));
     }
 
     /**

@@ -19,7 +19,9 @@ use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\Emergency;
 use Inpsyde\Wonolog\Data\Info;
 use Inpsyde\Wonolog\Factory;
+use Inpsyde\Wonolog\Registry\HandlersRegistry;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
+use Monolog\Handler\BufferHandler;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -59,7 +61,30 @@ class ChannelsTest extends UnitTestCase
     /**
      * @test
      */
-    public function testLoggerInitializeOnceAndReturnAlways(): void
+    public function testLoggerInitializeOnceAndReturnAlwaysNotBuffered(): void
+    {
+        Monkey\Actions\expectDone(Channels::ACTION_LOGGER)->once();
+        Monkey\Filters\expectApplied(HandlersRegistry::FILTER_BUFFER_HANDLER)
+            ->once()
+            ->andReturn(false);
+
+        $factory = Factory::new();
+        $channels = $factory->channels();
+        $handler = new TestHandler();
+        $factory->handlersRegistry()->addHandler($handler, 'test');
+
+        $logger = $channels->logger(Channels::DEBUG);
+
+        static::assertInstanceOf(Logger::class, $logger);
+        static::assertSame($logger, $channels->logger(Channels::DEBUG));
+        static::assertSame($logger, $channels->logger(Channels::DEBUG));
+        static::assertEquals([$handler], $logger->getHandlers());
+    }
+
+    /**
+     * @test
+     */
+    public function testLoggerInitializeOnceAndReturnAlwaysBuffered(): void
     {
         Monkey\Actions\expectDone(Channels::ACTION_LOGGER)->once();
 
@@ -73,7 +98,14 @@ class ChannelsTest extends UnitTestCase
         static::assertInstanceOf(Logger::class, $logger);
         static::assertSame($logger, $channels->logger(Channels::DEBUG));
         static::assertSame($logger, $channels->logger(Channels::DEBUG));
-        static::assertEquals([$handler], $logger->getHandlers());
+
+        $handlers = $logger->getHandlers();
+        static::assertIsArray($handlers);
+        static::assertCount(1, $handlers);
+
+        $handler = reset($handlers);
+
+        static::assertInstanceOf(BufferHandler::class, $handler);
     }
 
     /**

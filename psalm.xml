@@ -1,11 +1,8 @@
 <?xml version="1.0"?>
 <psalm
-    autoloader="./.psalm/autoloader.php"
     totallyTyped="true"
     useDocblockPropertyTypes="true"
     usePhpDocMethodsWithoutMagicCall="true"
-    allowPhpStormGenerics="true"
-    allowCoercionFromStringToClassConst="true"
     hideExternalErrors="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
@@ -18,6 +15,10 @@
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
+
+    <stubs>
+        <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
+    </stubs>
 
     <issueHandlers>
         <MixedAssignment errorLevel="suppress" />

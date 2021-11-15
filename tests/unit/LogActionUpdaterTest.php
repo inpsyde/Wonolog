@@ -10,6 +10,7 @@ use Inpsyde\Wonolog\Configurator;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\Data\LogData;
 use Inpsyde\Wonolog\LogActionUpdater;
+use Inpsyde\Wonolog\LogLevel as WonologLogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Logger;
 use Psr\Log\LogLevel;
@@ -22,11 +23,11 @@ class LogActionUpdaterTest extends UnitTestCase
      */
     public function testUpdateDoNothingIfConfiguratorNotLoaded(): void
     {
-        $log = \Mockery::mock(LogData::class);
-        $log->shouldReceive('level')->never();
+        $channels = \Mockery::mock(Channels::class);
+        $channels->shouldReceive('isIgnored')->never();
 
-        $updater = LogActionUpdater::new(\Mockery::mock(Channels::class));
-        $updater->update($log);
+        $updater = LogActionUpdater::new($channels);
+        $updater->update(new Log(''));
     }
 
     /**
@@ -36,8 +37,7 @@ class LogActionUpdaterTest extends UnitTestCase
     {
         do_action(Configurator::ACTION_LOADED);
 
-        $log = \Mockery::mock(LogData::class);
-        $log->shouldReceive('level')->once()->andReturn(0);
+        $log = new Log('Test', 0);
 
         $channels = \Mockery::mock(Channels::class);
         $channels->shouldReceive('isIgnored')->never();
@@ -53,8 +53,7 @@ class LogActionUpdaterTest extends UnitTestCase
     {
         do_action(Configurator::ACTION_LOADED);
 
-        $log = \Mockery::mock(LogData::class);
-        $log->shouldReceive('level')->once()->andReturn(10);
+        $log = new Log('Message', WonologLogLevel::DEBUG);
 
         $channels = \Mockery::mock(Channels::class);
         $channels->shouldReceive('isIgnored')->once()->with($log)->andReturn(true);
@@ -71,9 +70,7 @@ class LogActionUpdaterTest extends UnitTestCase
     {
         do_action(Configurator::ACTION_LOADED);
 
-        $log = \Mockery::mock(LogData::class);
-        $log->shouldReceive('level')->once()->andReturn(10);
-        $log->shouldReceive('channel')->once()->andReturn(Channels::DEBUG);
+        $log = new Log('Message', WonologLogLevel::DEBUG, Channels::DEBUG);
 
         $channels = \Mockery::mock(Channels::class);
         $channels->shouldReceive('isIgnored')->once()->with($log)->andReturn(false);

@@ -5,30 +5,35 @@
     <file>./inc</file>
     <file>./tests/src</file>
 
-	<arg value="sp"/>
-	<arg name="colors"/>
 	<config name="testVersion" value="7.2-"/>
-	<config name="text_domain" value="wonolog"/>
-	<config name="ignore_warnings_on_exit" value="1"/>
+    <arg value="sp"/>
+    <arg name="colors"/>
+    <config name="text_domain" value="wonolog"/>
+    <config name="ignore_warnings_on_exit" value="1"/>
 
     <rule ref="Inpsyde">
-        <exclude name="WordPress.PHP.DevelopmentFunctions" />
-        <exclude name="WordPressVIPMinimum.Constants.ConstantString.NotCheckingConstantName" />
-        <exclude name="WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv" />
+        <exclude name="WordPress.PHP.DevelopmentFunctions"/>
+        <exclude name="WordPressVIPMinimum.Constants.ConstantString.NotCheckingConstantName"/>
+        <exclude name="WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv"/>
     </rule>
 
     <rule ref="Inpsyde.CodeQuality.ElementNameMinimalLength">
         <properties>
-            <property name="additionalAllowedNames" type="array" value="cc" />
+            <property name="additionalAllowedNames" type="array" value="cc"/>
         </properties>
     </rule>
 
     <rule ref="Inpsyde.CodeQuality.Psr4">
         <properties>
             <property
-                    name="psr4"
-                    type="array"
-                    value="Inpsyde\Wonolog=>src,Inpsyde\Wonolog\Tests=>tests/src,Inpsyde\Wonolog\Tests\Unit=>tests/unit,Inpsyde\Wonolog\Tests\Integration==>tests/integration"/>
+                name="psr4"
+                type="array"
+                value="
+                    Inpsyde\Wonolog=>src,
+                    Inpsyde\Wonolog\Tests=>tests/src,
+                    Inpsyde\Wonolog\Tests\Unit=>tests/unit,
+                    Inpsyde\Wonolog\Tests\Integration=>tests/integration
+                "/>
         </properties>
     </rule>
 

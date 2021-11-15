@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog;
 
 // We want to load this file just once.
-// Being loaded by Composer autoload, and being in WordPress context, we have to put special care on this.
+// Being loaded by Composer autoload, and being in WP context, we have to put special care on this.
 if (defined(__NAMESPACE__ . '\\LOG')) {
     return;
 }
@@ -65,8 +65,6 @@ function makeLogger(?string $forChannel = null): \Psr\Log\LoggerInterface
     /**
      * If here, this file is loaded very early, probably _too_ early, before ABSPATH is defined.
      * Only option we have is to "manually" write in global `$wp_filter` array.
-     * Hint: in whole-site Composer-based WP installs, require Composer autoload _after_ defining
-     * ABSPATH.
      */
     global $wp_filter;
     is_array($wp_filter) or $wp_filter = [];

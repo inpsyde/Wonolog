@@ -24,23 +24,23 @@
     "support": {
         "issues": "https://github.com/inpsyde/Wonolog/issues",
         "source": "https://github.com/inpsyde/Wonolog",
-        "docs": "https://inpsyde.github.io/Wonolog/"
+        "docs": "https://inpsyde.github.io/Wonolog/docs"
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
+    "minimum-stability": "stable",
     "require": {
         "php": ">=7.2",
-        "monolog/monolog": "^2"
+        "monolog/monolog": "^2.3.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8",
-        "brain/monkey": "^2.2.0",
-        "mikey179/vfsstream": "~1.6.4",
-        "inpsyde/php-coding-standards": "dev-master",
-        "vimeo/psalm": "dev-master",
-        "roots/wordpress": "@stable",
-        "symfony/process": "^4.4",
-        "globalis/wp-cli-bin": "^2.4"
+        "phpunit/phpunit": "^8.5.21",
+        "brain/monkey": "^2.6.1",
+        "mikey179/vfsstream": "~1.6.10",
+        "inpsyde/php-coding-standards": "^1@beta",
+        "vimeo/psalm": "^4.12.0",
+        "php-stubs/wordpress-stubs": ">=5.8.0",
+        "johnpbloch/wordpress-core": ">=5.8.0",
+        "symfony/process": "^4.4.30",
+        "globalis/wp-cli-bin": "^2.5.0"
     },
     "provide": {
         "psr/log-implementation": "1.0.0"
@@ -66,15 +66,19 @@
     "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev",
-            "dev-2.x": "2.0.x-dev"
-        },
-        "wordpress-install-dir": "vendor/wordpress/wordpress"
+            "dev-2.x": "2.x-dev"
+        }
     },
     "scripts": {
         "cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
-        "psalm": "@php ./vendor/vimeo/psalm/psalm",
+        "psalm": "@php ./vendor/vimeo/psalm/psalm --output-format=compact --no-cache",
         "tests:unit": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit",
         "tests:unit:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --no-coverage",
-        "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=integration --no-coverage"
+        "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=integration --no-coverage",
+        "qa" : [
+          "@cs",
+          "@psalm",
+          "@tests:unit:no-cov"
+        ]
     }
 }

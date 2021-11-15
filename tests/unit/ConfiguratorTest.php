@@ -16,6 +16,7 @@ namespace Inpsyde\Wonolog\Tests\Unit;
 use Brain\Monkey;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Configurator;
+use Inpsyde\Wonolog\DefaultHandler\FileHandler;
 use Inpsyde\Wonolog\HookListener\HttpApiListener;
 use Inpsyde\Wonolog\HookListener\MailerListener;
 use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
@@ -146,7 +147,7 @@ class ConfiguratorTest extends UnitTestCase
         static::assertCount(1, $httpHandlers);
         static::assertCount(0, $dbHandlers);
         static::assertTrue($debugHandlers[0] instanceof NoopHandler);
-        static::assertTrue($httpHandlers[0] instanceof WonologFileHandler);
+        static::assertTrue($httpHandlers[0] instanceof FileHandler);
     }
 
     /**
@@ -182,7 +183,7 @@ class ConfiguratorTest extends UnitTestCase
 
             static::assertCount($notExpecting ? 0 : 1, $handlers, "For channel {$channel}.");
             if (!$notExpecting) {
-                static::assertTrue($handlers[0] instanceof WonologFileHandler);
+                static::assertTrue($handlers[0] instanceof FileHandler);
             }
         }
     }

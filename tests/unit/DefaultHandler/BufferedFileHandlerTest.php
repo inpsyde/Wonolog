@@ -11,10 +11,10 @@
 
 declare(strict_types=1);
 
-namespace Inpsyde\Wonolog\Tests\Unit;
+namespace Inpsyde\Wonolog\Tests\Unit\DefaultHandler;
 
 use Brain\Monkey;
-use Inpsyde\Wonolog\WonologFileHandler;
+use Inpsyde\Wonolog\DefaultHandler\FileHandler;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Formatter\JsonFormatter;
 use org\bovigo\vfs\vfsStream;
@@ -23,7 +23,7 @@ use org\bovigo\vfs\vfsStreamDirectory;
 /**
  * @runTestsInSeparateProcesses
  */
-class WonologFileHandlerTest extends UnitTestCase
+class BufferedFileHandlerTest extends UnitTestCase
 {
     /**
      * @test
@@ -32,7 +32,7 @@ class WonologFileHandlerTest extends UnitTestCase
     {
         $dir = $this->setupFolders();
 
-        $actual = WonologFileHandler::new()
+        $actual = FileHandler::new()
             ->withFolder($dir->url() . '/logs')
             ->withFilename('wonolog.log');
 
@@ -48,7 +48,7 @@ class WonologFileHandlerTest extends UnitTestCase
     {
         $dir = $this->setupFolders();
 
-        $actual = WonologFileHandler::new()
+        $actual = FileHandler::new()
             ->withFolder($dir->url() . '/wp-content/logs')
             ->withFilename('wonolog.log')
             ->logFilePath();
@@ -64,7 +64,7 @@ class WonologFileHandlerTest extends UnitTestCase
     public function testProcessorAndFormatterAccessors(): void
     {
         $this->setupFolders();
-        $handler =  WonologFileHandler::new();
+        $handler = FileHandler::new();
         $formatter = new JsonFormatter();
         $processor = function (array $record) { return $record; };
         $handler->setFormatter($formatter);

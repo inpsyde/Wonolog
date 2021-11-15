@@ -11,10 +11,10 @@
 
 declare(strict_types=1);
 
-namespace Inpsyde\Wonolog\Tests\Unit;
+namespace Inpsyde\Wonolog\Tests\Unit\DefaultHandler;
 
 use Brain\Monkey;
-use Inpsyde\Wonolog\LogsFolder;
+use Inpsyde\Wonolog\DefaultHandler\LogsFolder;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;

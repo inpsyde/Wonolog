@@ -8,32 +8,36 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+// phpcs:disable
 
 declare(strict_types=1);
 
-$vendor = dirname(__DIR__) . '/vendor';
+$testsDir = str_replace('\\', '/', __DIR__);
+$libDir = dirname($testsDir);
+$vendorDir = "{$libDir}/vendor";
+$autoload = "{$vendorDir}/autoload.php";
 
-if (!realpath($vendor)) {
+if (!is_file($autoload)) {
     die('Please install via Composer before running tests.');
 }
 
-if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
-    define('PHPUNIT_COMPOSER_INSTALL', "{$vendor}/autoload.php");
-}
+putenv('TESTS_PATH=' . $testsDir);
+putenv('LIBRARY_PATH=' . $libDir);
+putenv('VENDOR_DIR=' . $vendorDir);
 
 error_reporting(E_ALL); // phpcs:ignore
 
-require_once "{$vendor}/antecedent/patchwork/Patchwork.php";
-require_once "{$vendor}/autoload.php";
+require_once "{$libDir}/vendor/antecedent/patchwork/Patchwork.php";
 
-putenv('VENDOR_DIR=' . $vendor);
-putenv('TESTS_PATH=' . __DIR__);
-putenv('LIBRARY_PATH=' . dirname(__DIR__));
+if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
+    define('PHPUNIT_COMPOSER_INSTALL', $autoload);
+    require_once $autoload;
+}
 
 if (file_exists(__DIR__ . '/environment.php')) {
     require_once __DIR__ . '/environment.php';
 }
 
-defined('ABSPATH') or define('ABSPATH', "{$vendor}/wordpress/wordpress/");
+defined('ABSPATH') or define('ABSPATH', "{$vendorDir}/johnpbloch/wordpress-core/");
 
-unset($vendor);
+unset($testsDir, $libDir, $vendorDir, $autoload);
