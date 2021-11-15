@@ -17,5 +17,5 @@ jobs:
             -   uses: actions/checkout@v2
 
             -   name: Run integration tests
-                working-directory: ./github/workflows/docker
+                working-directory: ./.github/workflows/docker
                 run: docker-compose run --rm ${{ matrix.php-service }} sh -c "composer install -q -n -a --no-progress --prefer-dist && composer tests:integration"
