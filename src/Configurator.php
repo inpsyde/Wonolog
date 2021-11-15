@@ -286,7 +286,13 @@ class Configurator
 
         $this->withChannels($channel, ...$channels);
 
-        return $this->toggleEnabledDisabledConfig(self::CONF_FALLBACK_HANDLER, true, $channel, ...$channels);
+        return $this->toggleEnabledDisabledConfig(
+            self::CONF_FALLBACK_HANDLER,
+            true,
+            $channel,
+            ...
+            $channels
+        );
     }
 
     /**
@@ -299,7 +305,13 @@ class Configurator
         string ...$channels
     ): Configurator {
 
-        return $this->toggleEnabledDisabledConfig(self::CONF_FALLBACK_HANDLER, false, $channel, ...$channels);
+        return $this->toggleEnabledDisabledConfig(
+            self::CONF_FALLBACK_HANDLER,
+            false,
+            $channel,
+            ...
+            $channels
+        );
     }
 
     /**
@@ -438,11 +450,20 @@ class Configurator
      * @param string ...$channels
      * @return $this
      */
-    public function enableWpContextProcessorForChannels(string $channel, string ...$channels): Configurator
-    {
+    public function enableWpContextProcessorForChannels(
+        string $channel,
+        string ...$channels
+    ): Configurator {
+
         $this->withChannels($channel, ...$channels);
 
-        return $this->toggleEnabledDisabledConfig(self::CONF_WP_CONTEXT_PROCESSOR, true, $channel, ...$channels);
+        return $this->toggleEnabledDisabledConfig(
+            self::CONF_WP_CONTEXT_PROCESSOR,
+            true,
+            $channel,
+            ...
+            $channels
+        );
     }
 
     /**
@@ -450,9 +471,18 @@ class Configurator
      * @param string ...$channels
      * @return $this
      */
-    public function disableWpContextProcessorForChannels(string $channel, string ...$channels): Configurator
-    {
-        return $this->toggleEnabledDisabledConfig(self::CONF_WP_CONTEXT_PROCESSOR, false, $channel, ...$channels);
+    public function disableWpContextProcessorForChannels(
+        string $channel,
+        string ...$channels
+    ): Configurator {
+
+        return $this->toggleEnabledDisabledConfig(
+            self::CONF_WP_CONTEXT_PROCESSOR,
+            false,
+            $channel,
+            ...
+            $channels
+        );
     }
 
     /**
@@ -490,7 +520,13 @@ class Configurator
      */
     public function enableDefaultHookListeners(string $listener, string ...$listeners): Configurator
     {
-        return $this->toggleEnabledDisabledConfig(self::CONF_DEFAULT_LISTENERS, true, $listener, ...$listeners);
+        return $this->toggleEnabledDisabledConfig(
+            self::CONF_DEFAULT_LISTENERS,
+            true,
+            $listener,
+            ...
+            $listeners
+        );
     }
 
     /**
@@ -503,7 +539,13 @@ class Configurator
         string ...$listeners
     ): Configurator {
 
-        return $this->toggleEnabledDisabledConfig(self::CONF_DEFAULT_LISTENERS, false, $listener, ...$listeners);
+        return $this->toggleEnabledDisabledConfig(
+            self::CONF_DEFAULT_LISTENERS,
+            false,
+            $listener,
+            ...
+            $listeners
+        );
     }
 
     /**
@@ -758,7 +800,7 @@ class Configurator
 
         $this->setupHookListeners();
 
-        // This ensures the `add_action` inside `makeLogger` function is fired.
+        // This ensures the `add_action` inside `makeLogger` function is executed.
         makeLogger();
 
         /** @var callable(?string):LoggerInterface $factoryCb */
@@ -816,6 +858,7 @@ class Configurator
     }
 
     /**
+     * @param string $key
      * @param bool $trueForEnable
      * @param string $configValue
      * @param string ...$configValues
@@ -896,6 +939,7 @@ class Configurator
     }
 
     /**
+     * @param Channels $channels
      * @return bool
      */
     protected function setupFallbackHandler(Channels $channels): bool
@@ -912,7 +956,8 @@ class Configurator
         }
 
         $id = 'wonolog-def-hander-' . bin2hex(random_bytes(3));
-        $this->factory->handlersRegistry()->addHandler(WonologFileHandler::new(), $id, ...$toEnable);
+        $this->factory->handlersRegistry()
+            ->addHandler(DefaultHandler\FileHandler::new(), $id, ...$toEnable);
 
         return true;
     }
@@ -939,7 +984,10 @@ class Configurator
     {
         $listeners = $this->factory->listenersRegistry();
 
-        $defaults = $this->parseEnabledDisabledConfig(self::CONF_DEFAULT_LISTENERS, self::DEFAULT_HOOK_LISTENERS);
+        $defaults = $this->parseEnabledDisabledConfig(
+            self::CONF_DEFAULT_LISTENERS,
+            self::DEFAULT_HOOK_LISTENERS
+        );
 
         /** @var class-string<HookListener\HookListener> $class */
         foreach (($defaults ?? []) as $class) {

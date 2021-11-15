@@ -114,7 +114,6 @@ final class HttpApiListener implements ActionListener
 
             $log = $this->logHttpError($response, $context, $class, $httpArgs, $url);
         } elseif ($this->isCron($url)) {
-            /** @var array $response */
             $log = $this->logCron($response, $context, $class, $httpArgs, $url);
         }
 

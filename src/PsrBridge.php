@@ -99,7 +99,7 @@ class PsrBridge extends AbstractLogger
         unset($context[LogData::CHANNEL]);
 
         $context = (array)$this->maybeSerializeComplex($context, -1, true);
-
+        /** @psalm-suppress InvalidArgument */
         $record = ($this->processor)(compact('message', 'context'));
         array_key_exists('message', $record) and $message = (string)$record['message'];
         array_key_exists('context', $record) and $context = (array)$record['context'];
@@ -168,6 +168,7 @@ class PsrBridge extends AbstractLogger
     /**
      * @param mixed $message
      * @param int $level
+     * @param bool $keepArray
      * @return mixed
      */
     private function maybeSerializeComplex($message, int $level = 0, bool $keepArray = false)
@@ -192,18 +193,14 @@ class PsrBridge extends AbstractLogger
 
         $iterated = [];
         foreach ($message as $key => $value) {
-            if (in_array($key, ['password', 'user_password', 'secret', 'token'], true)) {
-                $iterated[$key] = '********';
-                continue;
-            }
-
             if ($level > 0) {
+                /** @psalm-suppress MixedArrayOffset */
                 $iterated[$key] = $keepArray
                     ? $value
                     : $this->serializeMessage($value, $level + 1);
                 continue;
             }
-
+            /** @psalm-suppress MixedArrayOffset */
             $iterated[$key] = ($keepArray && !is_resource($value))
                 ? $this->maybeSerializeComplex($value, $level + 1, true)
                 : $this->serializeMessage($value, $level + 1);
@@ -248,12 +245,14 @@ class PsrBridge extends AbstractLogger
                 return "WP_Taxonomy instance ({$object->name})";
             case (is_callable([$object, '__toString'])):
                 return (string)$object;
-            case ($object instanceof \JsonSerializable):
-                $encoded = json_encode($object);
-                if (($encoded === false) || (json_last_error() !== JSON_ERROR_NONE)) {
-                    throw new \Exception(json_last_error_msg() ?: 'error');
+            case ($forceString && ($object instanceof \JsonSerializable)):
+                // phpcs:disable WordPress.PHP.NoSilencedErrors
+                $encoded = @json_encode($object, 32) ?: '{}';
+                $plain = @json_decode($encoded, true, 32);
+                // phpcs:enable WordPress.PHP.NoSilencedErrors
+                if (is_array($plain)) {
+                    return $this->maybeSerializeComplex($plain);
                 }
-                return $encoded;
         }
 
         if (!$forceString) {

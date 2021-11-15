@@ -95,7 +95,6 @@ final class FailedLogin implements LogData
         }
 
         $this->sniffIp();
-        /** @var string $userIp */
         $userIp = $this->ipData[0];
 
         $attempts = get_site_transient(self::TRANSIENT_NAME);

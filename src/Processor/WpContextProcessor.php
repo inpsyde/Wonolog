@@ -74,7 +74,9 @@ class WpContextProcessor
             return $this->isRestRequest;
         }
 
-        if (defined('REST_REQUEST') && REST_REQUEST) {
+        // phpcs:disable WordPress.Security.NonceVerification
+        if ((defined('REST_REQUEST') && REST_REQUEST) || !empty($_REQUEST['rest_route'])) {
+            // phpcs:enable WordPress.Security.NonceVerification
             $this->isRestRequest = true;
 
             return true;

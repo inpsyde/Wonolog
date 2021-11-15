@@ -99,7 +99,7 @@ final class WpDieHandlerListener implements FilterListener
         foreach ($stacktrace as $item) {
             $function = $item['function'] ?? null;
             $class = $item['class'] ?? null;
-            if ($class === 'wpdb' && ($function === 'bail' || $function === 'print_error')) {
+            if ($class === \wpdb::class && ($function === 'bail' || $function === 'print_error')) {
                 return true;
             }
         }

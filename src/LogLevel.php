@@ -36,6 +36,11 @@ abstract class LogLevel
     private static $minLevel;
 
     /**
+     * @var array<int|string, int|null>
+     */
+    private static $mappedLevels = [];
+
+    /**
      * @return array<string, int>
      */
     final public static function allLevels(): array
@@ -127,24 +132,43 @@ abstract class LogLevel
     {
         // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
 
-        if (!$level) {
+        $numeric = is_numeric($level);
+        $string = !$numeric && is_string($level);
+
+        if (!$numeric && !$string) {
             return null;
         }
 
-        if (is_numeric($level)) {
-            $level = (int)$level;
+        /** @var string|int $level */
 
-            return in_array($level, self::allLevels(), true) ? $level : null;
+        if (array_key_exists($level, static::$mappedLevels)) {
+            return static::$mappedLevels[$level];
         }
 
-        if (!is_string($level)) {
-            return null;
+        $allLevels = self::allLevels();
+
+        if ($string) {
+            static::$mappedLevels[$level] = $allLevels[strtoupper(trim($level))] ?? null;
+
+            return static::$mappedLevels[$level];
         }
 
-        try {
-            return static::normalizeLevel(Logger::toMonologLevel(trim($level)));
-        } catch (\Throwable $exception) {
-            return null;
+        $level = (int)$level;
+        if (in_array($level, $allLevels, true)) {
+            static::$mappedLevels[$level] = $level;
+
+            return $level;
         }
+
+        $maxLevel = null;
+        foreach ($allLevels as $validLevel) {
+            if (($level > $validLevel) && (($maxLevel === null) || ($validLevel > $maxLevel))) {
+                $maxLevel = $validLevel;
+            }
+        }
+
+        static::$mappedLevels[$level] = $maxLevel ?? self::DEBUG;
+
+        return static::$mappedLevels[$level];
     }
 }

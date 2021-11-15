@@ -79,8 +79,11 @@ class Channels
      * @param Registry\ProcessorsRegistry $processors
      * @return Channels
      */
-    public static function new(Registry\HandlersRegistry $handlers, Registry\ProcessorsRegistry $processors): Channels
-    {
+    public static function new(
+        Registry\HandlersRegistry $handlers,
+        Registry\ProcessorsRegistry $processors
+    ): Channels {
+
         return new self($handlers, $processors);
     }
 
@@ -88,8 +91,11 @@ class Channels
      * @param Registry\HandlersRegistry $handlers
      * @param Registry\ProcessorsRegistry $processors
      */
-    private function __construct(Registry\HandlersRegistry $handlers, Registry\ProcessorsRegistry $processors)
-    {
+    private function __construct(
+        Registry\HandlersRegistry $handlers,
+        Registry\ProcessorsRegistry $processors
+    ) {
+
         $this->handlersRegistry = $handlers;
         $this->processorsRegistry = $processors;
         $this->channels = array_fill_keys(self::DEFAULT_CHANNELS, 1);

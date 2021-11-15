@@ -11,14 +11,14 @@
 
 declare(strict_types=1);
 
-namespace Inpsyde\Wonolog;
+namespace Inpsyde\Wonolog\DefaultHandler;
 
 class LogsFolder
 {
     /**
      * @var string|null
      */
-    private static $defaultFolder;
+    private static $folder;
 
     /**
      * @param string|null $customFolder
@@ -26,8 +26,8 @@ class LogsFolder
      */
     public static function determineFolder(?string $customFolder = null): ?string
     {
-        if (self::$defaultFolder && !$customFolder) {
-            return self::$defaultFolder;
+        if (self::$folder && (!$customFolder || ($customFolder === self::$folder))) {
+            return self::$folder;
         }
 
         /**
@@ -41,7 +41,9 @@ class LogsFolder
 
         try {
             if ($customFolder) {
-                return wp_mkdir_p($customFolder) ? static::maybeCreateHtaccess($customFolder) : null;
+                return wp_mkdir_p($customFolder)
+                    ? static::maybeCreateHtaccess($customFolder)
+                    : null;
             }
 
             $folder = static::maybeDetermineFolderByConstant();
@@ -51,8 +53,8 @@ class LogsFolder
                 $uploadDir and $folder = (string)wp_normalize_path("{$uploadDir}/wonolog");
             }
 
-            if ($folder === null && defined('WP_CONTENT_DIR') && WP_CONTENT_DIR) {
-                $content = (string)trailingslashit(WP_CONTENT_DIR);
+            if ($folder === null && defined('WP_CONTENT_DIR')) {
+                $content = (string)trailingslashit((string)WP_CONTENT_DIR);
                 $folder = (string)wp_normalize_path("{$content}/wonolog");
             }
 
@@ -60,9 +62,9 @@ class LogsFolder
                 return null;
             }
 
-            self::$defaultFolder = static::maybeCreateHtaccess($folder);
+            self::$folder = static::maybeCreateHtaccess($folder);
 
-            return self::$defaultFolder;
+            return self::$folder;
         } catch (\Throwable $throwable) {
             return null;
         } finally {
@@ -96,7 +98,7 @@ class LogsFolder
         }
 
         $contentDir = defined('WP_CONTENT_DIR')
-            ? rtrim((string)wp_normalize_path(WP_CONTENT_DIR), '/')
+            ? rtrim((string)wp_normalize_path((string)WP_CONTENT_DIR), '/')
             : null;
 
         $uploadDir = static::uploadsBaseDir();

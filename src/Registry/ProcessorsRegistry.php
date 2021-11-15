@@ -65,7 +65,6 @@ class ProcessorsRegistry implements \Countable
         unset($currentChannels[$allChannels]);
 
         $enabledChannels = array_fill_keys($channels, true);
-        /** @var array<string, bool> $newChannels */
         $newChannels = array_replace($currentChannels, $enabledChannels);
         $alreadyAddedForAll and $newChannels[$allChannels] = $alreadyAddedForAll;
 
@@ -110,7 +109,6 @@ class ProcessorsRegistry implements \Countable
         array_unshift($channels, $channel);
         $disabledChannels = array_fill_keys($channels, false);
 
-        /** @var array<string, bool> $newChannels */
         $newChannels = array_replace($currentChannels, $disabledChannels);
         $default and $newChannels[$allChannels] = $default;
 
@@ -183,7 +181,7 @@ class ProcessorsRegistry implements \Countable
      */
     public function hasAnyProcessorForChannel(string $channel): bool
     {
-        foreach ($this->processors as $identifier => $data) {
+        foreach (array_keys($this->processors) as $identifier) {
             if ($this->hasProcessorForChannel($identifier, $channel)) {
                 return true;
             }

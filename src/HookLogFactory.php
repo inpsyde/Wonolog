@@ -87,8 +87,8 @@ class HookLogFactory
         string $defaultChannel
     ): LogData {
 
-        if (!isset($value[Log::CONTEXT])) {
-            $value[Log::CONTEXT] = $arguments;
+        if (!isset($value[LogData::CONTEXT])) {
+            $value[LogData::CONTEXT] = $arguments;
         }
 
         $log = Log::fromArray($value, $defaultChannel, $defaultLevel);
@@ -111,7 +111,7 @@ class HookLogFactory
     ): LogData {
 
         $data = $value->get_error_data();
-        if (!$data || !is_array($data)) {
+        if ($arguments && (!$data || !is_array($data))) {
             $value->add_data($arguments);
         }
 

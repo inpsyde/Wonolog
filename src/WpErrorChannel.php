@@ -126,6 +126,8 @@ class WpErrorChannel
          *
          * @param string $channel
          * @param \WP_Error $error
+         *
+         * @psalm-suppress TooManyArguments
          */
         $filtered = apply_filters(self::FILTER_CHANNEL, $channel, $error);
 

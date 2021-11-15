@@ -84,6 +84,7 @@ class MailerListener implements ActionListener
     protected function onMailerInit(array $args, LogActionUpdater $updater): void
     {
         $mailer = $args ? reset($args) : null;
+        /** @psalm-suppress UndefinedClass */
         if ($mailer instanceof \PHPMailer) {
             $mailer->SMTPDebug = 2;
             $mailer->Debugoutput = static function (string $message) use ($updater): void {

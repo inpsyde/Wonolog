@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Registry;
 
+use Monolog\Handler\AbstractHandler;
+use Monolog\Handler\BufferHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\ProcessableHandlerInterface;
 
@@ -20,6 +22,8 @@ class HandlersRegistry implements \Countable
 {
     public const ACTION_SETUP = 'wonolog.handler-setup';
     public const ACTION_SETUP_PROCESSABLE = 'wonolog.processable-handler-setup';
+    public const FILTER_BUFFER_HANDLER = 'wonolog.buffer-handler';
+    public const FILTER_BUFFER_LIMIT = 'wonolog.handler-buffer-limit';
 
     /**
      * @var array<string, array{HandlerInterface, array<string, bool>}>
@@ -207,7 +211,7 @@ class HandlersRegistry implements \Countable
      */
     public function hasAnyHandlerForChannel(string $channel): bool
     {
-        foreach ($this->handlers as $identifier => $data) {
+        foreach (array_keys($this->handlers) as $identifier) {
             if ($this->hasHandlerForChannel($identifier, $channel)) {
                 return true;
             }
@@ -242,7 +246,7 @@ class HandlersRegistry implements \Countable
 
     /**
      * @param string $channel
-     * @return array<int, HandlerInterface>
+     * @return list<HandlerInterface>
      */
     public function findForChannel(string $channel): array
     {
@@ -311,7 +315,58 @@ class HandlersRegistry implements \Countable
             do_action(self::ACTION_SETUP, $handler, $identifier);
 
             $this->initialized[] = $identifier;
+
+            $handler = $this->prepareBuffer($identifier, $handler);
         }
+
+        return $handler;
+    }
+
+    /**
+     * @param string $identifier
+     * @param HandlerInterface $handler
+     * @return HandlerInterface
+     */
+    private function prepareBuffer(string $identifier, HandlerInterface $handler): HandlerInterface
+    {
+        if (!($handler instanceof AbstractHandler) || ($handler instanceof BufferHandler)) {
+            return $handler;
+        }
+
+        /**
+         * Filter whether an handler has to be buffered or not.
+         *
+         * @param bool $buffer
+         * @param string $identifier
+         *
+         * @psalm-suppress TooManyArguments
+         */
+        if (!apply_filters(self::FILTER_BUFFER_HANDLER, true, $identifier)) {
+            return $handler;
+        }
+
+        /**
+         * Filter the buffer limit for a given handler.
+         *
+         * @param int $limit
+         * @param string $identifier
+         *
+         * @psalm-suppress TooManyArguments
+         */
+        $bufferLimit = apply_filters(self::FILTER_BUFFER_LIMIT, 20, $identifier);
+        if (!is_int($bufferLimit) || ($bufferLimit < 2)) {
+            return $handler;
+        }
+
+        $handler = new BufferHandler(
+            $handler,
+            $bufferLimit,
+            $handler->getLevel(),
+            $handler->getBubble(),
+            true
+        );
+
+        $this->handlers[$identifier][0] = $handler;
 
         return $handler;
     }

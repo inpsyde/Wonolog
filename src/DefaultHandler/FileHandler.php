@@ -11,17 +11,20 @@
 
 declare(strict_types=1);
 
-namespace Inpsyde\Wonolog;
+namespace Inpsyde\Wonolog\DefaultHandler;
 
 use Monolog\Formatter\FormatterInterface;
+use Monolog\Handler\BufferHandler;
 use Monolog\Handler\FormattableHandlerInterface;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\ResettableInterface;
+use Inpsyde\Wonolog\LogLevel;
+use Inpsyde\Wonolog\Processor;
 
-class WonologFileHandler implements
+class FileHandler implements
     HandlerInterface,
     ProcessableHandlerInterface,
     FormattableHandlerInterface,
@@ -48,6 +51,11 @@ class WonologFileHandler implements
     private $bubble = true;
 
     /**
+     * @var bool
+     */
+    private $buffering = true;
+
+    /**
      * @var HandlerInterface|null
      */
     private $handler;
@@ -58,9 +66,9 @@ class WonologFileHandler implements
     private $logFilePath;
 
     /**
-     * @return WonologFileHandler
+     * @return FileHandler
      */
-    public static function new(): WonologFileHandler
+    public static function new(): FileHandler
     {
         return new self();
     }
@@ -73,10 +81,18 @@ class WonologFileHandler implements
     }
 
     /**
+     * Close on destruct.
+     */
+    public function __destruct()
+    {
+        $this->close();
+    }
+
+    /**
      * @param string $folder
      * @return static
      */
-    public function withFolder(string $folder): WonologFileHandler
+    public function withFolder(string $folder): FileHandler
     {
         $this->folder = wp_normalize_path($folder);
 
@@ -87,7 +103,7 @@ class WonologFileHandler implements
      * @param string $filename
      * @return static
      */
-    public function withFilename(string $filename): WonologFileHandler
+    public function withFilename(string $filename): FileHandler
     {
         $this->filename = $filename;
 
@@ -102,7 +118,7 @@ class WonologFileHandler implements
     public function withDateBasedFileFormat(
         string $format,
         string $extension = 'log'
-    ): WonologFileHandler {
+    ): FileHandler {
 
         $date = date($format);
         if (!$date) {
@@ -120,7 +136,7 @@ class WonologFileHandler implements
      * @param int $level
      * @return static
      */
-    public function withMinimumLevel(int $level): WonologFileHandler
+    public function withMinimumLevel(int $level): FileHandler
     {
         $this->minLevel = LogLevel::normalizeLevel($level);
 
@@ -130,7 +146,7 @@ class WonologFileHandler implements
     /**
      * @return static
      */
-    public function enableBubbling(): WonologFileHandler
+    public function enableBubbling(): FileHandler
     {
         $this->bubble = true;
 
@@ -140,7 +156,7 @@ class WonologFileHandler implements
     /**
      * @return static
      */
-    public function disableBubbling(): WonologFileHandler
+    public function disableBubbling(): FileHandler
     {
         $this->bubble = false;
 
@@ -148,8 +164,30 @@ class WonologFileHandler implements
     }
 
     /**
+     * @return static
+     */
+    public function enableBuffering(): FileHandler
+    {
+        $this->buffering = true;
+
+        return $this;
+    }
+
+    /**
+     * @return static
+     */
+    public function disableBuffering(): FileHandler
+    {
+        $this->buffering = false;
+
+        return $this;
+    }
+
+    /**
      * @param array $record
      * @return bool
+     *
+     * @psalm-suppress MixedArgumentTypeCoercion
      */
     public function handle(array $record): bool
     {
@@ -161,6 +199,8 @@ class WonologFileHandler implements
     /**
      * @param array $record
      * @return bool
+     *
+     * @psalm-suppress MixedArgumentTypeCoercion
      */
     public function isHandling(array $record): bool
     {
@@ -170,8 +210,10 @@ class WonologFileHandler implements
     }
 
     /**
-     * @param array $records
+     * @param array<array> $records
      * @return void
+     *
+     * @psalm-suppress MixedArgumentTypeCoercion
      */
     public function handleBatch(array $records): void
     {
@@ -185,14 +227,17 @@ class WonologFileHandler implements
      */
     public function close(): void
     {
-        $this->ensureHandler();
-
-        $this->handler->close();
+        if ($this->handler) {
+            $this->handler->close();
+        }
     }
 
     /**
      * @param callable(array):array|\Monolog\Processor\ProcessorInterface $callback
      * @return static
+     *
+     * @psalm-suppress MixedArgumentTypeCoercion
+     * @psalm-suppress MoreSpecificImplementedParamType
      */
     public function pushProcessor(callable $callback): HandlerInterface
     {
@@ -206,15 +251,18 @@ class WonologFileHandler implements
 
     /**
      * @return callable(array):array
+     *
+     * @psalm-suppress MixedReturnTypeCoercion
+     * @psalm-suppress LessSpecificImplementedReturnType
      */
     public function popProcessor(): callable
     {
         $this->ensureHandler();
-        if ($this->handler instanceof ProcessableHandlerInterface) {
-            return $this->handler->popProcessor();
+        if (!$this->handler instanceof ProcessableHandlerInterface) {
+            return new Processor\NullProcessor();
         }
 
-        return new Processor\NullProcessor();
+        return $this->handler->popProcessor();
     }
 
     /**
@@ -241,22 +289,16 @@ class WonologFileHandler implements
      */
     public function getFormatter(): FormatterInterface
     {
-        // phpcs:disable Inpsyde.CodeQuality.NoAccessors
         $this->ensureHandler();
         if ($this->handler instanceof FormattableHandlerInterface) {
             return $this->handler->getFormatter();
         }
 
-        /** @var FormatterInterface|null $formatter */
-        static $formatter;
-        // phpcs:disable
-        $formatter or $formatter = new class implements FormatterInterface {
-            public function format(array $record) { return $record; }
-            public function formatBatch(array $records) { return $records; }
-        };
-        // phpcs:enable
+        /** @var FormatterInterface|null $noopFormatter */
+        static $noopFormatter;
+        $noopFormatter or $noopFormatter = new PassthroughFormatter();
 
-        return $formatter;
+        return $noopFormatter;
     }
 
     /**
@@ -316,11 +358,12 @@ class WonologFileHandler implements
 
         try {
             $this->logFilePath = $this->logFilePath();
-            $this->handler = new StreamHandler(
-                $this->logFilePath,
-                $this->minLevel ?? LogLevel::defaultMinLevel(),
-                $this->bubble
-            );
+            $level = $this->minLevel ?? LogLevel::defaultMinLevel();
+            $streamBuffer = $this->buffering || $this->bubble;
+            $handler = new StreamHandler($this->logFilePath, $level, $streamBuffer, null, true);
+            $this->handler = $this->buffering
+                ? new BufferHandler($handler, 0, $level, $this->bubble)
+                : $handler;
         } catch (\Throwable $throwable) {
             $this->handler = new NullHandler();
         }

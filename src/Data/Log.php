@@ -43,6 +43,8 @@ final class Log implements LogData
 
     /**
      * @param array $logData
+     * @param string|null $defaultChannel
+     * @param int|null $defaultLevel
      * @return Log
      */
     public static function fromArray(

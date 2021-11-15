@@ -187,8 +187,8 @@ class PhpErrorController
             return;
         }
 
-        $error = array_merge(
-            ['type' => -1, 'message' => '', 'file' => '', 'line' => 0],
+        $error = array_replace(
+            ['type' => -1, 'message' => '', 'file' => '', 'line' => null],
             $lastError
         );
 

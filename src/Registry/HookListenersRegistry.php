@@ -64,7 +64,6 @@ class HookListenersRegistry
 
         $this->booted = true;
 
-        /** @var HookListener $listener */
         foreach ($this->listeners as [$listener, $priority]) {
             $hooks = $listener->listenTo();
             foreach ($hooks as $hook) {
@@ -74,6 +73,7 @@ class HookListenersRegistry
     }
 
     /**
+     * @param string $identifier
      * @param ActionListener $listener
      * @return static
      */
@@ -90,6 +90,7 @@ class HookListenersRegistry
     }
 
     /**
+     * @param string $identifier
      * @param FilterListener $listener
      * @return static
      */
@@ -173,6 +174,7 @@ class HookListenersRegistry
 
     /**
      * @param string $hook
+     * @param int $priority
      * @param HookListener $listener
      * @return void
      */
@@ -199,7 +201,6 @@ class HookListenersRegistry
          */
         return function (...$args) use ($listener, $hook) {
             if ($listener instanceof ActionListener) {
-                /** @var ActionListener $listener */
                 $listener->update($hook, $args, $this->updater);
             } elseif ($listener instanceof FilterListener) {
                 return $listener->filter($hook, $args, $this->updater);

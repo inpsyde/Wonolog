@@ -155,6 +155,7 @@ class Factory
     }
 
     /**
+     * @param string|null $defaultChannel
      * @return PsrBridge
      */
     public function psr3Logger(?string $defaultChannel = null): PsrBridge
