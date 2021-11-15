@@ -34,9 +34,9 @@ jobs:
                     MYSQL_PASSWORD: ${{ env.DB_PASSWORD }}
         steps:
             -   name: Install Git in the container
-                run:
-                    apt-get update
-                    apt-get install -y git
+                run: |
+                    apk update
+                    apk add git
 
             -   name: Checkout
                 uses: actions/checkout@v2
