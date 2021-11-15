@@ -1,6 +1,7 @@
 # Anatomy of a Wonolog log record
 
-Wonolog is compatible with the [PSR-3 standard](https://www.php-fig.org/psr/psr-3/), and provides a PSR-3 implementation. 
+Wonolog is compatible with the [PSR-3 standard](https://www.php-fig.org/psr/psr-3/), and provides a
+PSR-3 implementation.
 
 
 ---
@@ -9,12 +10,11 @@ Wonolog is compatible with the [PSR-3 standard](https://www.php-fig.org/psr/psr-
 
 - [The structure of PSR-3 log events](#the-structure-of-psr-3-log-events)
 - [Filling PSR-3 missing details](#filling-psr-3-missing-details)
-  - [Comparable levels](#comparable-levels)
-  - [Channels](#channels)  
+    - [Comparable levels](#comparable-levels)
+    - [Channels](#channels)
 - [`LogData` object](#logData-object)
 
 ---
-
 
 ## The structure of PSR-3 log events
 
@@ -34,11 +34,10 @@ public function log($level, $message, array $context = array())
 
 So we have:
 
-- a “level” that defines the “severity” of the log event. Even if the “level” parameter is “mixed”, so it could be anything, PSR-3 defines [a LogLevel class](https://www.php-fig.org/psr/psr-3/#5-psrlogloglevel) that enumerates (as class constants) a set of levels supported by the standard. 
+- a “level” that defines the “severity” of the log event. Even if the “level” parameter is “mixed”, so it could be anything, PSR-3
+  defines [a LogLevel class](https://www.php-fig.org/psr/psr-3/#5-psrlogloglevel) that enumerates (as class constants) a set of levels supported by the standard.
 - a “message” that is a human-readable description of what the log event is about
 - an optional “context” that is an arbitrary set of data that provides more information about the log event
-
-
 
 ## Filling PSR-3 missing details
 
@@ -86,11 +85,10 @@ When logging non-core events, it is possible to use any of these or to define ne
 
 It is also important to mention that Wonolog uses one of these channels (by default "DEBUG") when it can't otherwise determine the log record channel. This "fallback" channel is referred to in Wonolog as the "default" channel (and can be customized).
 
-
-
 ## `LogData` object
 
-The "additions" that Wonolog does to PSR-3 are captured in an interface for log records. Internally, Wonolog code does not refer to "message", "level", "context", and "channel" separately, but it makes use of an interface that combine all of these things in a single object. That interface is `Inpsyde\Wonolog\Data\LogData` and it looks like this:
+The "additions" that Wonolog does to PSR-3 are captured in an interface for log records. Internally, Wonolog code does not refer to "message", "level", "context", and "channel" separately, but it makes use of an interface that combine all of these things in a single object. That interface
+is `Inpsyde\Wonolog\Data\LogData` and it looks like this:
 
 ```php
 namespace Inpsyde\Wonolog\Data;
@@ -119,7 +117,7 @@ Wonolog also ships with several implementations of the `LogData` interface. Amon
 
 `LogData` interface and its implementations are only relevant when coding hook listeners as a "compatibility layer" for code that is not compatible with Wonolog: hook listeners are coupled with Wonolog and are required to use the Wonolog "log objects".
 
-Plugin/themes/packages should not be aware of them, and either emit package-specific logging action hooks or implement PSR-3 `LoggerAware` to accept PSR-3 loggers.
+Plugin/themes/packages should **not** be aware of them, and either emit package-specific logging action hooks or implement PSR-3 `LoggerAware` to accept PSR-3 loggers.
 
 
 

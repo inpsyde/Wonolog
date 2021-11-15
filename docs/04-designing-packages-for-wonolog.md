@@ -12,16 +12,15 @@ That pattern can be put in place in packages without depending on Wonolog. There
 # Table of contents
 
 - [The "WordPressy" way](#the-wordPressy-way)
-  - [Integrate a package using "WordPressy" way](#integrate-a-package-using-wordPressy-way)
-  - [Log level for logging hooks](#log-level-for-logging-hooks)  
+    - [Integrate a package using "WordPressy" way](#integrate-a-package-using-wordPressy-way)
+    - [Log level for logging hooks](#log-level-for-logging-hooks)
 - [The PSR way](#the-psr-way)
 - [About log channel](#about-log-channel)
-  - [Configuring default channel when using hooks](#configuring-default-channel-when-using-hooks)
-  - [Configuring default channel when using PSR logger](#configuring-default-channel-when-using-PSR-logger)
-  - [Global default channel](#global-default-channel)  
+    - [Configuring default channel when using hooks](#configuring-default-channel-when-using-hooks)
+    - [Configuring default channel when using PSR logger](#configuring-default-channel-when-using-PSR-logger)
+    - [Global default channel](#global-default-channel)
 
 ---
-
 
 ## The "WordPressy" way
 
@@ -82,9 +81,9 @@ The parameters passed by the action hooks are either:
 - one parameter being a `Throwable`
 - one parameter being an array with a `message` key plus other arbitrary "context" data.
 
-These are all “sources” accepted by Wonolog, and thanks to that, the plugin can be integrated with Wonolog with a single line of configuration. In other words, even if it is not dependent on Wonolog, the plugin is *natively compatible* with Wonolog.
+These are all “sources” accepted by Wonolog, and thanks to that, the plugin can be integrated with Wonolog with a single line of configuration.
 
-
+In other words, even if it is not dependent on Wonolog, the plugin is *natively compatible* with Wonolog.
 
 ### Integrate a package using "WordPressy" way
 
@@ -101,8 +100,6 @@ add_action(
 
 That’s it. Calling `Configurator::registerLogHook()` passing to it the hook name used for logs, is enough to handle with Wonolog all log hooks performed by the plugin.
 
-
-
 ### Log level for logging hooks
 
 It must be noted that appending the log level to the hook name is **not** a requirement.
@@ -116,9 +113,7 @@ do_action('prefix_log.error', 'Erroneous response', ['code' => 404]);
 do_action('prefix_log', 'Erroneous response', ['level' => 'error', 'code' => 404]);
 ```
 
-In the case the level is passed as context when also using a log-level-specific hook name, the level Wonolog will take into account is the one with higher severity.
-
-
+In the case the level is passed as context when *also* using a log-level-specific hook name, the level Wonolog will take into account is the one with higher severity.
 
 ## The PSR way
 
@@ -168,7 +163,9 @@ function prefix_call_api(string $endpoint, array $body = [], string $method = 'G
 }
 ```
 
-The function above uses the same logic as the previous plugin example but uses Guzzle instead of WP HTTP API. Because Guzzle has native support for PSR-3, it makes sense for the plugin to leverage PSR-3 for log records not directly triggered by Guzzle, e.g., to log the `Throwable` object.
+The function above uses the same logic as the previous plugin example but uses Guzzle instead of WP HTTP API.
+
+Because Guzzle has native support for PSR-3, it makes sense for the plugin to leverage PSR-3 for log records not directly triggered by Guzzle, e.g., to log the `Throwable` object.
 
 Because the plugin can work with *any* PSR-3 implementation, it uses a filter hook, `"prefix_logger"` to allow consumers to decide which logger implementation to use. Thanks to that filter, we can " inject" the Wonolog PSR-3 implementation, returned by the `Inpsyde\Wonolog\makeLogger()` function:
 
@@ -179,8 +176,6 @@ add_filter('prefix_logger', 'Inpsyde\Wonolog\makeLogger');
 That’s it. The single line above is enough to ensure Wonolog is used for logging everything the plugin does and anything Guzzle will do for the plugin.
 
 Using a filter to accept a PSR-3 `LoggerInterface` implementation is just one of the possible strategies plugins can use, but as long as it is possible to "inject" a PSR-3 `LoggerInterface`, the `makeLogger()` function will be enough to integrate such plugins with Wonolog.
-
-
 
 ## About log channel
 
@@ -215,8 +210,6 @@ In the snippet above, the default "*HTTP*" channel is used as the default channe
 
 Please note that instead of a default channel would have been possible to use a custom channel, like "*my-plugin*", or anything else.
 
-
-
 ### Configuring default channel when using PSR logger
 
 When integrating plugins that make use of the Wonolog PSR-3 logger, it is possible to set a default channel when getting the logger instance. For example:
@@ -228,8 +221,6 @@ add_filter('prefix_logger', static function(): Psr\Log\LoggerInterface {
 ```
 
 In the snippet above, `“MY-PLUGIN”` is a custom channel used as the default channel for all the logs processed by the PSR-3 logger.
-
-
 
 ### Global default channel
 

@@ -9,11 +9,11 @@ The log record array structure is described in [Monolog documentation](https://s
 # Table of contents
 
 - [Wonolog processor types](#wonolog-processor-types)
-  - [Generic processors](#generic-processors)
-  - [Channel-specific processors](#channel-specific-processors)
-  - [Handlers processors](#handlers-processors)
+    - [Generic processors](#generic-processors)
+    - [Channel-specific processors](#channel-specific-processors)
+    - [Handlers processors](#handlers-processors)
 - [WordPress context processor](#wordpress-context-processor)
-  - [Disabling WordPress context processor](#disabling-wordpress-context-processor)
+    - [Disabling WordPress context processor](#disabling-wordpress-context-processor)
 
 ---
 
@@ -55,7 +55,9 @@ add_action(
     function (Inpsyde\Wonolog\Configurator $config) {
         $config->pushProcessorForChannels(
             'my-processor',
-            function (array $record) { return $record; },
+            function (array $record) {
+                return $record;
+            },
             'channel-1',
             'channel-2'
         );
@@ -94,7 +96,8 @@ It is worth mention here that Monolog supports handler-specific processors that 
 
 Wonolog does not offer any configuration entry-point for handler-specific processors, and the reason is that in case developers needs handlers-specific processors they can add processors directly to the handlers, before adding them to Wonolog.
 
-In the edge-case a MU plugin adds an handler to Wonolog, and _another_ MU plugin needs to add one or more handler-specific processors to that handler, it is possible to use the action hook `'wonolog.processable-handler-setup'`, that is fired once per handler, assuming the handler implements `ProcessableHandlerInterface`.
+In the edge-case a MU plugin adds an handler to Wonolog, and _another_ MU plugin needs to add one or more handler-specific processors to that handler, it is possible to use the action hook `'wonolog.processable-handler-setup'`, that is fired once per handler, assuming the handler
+implements `ProcessableHandlerInterface`.
 
 That hook also passes an instance of `ProcessorsRegistry`, which allows to add to the handler _existing_ processors.
 
@@ -113,7 +116,10 @@ add_action(
         }
 
         // a new processor
-        $handler->pushProcessor(function (array $record) { return $record; });
+        $handler->pushProcessor(function (array $record) {
+            return $record;
+        });
+        
         // a processor available in the registry
         $processor = $processors->findById('my-processor');
         $processor and $handler->pushProcessor($processor);
@@ -122,7 +128,6 @@ add_action(
     3
 );
 ```
-
 
 ## WordPress context processor
 
@@ -168,13 +173,10 @@ add_action(
     function (Inpsyde\Wonolog\Configurator $config) {
         $config->disableWpContextProcessor();
         // or
-        $config->disableWpContextProcessorForChannels('PLUGIN_1', 'PLUGIN_2');
+        $config->disableWpContextProcessorForChannels('PLUGIN_1', 'PLUGIN_1');
     }
 );
 ```
-
-
-
 
 ---
 

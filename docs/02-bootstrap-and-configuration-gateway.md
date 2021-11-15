@@ -11,13 +11,12 @@ Nevertheless, most of the time, *some* configuration is needed. MU plugins, even
 # Table of contents
 
 - [The setup hook](#the-setup-hook)
-  - [Monolog](#monolog)
-  - [Default handler](#default-handler)  
+    - [Monolog](#monolog)
+    - [Default handler](#default-handler)
 - [Wonolog writes logs](#wonolog-writes-logs)
 - [Disabling Wonolog](#disabling-wonolog)
 
 ---
-
 
 ## The setup hook
 
@@ -38,11 +37,11 @@ This new approach was introduced to favor Wonolog configuration from different M
 
 In v1, the necessity to call a `bootstrap()` function favorited the presence of _a_ single place for configuration, usually copy-and-pasted from project to project.
 
-
-
 ## Wonolog writes logs
 
-As soon as it is required in a project using Composer, even without any configuration at all, Wonolog starts working right away using its default settings. It means that Wonolog not only provides abstractions and APIs for plugins/themes/packages to log *their* stuff but also *writes* logs for WordPress core "events". The [*"What is logged by default"*](./03-what-is-logged-by-default.md) chapter explains which those "events" exactly are.
+As soon as it is required in a project using Composer, even without any configuration at all, Wonolog starts working right away using its default settings. It means that Wonolog not only provides abstractions and APIs for plugins/themes/packages to log *their* stuff but also *writes* logs for WordPress core "events".
+
+The [*"What is logged by default"*](./03-what-is-logged-by-default.md) chapter explains which those "events" exactly are.
 
 ### Monolog
 
@@ -58,11 +57,9 @@ When Wonolog is used without any configuration, because it needs to instantiate 
 
 The chapter [*"Log records handlers"*](./06-log-records-handlers.md) have a detailed explanation on how the Wonolog default handler works.
 
-
-
 ## Disabling Wonolog
 
-Considering Wonolog starts logging as soon as it is required, it might be desired to disable it completely, for example in some environment.
+Considering Wonolog starts logging as soon as it is required, it might be desired to disable it completely, for example in some environments.
 
 To do that programmatically, Wonolog offers 3 ways:
 

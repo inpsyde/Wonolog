@@ -12,11 +12,11 @@ In those cases, the only left possibility to use Wonolog is to write a “compat
 
 - [Hook listeners](#hook-listeners)
 - [The interfaces](#the-interfaces)
-  - [Utility traits](#utility-traits)
+    - [Utility traits](#utility-traits)
 - [An example](#an-example)
 - [Register hook listeners](#register-hook-listeners)
-  - [Hook listeners priority](#hook-listeners-priority)
-  - [Hook listeners identifier](#hook-listeners-identifier)
+    - [Hook listeners priority](#hook-listeners-priority)
+    - [Hook listeners identifier](#hook-listeners-identifier)
 
 ---
 
@@ -24,11 +24,9 @@ In those cases, the only left possibility to use Wonolog is to write a “compat
 
 Hook listeners are objects implementing the `Inpsyde\Wonolog\HookListener\HookListener` interface, even if to be able to do anything useful, these objects have to implement either `Inpsyde\Wonolog\HookListener\ActionListener` or `Inpsyde\Wonolog\HookListener\FilterListener` (both extending the `HookListener` interface).
 
-Hook listeners are what Wonolog uses to log WordPress core events. That should not come as a surprise: WordPress is not natively compatible with Wonolog, so we need hook listeners to introduce a compatibility layer between WordPress and Wonolog. 
+Hook listeners are what Wonolog uses to log WordPress core events. That should not come as a surprise: WordPress is not natively compatible with Wonolog, so we need hook listeners to introduce a compatibility layer between WordPress and Wonolog.
 
 Hook listeners used for the core and shipped with Wonolog are referenced as “default hook listeners”, but it is possible to write hook listeners as a compatibility layer with any WordPress plugin/theme/package.
-
-
 
 ## The interfaces
 
@@ -258,11 +256,10 @@ class AwesomePremiumPluginListener implements HookListener\FilterListener
 }
 ```
 
-The example above has proved that hook listeners are quite powerful, flexible, and simple to write. It also demonstrates that it’s infrequent that there’s no way to capture desired data to log: even for a case that at first look seemed very tricky, it was possible to find not one, but two alternatives to capture the data to log.
+The example above has proved that hook listeners are quite powerful, flexible, and simple to write.
+It also demonstrates that it’s infrequent that there’s no way to capture desired data to log: even for a case that at first look seemed very tricky, it was possible to find not one, but two alternatives to capture the data to log.
 
-
-
-## Register hook listeners 
+## Register hook listeners
 
 To write a hook listener is not enough: we also need to make Wonolog aware of it. As usual, Wonolog configuration is done hooking `wonolog.setup`:
 
@@ -297,7 +294,9 @@ add_action(
 
 ### Hook listeners identifier
 
-Internally, Wonolog keeps a “registry” of added hook listeners. The registry uses a map of unique identifiers to listeners. By default, the fully-qualified class name of the added listener is used as an identifier. However, if multiple instances of the same class are purposely added because they have different behavior (thanks to different internal state), the default identifier-by-class strategy won’t work. In that case it is necessary to pass the listener identifier explicitly, either as the second parameter of `addActionListener` / `addFilterListener` or as the third parameter of `Configurator::addActionListenerWithPriority` or `Configurator::addFilterListenerWithPriority`:
+Internally, Wonolog keeps a “registry” of added hook listeners. The registry uses a map of unique identifiers to listeners.
+
+By default, the fully-qualified class name of the added listener is used as an identifier. However, if multiple instances of the same class are purposely added because they have different behavior (thanks to different internal state), the default identifier-by-class strategy won’t work. In that case it is necessary to pass the listener identifier explicitly, either as the second parameter of `addActionListener` / `addFilterListener` or as the third parameter of `Configurator::addActionListenerWithPriority` or `Configurator::addFilterListenerWithPriority`:
 
 ```php
 add_action(
@@ -326,4 +325,4 @@ add_action(
 
 ---
 
-«  [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)  ||  [Log records handlers](./06-log-records-handlers.md) »
+«  [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md) ||  [Log records handlers](./06-log-records-handlers.md) »

@@ -35,13 +35,21 @@ The object has a quite a lot of methods, this chapter is a guide across all of t
 ```php
 public function withChannels(string $channel, string ...$channels): Inpsyde\Wonolog\Configurator
 ```
-Adds a channel to Wonolog. To be handled by Wonolog a log record needs to be registered in Wonolog. This method is rarely needed, because all methods that accept channel-specific configuration automatically register channels.
+
+Adds a channel to Wonolog. To be handled by Wonolog a log record needs to be registered in Wonolog.
+This method is rarely needed, because all methods that accept channel-specific configuration
+automatically register channels.
+
+
 
 ```php
 public function withoutChannels(string $channel, string ...$channels): Inpsyde\Wonolog\Configurator
 ```
 
-Remove a channel from Wonolog. To be handled by Wonolog a log record needs to be registered in Wonolog. Removing a channel effectively means preventing Wonolog to handle any log record that holds that channel.
+Remove a channel from Wonolog. To be handled by Wonolog a log record needs to be registered in
+Wonolog. Removing a channel effectively means preventing Wonolog to handle any log record that holds
+that channel.
+
 
 
 ```php
@@ -49,6 +57,7 @@ public function withDefaultChannel(string $channel): Inpsyde\Wonolog\Configurato
 ```
 
 Makes a channel the default one in Wonolog, meaning that any log record without an explicit channel will be assigned to it.
+
 
 
 ## Handlers configuration
@@ -62,6 +71,8 @@ public function pushHandler(
 
 Adds an handler to be used for all channels. See [*"Log records handlers"*](./06-log-records-handlers.md) chapter for details.
 
+
+
 ```php
 public function pushHandlerForChannels(
     Monolog\Handler\HandlerInterface $handler,
@@ -73,6 +84,8 @@ public function pushHandlerForChannels(
 
 Adds an handler to be used for specific channels. See  [*"Log records handlers"*](./06-log-records-handlers.md) chapter for details.
 
+
+
 ```php
 public function enableHandlersForChannel(
     string $channel,
@@ -82,6 +95,8 @@ public function enableHandlersForChannel(
 ```
 
 Enable already added handlers to be used for a channel. See  [*"Log records handlers"*](./06-log-records-handlers.md) chapter for details.
+
+
 
 ```php
 public function enableHandlerForChannels(
@@ -93,11 +108,15 @@ public function enableHandlerForChannels(
 
 Enable an already added handler to be used for specific channels. See  [*"Log records handlers"*](./06-log-records-handlers.md) chapter for details.
 
+
+
 ```php
 public function removeHandler(string $identifier): Inpsyde\Wonolog\Configurator
 ```
 
 Remove an handler from all channels. See  [*"Log records handlers"*](./06-log-records-handlers.md) chapter for details.
+
+
 
 ```php
 public function removeHandlerFromChannels(
@@ -110,6 +129,7 @@ public function removeHandlerFromChannels(
 Remove an handler from specific channels. See  [*"Log records handlers"*](./06-log-records-handlers.md) chapter for details.
 
 
+
 ## Fallback handler configuration
 
 ```php
@@ -118,11 +138,15 @@ public function enableFallbackHandler(): Inpsyde\Wonolog\Configurator
 
 Enable fallback handler for all channels. This is the default behavior, hence calling this method makes sense only if the fallback handler was previously disabled for any/all channels. See  [*"Log records handlers"*](./06-log-records-handlers.md) chapter for details.
 
+
+
 ```php
  public function disableFallbackHandler(): Inpsyde\Wonolog\Configurator
 ```
 
 Disable fallback handler for all channels. Log records having a channel not assigned to any channel will not be logged. See  [*"Log records handlers"*](./06-log-records-handlers.md) chapter for details.
+
+
 
 ```php
 public function enableFallbackHandlerForChannels(
@@ -133,6 +157,8 @@ public function enableFallbackHandlerForChannels(
 
 Enable fallback handler for specific channels. Opt-in mode: fallback handler will be used only for channels explicitly mentioned. See  [*"Log records handlers"*](./06-log-records-handlers.md) chapter for details.
 
+
+
 ```php
 public function disableFallbackHandlerForChannels(
     string $channel,
@@ -141,6 +167,7 @@ public function disableFallbackHandlerForChannels(
 ```
 
 Disable fallback handler for specific channels. Opt-out mode: fallback handler will be used for all channels excluding those explicitly mentioned. See  [*"Log records handlers"*](./06-log-records-handlers.md) chapter for details.
+
 
 
 ## Processors configuration
@@ -154,6 +181,8 @@ public function pushProcessor(
 
 Adds a processor to be used for all channels. See [*"Log records processors"*](./07-log-records-processors.md) chapter for details.
 
+
+
 ```php
 public function pushProcessorForChannels(
     string $identifier,
@@ -165,6 +194,8 @@ public function pushProcessorForChannels(
 
 Adds a processor to be used for specific channels. See [*"Log records processors"*](./07-log-records-processors.md) chapter for details.
 
+
+
 ```php
 public function enableProcessorsForChannel(
     string $channel,
@@ -174,6 +205,8 @@ public function enableProcessorsForChannel(
 ```
 
 Enable already added processors to be used for a channel. See [*"Log records processors"*](./07-log-records-processors.md) chapter for details.
+
+
 
 ```php
 public function enableProcessorForChannels(
@@ -185,11 +218,15 @@ public function enableProcessorForChannels(
 
 Enable an already added processor to be used for specific channels. See [*"Log records processors"*](./07-log-records-processors.md) chapter for details.
 
+
+
 ```php
 public function removeProcessor(string $identifier): Inpsyde\Wonolog\Configurator
 ```
 
 Remove a processors from all channels. See [*"Log records processors"*](./07-log-records-processors.md) chapter for details.
+
+
 
 ```php
 public function removeProcessorFromChannels(
@@ -202,19 +239,24 @@ public function removeProcessorFromChannels(
 Remove a processor from specific channels. See [*"Log records processors"*](./07-log-records-processors.md) chapter for details.
 
 
+
 ## WordPress context processor configuration
 
 ```php
 public function enableWpContextProcessor(): Inpsyde\Wonolog\Configurator
 ```
 
-Enable WP context processor for all channels. This is the default behavior, hence calling this method makes sense only if the WP context processor was previously disabled for any/all channels. See [*"Log records processors"*](./07-log-records-processors.md) chapter for details.
+Enable WP context processor for all channels. This is the default behavior, hence calling thismethod makes sense only if the WP context processor was previously disabled for any/all channels. See [*"Log records processors"*](./07-log-records-processors.md) chapter for details.
+
+
 
 ```php
 public function disableWpContextProcessor(): Inpsyde\Wonolog\Configurator
 ```
 
 Disable WP context processor for all channels. See [*"Log records processors"*](./07-log-records-processors.md) chapter for details.
+
+
 
 ```php
 public function enableWpContextProcessorForChannels(
@@ -225,6 +267,8 @@ public function enableWpContextProcessorForChannels(
 
 Enable WP context processor for specific channels. Opt-in mode: only channels explicitly mentioned will receive the WP context processor. See [*"Log records processors"*](./07-log-records-processors.md) chapter for details.
 
+
+
 ```php
 public function disableWpContextProcessorForChannels(
     string $channel,
@@ -232,7 +276,9 @@ public function disableWpContextProcessorForChannels(
 ): Inpsyde\Wonolog\Configurator
 ```
 
-Disable WP context processor for specific channels. Opt-out mode: only channels explicitly mentioned will not receive the WP context processor. See [*"Log records processors"*](./07-log-records-processors.md) chapter for details.
+Disable WP context processor for specific channels. Opt-out mode: only channels explicitly mentioned
+will not receive the WP context processor. See [*"Log records processors"*](./07-log-records-processors.md) chapter for details.
+
 
 
 ## Default hook listeners configuration
@@ -243,11 +289,15 @@ public function enableAllDefaultHookListeners(): Inpsyde\Wonolog\Configurator
 
 Enable all default hook listeners. This is the default behavior, hence calling this method makes sense only if all/any default hook listeners was previously disabled. See [*"What is logged by default"*](./03-what-is-logged-by-default.md) chapter for details.
 
+
+
 ```php
 public function disableAllDefaultHookListeners(): Inpsyde\Wonolog\Configurator
 ```
 
 Disable all all default hook listeners. See [*"What is logged by default"*](./03-what-is-logged-by-default.md) chapter for details.
+
+
 
 ```php
 public function enableDefaultHookListeners(
@@ -258,6 +308,8 @@ public function enableDefaultHookListeners(
 
 Enable specific default hook listeners. Opt-in mode: only explicitly given default handlers will be enabled. See [*"What is logged by default"*](./03-what-is-logged-by-default.md) chapter for details.
 
+
+
 ```php
 public function disableDefaultHookListeners(
     string $listener,
@@ -266,6 +318,7 @@ public function disableDefaultHookListeners(
 ```
 
 Disable specific default hook listeners. Opt-out mode: only explicitly given default handlers will not be enabled. See [*"What is logged by default"*](./03-what-is-logged-by-default.md) chapter for details.
+
 
 
 ## Custom hook listeners configuration
@@ -279,6 +332,8 @@ public function addActionListener(
 
 Adds a custom action listener. See [*"Logging code not designed for Wonolog"*](./05-logging-code-not-designed-for-wonolog.md) chapter for details.
 
+
+
 ```php
 public function addActionListenerWithPriority(
     Inpsyde\Wonolog\HookListener\ActionListener $listener,
@@ -289,6 +344,8 @@ public function addActionListenerWithPriority(
 
 Adds a custom action listener with specific priority. See [*"Logging code not designed for Wonolog"*](./05-logging-code-not-designed-for-wonolog.md) chapter for details.
 
+
+
 ```php
 public function addFilterListener(
     Inpsyde\Wonolog\HookListener\FilterListener $listener,
@@ -297,6 +354,8 @@ public function addFilterListener(
 ```
 
 Adds a custom filter listener. See [*"Logging code not designed for Wonolog"*](./05-logging-code-not-designed-for-wonolog.md) chapter for details.
+
+
 
 ```php
 public function addFilterListenerWithPriority(
@@ -307,6 +366,7 @@ public function addFilterListenerWithPriority(
 ```
 
 Adds a custom filter listener with specific priority. See [*"Logging code not designed for Wonolog"*](./05-logging-code-not-designed-for-wonolog.md) chapter for details.
+
 
 
 ## Log hooks configuration
@@ -320,11 +380,15 @@ public function registerLogHook(
 
 Register an logging hook. See [*"Designing packages for Wonolog"*](./04-designing-packages-for-wonolog.md) chapter for details.
 
+
+
 ```php
 public function withBaseHookPriority(int $priority): Inpsyde\Wonolog\Configurator
 ```
 
-Set the default hook priority used to listen to hooks registered via `registerLogHook` method. Is also used as default priority for hook listeners when no priority is explicitly set.
+Set the default hook priority used to listen to hooks registered via `registerLogHook` method. Is
+also used as default priority for hook listeners when no priority is explicitly set.
+
 
 
 ## PHP errors and exceptions logging configuration
@@ -335,11 +399,15 @@ public function logPhpErrorsAndExceptions(): Inpsyde\Wonolog\Configurator
 
 Tells Wonolog to log both PHP errors and exceptions. Default behavior.
 
+
+
 ```php
 public function doNotLogPhpErrorsNorExceptions(): Inpsyde\Wonolog\Configurator
 ```
 
 Tells Wonolog to do not log PHP errors nor exceptions.
+
+
 
 ```php
 public function doNotLogPhpErrors(): Inpsyde\Wonolog\Configurator
@@ -347,11 +415,15 @@ public function doNotLogPhpErrors(): Inpsyde\Wonolog\Configurator
 
 Tells Wonolog to do not log PHP errors.
 
+
+
 ```php
 public function doNotLogPhpExceptions(): Inpsyde\Wonolog\Configurator
 ```
 
 Tells Wonolog to do not log PHP exceptions.
+
+
 
 ```php
 public function logPhpErrorsTypes(int $errorTypes): Inpsyde\Wonolog\Configurator
@@ -359,9 +431,13 @@ public function logPhpErrorsTypes(int $errorTypes): Inpsyde\Wonolog\Configurator
 
 Tells Wonolog to log only specific error types. Accept bitmask of [error types constants](https://www.php.net/manual/en/errorfunc.constants.php).
 
+
+
 ```php
 public function logSilencedPhpErrors(): Inpsyde\Wonolog\Configurator
 ```
+
+
 
 Tells Wonolog to log errors silenced via `@` operator.
 
@@ -370,6 +446,7 @@ public function dontLogSilencedPhpErrors(): Inpsyde\Wonolog\Configurator
 ```
 
 Tells Wonolog to do not log errors silenced via `@` operator. Default behavior.
+
 
 
 ## Other configurations

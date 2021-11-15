@@ -17,9 +17,12 @@ However, there might be cases in which a specific PSR-3 *implementation* must be
 
 ---
 
+
+
 ## MU plugin example
 
-For example, let's assume that our hosting provider forces us to use a PSR-3 implementation that is not Monolog, but still implements PSR-3, for example ["graylog2/gelf-php"](https://github.com/bzikarsky/gelf-php).
+For example, let's assume that our hosting provider forces us to use a PSR-3 implementation that is not Monolog, but still implements PSR-3, for
+example ["graylog2/gelf-php"](https://github.com/bzikarsky/gelf-php).
 
 Let's imagine that our hosting ships a MU plugin like the following:
 
@@ -49,11 +52,14 @@ All of our plugins/themes/packages that are designed to accept a PSR-3 implement
 
 - It will not used to log WordPress core events handled via the Wonolog default hook listeners
 - It will not used to log any Wonolog custom hook listener
-- It will not used for plugins/packages/themes that use action hooks to perform logs (aka the "WordPressy" way, see the [*"Designing packages for Wonolog"*](./04-designing-packages-for-wonolog.md) chapter for details)
-- It will not benefit of Wonolog WordPress context processor or any other processor added to Wonolog 
+- It will not used for plugins/packages/themes that use action hooks to perform logs (aka the "WordPressy" way, see the [*"Designing packages for
+  Wonolog"*](./04-designing-packages-for-wonolog.md) chapter for details)
+- It will not benefit of Wonolog WordPress context processor or any other processor added to Wonolog
 - It will not take into account Wonolog-specific configuration, such us disable logging via `WONOLOG_DISABLE` environment variable or constant.
 
 To leverage Wonolog and still use an "external" PSR-3 implementation, the suggested way to go is to "wrap" the PSR-3 logger in a Monolog handler, something that the `Monolog\Handler\PsrHandler` class makes very easy.
+
+
 
 ## Wrapping PSR-3 loggers
 

@@ -21,8 +21,8 @@ Wonolog v2 uses Monolog v2.
 
 Wonolog requires:
 
-- PHP 7.2+
-- WordPress 5.0+
+- PHP 7.3+
+- WordPress 5.5+
 
 Via [Composer](https://getcomposer.org), Wonolog requires `monolog/monolog` (MIT).
 

@@ -8,11 +8,10 @@ When Wonolog is required in a WordPress projects, it right away starts logging "
 # Table of contents
 
 - [Default hook listeners](#default-hook-listeners)
-  - [Configure enabled default listeners](#configure-enabled-default-listeners)
-  - [About minimum logged level](#about-minimum-logged-level)
+    - [Configure enabled default listeners](#configure-enabled-default-listeners)
+    - [About minimum logged level](#about-minimum-logged-level)
 
 ---
-
 
 ## Default hook listeners
 
@@ -32,13 +31,11 @@ Here's below the list of hook listeners Wonolog ships with and what they do:
 | `QueryErrorsListener` | Logs any error in main WP Query, that is, every time `$wp_query->is_error()` returns true. | `LogLevel::DEBUG` | "HTTP" <br />(most of the times it's about HTTP errors, e. g. 404 errors) |
 | `WpDieHandlerListener` | Listen to `wp_die` calls coming from `$wpdb` (that's the only way to catch DB connection or other "early" DB errors). | `LogLevel::CRITICAL` | "DB" |
 
-
-
 ### Configure enabled default listeners
 
 The default hook listeners listed above are all enabled by default but can be disabled, either at once or individually.
 
-To configure which listeners are enabled (just like pretty much all Wonolog configuration), it is necessary to use the `wonolog.log` hook and act on the passed `Configurator` instance. For example:
+To configure which listeners are enabled (just like pretty much all Wonolog configuration), it is necessary to use the `wonolog.setup` hook and act on the passed `Configurator` instance. For example:
 
 ```php
 use Inpsyde\Wonolog\{Configurator, HookListener};
@@ -55,8 +52,6 @@ add_action(
 ```
 
 `Configurator::disableDefaultHookListeners` takes a variadic number of default listeners fully-qualified class names. To disable all default listeners there's `Configurator::disableAllDefaultHookListeners()`.
-
-
 
 ### About minimum logged level
 
