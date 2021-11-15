@@ -67,7 +67,7 @@ jobs:
 
             -   name: Check syntax error in sources
                 if: ${{ (matrix.deps-mode == 'highest') && !matrix.composer-options }}
-                run: parallel-lint . -e php --checkstyle | cs2pr --graceful-warnings
+                run: parallel-lint ./src/
 
             -   name: Install dependencies
                 uses: ramsey/composer-install@v1
