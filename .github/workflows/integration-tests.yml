@@ -10,7 +10,7 @@ concurrency:
 jobs:
     integration-tests:
         runs-on: ubuntu-latest
-        container: cli-2.5-php7.4
+        container: wordpress:cli-2.5-php7.4
         env:
             WORDPRESS_DB_HOST: mysql
             WORDPRESS_DB_USER: wordpress
