@@ -6,35 +6,16 @@ on:
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
-
+env:
+    DB_HOST: mysql
+    DB_USER: wordpress
+    DB_PASSWORD: wordpress
+    DB_NAME: wordpress
 jobs:
-    prepare-vendor:
-        runs-on: ubuntu-latest
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v2
-
-            -   name: Setup PHP
-                uses: shivammathur/setup-php@v2
-                with:
-                    php-version: 7.4
-                    coverage: none
-
-            -   name: Install dependencies
-                uses: ramsey/composer-install@v1
-
     integration-tests:
-        needs: prepare-vendor
         runs-on: ubuntu-latest
-        env:
-            DB_HOST: mysql
-            DB_USER: wordpress
-            DB_PASSWORD: wordpress
-            DB_NAME: wordpress
         container:
             image: wordpress:cli-2.5-php7.4
-            volumes:
-                - "${{ env.GITHUB_WORKSPACE }}:/var/www"
             env:
                 WORDPRESS_DB_HOST: ${{ env.DB_HOST }}
                 WORDPRESS_DB_USER: ${{ env.DB_USER }}
@@ -48,6 +29,9 @@ jobs:
                     MYSQL_USER: ${{ env.DB_USER }}
                     MYSQL_PASSWORD: ${{ env.DB_PASSWORD }}
         steps:
+            -   name: Checkout
+                uses: actions/checkout@v2
+
             -   name: Run integration tests
                 working-directory: /var/www
                 run: ./vendor/bin/phpunit --testsuite=integration --no-coverage
