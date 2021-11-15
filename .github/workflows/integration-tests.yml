@@ -6,54 +6,16 @@ on:
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
-env:
-    DB_HOST: mysql
-    DB_USER: wordpress
-    DB_PASSWORD: wordpress
-    DB_NAME: wordpress
 jobs:
     integration-tests:
         runs-on: ubuntu-latest
         strategy:
             fail-fast: true
             matrix:
-                php-ver: [ '7.4' ]
-        container:
-            image: ${{ format('wordpress:cli-2.5-php{0}', matrix.php-ver) }}
-            volumes:
-                - ${{ github.workspace }}:/var/www/html
-            options: '--user root'
-            env:
-                WORDPRESS_DB_HOST: ${{ env.DB_HOST }}
-                WORDPRESS_DB_USER: ${{ env.DB_USER }}
-                WORDPRESS_DB_PASSWORD: ${{ env.DB_PASSWORD }}
-                WORDPRESS_DB_NAME: ${{ env.DB_NAME }}
-        services:
-            mysql:
-                image: mysql:5.7
-                env:
-                    MYSQL_DATABASE: ${{ env.DB_NAME }}
-                    MYSQL_USER: ${{ env.DB_USER }}
-                    MYSQL_PASSWORD: ${{ env.DB_PASSWORD }}
+                php-service: [ 'php74' ]
         steps:
-            -   name: Install Git in the container
-                run: |
-                    apk update
-                    apk add git
-
-            -   name: Install Composer in the container
-                run: |
-                    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-                    php -r "if (hash_file('sha384', 'composer-setup.php') === '906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-                    php composer-setup.php
-                    php -r "unlink('composer-setup.php');"
-                    mv composer.phar /usr/local/bin/composer
-
-            -   name: Checkout
-                uses: actions/checkout@v2
-
-            -   name: Install Composer dependencies
-                uses: ramsey/composer-install@v1
+            -   uses: actions/checkout@v2
 
             -   name: Run integration tests
-                run: ./vendor/bin/phpunit --testsuite=integration --no-coverage
+                working-directory: ./github/workflows/docker
+                run: docker-compose run --rm ${{ matrix.php-service }} sh -c "composer install -q -n -a --no-progress --prefer-dist && composer tests:integration"
