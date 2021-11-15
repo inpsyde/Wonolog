@@ -12,7 +12,7 @@ jobs:
         strategy:
             fail-fast: true
             matrix:
-                php-service: [ 'php74' ]
+                php-service: [ 'php73', 'php74', 'php80' ]
         steps:
             -   name: Checkout
                 uses: actions/checkout@v2

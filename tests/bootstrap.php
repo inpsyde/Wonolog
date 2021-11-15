@@ -34,7 +34,7 @@ if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
     require_once $autoload;
 }
 
-if (file_exists(__DIR__ . '/environment.php')) {
+if (!getenv('GITHUB_WORKFLOW') && file_exists(__DIR__ . '/environment.php')) {
     require_once __DIR__ . '/environment.php';
 }
 
