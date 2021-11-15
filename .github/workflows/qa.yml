@@ -72,7 +72,7 @@ jobs:
             -   name: Install dependencies
                 uses: ramsey/composer-install@v1
                 with:
-                    deps-mode: ${{ matrix.deps-mode }}
+                    dependency-versions: ${{ matrix.deps-mode }}
                     composer-options: ${{ matrix.composer-options }}
 
             -   name: Run unit tests (without code coverage)
