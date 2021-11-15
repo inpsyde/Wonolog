@@ -1,5 +1,7 @@
 FROM wordpress:cli-2.5-php7.4
 
+USER root
+
 RUN set -eux; apk update && apk add git
 
 RUN set -eux; php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \

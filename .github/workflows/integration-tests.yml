@@ -18,4 +18,4 @@ jobs:
 
             -   name: Run integration tests
                 working-directory: ./.github/workflows/docker
-                run: docker-compose run --rm ${{ matrix.php-service }} sh -c "composer install -q -n -a --no-progress --prefer-dist && composer tests:integration"
+                run: docker-compose run -T --rm ${{ matrix.php-service }} sh -c "composer update && composer tests:integration"
