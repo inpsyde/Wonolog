@@ -128,17 +128,10 @@ class PhpErrorController
      * @param string $str
      * @param string|null $file
      * @param int|null $line
-     * @param array|null $context
      * @return bool
      */
-    public function onError(
-        int $num,
-        string $str,
-        ?string $file,
-        ?int $line,
-        ?array $context = null
-    ): bool {
-
+    public function onError(int $num, string $str, ?string $file, ?int $line): bool
+    {
         $level = self::ERROR_LEVELS_MAP[$num] ?? LogLevel::ERROR;
         // phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
         if ((error_reporting() === 0) && !$this->logSilencedErrors) {
@@ -147,12 +140,6 @@ class PhpErrorController
         // phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
 
         $logContext = [];
-        if ($context) {
-            $skipKeys = array_merge(array_keys($GLOBALS), self::SUPER_GLOBALS_KEYS);
-            $skip = array_fill_keys($skipKeys, '');
-            $logContext = array_filter(array_diff_key($context, $skip));
-        }
-
         $logContext['file'] = $file;
         $logContext['line'] = $line;
 

@@ -86,35 +86,6 @@ class PhpErrorHandlerTest extends UnitTestCase
     /**
      * @test
      */
-    public function testOnErrorDoNoContainGlobals(): void
-    {
-        $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldNotReceive('update')->once()->andReturnUsing(
-            static function (LogData $log) {
-                static::assertSame(Channels::PHP_ERROR, $log->channel());
-                static::assertSame(Logger::WARNING, $log->level());
-                $context = $log->context();
-                static::assertArrayHasKey('line', $context);
-                static::assertArrayHasKey('file', $context);
-                static::assertSame(__FILE__, $context['file']);
-                static::assertArrayHasKey('localVar', $context);
-                static::assertSame('I am local', $context['localVar']);
-                static::assertArrayNotHasKey('wp_filter', $context);
-            }
-        );
-
-        $controller = PhpErrorController::new(true, $updater);
-        $this->initializeErrorController($controller);
-        global $wp_filter;
-        $wp_filter = ['foo', 'bar'];
-        $localVar = 'I am local';
-
-        @trigger_error('Error', E_USER_WARNING);
-    }
-
-    /**
-     * @test
-     */
     public function testOnException(): void
     {
         $updater = \Mockery::mock(LogActionUpdater::class);
