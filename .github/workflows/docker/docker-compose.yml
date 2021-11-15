@@ -1,14 +1,14 @@
 version: '3.7'
 
 x-db-environment:
-    &db-environment
+  &db-environment
     WORDPRESS_DB_HOST: wonolog-mysql
     WORDPRESS_DB_NAME: wordpress
     WORDPRESS_DB_USER: wordpress
     WORDPRESS_DB_PASSWORD: wordpress
 
 x-wp-volume:
-    &wp-volume
+  &wp-volume
     -   type: bind
         source: ../../../
         target: /var/www/html
@@ -30,9 +30,9 @@ services:
         depends_on:
             - mysql
         environment:
-            *db-environment
+          *db-environment
         volumes:
-            *wp-volume
+          *wp-volume
     php74:
         container_name: wonolog-php-74
         build:
@@ -40,9 +40,12 @@ services:
         depends_on:
             - mysql
         environment:
-            *db-environment
+            WORDPRESS_DB_HOST: wonolog-mysql
+            WORDPRESS_DB_NAME: wordpress
+            WORDPRESS_DB_USER: wordpress
+            WORDPRESS_DB_PASSWORD: wordpress
         volumes:
-            *wp-volume
+          *wp-volume
     php80:
         container_name: wonolog-php-80
         build:
@@ -50,6 +53,6 @@ services:
         depends_on:
             - mysql
         environment:
-            *db-environment
+          *db-environment
         volumes:
-            *wp-volume
+          *wp-volume

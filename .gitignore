@@ -8,3 +8,8 @@
 /phpunit.xml
 /.phpunit.result.cache
 /tests/environment.php
+
+# Docker
+.github/workflows/docker/php73/wait-for.sh
+.github/workflows/docker/php74/wait-for.sh
+.github/workflows/docker/php80/wait-for.sh
