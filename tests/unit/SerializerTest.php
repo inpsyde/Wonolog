@@ -71,6 +71,7 @@ class SerializerTest extends UnitTestCase
 
         $query = \Mockery::mock(\WP_Query::class);
         $query->query_vars = ['post_password' => 'abc', 'post_type' => 'post'];
+        $query->query = [];
 
         $postClass = get_class($post1);
         $queryClass = get_class($query);
