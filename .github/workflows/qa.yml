@@ -43,8 +43,6 @@ jobs:
                 php-ver: [ '7.2', '7.3', '7.4', '8.0' ]
                 deps-mode: [ 'lowest', 'highest' ]
 
-        continue-on-error: ${{ matrix.php-ver == '8.2' }}
-
         steps:
             -   name: Update "USE_COVERAGE" env var based on matrix
                 if: ${{ matrix.php-ver == '7.4' && matrix.deps-mode == 'highest' }}
