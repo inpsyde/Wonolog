@@ -27,5 +27,6 @@
         <UnresolvableInclude errorLevel="suppress" />
         <UndefinedConstant errorLevel="suppress" />
         <RedundantCastGivenDocblockType errorLevel="suppress" />
+        <RedundantConditionGivenDocblockType errorLevel="suppress" />
     </issueHandlers>
 </psalm>

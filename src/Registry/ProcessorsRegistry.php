@@ -216,7 +216,7 @@ class ProcessorsRegistry implements \Countable
 
     /**
      * @param string $channel
-     * @return array<int, callable(array):array>
+     * @return list<callable(array):array>
      */
     public function findForChannel(string $channel): array
     {

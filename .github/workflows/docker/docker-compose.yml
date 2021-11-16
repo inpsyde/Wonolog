@@ -40,10 +40,7 @@ services:
         depends_on:
             - mysql
         environment:
-            WORDPRESS_DB_HOST: wonolog-mysql
-            WORDPRESS_DB_NAME: wordpress
-            WORDPRESS_DB_USER: wordpress
-            WORDPRESS_DB_PASSWORD: wordpress
+          *db-environment
         volumes:
           *wp-volume
     php80:

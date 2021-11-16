@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
 use Brain\Monkey;
-use Inpsyde\Wonolog\Data\Info;
 use Inpsyde\Wonolog\Data\LogData;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;

@@ -158,8 +158,24 @@ class IntegationTestsExtension implements BeforeFirstTestHook, AfterLastTestHook
      */
     private function phpUnitParam(string $paramName): string
     {
+        static $maybeSanitize;
+        $maybeSanitize or $maybeSanitize = static function (string $str): string {
+            if (
+                preg_match('~^(["\'])([^"\']+)?(["\'])$~', $str, $matches)
+                && $matches[1] === $matches[3]
+            ) {
+                return $matches[2];
+            }
+
+            return $str;
+        };
+
         global $argv;
         $value = '';
+        $i = array_search("--{$paramName}", $argv, true);
+        if ($i) {
+            return $maybeSanitize($argv[$i + 1] ?? 'yes');
+        }
         foreach ($argv as $param) {
             if (preg_match('~--' . $paramName . '(?:=([^\s]+))?~', $param, $matches)) {
                 $value = $matches[1] ?? 'yes';
@@ -167,6 +183,6 @@ class IntegationTestsExtension implements BeforeFirstTestHook, AfterLastTestHook
             }
         }
 
-        return $value;
+        return $maybeSanitize($value);
     }
 }

@@ -36,7 +36,7 @@ class HandlersRegistry implements \Countable
     private $processorsRegistry;
 
     /**
-     * @var array<int, string>
+     * @var list<string>
      */
     private $initialized = [];
 

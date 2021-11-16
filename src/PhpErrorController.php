@@ -47,17 +47,6 @@ class PhpErrorController
         E_COMPILE_WARNING,
     ];
 
-    private const SUPER_GLOBALS_KEYS = [
-        '_REQUEST',
-        '_ENV',
-        'GLOBALS',
-        '_SERVER',
-        '_FILES',
-        '_COOKIE',
-        '_POST',
-        '_GET',
-    ];
-
     /**
      * @var bool
      */

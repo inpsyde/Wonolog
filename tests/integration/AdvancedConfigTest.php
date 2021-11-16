@@ -18,6 +18,8 @@ use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\AssertionFailedError;
 use Psr\Log\LogLevel;
 
+use function Inpsyde\Wonolog\makeLogger;
+
 /**
  * @runTestsInSeparateProcesses
  */
@@ -253,6 +255,26 @@ class AdvancedConfigTest extends IntegrationTestCase
         do_action('wp', $wp);
 
         $this->assertLogFileHasLine($expectedMessage, Channels::HTTP, 'NOTICE', $expectedContext);
+        self::assertSame([], $this->testHandler->getRecords());
+    }
+
+    /**
+     * @test
+     */
+    public function testLogFromArrayInBothHandlersUsingPsrLogger(): void
+    {
+        $logger = makeLogger('TESTS');
+
+        $logger->notice('Something happened.', ['user_password' => 'bar']);
+
+        static::assertTrue($this->testHandler->hasNoticeThatContains('Something happened.'));
+
+        $this->assertLogFileHasLine(
+            'Something happened.',
+            'TESTS',
+            'notice',
+            ['user_password' => '***']
+        );
     }
 
     /**
@@ -274,6 +296,9 @@ class AdvancedConfigTest extends IntegrationTestCase
                 "Log file does not exist, expected log containing '{$message}'."
             );
         }
+
+        $messageLog = $message;
+        $context and $messageLog .= sprintf(' (%s)', json_encode($context));
 
         $lines = @file($this->logFile) ?: [];
         foreach ((array)$lines as $line) {
@@ -309,11 +334,13 @@ class AdvancedConfigTest extends IntegrationTestCase
                 continue;
             }
 
-            static::assertTrue(true, "Log file contains log with '{$message}'.");
+            static::assertTrue(true);
 
             return;
         }
 
-        throw new AssertionFailedError("Log line containing '{$message}' not found.");
+        $error = "Log line containing '{$messageLog}' not found in channel '{$channel}'.\n\n";
+        $error .= "Log file:\n\n" . implode("\n", $lines);
+        throw new AssertionFailedError($error);
     }
 }

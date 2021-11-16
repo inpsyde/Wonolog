@@ -110,4 +110,55 @@ class LogActionUpdaterTest extends UnitTestCase
         static::assertSame(LogLevel::EMERGENCY, $record['level']);
         static::assertSame(['foo' => 'bar'], $record['context']);
     }
+
+    /**
+     * @test
+     */
+    public function testUpdateLogsUsingPsrLoggerWithMaskedInput(): void
+    {
+        do_action(Configurator::ACTION_LOADED);
+
+        $context = [
+            'users' => [
+                (object)[
+                    'user_login' => 'foo',
+                    'user_password' => 'secret1',
+                ],
+                (object)[
+                    'user_login' => 'bar',
+                    'user_password' => 'secret2',
+                ]
+            ]
+        ];
+
+        $contextExpected = [
+            'users' => [
+                [
+                    'user_login' => 'foo',
+                    'user_password' => '***',
+                ],
+                [
+                    'user_login' => 'bar',
+                    'user_password' => '***',
+                ]
+            ]
+        ];
+
+        $log = new Log('Test me', Logger::EMERGENCY, Channels::SECURITY, $context);
+
+        $logger = new TestLogger();
+
+        $channels = \Mockery::mock(Channels::class);
+        $channels->shouldReceive('isIgnored')->once()->with($log)->andReturn(false);
+        $channels->shouldReceive('logger')->once()->with(Channels::SECURITY)->andReturn($logger);
+
+        $updater = LogActionUpdater::new($channels);
+        $updater->update($log);
+
+        $record = $logger->records[0];
+
+        static::assertSame('Test me', $record['message']);
+        static::assertSame(LogLevel::EMERGENCY, $record['level']);
+        static::assertSame($contextExpected, $record['context']);
+    }
 }

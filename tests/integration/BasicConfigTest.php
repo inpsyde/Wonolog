@@ -10,6 +10,7 @@ use Inpsyde\Wonolog\Tests\IntegrationTestCase;
 use Monolog\Handler\TestHandler;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+
 use function Inpsyde\Wonolog\makeLogger;
 
 /**
