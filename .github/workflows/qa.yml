@@ -35,19 +35,15 @@ jobs:
     unit-tests:
         runs-on: ubuntu-latest
         if: ${{ !contains(github.event.head_commit.message, 'skip tests') }}
-        env:
-            USE_COVERAGE: no
         strategy:
             fail-fast: true
             matrix:
                 php-ver: [ '7.2', '7.3', '7.4', '8.0' ]
                 deps-mode: [ 'lowest', 'highest' ]
-
+                exclude:
+                    - php-ver: '7.4'
+                      deps-mode: 'highest'
         steps:
-            -   name: Update "USE_COVERAGE" env var based on matrix
-                if: ${{ matrix.php-ver == '7.4' && matrix.deps-mode == 'highest' }}
-                run: echo "USE_COVERAGE=yes" >> $GITHUB_ENV
-
             -   name: Checkout
                 uses: actions/checkout@v2
 
@@ -56,30 +52,54 @@ jobs:
                 with:
                     php-version: ${{ matrix.php-ver }}
                     ini-values: zend.assertions=1, error_reporting=-1, display_errors=On
-                    coverage: ${{ ((env.USE_COVERAGE == 'yes') && 'xdebug') || 'none' }}
+                    coverage: none
                     tools: cs2pr, parallel-lint
 
             -   name: Check syntax error in sources
-                if: ${{ (matrix.deps-mode == 'highest') && !matrix.composer-options }}
+                if: ${{ matrix.deps-mode == 'highest' }}
                 run: parallel-lint ./src/
 
             -   name: Install dependencies
                 uses: ramsey/composer-install@v1
                 with:
                     dependency-versions: ${{ matrix.deps-mode }}
-                    composer-options: ${{ matrix.composer-options }}
 
             -   name: Run unit tests (without code coverage)
-                if: ${{ env.USE_COVERAGE == 'no' }}
                 run: ./vendor/bin/phpunit --testsuite=unit --no-coverage
 
+    coverage:
+        runs-on: ubuntu-latest
+        if: ${{ !contains(github.event.head_commit.message, 'skip tests') }}
+        strategy:
+            matrix:
+                php-ver: [ '7.4' ]
+                deps-mode: [ 'highest' ]
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v2
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-ver }}
+                    ini-values: zend.assertions=1, error_reporting=-1, display_errors=On
+                    coverage: xdebug
+                    tools: cs2pr, parallel-lint
+
+            -   name: Check syntax error in sources
+                if: ${{ matrix.deps-mode == 'highest' }}
+                run: parallel-lint ./src/
+
+            -   name: Install dependencies
+                uses: ramsey/composer-install@v1
+                with:
+                    dependency-versions: ${{ matrix.deps-mode }}
+
             -   name: Run unit tests (with code coverage)
-                if: ${{ env.USE_COVERAGE == 'yes' }}
                 run: ./vendor/bin/phpunit --testsuite=unit --coverage-html=coverage-report
 
             -   name: Upload coverage report
                 uses: actions/upload-artifact@v2
-                if: ${{ env.USE_COVERAGE == 'yes' }}
                 with:
                     name: coverage-report
                     path: coverage-report/
