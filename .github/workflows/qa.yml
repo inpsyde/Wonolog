@@ -60,14 +60,13 @@ jobs:
                     tools: cs2pr, parallel-lint
 
             -   name: Check syntax error in sources
-                if: ${{ (matrix.deps-mode == 'highest') && !matrix.composer-options }}
+                if: ${{ (matrix.deps-mode == 'highest') }}
                 run: parallel-lint ./src/
 
             -   name: Install dependencies
                 uses: ramsey/composer-install@v1
                 with:
                     dependency-versions: ${{ matrix.deps-mode }}
-                    composer-options: ${{ matrix.composer-options }}
 
             -   name: Run unit tests (without code coverage)
                 if: ${{ env.USE_COVERAGE == 'no' }}
