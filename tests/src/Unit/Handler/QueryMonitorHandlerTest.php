@@ -40,17 +40,57 @@ class QueryMonitorHandlerTest extends TestCase {
         $handler->handle( $this->get_record( Logger::DEBUG, 'This is a test', [ 'foo' => 'bar' ] ) );
     }
 
+    public function test_the_handler_does_not_log_if_message_empty() {
+        $handler = new QueryMonitorHandler();
+        $handler->handle( $this->get_record( Logger::DEBUG, '', [ 'foo' => 'bar' ] ) );
+
+        self::assertFalse( (bool) did_action( 'qm/debug' ) );
+    }
+
+    public function test_the_handler_defaults_to_debug_if_no_level_name_supplied_in_record() {
+        $record = $this->get_record( Logger::DEBUG, 'Test', [ 'foo' => 'bar' ] );
+        $handler = new QueryMonitorHandler();
+
+        // Remove level details.
+        unset( $record['level_name'] );
+        $handler->handle( $record );
+
+        self::assertTrue( (bool) did_action( 'qm/debug' ) );
+    }
+
+    public function test_the_handler_defaults_to_debug_if_level_name_is_null() {
+        $record = $this->get_record( Logger::DEBUG, 'Test', [ 'foo' => 'bar' ] );
+        $handler = new QueryMonitorHandler();
+
+        // Set level to null.
+        $record['level_name'] = null;
+        $handler->handle( $record );
+
+        self::assertTrue( (bool) did_action( 'qm/debug' ) );
+    }
+
+    public function test_the_handler_defaults_to_debug_if_level_name_is_invalid() {
+        $record = $this->get_record( Logger::DEBUG, 'Test', [ 'foo' => 'bar' ] );
+        $handler = new QueryMonitorHandler();
+
+        // Set level to invalid value.
+        $record['level_name'] = 'invalid';
+        $handler->handle( $record );
+
+        self::assertTrue( (bool) did_action( 'qm/debug' ) );
+    }
+
     public function get_levels() {
-        return array(
-            'Debug level' => array( Logger::DEBUG, 'qm/debug' ),
-            'Info level' => array( Logger::INFO, 'qm/info' ),
-            'Notice level' => array( Logger::NOTICE, 'qm/notice' ),
-            'Warning level' => array( Logger::WARNING, 'qm/warning' ),
-            'Error level' => array( Logger::ERROR, 'qm/error' ),
-            'Critical level' => array( Logger::CRITICAL, 'qm/critical' ),
-            'Alert level' => array( Logger::ALERT, 'qm/alert' ),
-            'Emergency level' => array( Logger::EMERGENCY, 'qm/emergency' ),
-        );
+        return [
+            'Debug level' => [ Logger::DEBUG, 'qm/debug' ],
+            'Info level' => [ Logger::INFO, 'qm/info' ],
+            'Notice level' => [ Logger::NOTICE, 'qm/notice' ],
+            'Warning level' => [ Logger::WARNING, 'qm/warning' ],
+            'Error level' => [ Logger::ERROR, 'qm/error' ],
+            'Critical level' => [ Logger::CRITICAL, 'qm/critical' ],
+            'Alert level' => [ Logger::ALERT, 'qm/alert' ],
+            'Emergency level' => [ Logger::EMERGENCY, 'qm/emergency' ],
+        ];
     }
 
     /**
@@ -61,13 +101,13 @@ class QueryMonitorHandlerTest extends TestCase {
      * @return array
      */
     protected function get_record( $level = Logger::WARNING, $message = 'test', $context = [] ) {
-        return array(
+        return [
             'message' => (string) $message,
             'context' => $context,
             'level' => $level,
             'level_name' => Logger::getLevelName( $level ),
             'channel' => 'test',
-            'extra' => array(),
-        );
+            'extra' => [],
+        ];
     }
 }
