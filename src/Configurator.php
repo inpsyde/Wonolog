@@ -1021,9 +1021,40 @@ class Configurator
         }
 
         set_error_handler([$controller, 'onError'], $errorTypes);
-        if (PhpErrorController::typesMaskContainsFatals($errorTypes)) {
-            register_shutdown_function([$controller, 'onShutdown']);
+
+        if (!PhpErrorController::typesMaskContainsFatals($errorTypes)) {
+            return;
         }
+
+        /*
+         * When "fatal error handler" is enabled, WP uses `register_shutdown_function` to print a
+         * message and then call `wp_die()`.
+         * That prevents our `register_shutdown_function` call below to be called, because calling
+         * `exit`/`die` inside a shutdown handler prevents other shutdown handlers to run.
+         * Considering that exiting the request makes no sense when the request is already exiting,
+         * we use "wp_php_error_args" to set `$args['exit']` to `false`, telling WP to do not call
+         * `die()` inside `wp_die()` handler callbacks, so our logger can be executed.
+         * @see https://github.com/inpsyde/Wonolog/issues/69
+         * @see https://developer.wordpress.org/reference/classes/wp_fatal_error_handler/
+         *
+         * Caveats:
+         * - if `WP_Fatal_Error_Handler` is overridden by a dropin, we can't guarantee this work
+         * - if `wp_die()` handler callbacks are replaced via filters, we can't guarantee this work
+         * - if a custom PHP errors template is used (`wp-content/php-error.php`), we can't
+         *   guarantee this work
+         */
+        add_filter(
+            'wp_php_error_args',
+            static function ($args): array {
+                is_array($args) or $args = [];
+                $args['exit'] = false;
+
+                return $args;
+            },
+            PHP_INT_MAX
+        );
+
+        register_shutdown_function([$controller, 'onShutdown']);
     }
 
     /**
