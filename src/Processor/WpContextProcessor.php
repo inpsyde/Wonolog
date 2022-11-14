@@ -39,6 +39,7 @@ class WpContextProcessor
      */
     public function __invoke(array $record): array
     {
+        /** @psalm-suppress RedundantCondition */
         $data = [
             'doing_cron' => defined('DOING_CRON') && DOING_CRON,
             'doing_ajax' => defined('DOING_AJAX') && DOING_AJAX,

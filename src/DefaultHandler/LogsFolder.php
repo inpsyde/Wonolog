@@ -54,8 +54,8 @@ class LogsFolder
             }
 
             if ($folder === null && defined('WP_CONTENT_DIR')) {
-                $content = (string)trailingslashit((string)WP_CONTENT_DIR);
-                $folder = (string)wp_normalize_path("{$content}/wonolog");
+                $content = trailingslashit(WP_CONTENT_DIR);
+                $folder = wp_normalize_path("{$content}/wonolog");
             }
 
             if (!$folder || !wp_mkdir_p($folder)) {
@@ -98,7 +98,7 @@ class LogsFolder
         }
 
         $contentDir = defined('WP_CONTENT_DIR')
-            ? rtrim((string)wp_normalize_path((string)WP_CONTENT_DIR), '/')
+            ? rtrim(wp_normalize_path(WP_CONTENT_DIR), '/')
             : null;
 
         $uploadDir = static::uploadsBaseDir();

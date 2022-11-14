@@ -47,6 +47,13 @@ class PhpErrorController
         E_COMPILE_WARNING,
     ];
 
+    private const PHP_8_SILENCED_ERROR_CODE = E_ERROR
+        | E_CORE_ERROR
+        | E_COMPILE_ERROR
+        | E_USER_ERROR
+        | E_RECOVERABLE_ERROR
+        | E_PARSE;
+
     /**
      * @var bool
      */
@@ -121,13 +128,11 @@ class PhpErrorController
      */
     public function onError(int $num, string $str, ?string $file, ?int $line): bool
     {
-        $level = self::ERROR_LEVELS_MAP[$num] ?? LogLevel::ERROR;
-        // phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
-        if ((error_reporting() === 0) && !$this->logSilencedErrors) {
+        if (!$this->logSilencedErrors && $this->isSilencedError()) {
             return false;
         }
-        // phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
 
+        $level = self::ERROR_LEVELS_MAP[$num] ?? LogLevel::ERROR;
         $logContext = [];
         $logContext['file'] = $file;
         $logContext['line'] = $line;
@@ -171,5 +176,34 @@ class PhpErrorController
         if (in_array($error['type'], self::FATALS, true)) {
             $this->onError($error['type'], $error['message'], $error['file'], $error['line']);
         }
+    }
+
+    /**
+     * @return bool
+     */
+    private function isSilencedError(): bool
+    {
+        // phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
+        $errorReporting = error_reporting();
+        // phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
+
+        /**
+         * Prior to PHP 8, calling error_reporting() inside a custom error handler would return
+         * 0 if the error was suppressed via @, but as of PHP 8.0.0, it returns a fixed value.
+         * We can say the error is silenced if `error_reporting()` above returns that value and
+         * if that value is different from what is set in ini.
+         * @see https://www.php.net/manual/en/language.operators.errorcontrol.php
+         */
+        if (PHP_MAJOR_VERSION >= 8) {
+            if ($errorReporting !== self::PHP_8_SILENCED_ERROR_CODE) {
+                return false;
+            }
+
+            // If the fixed value returned by `error_reporting()` for silenced error is set in the
+            // config we can't really tell the error was suppressed.
+            return (int)ini_get('error_reporting') !== $errorReporting;
+        }
+
+        return $errorReporting === 0;
     }
 }

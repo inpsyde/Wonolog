@@ -900,24 +900,26 @@ class Configurator
      * @param string $key
      * @param list<string> $allValues
      * @return list<string>|null
+     *
+     * phpcs:disable Generic.Metrics.CyclomaticComplexity
      */
     private function parseEnabledDisabledConfig(string $key, array $allValues): ?array
     {
+        // phpcs:enable Generic.Metrics.CyclomaticComplexity
+
         /** @var array $config */
         $config = $this->config[$key];
-        $allEnabled = ($config[self::ALL] ?? null) === true;
-        $allDisabled = ($config[self::ALL] ?? null) === false;
 
-        $enabled = array_keys((array)($config[self::ENABLED] ?? []));
-        $disabled = array_keys((array)($config[self::DISABLED] ?? []));
-
-        if ($allDisabled) {
+        if (($config[self::ALL] ?? null) === false) { // all disabled
             return null;
         }
 
-        if ($allEnabled) {
+        if (($config[self::ALL] ?? null) === true) { // all enabled
             return $allValues;
         }
+
+        $enabled = array_keys((array)($config[self::ENABLED] ?? []));
+        $disabled = array_keys((array)($config[self::DISABLED] ?? []));
 
         $toEnable = null;
         switch (true) {

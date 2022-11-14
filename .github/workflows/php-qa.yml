@@ -1,0 +1,45 @@
+name: PHP Quality Assurance
+
+on:
+    push:
+        paths:
+            - '**workflows/php-qa.yml'
+            - '**.php'
+            - '**phpcs.xml.dist'
+            - '**phpunit.xml.dist'
+            - '**psalm.xml'
+            - '**composer.json'
+    pull_request:
+    workflow_dispatch:
+        inputs:
+            jobs:
+                required: true
+                type: choice
+                default: 'Run all'
+                description: 'Choose jobs to run'
+                options:
+                    - 'Run all'
+                    - 'Run PHPCS only'
+                    - 'Run Psalm only'
+                    - 'Run static analysis (PHPCS + Psalm)'
+                    - 'Run unit tests only'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    coding-standards-analysis-php:
+        if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs != 'Run unit tests only') && (github.event.inputs.jobs != 'Run Psalm only')) }}
+        uses: inpsyde/reusable-workflows/.github/workflows/coding-standards-php.yml@main
+
+    static-code-analysis-php:
+        if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs != 'Run unit tests only') && (github.event.inputs.jobs != 'Run PHPCS only')) }}
+        uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@main
+
+    tests-unit-php:
+        if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run unit tests only')) }}
+        uses: inpsyde/reusable-workflows/.github/workflows/tests-unit-php.yml@main
+        with:
+            PHP_MATRIX: '["7.2", "7.3", "7.4", "8.0", "8.1"]'
+            PHPUNIT_ARGS: '--testsuite=unit --no-coverage'

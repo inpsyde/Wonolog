@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <psalm
-    totallyTyped="true"
+    errorLevel="1"
     useDocblockPropertyTypes="true"
     usePhpDocMethodsWithoutMagicCall="true"
     hideExternalErrors="true"
@@ -17,7 +17,7 @@
     </projectFiles>
 
     <stubs>
-        <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
+        <file name="vendor/inpsyde/wp-stubs/stubs/latest.php"/>
     </stubs>
 
     <issueHandlers>

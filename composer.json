@@ -38,7 +38,7 @@
         "mikey179/vfsstream": "~1.6.10",
         "inpsyde/php-coding-standards": "^1@beta",
         "vimeo/psalm": "^4.12.0",
-        "php-stubs/wordpress-stubs": ">=5.8.0",
+        "inpsyde/wp-stubs": "dev-main",
         "johnpbloch/wordpress-core": ">=5.8.0",
         "symfony/process": "^4.4.30",
         "globalis/wp-cli-bin": "^2.5.0"
@@ -62,7 +62,12 @@
         }
     },
     "config": {
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "inpsyde/*": true,
+            "composer/*": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     },
     "extra": {
         "branch-alias": {
@@ -72,7 +77,7 @@
     },
     "scripts": {
         "cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
-        "psalm": "@php ./vendor/vimeo/psalm/psalm --output-format=compact --no-cache",
+        "psalm": "@php ./vendor/vimeo/psalm/psalm --output-format=compact --no-cache --find-unused-psalm-suppress",
         "tests:unit": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit",
         "tests:unit:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --no-coverage",
         "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=integration --no-coverage",

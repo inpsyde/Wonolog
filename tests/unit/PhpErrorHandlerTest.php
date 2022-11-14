@@ -40,7 +40,7 @@ class PhpErrorHandlerTest extends UnitTestCase
     public function testOnErrorNotice(): void
     {
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldNotReceive('update')->once()->andReturnUsing(
+        $updater->expects('update')->andReturnUsing(
             static function (LogData $log) {
                 static::assertSame(Channels::PHP_ERROR, $log->channel());
                 static::assertSame(Logger::NOTICE, $log->level());
@@ -64,7 +64,7 @@ class PhpErrorHandlerTest extends UnitTestCase
     public function testOnErrorFatal(): void
     {
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldNotReceive('update')->once()->andReturnUsing(
+        $updater->expects('update')->andReturnUsing(
             static function (LogData $log) {
 
                 static::assertSame(Channels::PHP_ERROR, $log->channel());
@@ -89,7 +89,7 @@ class PhpErrorHandlerTest extends UnitTestCase
     public function testOnException(): void
     {
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldNotReceive('update')->once()->andReturnUsing(
+        $updater->expects('update')->andReturnUsing(
             static function (LogData $log) {
 
                 static::assertSame(Channels::PHP_ERROR, $log->channel());
@@ -119,13 +119,29 @@ class PhpErrorHandlerTest extends UnitTestCase
     }
 
     /**
+     * @test
+     * @runInSeparateProcess
+     */
+    public function testDetectSilencedErrors(): void
+    {
+        $updater = \Mockery::mock(LogActionUpdater::class);
+        $updater->expects('update')->never();
+        $controller = PhpErrorController::new(false, $updater);
+        $this->initializeErrorController($controller);
+
+        $test = static function () {
+            trigger_error('Test', E_USER_WARNING);
+        };
+
+        @$test();
+    }
+
+    /**
      * @param PhpErrorController $controller
      * @return void
      */
     private function initializeErrorController(PhpErrorController $controller): void
     {
-        Filters\expectApplied('wonolog.report-silenced-errors')->andReturn(true);
-
         register_shutdown_function([$controller, 'onShutdown']);
         set_error_handler([$controller, 'onError']);
         set_exception_handler([$controller, 'onException']);

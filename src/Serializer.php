@@ -90,11 +90,13 @@ abstract class Serializer
 
     /**
      * @param mixed $input
-     * @param int $level
      * @return string
+     *
+     * phpcs:disable Generic.Metrics.CyclomaticComplexity
      */
     private static function forceString($input): string
     {
+        // phpcs:enable Generic.Metrics.CyclomaticComplexity
         if (is_string($input)) {
             return $input;
         }
@@ -146,7 +148,6 @@ abstract class Serializer
     private static function maybeMaskInput(iterable $input, int $level = 0): array
     {
         if (static::$maskedKeys === null) {
-            /** @psalm-suppress TooManyArguments */
             $maskedKeys = apply_filters(self::FILTER_MASKED_KEYS, self::SECRET_KEYS);
             is_array($maskedKeys) or $maskedKeys = self::SECRET_KEYS;
             /** @var list<string> $maskedKeys */
@@ -231,7 +232,6 @@ abstract class Serializer
             case ($value instanceof \WP_Comment):
                 return sprintf('%s (ID: %s)', get_class($value), $value->comment_ID);
             case ($value instanceof \WP_Meta_Query):
-                /** @psalm-suppress UndefinedPropertyFetch */
                 $args = (array)$value->queries;
                 // fallback
             case ($value instanceof \WP_Query):

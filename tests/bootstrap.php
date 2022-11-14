@@ -10,6 +10,10 @@
  */
 // phpcs:disable
 
+// phpcs:disable PSR1.Files.SideEffects
+// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions
+// phpcs:disable WordPress.PHP.DevelopmentFunctions
+
 declare(strict_types=1);
 
 $testsDir = str_replace('\\', '/', __DIR__);
@@ -25,9 +29,10 @@ putenv('TESTS_PATH=' . $testsDir);
 putenv('LIBRARY_PATH=' . $libDir);
 putenv('VENDOR_DIR=' . $vendorDir);
 
-error_reporting(E_ALL); // phpcs:ignore
+error_reporting(E_ALL);
+ini_set('error_reporting', '-1');
 
-require_once "{$libDir}/vendor/antecedent/patchwork/Patchwork.php";
+require_once "{$vendorDir}/antecedent/patchwork/Patchwork.php";
 
 if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
     define('PHPUNIT_COMPOSER_INSTALL', $autoload);

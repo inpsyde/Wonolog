@@ -15,7 +15,6 @@ namespace Inpsyde\Wonolog\Data;
 
 trait LogDataTrait
 {
-
     /**
      * @var string
      */

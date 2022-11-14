@@ -338,8 +338,6 @@ class HandlersRegistry implements \Countable
          *
          * @param bool $buffer
          * @param string $identifier
-         *
-         * @psalm-suppress TooManyArguments
          */
         if (!apply_filters(self::FILTER_BUFFER_HANDLER, true, $identifier)) {
             return $handler;
@@ -350,8 +348,6 @@ class HandlersRegistry implements \Countable
          *
          * @param int $limit
          * @param string $identifier
-         *
-         * @psalm-suppress TooManyArguments
          */
         $bufferLimit = apply_filters(self::FILTER_BUFFER_LIMIT, 20, $identifier);
         if (!is_int($bufferLimit) || ($bufferLimit < 2)) {

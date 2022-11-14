@@ -84,7 +84,6 @@ class LogActionUpdater
     {
         $context = $log->context();
 
-        /** @psalm-suppress TooManyArguments */
         $filteredContext = apply_filters(self::FILTER_CONTEXT, $context, $log);
         is_array($filteredContext) and $context = $filteredContext;
 

@@ -57,7 +57,7 @@ final class Log implements LogData
             $logData[self::LEVEL] = LogLevel::normalizeLevel($logData[self::LEVEL]);
         }
 
-        $logData = array_filter((array)(filter_var_array($logData, self::FILTERS) ?: []));
+        $logData = array_filter(filter_var_array($logData, self::FILTERS) ?: []);
 
         return new self(
             (string)($logData[self::MESSAGE] ?? 'Unknown error'),
