@@ -1,11 +1,20 @@
 name: Integration tests
+
 on:
-    workflow_dispatch:
     push:
-        branches: [ 'master', '2.x' ]
+        paths:
+            - '**workflows/integration-tests.yml'
+            - '**workflows/docker/**'
+            - '**.php'
+            - '**phpunit.xml.dist'
+            - '**composer.json'
+    pull_request:
+    workflow_dispatch:
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
+
 jobs:
     integration-tests:
         runs-on: ubuntu-latest
@@ -19,7 +28,9 @@ jobs:
                 uses: actions/checkout@v2
 
             -   name: Copy wait-for
-                run: cp .github/workflows/docker/wait-for.sh .github/workflows/docker/${{ matrix.php-service }}/wait-for.sh
+                run: |
+                    cp .github/workflows/docker/install-composer.sh .github/workflows/docker/${{ matrix.php-service }}/install-composer.sh
+                    cp .github/workflows/docker/wait-for.sh .github/workflows/docker/${{ matrix.php-service }}/wait-for.sh
 
             -   name: Run integration tests
                 working-directory: .github/workflows/docker
