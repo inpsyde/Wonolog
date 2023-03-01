@@ -4,8 +4,9 @@
 
 [![Version](https://img.shields.io/packagist/v/inpsyde/wonolog.svg)](https://packagist.org/packages/inpsyde/wonolog)
 [![Downloads](https://img.shields.io/packagist/dt/inpsyde/wonolog.svg)](https://packagist.org/packages/inpsyde/wonolog)
-![PHP quality assurance](https://github.com/inpsyde/Wonolog/workflows/PHP%20quality%20assurance/badge.svg)
-![PHP integration tests](https://github.com/inpsyde/Wonolog/workflows/PHP%20integration%20tests/badge.svg)
+[![PHP Static Code Analysis](https://github.com/inpsyde/Wonolog/actions/workflows/php-static-analysis.yml/badge.svg?branch=2.x)](https://github.com/inpsyde/Wonolog/actions/workflows/php-static-analysis.yml)
+[![PHP Unit Tests](https://github.com/inpsyde/Wonolog/actions/workflows/php-unit-tests.yml/badge.svg?branch=2.x)](https://github.com/inpsyde/Wonolog/actions/workflows/php-unit-tests.yml)
+[![PHP Integration Tests](https://github.com/inpsyde/Wonolog/actions/workflows/php-integration-tests.yml/badge.svg?branch=2.x)](https://github.com/inpsyde/Wonolog/actions/workflows/php-integration-tests.yml)
 
 ------
 
