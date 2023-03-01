@@ -1,9 +1,12 @@
 # Wonolog
 
+[![Version](https://img.shields.io/static/v1?label=inpsyde/wonolog&message=v2&color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog#2.0.0-beta.1)
+[![PHP Version](https://img.shields.io/static/v1?label=php&message=>=7.5&color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog#2.0.0-beta.1)
+[![Monolog Version](https://img.shields.io/static/v1?label=wonolog/wonolog&message=^2.3.5&color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog#2.0.0-beta.1)
+[![Downloads](https://img.shields.io/packagist/dt/inpsyde/wonolog.svg?color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog)
+
 ### _Monolog-based logging package for WordPress_
 
-[![Version](https://img.shields.io/packagist/v/inpsyde/wonolog.svg)](https://packagist.org/packages/inpsyde/wonolog)
-[![Downloads](https://img.shields.io/packagist/dt/inpsyde/wonolog.svg)](https://packagist.org/packages/inpsyde/wonolog)
 [![PHP Static Code Analysis](https://github.com/inpsyde/Wonolog/actions/workflows/php-static-analysis.yml/badge.svg?branch=2.x)](https://github.com/inpsyde/Wonolog/actions/workflows/php-static-analysis.yml)
 [![PHP Unit Tests](https://github.com/inpsyde/Wonolog/actions/workflows/php-unit-tests.yml/badge.svg?branch=2.x)](https://github.com/inpsyde/Wonolog/actions/workflows/php-unit-tests.yml)
 [![PHP Integration Tests](https://github.com/inpsyde/Wonolog/actions/workflows/php-integration-tests.yml/badge.svg?branch=2.x)](https://github.com/inpsyde/Wonolog/actions/workflows/php-integration-tests.yml)
@@ -24,8 +27,8 @@ Wonolog v2 uses Monolog v2.
 
 Wonolog requires:
 
-- PHP 7.3+
-- WordPress 5.5+
+- PHP 7.2+
+- WordPress 5.9+
 
 Via [Composer](https://getcomposer.org), Wonolog requires `monolog/monolog` (MIT).
 
@@ -33,7 +36,7 @@ Via [Composer](https://getcomposer.org), Wonolog requires `monolog/monolog` (MIT
 
 ## Getting started
 
-Wonolog should be installed via Composer, it's available on packagist.org package name is `inpsyde/wonolog`.
+Wonolog should be installed via Composer, it's available on [packagist.org package name is `inpsyde/wonolog`](https://packagist.org/packages/inpsyde/wonolog).
 
 **The suggested way to use Wonolog is at website level.**
 
@@ -89,7 +92,7 @@ Its basic ideas are:
 
 ### Default WordPress log events
 
-Wonolog expects plugins/themes/etc to fire actions that will be logged.
+Wonolog expects plugins/themes/etc. to fire actions that will be logged.
 
 For example, a plugin could do: `do_action('wonolog.log', 'Something happened')` and Wonolog will pass that message to Monolog that will log the message based on its configuration.
 
