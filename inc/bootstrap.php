@@ -1,4 +1,4 @@
-<?php // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
+<?php
 
 /**
  * This file is part of the Wonolog package.
@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Psr\Log\LoggerInterface;
+use Psr\Log\{LoggerInterface, NullLogger};
+
+use function WeCodeMore\earlyAddAction;
 
 // We want to load this file just once.
 // Being loaded by Composer autoload, and being in WP context, we have to put special care on this.
@@ -35,8 +37,8 @@ function makeLogger(?string $forChannel = null): LoggerInterface
         return $loggerFactory($forChannel);
     }
 
-    if (!$actionAdded && function_exists('add_action')) {
-        $actionAdded = add_action(
+    if (!$actionAdded) {
+        earlyAddAction(
             Configurator::ACTION_LOADED,
             /** @param callable(?string):LoggerInterface $factory */
             static function (callable $factory) use (&$loggerFactory): void {
@@ -44,36 +46,10 @@ function makeLogger(?string $forChannel = null): LoggerInterface
             },
             PHP_INT_MIN
         );
+        $actionAdded = true;
     }
 
-    return new \Psr\Log\NullLogger();
+    return new NullLogger();
 }
 
-(static function () {
-    $hook = 'muplugins_loaded';
-    $priority = PHP_INT_MIN;
-    $callback = [Configurator::new(), 'setup'];
-
-    $addActionExists = function_exists('add_action');
-    if ($addActionExists || defined('ABSPATH')) {
-        if (!$addActionExists) {
-            require_once ABSPATH . 'wp-includes/plugin.php';
-        }
-
-        add_action($hook, $callback, $priority);
-
-        return;
-    }
-    /**
-     * If here, this file is loaded very early, probably _too_ early, before ABSPATH is defined.
-     * Only option we have is to "manually" write in global `$wp_filter` array.
-     */
-    global $wp_filter;
-    is_array($wp_filter) or $wp_filter = [];
-    is_array($wp_filter[$hook] ?? null) or $wp_filter[$hook] = [];
-    /** @psalm-suppress MixedArrayAssignment */
-    is_array($wp_filter[$hook][$priority] ?? null) or $wp_filter[$hook][$priority] = [];
-    $callbackId = spl_object_hash($callback[0]) . 'setup';
-    /** @psalm-suppress MixedArrayAssignment */
-    $wp_filter[$hook][$priority][$callbackId] = ['function' => $callback, 'accepted_args' => 0];
-})();
+earlyAddAction('muplugins_loaded', [Configurator::new(), 'setup'], PHP_INT_MIN, 0);

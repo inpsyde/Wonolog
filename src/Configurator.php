@@ -813,9 +813,9 @@ class Configurator
          * Fires right after Wonolog has been set up.
          *
          * Passes a factory that creates an PSR-3 LoggerInterface that can be injected into any
-         * object that can make use of it, e. g. any object implementing `LoggerAwareInterface`.
+         * object that can make use of it, e.g. any object implementing `LoggerAwareInterface`.
          * This hook can only be used in MU plugins.
-         * Plugins/themes/etc can use `makeLogger()` if they need a PSR-3 compliant logger.
+         * Plugins/themes/etc. can use `makeLogger()` if they need a PSR-3 compliant logger.
          */
         do_action(self::ACTION_LOADED, $psr3Factory);
         remove_all_actions(self::ACTION_LOADED);

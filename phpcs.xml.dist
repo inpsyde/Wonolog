@@ -23,6 +23,10 @@
         </properties>
     </rule>
 
+     <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
+        <exclude-pattern>./inc/*.php</exclude-pattern>
+    </rule>
+
     <rule ref="Inpsyde.CodeQuality.Psr4">
         <properties>
             <property
