@@ -39,7 +39,7 @@
     "require": {
         "php": ">=7.2 < 8.3",
         "psr/log": "^1.1.4",
-        "wecodemore/wordpress-early-hook": "^1.0.0",
+        "wecodemore/wordpress-early-hook": "^1.1.0",
         "monolog/monolog": "^2.3.5"
     },
     "require-dev": {
