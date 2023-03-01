@@ -17,7 +17,7 @@
 
 Wonolog is a Composer package (not a plugin) that allows to log anything that *happens* in a WordPress site.
 
-It is based on [Monolog](https://github.com/Seldaek/monolog), which, with its over 215 million of downloads and thousands of dependent packages, is the most popular logging library for PHP, compatible with the [PSR-3 standard](https://www.php-fig.org/psr/psr-3/).
+It is based on [Monolog](https://github.com/Seldaek/monolog), which, with its hundreds millions of downloads ([![Monolog Total Downloads](https://img.shields.io/packagist/dt/monolog/monolog.svg?color=9FC65D&labelColor=3C3D46&style=flat-square)](https://packagist.org/packages/monolog/monolog)) and thousands of dependent packages, is the most popular logging library for PHP, compatible with the [PSR-3 standard](https://www.php-fig.org/psr/psr-3/).
 
 Wonolog v2 uses Monolog v2.
 
