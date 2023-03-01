@@ -255,7 +255,7 @@ class AdvancedConfigTest extends IntegrationTestCase
         do_action('wp', $wp);
 
         $this->assertLogFileHasLine($expectedMessage, Channels::HTTP, 'NOTICE', $expectedContext);
-        self::assertSame([], $this->testHandler->getRecords());
+        static::assertSame([], $this->testHandler->getRecords());
     }
 
     /**

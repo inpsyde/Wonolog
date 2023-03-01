@@ -1,9 +1,9 @@
-name: Integration tests
+name: PHP Integration Tests
 
 on:
     push:
         paths:
-            - '**workflows/integration-tests.yml'
+            - '**workflows/php-integration-tests.yml'
             - '**workflows/docker/**'
             - '**.php'
             - '**phpunit.xml.dist'
@@ -20,18 +20,18 @@ jobs:
         runs-on: ubuntu-latest
         if: ${{ !contains(github.event.head_commit.message, 'skip integration') }}
         strategy:
-            fail-fast: true
+            fail-fast: false
             matrix:
-                php-service: [ 'php73', 'php74', 'php80' ]
+                php-service: [ '72', '73', '74', '80', '81', '82' ]
         steps:
             -   name: Checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v3
 
             -   name: Copy wait-for
                 run: |
-                    cp .github/workflows/docker/install-composer.sh .github/workflows/docker/${{ matrix.php-service }}/install-composer.sh
-                    cp .github/workflows/docker/wait-for.sh .github/workflows/docker/${{ matrix.php-service }}/wait-for.sh
+                    cp .github/workflows/docker/install-composer.sh .github/workflows/docker/php${{ matrix.php-service }}/install-composer.sh
+                    cp .github/workflows/docker/wait-for.sh .github/workflows/docker/php${{ matrix.php-service }}/wait-for.sh
 
             -   name: Run integration tests
                 working-directory: .github/workflows/docker
-                run: docker-compose run --rm ${{ matrix.php-service }} sh -c "wait-for.sh wonolog-mysql:3306 -t 15 -- composer update && composer tests:integration"
+                run: docker-compose run --rm php${{ matrix.php-service }} sh -c "wait-for.sh wonolog-mysql:3306 -t 15 -- composer update && composer tests:integration"

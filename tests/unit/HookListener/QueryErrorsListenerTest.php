@@ -21,7 +21,7 @@ use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
 use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
 
-class QueryErrorsListenerUnitTest extends UnitTestCase
+class QueryErrorsListenerTest extends UnitTestCase
 {
     /**
      * @test
@@ -33,8 +33,7 @@ class QueryErrorsListenerUnitTest extends UnitTestCase
         Functions\when('add_query_arg')->justReturn('/meh');
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')
-            ->once()
+        $updater->expects('update')
             ->with(\Mockery::type(LogData::class))
             ->andReturnUsing(
                 static function (LogData $log): void {
@@ -51,8 +50,10 @@ class QueryErrorsListenerUnitTest extends UnitTestCase
                 }
             );
 
-        /** @var \WP $wp */
-        $wp = \Mockery::mock('WP');
+        if (!class_exists(\WP::class)) {
+            eval('class WP { public $query_vars = []; public $matched_rule = null; }');
+        }
+        $wp = new \WP();
         $wp->query_vars = ['foo' => 'bar'];
         $wp->matched_rule = '/.+/';
 
@@ -85,7 +86,7 @@ class QueryErrorsListenerUnitTest extends UnitTestCase
         $listener = new QueryErrorsListener();
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')->never();
+        $updater->expects('update')->never();
 
         Actions\expectDone('wp')
             ->whenHappen(

@@ -25,7 +25,7 @@ class ProcessorsRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->processorsRegistry();
 
-        $cb = function () {};
+        $cb = static function (): void {};
 
         $handlerOne = $cb;
         $handlerTwo = clone $cb;
@@ -35,7 +35,7 @@ class ProcessorsRegistryTest extends UnitTestCase
         $registry->addProcessor($handlerTwo, 'test');
         $registry->addProcessor($handlerThree, 'test');
 
-        self::assertCount(1, $registry);
+        static::assertCount(1, $registry);
     }
 
     /**
@@ -45,8 +45,8 @@ class ProcessorsRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->processorsRegistry();
 
-        $cb1 = function () {};
-        $cb2 = function () {};
+        $cb1 = static function (): void {};
+        $cb2 = static function (): void {};
 
         $registry->addProcessor($cb1, 'x', 'A', 'B');
         $registry->addProcessor($cb2, 'y', 'C', 'D');
@@ -69,8 +69,8 @@ class ProcessorsRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->processorsRegistry();
 
-        $cb1 = function () {};
-        $cb2 = function () {};
+        $cb1 = static function (): void {};
+        $cb2 = static function (): void {};
 
         $registry->addProcessor($cb1, 'x', 'A', 'B');
         $registry->addProcessor($cb2, 'y', 'A', 'C');
@@ -93,8 +93,8 @@ class ProcessorsRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->processorsRegistry();
 
-        $cb1 = function () {};
-        $cb2 = function () {};
+        $cb1 = static function (): void {};
+        $cb2 = static function (): void {};
 
         $registry->addProcessor($cb1, 'x');
         $registry->addProcessor($cb2, 'y', 'A', 'C');

@@ -35,11 +35,11 @@ class HookListenersRegistryTest extends UnitTestCase
         $listener4 = clone $listener2;
         $listener5 = clone $listener1;
 
-        $listener1->shouldReceive('listenTo')->zeroOrMoreTimes()->andReturn(['one.log']);
-        $listener2->shouldReceive('listenTo')->once()->andReturn(['two.log']);
-        $listener3->shouldReceive('listenTo')->once()->andReturn(['three-a.log', 'three-b.log']);
-        $listener4->shouldReceive('listenTo')->once()->andReturn(['four-a.log', 'four-b.log']);
-        $listener5->shouldReceive('listenTo')->once()->andReturn([]);
+        $listener1->allows('listenTo')->andReturn(['one.log']);
+        $listener2->expects('listenTo')->andReturn(['two.log']);
+        $listener3->expects('listenTo')->andReturn(['three-a.log', 'three-b.log']);
+        $listener4->expects('listenTo')->andReturn(['four-a.log', 'four-b.log']);
+        $listener5->expects('listenTo')->andReturn([]);
 
         $registry = Factory::new()->listenersRegistry();
         $registry

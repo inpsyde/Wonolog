@@ -66,7 +66,7 @@ class BufferedFileHandlerTest extends UnitTestCase
         $this->setupFolders();
         $handler = FileHandler::new();
         $formatter = new JsonFormatter();
-        $processor = function (array $record) { return $record; };
+        $processor = static function (array $record): array { return $record; };
         $handler->setFormatter($formatter);
         $handler->pushProcessor($processor);
 
@@ -94,9 +94,10 @@ class BufferedFileHandlerTest extends UnitTestCase
 
         define('WP_CONTENT_DIR', $dir->url() . '/wp-content');
 
-        Monkey\Functions\when('wp_upload_dir')->alias(static function () use ($uploadsOk, $dir) {
-            return $uploadsOk ? ['basedir' => $dir->url() . '/uploads'] : ['error' => 'error'];
-        });
+        Monkey\Functions\when('wp_upload_dir')
+            ->alias(static function () use ($uploadsOk, $dir): array {
+                return $uploadsOk ? ['basedir' => $dir->url() . '/uploads'] : ['error' => 'error'];
+            });
 
         return $dir;
     }

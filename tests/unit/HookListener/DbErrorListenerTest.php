@@ -20,7 +20,7 @@ use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Inpsyde\Wonolog\HookListener\DbErrorListener;
 use Brain\Monkey\Actions;
 
-class DbErrorListenerUnitTest extends UnitTestCase
+class DbErrorListenerTest extends UnitTestCase
 {
     /**
      * @return void
@@ -38,17 +38,18 @@ class DbErrorListenerUnitTest extends UnitTestCase
     public function testLogDone(): void
     {
         // phpcs:disable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
+
         global $EZSQL_ERROR;
         $EZSQL_ERROR = [['query' => 'This is a SQL query', 'error_str' => 'This is an error']];
 
         $listener = new DbErrorListener();
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')
-            ->once()
+        $updater->expects('update')
             ->with(\Mockery::type(LogData::class))
             ->andReturnUsing(
-                static function (LogData $log) use ($EZSQL_ERROR) {
+                static function (LogData $log): void {
+                    global $EZSQL_ERROR;
                     $context = [
                         'last_wpdb_query' => 'This is a SQL query',
                         'last_wpdb_errors' => $EZSQL_ERROR,
@@ -64,7 +65,7 @@ class DbErrorListenerUnitTest extends UnitTestCase
         Actions\expectDone('shutdown')
             ->once()
             ->whenHappen(
-                static function () use ($listener, $updater) {
+                static function () use ($listener, $updater): void {
                     $listener->update('a', func_get_args(), $updater);
                 }
             );
@@ -85,7 +86,7 @@ class DbErrorListenerUnitTest extends UnitTestCase
         $listener = new DbErrorListener();
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')->never();
+        $updater->expects('update')->never();
 
         $listener->update('a', [], $updater);
     }

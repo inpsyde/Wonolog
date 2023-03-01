@@ -29,10 +29,10 @@ class MethodNamesByHookTraitTest extends UnitTestCase
         $logMessages = [];
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')
+        $updater->expects('update')
             ->times(4)
             ->andReturnUsing(
-                static function (LogData $log) use (&$logMessages) {
+                static function (LogData $log) use (&$logMessages): void {
                     $logMessages[] = $log->message();
                 }
             );
@@ -80,10 +80,10 @@ class MethodNamesByHookTraitTest extends UnitTestCase
         $logMessages = [];
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')
+        $updater->expects('update')
             ->times(3)
             ->andReturnUsing(
-                static function (LogData $log) use (&$logMessages) {
+                static function (LogData $log) use (&$logMessages): void {
                     $logMessages[] = $log->message();
                 }
             );
@@ -123,10 +123,9 @@ class MethodNamesByHookTraitTest extends UnitTestCase
         $logMessage = null;
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')
-            ->once()
+        $updater->expects('update')
             ->andReturnUsing(
-                static function (LogData $log) use (&$logMessage) {
+                static function (LogData $log) use (&$logMessage): void {
                     $logMessage = $log->message();
                 }
             );

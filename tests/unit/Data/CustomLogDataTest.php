@@ -34,10 +34,10 @@ class CustomLogDataTest extends UnitTestCase
      */
     public function testLevels(int $expectedLevel, LogData $log): void
     {
-        self::assertSame(Channels::DEBUG, $log->channel());
-        self::assertSame('test', $log->message());
-        self::assertSame([], $log->context());
-        self::assertSame($expectedLevel, $log->level());
+        static::assertSame(Channels::DEBUG, $log->channel());
+        static::assertSame('test', $log->message());
+        static::assertSame([], $log->context());
+        static::assertSame($expectedLevel, $log->level());
     }
 
     /**

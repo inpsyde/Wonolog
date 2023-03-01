@@ -20,7 +20,7 @@ use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Inpsyde\Wonolog\HookListener\CronDebugListener;
 use Monolog\Logger;
 
-class CronDebugListenerUnitTest extends UnitTestCase
+class CronDebugListenerTest extends UnitTestCase
 {
     /**
      * @test
@@ -31,7 +31,7 @@ class CronDebugListenerUnitTest extends UnitTestCase
         Monkey\Functions\expect('_get_cron_array')->never();
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')->never();
+        $updater->expects('update')->never();
 
         (new CronDebugListener())->update('a', [], $updater);
     }
@@ -63,19 +63,19 @@ class CronDebugListenerUnitTest extends UnitTestCase
         $cb3 = null;
 
         Monkey\Actions\expectAdded('wp_version_check')->twice()->whenHappen(
-            static function ($profileCallback) use (&$cb1) {
+            static function ($profileCallback) use (&$cb1): void {
                 $cb1 = $profileCallback;
             }
         );
 
         Monkey\Actions\expectAdded('wp_update_plugins')->twice()->whenHappen(
-            static function ($profileCallback) use (&$cb2) {
+            static function ($profileCallback) use (&$cb2): void {
                 $cb2 = $profileCallback;
             }
         );
 
         Monkey\Actions\expectAdded('wp_scheduled_delete')->twice()->whenHappen(
-            static function ($profileCallback) use (&$cb3) {
+            static function ($profileCallback) use (&$cb3): void {
                 $cb3 = $profileCallback;
             }
         );
@@ -83,11 +83,11 @@ class CronDebugListenerUnitTest extends UnitTestCase
         $updater = \Mockery::mock(LogActionUpdater::class);
 
         $logs = [];
-        $updater->shouldReceive('update')
+        $updater->expects('update')
             ->times(3)
             ->with(\Mockery::type(LogData::class))
             ->andReturnUsing(
-                static function (LogData $log) use (&$logs) {
+                static function (LogData $log) use (&$logs): void {
                     $logs[] = $log->message();
                     static::assertSame(Logger::NOTICE, $log->level());
                 }

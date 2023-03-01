@@ -26,18 +26,17 @@ class WpErrorChannelTest extends UnitTestCase
     public function testChannelGuessedDb(): void
     {
         $error = \Mockery::mock('WP_Error');
-        $error->shouldReceive('get_error_data')
+        $error->allows('get_error_data')
             ->with(\Mockery::anyOf('foo', 'bar', 'db_failed'))
             ->andReturn([]);
         $error
-            ->shouldReceive('get_error_codes')
-            ->once()
+            ->expects('get_error_codes')
             ->andReturn(['foo', 'bar', 'db_failed']);
 
         $instance = WpErrorChannel::new();
         $channel = $instance->channelFor($error);
 
-        self::assertSame(Channels::DB, $channel);
+        static::assertSame(Channels::DB, $channel);
     }
 
     /**
@@ -46,18 +45,18 @@ class WpErrorChannelTest extends UnitTestCase
     public function testChannelGuessedHttp(): void
     {
         $error = \Mockery::mock('WP_Error');
-        $error->shouldReceive('get_error_data')
+        $error->allows('get_error_data')
             ->with(\Mockery::anyOf('foo', 'bar', 'rest_error'))
             ->andReturn([]);
         $error
-            ->shouldReceive('get_error_codes')
+            ->expects('get_error_codes')
             ->once()
             ->andReturn(['foo', 'bar', 'rest_error']);
 
         $instance = WpErrorChannel::new();
         $channel = $instance->channelFor($error);
 
-        self::assertSame(Channels::HTTP, $channel);
+        static::assertSame(Channels::HTTP, $channel);
     }
 
     /**
@@ -66,18 +65,17 @@ class WpErrorChannelTest extends UnitTestCase
     public function testChannelGuessedSecurity(): void
     {
         $error = \Mockery::mock('WP_Error');
-        $error->shouldReceive('get_error_data')
+        $error->allows('get_error_data')
             ->with(\Mockery::anyOf('foo', 'authentication', 'rest_error'))
             ->andReturn([]);
         $error
-            ->shouldReceive('get_error_codes')
-            ->once()
+            ->expects('get_error_codes')
             ->andReturn(['foo', 'authentication', 'rest_error']);
 
         $instance = WpErrorChannel::new();
         $channel = $instance->channelFor($error);
 
-        self::assertSame(Channels::SECURITY, $channel);
+        static::assertSame(Channels::SECURITY, $channel);
     }
 
     /**
@@ -91,18 +89,18 @@ class WpErrorChannelTest extends UnitTestCase
             ->andReturn('BAR');
 
         $error = \Mockery::mock('WP_Error');
-        $error->shouldReceive('get_error_data')
+        $error->allows('get_error_data')
             ->with(\Mockery::anyOf('foo', 'authentication', 'rest_error'))
             ->andReturn([]);
         $error
-            ->shouldReceive('get_error_codes')
+            ->expects('get_error_codes')
             ->once()
             ->andReturn(['foo', 'authentication', 'rest_error']);
 
         $instance = WpErrorChannel::new();
         $channel = $instance->channelFor($error);
 
-        self::assertSame('BAR', $channel);
+        static::assertSame('BAR', $channel);
     }
 
     /**
@@ -111,22 +109,13 @@ class WpErrorChannelTest extends UnitTestCase
     public function testChannelByErrorData(): void
     {
         $error = \Mockery::mock('WP_Error');
-        $error->shouldReceive('get_error_data')
-            ->once()
-            ->with('foo')
-            ->andReturn([]);
-        $error->shouldReceive('get_error_data')
-            ->once()
-            ->with('bar')
-            ->andReturn(['channel' =>'TESTS']);
-        $error
-            ->shouldReceive('get_error_codes')
-            ->once()
-            ->andReturn(['foo', 'bar']);
+        $error->expects('get_error_data')->with('foo')->andReturn([]);
+        $error->expects('get_error_data')->with('bar')->andReturn(['channel' =>'TESTS']);
+        $error->allows('get_error_codes')->andReturn(['foo', 'bar']);
 
         $instance = WpErrorChannel::new();
         $channel = $instance->channelFor($error);
 
-        self::assertSame('TESTS', $channel);
+        static::assertSame('TESTS', $channel);
     }
 }

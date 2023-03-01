@@ -25,10 +25,19 @@ final class Log implements LogData
      * @var array
      */
     private const FILTERS = [
-        self::MESSAGE => FILTER_SANITIZE_STRING,
+        self::MESSAGE => [
+            'filter' => FILTER_UNSAFE_RAW,
+            'flags' => FILTER_REQUIRE_SCALAR | FILTER_NULL_ON_FAILURE,
+        ],
         self::LEVEL => FILTER_SANITIZE_NUMBER_INT,
-        self::CHANNEL => FILTER_SANITIZE_STRING,
-        self::CONTEXT => ['filter' => FILTER_UNSAFE_RAW, 'flags' => FILTER_REQUIRE_ARRAY],
+        self::CHANNEL => [
+            'filter' => FILTER_UNSAFE_RAW,
+            'flags' => FILTER_REQUIRE_SCALAR | FILTER_NULL_ON_FAILURE,
+        ],
+        self::CONTEXT => [
+            'filter' => FILTER_UNSAFE_RAW,
+            'flags' => FILTER_REQUIRE_ARRAY,
+        ],
     ];
 
     /**
@@ -58,9 +67,10 @@ final class Log implements LogData
         }
 
         $logData = array_filter(filter_var_array($logData, self::FILTERS) ?: []);
+        $message = (string)($logData[self::MESSAGE] ?? 'Unknown error');
 
         return new self(
-            (string)($logData[self::MESSAGE] ?? 'Unknown error'),
+            htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false),
             (int)($logData[self::LEVEL] ?? $defaultLevel ?? LogLevel::DEBUG),
             (string)($logData[self::CHANNEL] ?? $defaultChannel ?? Channels::DEBUG),
             (array)($logData[self::CONTEXT] ?? [])

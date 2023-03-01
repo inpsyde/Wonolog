@@ -8,7 +8,7 @@ use PHPUnit\Runner\AfterLastTestHook;
 use PHPUnit\Runner\BeforeFirstTestHook;
 use Symfony\Component\Process\Process;
 
-class IntegationTestsExtension implements BeforeFirstTestHook, AfterLastTestHook
+class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHook
 {
     /**
      * @return void
@@ -43,7 +43,7 @@ class IntegationTestsExtension implements BeforeFirstTestHook, AfterLastTestHook
     private static function runWpCliCommand(array $command): void
     {
         static $cliPath;
-        $cliPath or $cliPath = getenv('VENDOR_DIR') . '/bin';
+        $cliPath or $cliPath = (getenv('VENDOR_DIR') ?: '') . '/bin';
 
         array_unshift($command, "{$cliPath}/wp");
         $command[] = '--path=' . ABSPATH;
@@ -60,6 +60,7 @@ class IntegationTestsExtension implements BeforeFirstTestHook, AfterLastTestHook
             'WORDPRESS_DB_PASSWORD' => $dbPwd,
         ];
 
+        /** @var string $cliPath */
         $process = new Process($command, $cliPath, $env);
         $process->run();
         if (!$process->isSuccessful()) {
@@ -68,7 +69,7 @@ class IntegationTestsExtension implements BeforeFirstTestHook, AfterLastTestHook
     }
 
     /**
-     * @return array
+     * @return array{string, string, string, string}
      */
     private static function loadEnvVars(): array
     {

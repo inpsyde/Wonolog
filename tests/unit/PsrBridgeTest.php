@@ -15,7 +15,6 @@ namespace Inpsyde\Wonolog\Tests\Unit;
 
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\LogData;
-use Inpsyde\Wonolog\HookLogFactory;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\PsrBridge;
@@ -97,16 +96,16 @@ class PsrBridgeTest extends UnitTestCase
      * @param string $defaultChannel
      * @return PsrBridge
      */
-    private function factoryBridge(string $defaultChannel = Channels::DEBUG)
+    private function factoryBridge(string $defaultChannel = Channels::DEBUG): PsrBridge
     {
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')->andReturnUsing(function (LogData $log): void {
+        $updater->expects('update')->andReturnUsing(function (LogData $log): void {
             $this->logged = $log;
         });
 
         $channels = \Mockery::mock(Channels::class);
-        $channels->shouldReceive('defaultChannel')->andReturn($defaultChannel);
-        $channels->shouldReceive('addChannel')->with(\Mockery::type('string'))->andReturnSelf();
+        $channels->allows('defaultChannel')->andReturn($defaultChannel);
+        $channels->allows('addChannel')->with(\Mockery::type('string'))->andReturnSelf();
 
         return PsrBridge::new($updater, $channels);
     }

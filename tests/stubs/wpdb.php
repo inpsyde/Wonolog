@@ -62,13 +62,10 @@ class wpdb // phpcs:ignore
      */
     private function execute_die_listener()
     {
-        $handler = static function ($message) {
+        $handler = static function ($message): string {
             return "Handled: $message";
         };
 
-        $listener = $this->wp_die_listener;
-        $handler = $listener->filter('a', [$handler], $this->logActionUpdater);
-
-        return $handler;
+        return $this->wp_die_listener->filter('a', [$handler], $this->logActionUpdater);
     }
 }

@@ -14,7 +14,7 @@
 	stopOnFailure="false">
 
     <extensions>
-        <extension class="Inpsyde\Wonolog\Tests\IntegationTestsExtension"/>
+        <extension class="Inpsyde\Wonolog\Tests\IntegrationTestsExtension"/>
     </extensions>
 
 	<testsuites>

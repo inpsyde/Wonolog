@@ -43,6 +43,6 @@ if (!getenv('GITHUB_WORKFLOW') && file_exists(__DIR__ . '/environment.php')) {
     require_once __DIR__ . '/environment.php';
 }
 
-defined('ABSPATH') or define('ABSPATH', "{$vendorDir}/johnpbloch/wordpress-core/");
+defined('ABSPATH') or define('ABSPATH', "{$vendorDir}/roots/wordpress-no-content/");
 
 unset($testsDir, $libDir, $vendorDir, $autoload);

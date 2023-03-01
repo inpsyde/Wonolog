@@ -40,7 +40,7 @@ class HandlersRegistryTest extends UnitTestCase
         $registry->addHandler($handlerTwo, 'test');
         $registry->addHandler($handlerThree, 'test');
 
-        self::assertCount(1, $registry);
+        static::assertCount(1, $registry);
     }
 
     /**
@@ -54,11 +54,11 @@ class HandlersRegistryTest extends UnitTestCase
         $registry->addHandler($handler, 'x');
         $registry->removeHandlerFromChannels('x', Channels::CRON);
 
-        self::assertFalse($registry->hasHandlerForChannel('x', Channels::CRON));
-        self::assertTrue($registry->hasHandlerForChannel('x', Channels::DEBUG));
-        self::assertTrue($registry->hasHandlerForChannel('x', Channels::HTTP));
+        static::assertFalse($registry->hasHandlerForChannel('x', Channels::CRON));
+        static::assertTrue($registry->hasHandlerForChannel('x', Channels::DEBUG));
+        static::assertTrue($registry->hasHandlerForChannel('x', Channels::HTTP));
 
-        self::assertCount(1, $registry);
+        static::assertCount(1, $registry);
     }
 
     /**
@@ -77,12 +77,12 @@ class HandlersRegistryTest extends UnitTestCase
         $registry->addHandler($handlerTwo, 'b');
         $registry->addHandler($handlerThree, 'c');
 
-        self::assertSame($handlerOne, $registry->findById('a'));
-        self::assertSame($handlerTwo, $registry->findById('b'));
-        self::assertSame($handlerThree, $registry->findById('c'));
-        self::assertNull($registry->findById('x'));
+        static::assertSame($handlerOne, $registry->findById('a'));
+        static::assertSame($handlerTwo, $registry->findById('b'));
+        static::assertSame($handlerThree, $registry->findById('c'));
+        static::assertNull($registry->findById('x'));
 
-        self::assertCount(3, $registry);
+        static::assertCount(3, $registry);
     }
 
     /**
@@ -130,7 +130,7 @@ class HandlersRegistryTest extends UnitTestCase
             ->once()
             ->andReturn(false);
 
-        self::assertCount(2, $registry);
+        static::assertCount(2, $registry);
 
         $http = $registry->findForChannel(Channels::HTTP);
         static::assertCount(1, $http);

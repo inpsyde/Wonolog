@@ -41,7 +41,7 @@ abstract class IntegrationTestCase extends \PHPUnit\Framework\TestCase
 
         add_action(
             Configurator::ACTION_SETUP,
-            function (Configurator $configurator) {
+            function (Configurator $configurator): void {
                 $this->bootstrapWonolog($configurator);
             }
         );

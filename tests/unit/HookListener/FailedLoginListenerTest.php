@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpFullyQualifiedNameUsageInspection */
 
 /**
  * This file is part of the Wonolog package.
@@ -21,7 +21,7 @@ use Inpsyde\Wonolog\HookListener\FailedLoginListener;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class FailedLoginListenerUnitTest extends UnitTestCase
+class FailedLoginListenerTest extends UnitTestCase
 {
     /**
      * @test
@@ -37,12 +37,12 @@ class FailedLoginListenerUnitTest extends UnitTestCase
         $listener = new FailedLoginListener();
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')->once()->with(\Mockery::type(FailedLogin::class));
+        $updater->expects('update')->with(\Mockery::type(FailedLogin::class));
 
         Actions\expectDone('wp_login_failed')
             ->once()
             ->whenHappen(
-                static function () use ($listener, $updater) {
+                static function () use ($listener, $updater): void {
                     $listener->update('a', func_get_args(), $updater);
                 }
             );
@@ -67,17 +67,16 @@ class FailedLoginListenerUnitTest extends UnitTestCase
         $listener = new FailedLoginListener();
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')
-            ->once()
+        $updater->expects('update')
             ->with(\Mockery::type(FailedLogin::class))
-            ->andReturnUsing(static function (LogData $log) {
+            ->andReturnUsing(static function (LogData $log): void {
                 static::assertSame(0, $log->level());
             });
 
         Actions\expectDone('wp_login_failed')
             ->once()
             ->whenHappen(
-                static function () use ($listener, $updater) {
+                static function () use ($listener, $updater): void {
                     $listener->update('a', func_get_args(), $updater);
                 }
             );

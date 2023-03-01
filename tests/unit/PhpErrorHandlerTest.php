@@ -17,7 +17,6 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\LogData;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\PhpErrorController;
-use Brain\Monkey\Filters;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Logger;
 
@@ -41,7 +40,7 @@ class PhpErrorHandlerTest extends UnitTestCase
     {
         $updater = \Mockery::mock(LogActionUpdater::class);
         $updater->expects('update')->andReturnUsing(
-            static function (LogData $log) {
+            static function (LogData $log): void {
                 static::assertSame(Channels::PHP_ERROR, $log->channel());
                 static::assertSame(Logger::NOTICE, $log->level());
                 static::assertSame('Meh!', $log->message());
@@ -65,8 +64,7 @@ class PhpErrorHandlerTest extends UnitTestCase
     {
         $updater = \Mockery::mock(LogActionUpdater::class);
         $updater->expects('update')->andReturnUsing(
-            static function (LogData $log) {
-
+            static function (LogData $log): void {
                 static::assertSame(Channels::PHP_ERROR, $log->channel());
                 static::assertSame(Logger::WARNING, $log->level());
                 static::assertSame('Warning!', $log->message());
@@ -90,8 +88,7 @@ class PhpErrorHandlerTest extends UnitTestCase
     {
         $updater = \Mockery::mock(LogActionUpdater::class);
         $updater->expects('update')->andReturnUsing(
-            static function (LogData $log) {
-
+            static function (LogData $log): void {
                 static::assertSame(Channels::PHP_ERROR, $log->channel());
                 static::assertSame(Logger::CRITICAL, $log->level());
                 static::assertSame('Exception!', $log->message());
@@ -129,7 +126,7 @@ class PhpErrorHandlerTest extends UnitTestCase
         $controller = PhpErrorController::new(false, $updater);
         $this->initializeErrorController($controller);
 
-        $test = static function () {
+        $test = static function (): void {
             trigger_error('Test', E_USER_WARNING);
         };
 

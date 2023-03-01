@@ -98,7 +98,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineCustomWhenUploadsInsideContentWithAppendendWonologDir()
+    public function testDetermineCustomWhenUploadsInsideContentWithAppendedWonologDir()
     {
         define('WP_DEBUG_LOG', true);
         $dir = $this->setupFolders();
@@ -112,7 +112,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineCustomWhenUploadsInsideContentWithoutAppendendWonologDir()
+    public function testDetermineCustomWhenUploadsInsideContentWithoutAppendedWonologDir()
     {
         define('WP_DEBUG_LOG', true);
         $dir = $this->setupFolders();
@@ -126,7 +126,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineCustomInWpContentWithAppendendWonologDir()
+    public function testDetermineCustomInWpContentWithAppendedWonologDir()
     {
         define('WP_DEBUG_LOG', true);
         $dir = $this->setupFolders();
@@ -140,7 +140,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineCustomInWpContentWithoutAppendendWonologDir()
+    public function testDetermineCustomInWpContentWithoutAppendedWonologDir()
     {
         define('WP_DEBUG_LOG', true);
         $dir = $this->setupFolders();
@@ -164,7 +164,7 @@ class LogsFolderTest extends UnitTestCase
         static::assertSame($dir->url() . '/tmp/logs/', $folder);
         static::assertFalse(file_exists($dir->url() . '/tmp/logs/.htaccess'));
     }
-    
+
     /**
      * @param bool $uploadsNested
      * @param bool $uploadsOk
@@ -189,10 +189,11 @@ class LogsFolderTest extends UnitTestCase
 
         define('WP_CONTENT_DIR', $dir->url() . '/www/wp-content');
 
-        Monkey\Functions\when('wp_upload_dir')->alias(static function () use ($uploadsNested, $uploadsOk, $dir) {
-            $path = $uploadsNested ? '/www/wp-content/uploads' : '/www/uploads';
-            return $uploadsOk ? ['basedir' => $dir->url() . $path] : ['error' => 'error'];
-        });
+        Monkey\Functions\when('wp_upload_dir')
+            ->alias(static function () use ($uploadsNested, $uploadsOk, $dir): array {
+                $path = $uploadsNested ? '/www/wp-content/uploads' : '/www/uploads';
+                return $uploadsOk ? ['basedir' => $dir->url() . $path] : ['error' => 'error'];
+            });
 
         return $dir;
     }

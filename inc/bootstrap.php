@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
+use Psr\Log\LoggerInterface;
+
 // We want to load this file just once.
 // Being loaded by Composer autoload, and being in WP context, we have to put special care on this.
 if (defined(__NAMESPACE__ . '\\LOG')) {
@@ -23,12 +25,12 @@ const LOG = 'wonolog.log';
 
 /**
  * @param string|null $forChannel
- * @return \Psr\Log\LoggerInterface
+ * @return LoggerInterface
  */
-function makeLogger(?string $forChannel = null): \Psr\Log\LoggerInterface
+function makeLogger(?string $forChannel = null): LoggerInterface
 {
-    /** @var null|callable(?string):\Psr\Log\LoggerInterface $loggerFactory */
     static $loggerFactory, $actionAdded = false;
+    /** @var null|callable(?string):LoggerInterface $loggerFactory */
     if ($loggerFactory) {
         return $loggerFactory($forChannel);
     }
@@ -36,7 +38,7 @@ function makeLogger(?string $forChannel = null): \Psr\Log\LoggerInterface
     if (!$actionAdded && function_exists('add_action')) {
         $actionAdded = add_action(
             Configurator::ACTION_LOADED,
-            /** @param callable(?string):\Psr\Log\LoggerInterface $factory */
+            /** @param callable(?string):LoggerInterface $factory */
             static function (callable $factory) use (&$loggerFactory): void {
                 $loggerFactory = $factory;
             },

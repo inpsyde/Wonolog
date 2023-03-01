@@ -23,6 +23,16 @@ services:
             MYSQL_USER: wordpress
             MYSQL_PASSWORD: wordpress
 
+    php72:
+        container_name: wonolog-php-72
+        build:
+            context: ./php72
+        depends_on:
+            - mysql
+        environment:
+          *db-environment
+        volumes:
+          *wp-volume
     php73:
         container_name: wonolog-php-73
         build:
@@ -47,6 +57,26 @@ services:
         container_name: wonolog-php-80
         build:
             context: ./php80
+        depends_on:
+            - mysql
+        environment:
+          *db-environment
+        volumes:
+          *wp-volume
+    php81:
+        container_name: wonolog-php-81
+        build:
+            context: ./php81
+        depends_on:
+            - mysql
+        environment:
+          *db-environment
+        volumes:
+          *wp-volume
+    php82:
+        container_name: wonolog-php-82
+        build:
+            context: ./php82
         depends_on:
             - mysql
         environment:

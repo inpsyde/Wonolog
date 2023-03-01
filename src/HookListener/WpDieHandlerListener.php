@@ -81,10 +81,11 @@ final class WpDieHandlerListener implements FilterListener
          * @wp-hook wp_die_handler
          */
         return static function ($message, $title = '', $args = []) use ($handler, $updater) {
-            $msg = (string)(filter_var($message ?: $title, FILTER_SANITIZE_STRING) ?: '');
+            $msgRaw = $message ?: $title ?: '';
+            $msg = is_string($msgRaw) ? $msgRaw : 'Unknown fatal error';
             $context = is_array($args) ? $args : [];
             $context['title'] = $title;
-            $updater($msg, $context);
+            $updater(htmlspecialchars($msg, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false), $context);
 
             return $handler($message, $title, $args);
         };

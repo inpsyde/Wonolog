@@ -95,7 +95,6 @@ class BasicConfigTest extends IntegrationTestCase
         $logger = makeLogger('test');
         $logger->alert('From PSR-3 with love.', ['foo' => 'bar']);
 
-        static::assertTrue($logger instanceof LoggerInterface);
         static::assertTrue($this->handler->hasAlertThatContains('From PSR-3 with love.'));
     }
 }

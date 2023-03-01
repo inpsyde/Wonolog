@@ -22,7 +22,7 @@ use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Logger;
 
-class MailerListenerUnitTest extends UnitTestCase
+class MailerListenerTest extends UnitTestCase
 {
     /**
      * @test
@@ -32,11 +32,10 @@ class MailerListenerUnitTest extends UnitTestCase
         $listener = new MailerListener();
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')
-            ->once()
+        $updater->expects('update')
             ->with(\Mockery::type(Debug::class))
             ->andReturnUsing(
-                static function (Debug $debug) {
+                static function (Debug $debug): void {
                     static::assertSame('Test email!', $debug->message());
                     static::assertSame(Channels::HTTP, $debug->channel());
                 }
@@ -45,21 +44,21 @@ class MailerListenerUnitTest extends UnitTestCase
         Actions\expectDone('phpmailer_init')
             ->once()
             ->whenHappen(
-                static function (\PHPMailer $mailer) use ($listener, $updater) {
+                static function (\PHPMailer $mailer) use ($listener, $updater): void {
                     $listener->update('phpmailer_init', [$mailer], $updater);
                 }
             );
 
-        $mailer = \Mockery::mock(\PHPMailer::class);
-        $mailer->SMTPDebug = 0;
-        $mailer->Debugoutput = null;
+        if (!class_exists(\PHPMailer::class)) {
+            eval('class PHPMailer { public $SMTPDebug = null; public $Debugoutput = null; }');
+        }
 
+        $mailer = new \PHPMailer();
         do_action('phpmailer_init', $mailer);
 
         static::assertSame(2, $mailer->SMTPDebug);
         static::assertIsCallable($mailer->Debugoutput);
 
-        /** @var callable $callback */
         $callback = $mailer->Debugoutput;
         $callback('Test email!');
     }
@@ -72,11 +71,10 @@ class MailerListenerUnitTest extends UnitTestCase
         $listener = new MailerListener();
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')
-            ->once()
+        $updater->expects('update')
             ->with(\Mockery::type(LogData::class))
             ->andReturnUsing(
-                static function (LogData $log) {
+                static function (LogData $log): void {
                     static::assertInstanceOf(LogData::class, $log);
                     static::assertSame(Logger::ERROR, $log->level());
                     static::assertSame(Channels::HTTP, $log->channel());
@@ -86,15 +84,15 @@ class MailerListenerUnitTest extends UnitTestCase
         Actions\expectDone('wp_mail_failed')
             ->once()
             ->whenHappen(
-                static function (\WP_Error $error) use ($listener, $updater) {
+                static function (\WP_Error $error) use ($listener, $updater): void {
                     $listener->update('wp_mail_failed', [$error], $updater);
                 }
             );
 
         $error = \Mockery::mock(\WP_Error::class);
-        $error->shouldReceive('get_error_message')->andReturn('Something when wrong!');
-        $error->shouldReceive('get_error_codes')->andReturn([0]);
-        $error->shouldReceive('get_error_data')->andReturn([]);
+        $error->allows('get_error_message')->andReturn('Something when wrong!');
+        $error->allows('get_error_codes')->andReturn([0]);
+        $error->allows('get_error_data')->andReturn([]);
 
         do_action('wp_mail_failed', $error);
     }

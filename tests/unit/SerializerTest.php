@@ -61,7 +61,14 @@ class SerializerTest extends UnitTestCase
                 return $keys;
             });
 
-        $post1 = \Mockery::mock(\WP_Post::class);
+        if (!class_exists(\WP_Post::class)) {
+            eval('class WP_Post { public $ID = null; }');
+        }
+        if (!class_exists(\WP_Query::class)) {
+            eval('class WP_Query { public $query_vars = [];  public $query = []; }');
+        }
+
+        $post1 = new \WP_Post();
         $post2 = clone $post1;
         $post3 = clone $post1;
 
@@ -69,7 +76,7 @@ class SerializerTest extends UnitTestCase
         $post2->ID = 2;
         $post3->ID = 3;
 
-        $query = \Mockery::mock(\WP_Query::class);
+        $query = new \WP_Query();
         $query->query_vars = ['post_password' => 'abc', 'post_type' => 'post'];
         $query->query = [];
 
@@ -80,6 +87,7 @@ class SerializerTest extends UnitTestCase
         $datetime = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         $jsonScalar = new class implements \JsonSerializable {
+            #[\ReturnTypeWillChange]
             public function jsonSerialize()
             {
                 return 1;
@@ -87,6 +95,7 @@ class SerializerTest extends UnitTestCase
         };
 
         $jsonObj = new class implements \JsonSerializable {
+            #[\ReturnTypeWillChange]
             public function jsonSerialize()
             {
                 return (object)['token' => 'x'];

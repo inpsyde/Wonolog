@@ -24,7 +24,6 @@ use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Handler\BufferHandler;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
-use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 class ChannelsTest extends UnitTestCase

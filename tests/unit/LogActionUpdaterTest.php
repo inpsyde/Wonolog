@@ -8,7 +8,6 @@ use Brain\Monkey;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Configurator;
 use Inpsyde\Wonolog\Data\Log;
-use Inpsyde\Wonolog\Data\LogData;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel as WonologLogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
@@ -24,7 +23,7 @@ class LogActionUpdaterTest extends UnitTestCase
     public function testUpdateDoNothingIfConfiguratorNotLoaded(): void
     {
         $channels = \Mockery::mock(Channels::class);
-        $channels->shouldReceive('isIgnored')->never();
+        $channels->expects('isIgnored')->never();
 
         $updater = LogActionUpdater::new($channels);
         $updater->update(new Log(''));
@@ -40,7 +39,7 @@ class LogActionUpdaterTest extends UnitTestCase
         $log = new Log('Test', 0);
 
         $channels = \Mockery::mock(Channels::class);
-        $channels->shouldReceive('isIgnored')->never();
+        $channels->expects('isIgnored')->never();
 
         $updater = LogActionUpdater::new($channels);
         $updater->update($log);
@@ -56,8 +55,8 @@ class LogActionUpdaterTest extends UnitTestCase
         $log = new Log('Message', WonologLogLevel::DEBUG);
 
         $channels = \Mockery::mock(Channels::class);
-        $channels->shouldReceive('isIgnored')->once()->with($log)->andReturn(true);
-        $channels->shouldReceive('logger')->never();
+        $channels->expects('isIgnored')->with($log)->andReturn(true);
+        $channels->expects('logger')->never();
 
         $updater = LogActionUpdater::new($channels);
         $updater->update($log);
@@ -73,10 +72,10 @@ class LogActionUpdaterTest extends UnitTestCase
         $log = new Log('Message', WonologLogLevel::DEBUG, Channels::DEBUG);
 
         $channels = \Mockery::mock(Channels::class);
-        $channels->shouldReceive('isIgnored')->once()->with($log)->andReturn(false);
+        $channels->expects('isIgnored')->with($log)->andReturn(false);
 
         $error = new \Error();
-        $channels->shouldReceive('logger')->with(Channels::DEBUG)->once()->andThrow($error);
+        $channels->expects('logger')->with(Channels::DEBUG)->andThrow($error);
 
         Monkey\Actions\expectDone(LogActionUpdater::ACTION_LOGGER_ERROR)
             ->once()
@@ -98,8 +97,8 @@ class LogActionUpdaterTest extends UnitTestCase
         $logger = new TestLogger();
 
         $channels = \Mockery::mock(Channels::class);
-        $channels->shouldReceive('isIgnored')->once()->with($log)->andReturn(false);
-        $channels->shouldReceive('logger')->once()->with(Channels::SECURITY)->andReturn($logger);
+        $channels->expects('isIgnored')->with($log)->andReturn(false);
+        $channels->expects('logger')->with(Channels::SECURITY)->andReturn($logger);
 
         $updater = LogActionUpdater::new($channels);
         $updater->update($log);
@@ -149,8 +148,8 @@ class LogActionUpdaterTest extends UnitTestCase
         $logger = new TestLogger();
 
         $channels = \Mockery::mock(Channels::class);
-        $channels->shouldReceive('isIgnored')->once()->with($log)->andReturn(false);
-        $channels->shouldReceive('logger')->once()->with(Channels::SECURITY)->andReturn($logger);
+        $channels->expects('isIgnored')->with($log)->andReturn(false);
+        $channels->expects('logger')->with(Channels::SECURITY)->andReturn($logger);
 
         $updater = LogActionUpdater::new($channels);
         $updater->update($log);

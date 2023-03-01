@@ -38,7 +38,7 @@ class LogLevelTest extends UnitTestCase
     {
         putenv('WONOLOG_DEFAULT_MIN_LEVEL=CRITICAL');
 
-        self::assertSame(Logger::CRITICAL, LogLevel::defaultMinLevel());
+        static::assertSame(Logger::CRITICAL, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -48,7 +48,7 @@ class LogLevelTest extends UnitTestCase
     {
         putenv('WONOLOG_DEFAULT_MIN_LEVEL=500');
 
-        self::assertSame(Logger::CRITICAL, LogLevel::defaultMinLevel());
+        static::assertSame(Logger::CRITICAL, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -56,7 +56,7 @@ class LogLevelTest extends UnitTestCase
      */
     public function testDefaultLevelByConstantNone(): void
     {
-        self::assertSame(Logger::WARNING, LogLevel::defaultMinLevel());
+        static::assertSame(Logger::WARNING, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -66,7 +66,7 @@ class LogLevelTest extends UnitTestCase
     {
         define('WP_DEBUG_LOG', true);
 
-        self::assertSame(Logger::DEBUG, LogLevel::defaultMinLevel());
+        static::assertSame(Logger::DEBUG, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -76,8 +76,8 @@ class LogLevelTest extends UnitTestCase
     {
         define('WP_DEBUG', true);
 
-        self::assertFalse(defined('WP_DEBUG_LOG'));
-        self::assertSame(Logger::DEBUG, LogLevel::defaultMinLevel());
+        static::assertFalse(defined('WP_DEBUG_LOG'));
+        static::assertSame(Logger::DEBUG, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -88,7 +88,7 @@ class LogLevelTest extends UnitTestCase
         define('WP_DEBUG_LOG', false);
         define('WP_DEBUG', true);
 
-        self::assertSame(Logger::WARNING, LogLevel::defaultMinLevel());
+        static::assertSame(Logger::WARNING, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -100,7 +100,7 @@ class LogLevelTest extends UnitTestCase
         define('WP_DEBUG_LOG', false);
         define('WP_DEBUG', true);
 
-        self::assertSame(Logger::EMERGENCY, LogLevel::defaultMinLevel());
+        static::assertSame(Logger::EMERGENCY, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -108,14 +108,14 @@ class LogLevelTest extends UnitTestCase
      */
     public function testNormalizeLevelNormalizeToClosestValidLevel(): void
     {
-        self::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(0));
-        self::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(-10));
-        self::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(LogLevel::DEBUG - 10));
-        self::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(LogLevel::INFO - 1));
-        self::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::INFO));
-        self::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::INFO + 1));
-        self::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::NOTICE - 1));
-        self::assertSame(LogLevel::NOTICE, LogLevel::normalizeLevel(LogLevel::NOTICE));
+        static::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(0));
+        static::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(-10));
+        static::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(LogLevel::DEBUG - 10));
+        static::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(LogLevel::INFO - 1));
+        static::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::INFO));
+        static::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::INFO + 1));
+        static::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::NOTICE - 1));
+        static::assertSame(LogLevel::NOTICE, LogLevel::normalizeLevel(LogLevel::NOTICE));
     }
 
     /**
@@ -123,14 +123,14 @@ class LogLevelTest extends UnitTestCase
      */
     public function testCheckLevelAcceptsDefinedLevelStrings(): void
     {
-        self::assertSame(Logger::CRITICAL, LogLevel::normalizeLevel('CRITICAL'));
-        self::assertSame(Logger::ERROR, LogLevel::normalizeLevel('error'));
-        self::assertSame(Logger::DEBUG, LogLevel::normalizeLevel('Debug'));
-        self::assertSame(Logger::ALERT, LogLevel::normalizeLevel('aLeRt'));
-        self::assertSame(Logger::EMERGENCY, LogLevel::normalizeLevel('emeRGEncy'));
-        self::assertSame(Logger::INFO, LogLevel::normalizeLevel(' INFO '));
-        self::assertSame(Logger::NOTICE, LogLevel::normalizeLevel(' nOtiCE'));
-        self::assertSame(Logger::WARNING, LogLevel::normalizeLevel('Warning '));
-        self::assertNull(LogLevel::normalizeLevel('MEH'));
+        static::assertSame(Logger::CRITICAL, LogLevel::normalizeLevel('CRITICAL'));
+        static::assertSame(Logger::ERROR, LogLevel::normalizeLevel('error'));
+        static::assertSame(Logger::DEBUG, LogLevel::normalizeLevel('Debug'));
+        static::assertSame(Logger::ALERT, LogLevel::normalizeLevel('aLeRt'));
+        static::assertSame(Logger::EMERGENCY, LogLevel::normalizeLevel('emeRGEncy'));
+        static::assertSame(Logger::INFO, LogLevel::normalizeLevel(' INFO '));
+        static::assertSame(Logger::NOTICE, LogLevel::normalizeLevel(' nOtiCE'));
+        static::assertSame(Logger::WARNING, LogLevel::normalizeLevel('Warning '));
+        static::assertNull(LogLevel::normalizeLevel('MEH'));
     }
 }

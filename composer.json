@@ -27,21 +27,31 @@
         "docs": "https://inpsyde.github.io/Wonolog/docs"
     },
     "minimum-stability": "stable",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://raw.githubusercontent.com/inpsyde/wp-stubs/main",
+            "only": [
+                "inpsyde/wp-stubs-versions"
+            ]
+        }
+    ],
     "require": {
         "php": ">=7.2",
         "psr/log": "^1.1.4",
         "monolog/monolog": "^2.3.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.5.21",
+        "phpunit/phpunit": "^8.5.33",
         "brain/monkey": "^2.6.1",
-        "mikey179/vfsstream": "~1.6.10",
-        "inpsyde/php-coding-standards": "^1@beta",
-        "vimeo/psalm": "^4.12.0",
-        "inpsyde/wp-stubs": "dev-main",
-        "johnpbloch/wordpress-core": ">=5.8.0",
-        "symfony/process": "^4.4.30",
-        "globalis/wp-cli-bin": "^2.5.0"
+        "mockery/mockery": "^1.3.6",
+        "mikey179/vfsstream": "~v1.6.11",
+        "inpsyde/php-coding-standards": "^1",
+        "vimeo/psalm": "^4.30.0",
+        "inpsyde/wp-stubs-versions": "dev-latest",
+        "roots/wordpress-no-content": ">=6.1.1",
+        "symfony/process": "^v4.4.44",
+        "globalis/wp-cli-bin": "^2.7.1"
     },
     "provide": {
         "psr/log-implementation": "1.0.0"
@@ -77,9 +87,10 @@
     },
     "scripts": {
         "cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
-        "psalm": "@php ./vendor/vimeo/psalm/psalm --output-format=compact --no-cache --find-unused-psalm-suppress",
+        "psalm": "@php ./vendor/vimeo/psalm/psalm --no-suggestions --find-unused-psalm-suppress --no-diff --no-cache --no-file-cache",
         "tests:unit": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit",
         "tests:unit:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --no-coverage",
+        "tests:unit:codecov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --coverage-clover coverage.xml",
         "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=integration --no-coverage",
         "qa" : [
           "@cs",

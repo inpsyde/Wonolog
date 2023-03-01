@@ -56,11 +56,11 @@ class FailedLoginTest extends UnitTestCase
                 $logged[$i] = $level;
                 $messages[] = $failedLogin->message();
                 $context = $failedLogin->context();
-                self::assertArrayHasKey('ip', $context);
-                self::assertArrayHasKey('ip_from', $context);
-                self::assertArrayHasKey('username', $context);
-                self::assertSame('h4ck3rb0y', $context['username']);
-                self::assertSame(Channels::SECURITY, $failedLogin->channel());
+                static::assertArrayHasKey('ip', $context);
+                static::assertArrayHasKey('ip_from', $context);
+                static::assertArrayHasKey('username', $context);
+                static::assertSame('h4ck3rb0y', $context['username']);
+                static::assertSame(Channels::SECURITY, $failedLogin->channel());
             }
             $failedLogin = new FailedLogin('h4ck3rb0y');
         }
@@ -85,12 +85,12 @@ class FailedLoginTest extends UnitTestCase
             1583 => Logger::CRITICAL,
         ];
 
-        self::assertSame($expectedLoggedLevels, $logged);
+        static::assertSame($expectedLoggedLevels, $logged);
 
         $format = "%d failed login attempts from username 'h4ck3rb0y' in last 5 minutes";
 
         foreach (array_keys($expectedLoggedLevels) as $i => $levelNum) {
-            self::assertSame($messages[$i], sprintf($format, $levelNum));
+            static::assertSame($messages[$i], sprintf($format, $levelNum));
         }
     }
 

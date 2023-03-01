@@ -22,7 +22,7 @@ use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
 use Monolog\Logger;
 
-class HttpApiListenerUnitTest extends UnitTestCase
+class HttpApiListenerTest extends UnitTestCase
 {
     /**
      * @test
@@ -30,11 +30,10 @@ class HttpApiListenerUnitTest extends UnitTestCase
     public function testLogDoneOnWpError(): void
     {
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')
-            ->once()
+        $updater->expects('update')
             ->with(\Mockery::type(LogData::class))
             ->andReturnUsing(
-                static function (LogData $log) {
+                static function (LogData $log): void {
                     static::assertSame('WP HTTP API Error: Test!', $log->message());
                     static::assertSame(Channels::HTTP, $log->channel());
                     static::assertSame(Logger::ERROR, $log->level());
@@ -43,7 +42,7 @@ class HttpApiListenerUnitTest extends UnitTestCase
                             'transport' => 'TestClass',
                             'context' => 'response',
                             'query_args' => [],
-                            'url' => 'http://example.com',
+                            'url' => 'https://example.com',
                         ],
                         $log->context()
                     );
@@ -52,10 +51,7 @@ class HttpApiListenerUnitTest extends UnitTestCase
 
         /** @var \WP_Error|\Mockery\MockInterface $response */
         $response = \Mockery::mock('WP_Error');
-        $response
-            ->shouldReceive('get_error_message')
-            ->once()
-            ->andReturn('Test!');
+        $response->expects('get_error_message')->andReturn('Test!');
 
         $listener = new HttpApiListener();
 
@@ -73,7 +69,7 @@ class HttpApiListenerUnitTest extends UnitTestCase
             'response',
             'TestClass',
             [],
-            'http://example.com'
+            'https://example.com'
         );
     }
 
@@ -86,12 +82,10 @@ class HttpApiListenerUnitTest extends UnitTestCase
         Functions\when('shortcode_atts')->alias('array_merge');
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')
-            ->once()
+        $updater->expects('update')
             ->with(\Mockery::type(LogData::class))
             ->andReturnUsing(
-                static function (LogData $log) {
-
+                static function (LogData $log): void {
                     static::assertSame(Channels::HTTP, $log->channel());
                     static::assertSame(Logger::ERROR, $log->level());
                     static::assertSame(
@@ -103,7 +97,7 @@ class HttpApiListenerUnitTest extends UnitTestCase
                             'transport' => 'TestClass',
                             'context' => 'response',
                             'query_args' => [],
-                            'url' => 'http://example.com',
+                            'url' => 'https://example.com',
                             'response_body' => 'Server died.',
                             'headers' => ['foo' => 'bar'],
                         ],
@@ -116,7 +110,7 @@ class HttpApiListenerUnitTest extends UnitTestCase
 
         Actions\expectDone('http_api_debug')
             ->whenHappen(
-                static function () use ($listener, $updater) {
+                static function () use ($listener, $updater): void {
                     $listener->update('a', func_get_args(), $updater);
                 }
             );
@@ -136,7 +130,7 @@ class HttpApiListenerUnitTest extends UnitTestCase
             'response',
             'TestClass',
             [],
-            'http://example.com'
+            'https://example.com'
         );
     }
 
@@ -150,7 +144,7 @@ class HttpApiListenerUnitTest extends UnitTestCase
         $listener = new HttpApiListener();
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')->never();
+        $updater->expects('update')->never();
 
         Actions\expectDone('http_api_debug')
             ->whenHappen(
@@ -172,7 +166,7 @@ class HttpApiListenerUnitTest extends UnitTestCase
             'response',
             'TestClass',
             [],
-            'http://example.com'
+            'https://example.com'
         );
     }
 
@@ -185,8 +179,7 @@ class HttpApiListenerUnitTest extends UnitTestCase
             ->justReturn(false);
 
         $updater = \Mockery::mock(LogActionUpdater::class);
-        $updater->shouldReceive('update')
-            ->once()
+        $updater->expects('update')
             ->with(\Mockery::type(LogData::class))
             ->andReturnUsing(
                 static function (LogData $log) {
@@ -199,7 +192,7 @@ class HttpApiListenerUnitTest extends UnitTestCase
                             'transport' => 'TestClass',
                             'context' => 'response',
                             'query_args' => [],
-                            'url' => 'http://example.com/wp-cron.php',
+                            'url' => 'https://example.com/wp-cron.php',
                             'headers' => ['foo' => 'bar'],
                         ],
                         $log->context()
@@ -217,7 +210,7 @@ class HttpApiListenerUnitTest extends UnitTestCase
 
         Actions\expectDone('http_api_debug')
             ->whenHappen(
-                static function () use ($listener, $updater) {
+                static function () use ($listener, $updater): void {
                     $listener->update('a', func_get_args(), $updater);
                 }
             );
@@ -228,7 +221,7 @@ class HttpApiListenerUnitTest extends UnitTestCase
             'response',
             'TestClass',
             [],
-            'http://example.com/wp-cron.php'
+            'https://example.com/wp-cron.php'
         );
     }
 }

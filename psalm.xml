@@ -1,9 +1,13 @@
 <?xml version="1.0"?>
 <psalm
-    errorLevel="1"
     useDocblockPropertyTypes="true"
     usePhpDocMethodsWithoutMagicCall="true"
+    strictBinaryOperands="true"
     hideExternalErrors="true"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
+    errorLevel="1"
+    allowNamedArgumentCalls="false"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
@@ -17,7 +21,7 @@
     </projectFiles>
 
     <stubs>
-        <file name="vendor/inpsyde/wp-stubs/stubs/latest.php"/>
+        <file name="vendor/inpsyde/wp-stubs-versions/latest.php"/>
     </stubs>
 
     <issueHandlers>

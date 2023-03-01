@@ -30,19 +30,19 @@ class HookLogFactoryTest extends UnitTestCase
      */
     public function testLogsFromArgumentsReturnsDefaultIfNoArguments(): void
     {
-        $factory = HookLogFactory::new(\Mockery::mock(Channels::class));
+        $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments([]);
 
-        self::assertIsArray($logs);
-        self::assertCount(1, $logs);
+        static::assertIsArray($logs);
+        static::assertCount(1, $logs);
 
         /** @var LogData $log */
         $log = reset($logs);
 
-        self::assertInstanceOf(LogData::class, $log);
-        self::assertSame($log->message(), 'Unknown error.');
-        self::assertSame($log->channel(), Channels::DEBUG);
-        self::assertSame($log->context(), []);
+        static::assertInstanceOf(LogData::class, $log);
+        static::assertSame($log->message(), 'Unknown error.');
+        static::assertSame($log->channel(), Channels::DEBUG);
+        static::assertSame($log->context(), []);
     }
 
     /**
@@ -60,16 +60,16 @@ class HookLogFactoryTest extends UnitTestCase
         $args[] = 'bar';
         $args[] = $fourth;
 
-        $factory = HookLogFactory::new(\Mockery::mock(Channels::class));
+        $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments($args);
 
-        self::assertIsArray($logs);
-        self::assertCount(4, $logs);
+        static::assertIsArray($logs);
+        static::assertCount(4, $logs);
 
-        self::assertSame($logs[0], $first);
-        self::assertSame($logs[1], $second);
-        self::assertSame($logs[2], $third);
-        self::assertSame($logs[3], $fourth);
+        static::assertSame($logs[0], $first);
+        static::assertSame($logs[1], $second);
+        static::assertSame($logs[2], $third);
+        static::assertSame($logs[3], $fourth);
     }
 
     /**
@@ -82,23 +82,23 @@ class HookLogFactoryTest extends UnitTestCase
 
         $args = compact('first', 'second');
 
-        $factory = HookLogFactory::new(\Mockery::mock(Channels::class));
+        $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments($args, Logger::WARNING);
 
-        self::assertIsArray($logs);
-        self::assertCount(2, $logs);
+        static::assertIsArray($logs);
+        static::assertCount(2, $logs);
 
-        self::assertInstanceOf(LogData::class, $first);
-        self::assertSame(Logger::WARNING, $logs[0]->level());
-        self::assertSame($logs[0]->message(), $first->message());
-        self::assertSame($logs[0]->channel(), $first->channel());
-        self::assertSame($logs[0]->context(), $first->context());
+        static::assertInstanceOf(LogData::class, $first);
+        static::assertSame(Logger::WARNING, $logs[0]->level());
+        static::assertSame($logs[0]->message(), $first->message());
+        static::assertSame($logs[0]->channel(), $first->channel());
+        static::assertSame($logs[0]->context(), $first->context());
 
-        self::assertInstanceOf(LogData::class, $second);
-        self::assertSame(Logger::ERROR, $logs[1]->level());
-        self::assertSame($logs[1]->message(), $second->message());
-        self::assertSame($logs[1]->channel(), $second->channel());
-        self::assertSame($logs[1]->context(), $second->context());
+        static::assertInstanceOf(LogData::class, $second);
+        static::assertSame(Logger::ERROR, $logs[1]->level());
+        static::assertSame($logs[1]->message(), $second->message());
+        static::assertSame($logs[1]->channel(), $second->channel());
+        static::assertSame($logs[1]->context(), $second->context());
     }
 
     /**
@@ -106,19 +106,18 @@ class HookLogFactoryTest extends UnitTestCase
      */
     public function testLogsFromString(): void
     {
-        $logs = HookLogFactory::new(\Mockery::mock(Channels::class))
-            ->logsFromHookArguments(['Foo!', 'X', 'Y', 'Z']);
+        $logs = HookLogFactory::new()->logsFromHookArguments(['Foo!', 'X', 'Y', 'Z']);
 
-        self::assertIsArray($logs);
-        self::assertCount(1, $logs);
+        static::assertIsArray($logs);
+        static::assertCount(1, $logs);
 
         /** @var LogData $log */
         $log = reset($logs);
 
-        self::assertInstanceOf(LogData::class, $log);
-        self::assertSame($log->message(), 'Foo!');
-        self::assertSame($log->channel(), Channels::DEBUG);
-        self::assertSame($log->context(), ['X', 'Y', 'Z']);
+        static::assertInstanceOf(LogData::class, $log);
+        static::assertSame($log->message(), 'Foo!');
+        static::assertSame($log->channel(), Channels::DEBUG);
+        static::assertSame($log->context(), ['X', 'Y', 'Z']);
     }
 
     /**
@@ -127,24 +126,24 @@ class HookLogFactoryTest extends UnitTestCase
     public function testLogsFromWpError(): void
     {
         $error = \Mockery::mock(\WP_Error::class);
-        $error->shouldReceive('get_error_message')->andReturn('Foo!');
-        $error->shouldReceive('get_error_data')->andReturn(['db broken']);
-        $error->shouldReceive('get_error_codes')->andReturn(['wpdb']);
+        $error->allows('get_error_message')->andReturn('Foo!');
+        $error->allows('get_error_data')->andReturn(['db broken']);
+        $error->allows('get_error_codes')->andReturn(['wpdb']);
 
-        $factory = HookLogFactory::new(\Mockery::mock(Channels::class));
+        $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments([$error]);
 
-        self::assertIsArray($logs);
-        self::assertCount(1, $logs);
+        static::assertIsArray($logs);
+        static::assertCount(1, $logs);
 
         /** @var LogData $log */
         $log = reset($logs);
 
-        self::assertInstanceOf(LogData::class, $log);
-        self::assertSame($log->message(), 'Foo!');
-        self::assertSame($log->level(), Logger::NOTICE);
-        self::assertSame($log->channel(), Channels::DB);
-        self::assertSame($log->context(), ['db broken']);
+        static::assertInstanceOf(LogData::class, $log);
+        static::assertSame($log->message(), 'Foo!');
+        static::assertSame($log->level(), Logger::NOTICE);
+        static::assertSame($log->channel(), Channels::DB);
+        static::assertSame($log->context(), ['db broken']);
     }
 
     /**
@@ -153,27 +152,27 @@ class HookLogFactoryTest extends UnitTestCase
     public function testLogsFromWpErrorAndChannelInErrorData(): void
     {
         $error = \Mockery::mock(\WP_Error::class);
-        $error->shouldReceive('get_error_message')->andReturn('Error!');
-        $error->shouldReceive('get_error_codes')->andReturn(['x', 'y']);
-        $error->shouldReceive('get_error_data')->withNoArgs()->andReturn(['some', 'data']);
-        $error->shouldReceive('get_error_data')
+        $error->expects('get_error_message')->andReturn('Error!');
+        $error->expects('get_error_codes')->andReturn(['x', 'y']);
+        $error->expects('get_error_data')->withNoArgs()->twice()->andReturn(['some', 'data']);
+        $error->expects('get_error_data')
             ->with('x')
             ->andReturn(['channel' => Channels::SECURITY]);
 
-        $factory = HookLogFactory::new(\Mockery::mock(Channels::class));
+        $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments([$error]);
 
-        self::assertIsArray($logs);
-        self::assertCount(1, $logs);
+        static::assertIsArray($logs);
+        static::assertCount(1, $logs);
 
         /** @var LogData $log */
         $log = reset($logs);
 
-        self::assertInstanceOf(LogData::class, $log);
-        self::assertSame('Error!', $log->message());
-        self::assertSame(Logger::ERROR, $log->level());
-        self::assertSame(Channels::SECURITY, $log->channel());
-        self::assertSame(['some', 'data'], $log->context());
+        static::assertInstanceOf(LogData::class, $log);
+        static::assertSame('Error!', $log->message());
+        static::assertSame(Logger::ERROR, $log->level());
+        static::assertSame(Channels::SECURITY, $log->channel());
+        static::assertSame(['some', 'data'], $log->context());
     }
 
     /**
@@ -183,20 +182,20 @@ class HookLogFactoryTest extends UnitTestCase
     {
         $exception = new \Exception('Foo!');
 
-        $factory = HookLogFactory::new(\Mockery::mock(Channels::class));
+        $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments([$exception]);
 
-        self::assertIsArray($logs);
-        self::assertCount(1, $logs);
+        static::assertIsArray($logs);
+        static::assertCount(1, $logs);
 
         /** @var LogData $log */
         $log = reset($logs);
 
-        self::assertInstanceOf(LogData::class, $log);
-        self::assertSame($log->message(), 'Foo!');
-        self::assertSame($log->level(), Logger::ERROR);
-        self::assertSame($log->channel(), Channels::DEBUG);
-        self::assertIsArray($log->context());
+        static::assertInstanceOf(LogData::class, $log);
+        static::assertSame($log->message(), 'Foo!');
+        static::assertSame($log->level(), Logger::ERROR);
+        static::assertSame($log->channel(), Channels::DEBUG);
+        static::assertIsArray($log->context());
     }
 
     /**
@@ -211,20 +210,20 @@ class HookLogFactoryTest extends UnitTestCase
             'context' => ['foo', 'bar'],
         ];
 
-        $factory = HookLogFactory::new(\Mockery::mock(Channels::class));
+        $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments([$data, 'x', 'y'], Logger::DEBUG);
 
-        self::assertIsArray($logs);
-        self::assertCount(1, $logs);
+        static::assertIsArray($logs);
+        static::assertCount(1, $logs);
 
         /** @var LogData $log */
         $log = reset($logs);
 
-        self::assertInstanceOf(LogData::class, $log);
-        self::assertSame($log->message(), 'Hello!');
-        self::assertSame($log->level(), Logger::NOTICE);
-        self::assertSame($log->channel(), Channels::SECURITY);
-        self::assertIsArray(['foo', 'bar']);
+        static::assertInstanceOf(LogData::class, $log);
+        static::assertSame($log->message(), 'Hello!');
+        static::assertSame($log->level(), Logger::NOTICE);
+        static::assertSame($log->channel(), Channels::SECURITY);
+        static::assertIsArray(['foo', 'bar']);
     }
 
     /**
@@ -239,20 +238,20 @@ class HookLogFactoryTest extends UnitTestCase
             'context' => ['foo', 'bar'],
         ];
 
-        $factory = HookLogFactory::new(\Mockery::mock(Channels::class));
+        $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments([$data, 600, 'y'], Logger::NOTICE);
 
-        self::assertIsArray($logs);
-        self::assertCount(1, $logs);
+        static::assertIsArray($logs);
+        static::assertCount(1, $logs);
 
         /** @var LogData $log */
         $log = reset($logs);
 
-        self::assertInstanceOf(LogData::class, $log);
-        self::assertSame($log->message(), 'Hello!');
-        self::assertSame($log->level(), Logger::NOTICE);
-        self::assertSame($log->channel(), Channels::SECURITY);
-        self::assertIsArray(['foo', 'bar']);
+        static::assertInstanceOf(LogData::class, $log);
+        static::assertSame($log->message(), 'Hello!');
+        static::assertSame($log->level(), Logger::NOTICE);
+        static::assertSame($log->channel(), Channels::SECURITY);
+        static::assertIsArray(['foo', 'bar']);
     }
 
     /**
@@ -275,13 +274,13 @@ class HookLogFactoryTest extends UnitTestCase
             'level' => Logger::getLevelName(Logger::INFO),
         ];
 
-        $factory = HookLogFactory::new(\Mockery::mock(Channels::class));
+        $factory = HookLogFactory::new();
         $psr = $factory->logsFromHookArguments([$psrData]);
         $monologNum = $factory->logsFromHookArguments([$monologNumData]);
         $monologString = $factory->logsFromHookArguments([$monologStringData]);
 
-        self::assertSame($psr[0]->level(), Logger::WARNING);
-        self::assertSame($monologNum[0]->level(), Logger::NOTICE);
-        self::assertSame($monologString[0]->level(), Logger::INFO);
+        static::assertSame($psr[0]->level(), Logger::WARNING);
+        static::assertSame($monologNum[0]->level(), Logger::NOTICE);
+        static::assertSame($monologString[0]->level(), Logger::INFO);
     }
 }

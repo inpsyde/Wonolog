@@ -26,8 +26,6 @@ use Inpsyde\Wonolog\Factory;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\NoopHandler;
-use Psr\Log\LoggerInterface;
-use Psr\Log\Test\TestLogger;
 
 class ConfiguratorTest extends UnitTestCase
 {
