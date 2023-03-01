@@ -1,10 +1,10 @@
 # Designing packages for Wonolog
 
-Wonolog advocates a pattern in which plugins/themes/packages do not write log records (because that requires knowledge of the infrastructure that is only available at the website level) but they “emit log events” that will be “listened” by Wonolog to persist them.
+Wonolog advocates a pattern in which plugins/themes/packages do not write log records (because that requires knowledge of the infrastructure that is only available at the website level) but they "emit log events" that will be "listened" by Wonolog to persist them.
 
-That pattern can be put in place in packages without depending on Wonolog. There are two ways that Wonolog supports “natively” to do it:
+That pattern can be put in place in packages without depending on Wonolog. There are two ways that Wonolog supports "natively" to do it:
 
-- the “WordPressy way”, AKA using log-specific WordPress action hooks
+- the "WordPressy way", AKA using log-specific WordPress action hooks
 - leverage the PSR-3 standard
 
 ---
@@ -81,7 +81,7 @@ The parameters passed by the action hooks are either:
 - one parameter being a `Throwable`
 - one parameter being an array with a `message` key plus other arbitrary "context" data.
 
-These are all “sources” accepted by Wonolog, and thanks to that, the plugin can be integrated with Wonolog with a single line of configuration.
+These are all "sources" accepted by Wonolog, and thanks to that, the plugin can be integrated with Wonolog with a single line of configuration.
 
 In other words, even if it is not dependent on Wonolog, the plugin is *natively compatible* with Wonolog.
 
@@ -117,7 +117,7 @@ In the case the level is passed as context when *also* using a log-level-specifi
 
 ## The PSR way
 
-Sometimes WordPress plugins/packages have a dependency on PSR-3, either by developers’ choice or because the plugin depends on some PHP library that, in its turn, depends on PSR-3.
+Sometimes WordPress plugins/packages have a dependency on PSR-3, either by developers' choice or because the plugin depends on some PHP library that, in its turn, depends on PSR-3.
 
 As an example of that, let’s write a plugin that does the same thing as the previous plugin example but uses [Guzzle library](https://docs.guzzlephp.org/en/stable/):
 
@@ -220,11 +220,11 @@ add_filter('prefix_logger', static function(): Psr\Log\LoggerInterface {
 });
 ```
 
-In the snippet above, `“MY-PLUGIN”` is a custom channel used as the default channel for all the logs processed by the PSR-3 logger.
+In the snippet above, `"MY-PLUGIN"` is a custom channel used as the default channel for all the logs processed by the PSR-3 logger.
 
 ### Global default channel
 
-When it is not possible to determine the channel in any of the ways listed above, Wonolog uses the “global” default channel, which is `“DEBUG”` by default but can be configured via the `wonolog.setup` hook:
+When it is not possible to determine the channel in any of the ways listed above, Wonolog uses the "global" default channel, which is `"DEBUG"` by default but can be configured via the `wonolog.setup` hook:
 
 ```php
 add_action(
@@ -237,16 +237,16 @@ add_action(
 
 ---
 
-0. [Introduction](./00-introduction.md)
-1. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
-2. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
-3. [What is logged by default](./03-what-is-logged-by-default.md)
-4. **Designing packages for Wonolog**
-5. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
-6. [Log records handlers](./06-log-records-handlers.md)
-7. [Log records processors](./07-log-records-processors.md)
-8. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
-9. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
+1. [Introduction](./00-introduction.md)
+2. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
+3. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
+4. [What is logged by default](./03-what-is-logged-by-default.md)
+5. **Designing packages for Wonolog**
+6. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
+7. [Log records handlers](./06-log-records-handlers.md)
+8. [Log records processors](./07-log-records-processors.md)
+9. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
+10. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
 
 ---
 

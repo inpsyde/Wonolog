@@ -50,10 +50,9 @@ function awesome_hosting_logger(): Psr\Log\Loggerinterface
 
 All of our plugins/themes/packages that are designed to accept a PSR-3 implementation could be injected with the above implementation instead of Wonolog implementation, and everything will work for them, but the PSR-3 logger will not be integrated in Wonolog , and thus:
 
-- It will not used to log WordPress core events handled via the Wonolog default hook listeners
-- It will not used to log any Wonolog custom hook listener
-- It will not used for plugins/packages/themes that use action hooks to perform logs (aka the "WordPressy" way, see the [*"Designing packages for
-  Wonolog"*](./04-designing-packages-for-wonolog.md) chapter for details)
+- It will not be used to log WordPress core events handled via the Wonolog default hook listeners
+- It will not be used to log any Wonolog custom hook listener
+- It will not be used for plugins/packages/themes that use action hooks to perform logs (aka the "WordPressy" way, see the [*"Designing packages for Wonolog"*](./04-designing-packages-for-wonolog.md) chapter for details)
 - It will not benefit of Wonolog WordPress context processor or any other processor added to Wonolog
 - It will not take into account Wonolog-specific configuration, such us disable logging via `WONOLOG_DISABLE` environment variable or constant.
 
@@ -85,17 +84,17 @@ That's it. The custom PSR-3 logger is now fully integrated into Wonolog.
 
 ---
 
-0. [Introduction](./00-introduction.md)
-1. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
-2. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
-3. [What is logged by default](./03-what-is-logged-by-default.md)
-4. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
-5. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
-6. [Log records handlers](./06-log-records-handlers.md)
-7. [Log records processors](./07-log-records-processors.md)
-8. **Custom PSR-3 loggers**
-9. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
+1. [Introduction](./00-introduction.md)
+2. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
+3. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
+4. [What is logged by default](./03-what-is-logged-by-default.md)
+5. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
+6. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
+7. [Log records handlers](./06-log-records-handlers.md)
+8. [Log records processors](./07-log-records-processors.md)
+9. **Custom PSR-3 loggers**
+10. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
 
 ---
 
-« [Log records processors](./07-log-records-processors.md) ||  [Configuration cheat sheet](./09-configuration-cheat-sheet.md) »
+« [Log records processors](./07-log-records-processors.md) || [Configuration cheat sheet](./09-configuration-cheat-sheet.md) »

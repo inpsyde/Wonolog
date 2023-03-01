@@ -52,7 +52,7 @@ For example, it is immediate for human beings to understand that a `CRITICAL` ev
 To fill this “missing detail” in PSR-3, Wonolog implements a “map” of PSR-3 levels to more machine-friendly numerical values, which looks like this:
 
 | PSR-3 level | Wonolog level |
-| ----------- | ------------- |
+|-------------|---------------|
 | DEBUG       | 100           |
 | INFO        | 200           |
 | NOTICE      | 250           |
@@ -123,16 +123,16 @@ Plugin/themes/packages should **not** be aware of them, and either emit package-
 
 ---
 
-0. [Introduction](./00-introduction.md)
-1. **Anatomy of a Wonolog log record**
-2. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
-3. [What is logged by default](./03-what-is-logged-by-default.md)
-4. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
-5. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
-6. [Log records handlers](./06-log-records-handlers.md)
-7. [Log records processors](./07-log-records-processors.md)
-8. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
-9. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
+1. [Introduction](./00-introduction.md)
+2. **Anatomy of a Wonolog log record**
+3. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
+4. [What is logged by default](./03-what-is-logged-by-default.md)
+5. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
+6. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
+7. [Log records handlers](./06-log-records-handlers.md)
+8. [Log records processors](./07-log-records-processors.md)
+9. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
+10. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
 
 ---
 

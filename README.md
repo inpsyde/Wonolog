@@ -10,6 +10,8 @@
 
 ------
 
+![Wonolog](resources/banner.png)
+
 Wonolog is a Composer package (not a plugin) that allows to log anything that *happens* in a WordPress site.
 
 It is based on [Monolog](https://github.com/Seldaek/monolog), which, with its over 215 million of downloads and thousands of dependent packages, is the most popular logging library for PHP, compatible with the [PSR-3 standard](https://www.php-fig.org/psr/psr-3/).
@@ -62,7 +64,7 @@ However, writing log records assumes that knowledge.
 
 This is why the workflow that Wonolog pursuit is the following:
 
-1. plugins/themes/etc fire a WordPress action when they want to log something, passing the data to log as action parameters
+1. plugins/themes/etc. fire a WordPress action when they want to log something, passing the data to log as action parameters
 2. Wonolog listen to that action, and use Monolog to log the information passed as arguments.
 
 In other words, Wonolog is a bridge in between WordPress and Monolog, that allows to use Monolog to write logs for "logging events" emitted by WordPress code, without requiring that WordPress code to be coupled with Wonolog and/or Monolog.
@@ -127,7 +129,7 @@ Note that is highly recommended to **don't** write log files to a publicly acces
 
 ## License and Copyright
 
-Copyright (c) 2020 Inpsyde GmbH.
+Copyright (c) 2023 Inpsyde GmbH.
 
 Wonolog code is licensed under GPL v2 or newer license.
 

@@ -33,7 +33,7 @@ add_action(
     'wonolog.setup',
     function (Inpsyde\Wonolog\Configurator $config) {
         $config
-            ->pushProcessor('my-processor', function (array $record) {
+            ->pushProcessor('my-processor', function (array $record): array {
                 return $record;
             })
             ->removeProcessor('my-processor');
@@ -55,7 +55,7 @@ add_action(
     function (Inpsyde\Wonolog\Configurator $config) {
         $config->pushProcessorForChannels(
             'my-processor',
-            function (array $record) {
+            function (array $record): array {
                 return $record;
             },
             'channel-1',
@@ -96,7 +96,7 @@ It is worth mention here that Monolog supports handler-specific processors that 
 
 Wonolog does not offer any configuration entry-point for handler-specific processors, and the reason is that in case developers needs handlers-specific processors they can add processors directly to the handlers, before adding them to Wonolog.
 
-In the edge-case a MU plugin adds an handler to Wonolog, and _another_ MU plugin needs to add one or more handler-specific processors to that handler, it is possible to use the action hook `'wonolog.processable-handler-setup'`, that is fired once per handler, assuming the handler
+In the edge-case a MU plugin adds a handler to Wonolog, and _another_ MU plugin needs to add one or more handler-specific processors to that handler, it is possible to use the action hook `'wonolog.processable-handler-setup'`, that is fired once per handler, assuming the handler
 implements `ProcessableHandlerInterface`.
 
 That hook also passes an instance of `ProcessorsRegistry`, which allows to add to the handler _existing_ processors.
@@ -112,7 +112,7 @@ add_action(
         Inpsyde\Wonolog\Registry\ProcessorsRegistry $processors
     ) {
         if ($identifier !== SomeHandler::class) {
-            retrun;
+            return;
         }
 
         // a new processor
@@ -129,9 +129,9 @@ add_action(
 );
 ```
 
-## WordPress context processor
+## WordPress' context processor
 
-By default, Wonolog adds a processor to *all* channels. It s implemented as a invokable class: `Inpsyde\Wonolog\Processor\WpContextProcessor`.
+By default, Wonolog adds a processor to *all* channels. It is implemented as an invokable class: `Inpsyde\Wonolog\Processor\WpContextProcessor`.
 
 This processor adds WordPress-specific information in the log record "context".
 
@@ -180,16 +180,16 @@ add_action(
 
 ---
 
-0. [Introduction](./00-introduction.md)
-1. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
-2. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
-3. [What is logged by default](./03-what-is-logged-by-default.md)
-4. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
-5. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
-6. [Log records handlers](./06-log-records-handlers.md)
-7. **Log records processors**
-8. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
-9. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
+1. [Introduction](./00-introduction.md)
+2. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
+3. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
+4. [What is logged by default](./03-what-is-logged-by-default.md)
+5. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
+6. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
+7. [Log records handlers](./06-log-records-handlers.md)
+8. **Log records processors**
+9. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
+10. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
 
 ---
 

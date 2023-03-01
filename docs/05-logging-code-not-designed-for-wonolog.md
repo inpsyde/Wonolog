@@ -1,10 +1,10 @@
 # Logging code not designed for Wonolog
 
-The [*“Designing packages for Wonolog”*](04-designing-packages-for-wonolog.md) provides detailed documentation on designing packages natively compatible with Wonolog, without requiring Wonolog as a dependency.
+The [*"Designing packages for Wonolog"*](04-designing-packages-for-wonolog.md) provides detailed documentation on designing packages natively compatible with Wonolog, without requiring Wonolog as a dependency.
 
-However, we can’t expect all code to be natively compatible with Wonolog, especially when the code is 3rd party, so we can’t make it compatible even if we would.
+However, we can't expect all code to be natively compatible with Wonolog, especially when the code is 3rd party, so we can't make it compatible even if we would.
 
-In those cases, the only left possibility to use Wonolog is to write a “compatibility later” through the writing of hook listeners.
+In those cases, the only left possibility to use Wonolog is to write a "compatibility later" through the writing of hook listeners.
 
 ---
 
@@ -26,7 +26,7 @@ Hook listeners are objects implementing the `Inpsyde\Wonolog\HookListener\HookLi
 
 Hook listeners are what Wonolog uses to log WordPress core events. That should not come as a surprise: WordPress is not natively compatible with Wonolog, so we need hook listeners to introduce a compatibility layer between WordPress and Wonolog.
 
-Hook listeners used for the core and shipped with Wonolog are referenced as “default hook listeners”, but it is possible to write hook listeners as a compatibility layer with any WordPress plugin/theme/package.
+Hook listeners used for the core and shipped with Wonolog are referenced as "default hook listeners", but it is possible to write hook listeners as a compatibility layer with any WordPress plugin/theme/package.
 
 ## The interfaces
 
@@ -73,9 +73,9 @@ The interfaces are quite simple. The idea behind them should also be straightfor
 
 `ActionListener::update` is attached to action hooks, the hook being fired is passed as the first argument, the hook parameters as the second argument, and an instance of `LogActionUpdater` is given as the third parameter.
 
-`FilterListener::filter` is attached to filter hooks, and accepts the same parameters, but being attached to filter hooks has to *return* something, usually the first among the hook parameters, considering that we typically don’t want filter listeners to change the return value of the filter.
+`FilterListener::filter` is attached to filter hooks, and accepts the same parameters, but being attached to filter hooks has to *return* something, usually the first among the hook parameters, considering that we typically don't want filter listeners to change the return value of the filter.
 
-`FilterListener` should preferably **not** used at all, but the interface exists for those cases when the only chance to “intercept” a value we want to log is to use a filter hook.
+`FilterListener` should preferably **not** used at all, but the interface exists for those cases when the only chance to "intercept" a value we want to log is to use a filter hook.
 
 ### Utility traits
 
@@ -135,7 +135,7 @@ The method `hookOne` is called for the `"hook_one"` hook, the method `hookTwo` i
 
 The methods name in the snippet above are the "camelCase" version of the hook names, but the "snake_case" (e.g., `hook_one`) would have worked too, so it is possible to use method names that fit anyone code style.
 
-It is worth noting that the method name is created by “splitting words” of the hook by any non-alphanumeric character and then merging the words either in “camelCase” or “snake_case”. For example, for a hook `foo.bar.baz`, the called method would be `foo_bar_baz` or `fooBarBaz`, depending on what’s defined.
+It is worth noting that the method name is created by "splitting words" of the hook by any non-alphanumeric character and then merging the words either in "camelCase" or "snake_case". For example, for a hook `foo.bar.baz`, the called method would be `foo_bar_baz` or `fooBarBaz`, depending on what's defined.
 
 Another interesting feature of this trait is the possibility to set a common prefix for hooks. For example:
 
@@ -165,7 +165,7 @@ class PrefixActionListener implements HookListener\ActionListener
 }
 ```
 
-By setting the hook prefix, method names don’t need to be unnecessarily long to match exactly hook names.
+By setting the hook prefix, method names don't need to be unnecessarily long to match exactly hook names.
 
 Of course, the two utility traits might be used together if necessary.
 
@@ -187,7 +187,7 @@ add_action('wp_ajax_xy', 'Awesome\Premium\Plugin\perform_ajax_call');
 add_action('wp_ajax_nopriv_xy', 'Awesome\Premium\Plugin\perform_ajax_call');
 ```
 
-And let’s assume we would like to log AJAX calls handled by the plugin. That is particularly tricky because no action is explicitly fired, and `wp_send_json` exits the request, so nothing is executed after that.
+And let's assume we would like to log AJAX calls handled by the plugin. That is particularly tricky because no action is explicitly fired, and `wp_send_json` exits the request, so nothing is executed after that.
 
 However, we know that [`wp_send_json`](https://developer.wordpress.org/reference/functions/wp_send_json/) internally calls [`wp_die`](https://developer.wordpress.org/reference/functions/wp_die/), and for AJAX calls, `wp_die` will fire [`wp_die_ajax_handler` filter](https://developer.wordpress.org/reference/hooks/wp_die_ajax_handler/), which allows us to write a filter listener like the following:
 
@@ -222,7 +222,7 @@ class AwesomePremiumPluginListener implements HookListener\FilterListener
 }
 ```
 
-The above listener works and shows both the utility traits in action, but it calculates the log record “context”, duplicating the logic used by the plugin.
+The above listener works and shows both the utility traits in action, but it calculates the log record "context", duplicating the logic used by the plugin.
 
 A possible alternative consists in leveraging the fact that filter listeners can change the filtered value, so we could wrap the AJAX handler callback:
 
@@ -257,7 +257,7 @@ class AwesomePremiumPluginListener implements HookListener\FilterListener
 ```
 
 The example above has proved that hook listeners are quite powerful, flexible, and simple to write.
-It also demonstrates that it’s infrequent that there’s no way to capture desired data to log: even for a case that at first look seemed very tricky, it was possible to find not one, but two alternatives to capture the data to log.
+It also demonstrates that it's infrequent that there's no way to capture desired data to log: even for a case that at first look seemed very tricky, it was possible to find not one, but two alternatives to capture the data to log.
 
 ## Register hook listeners
 
@@ -272,7 +272,7 @@ add_action(
 );
 ```
 
-besides `addFilterListener` there’s also `addActionListener`.
+besides `addFilterListener` there's also `addActionListener`.
 
 Even if it is preferable not to implement both `FilterListener` and `ActionListener` interfaces for the same listener, if that is the case, `addFilterListener` should be used to add listeners that implement both interfaces.
 
@@ -294,9 +294,9 @@ add_action(
 
 ### Hook listeners identifier
 
-Internally, Wonolog keeps a “registry” of added hook listeners. The registry uses a map of unique identifiers to listeners.
+Internally, Wonolog keeps a "registry" of added hook listeners. The registry uses a map of unique identifiers to listeners.
 
-By default, the fully-qualified class name of the added listener is used as an identifier. However, if multiple instances of the same class are purposely added because they have different behavior (thanks to different internal state), the default identifier-by-class strategy won’t work. In that case it is necessary to pass the listener identifier explicitly, either as the second parameter of `addActionListener` / `addFilterListener` or as the third parameter of `Configurator::addActionListenerWithPriority` or `Configurator::addFilterListenerWithPriority`:
+By default, the fully-qualified class name of the added listener is used as an identifier. However, if multiple instances of the same class are purposely added because they have different behavior (thanks to different internal state), the default identifier-by-class strategy won't work. In that case it is necessary to pass the listener identifier explicitly, either as the second parameter of `addActionListener` / `addFilterListener` or as the third parameter of `Configurator::addActionListenerWithPriority` or `Configurator::addFilterListenerWithPriority`:
 
 ```php
 add_action(
@@ -312,17 +312,17 @@ add_action(
 
 ---
 
-0. [Introduction](./00-introduction.md)
-1. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
-2. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
-3. [What is logged by default](./03-what-is-logged-by-default.md)
-4. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
-5. **Logging code not designed for Wonolog**
-6. [Log records handlers](./06-log-records-handlers.md)
-7. [Log records processors](./07-log-records-processors.md)
-8. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
-9. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
+1. [Introduction](./00-introduction.md)
+2. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
+3. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
+4. [What is logged by default](./03-what-is-logged-by-default.md)
+5. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
+6. **Logging code not designed for Wonolog**
+7. [Log records handlers](./06-log-records-handlers.md)
+8. [Log records processors](./07-log-records-processors.md)
+9. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
+10. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
 
 ---
 
-«  [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md) ||  [Log records handlers](./06-log-records-handlers.md) »
+« [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md) || [Log records handlers](./06-log-records-handlers.md) »

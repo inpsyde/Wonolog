@@ -1,6 +1,8 @@
 # Introduction
 
-Wonolog is a package whose scope is logging "things that happen in WordPress and WordPress plugins/themes/packages.
+![Wonolog Logo](../resources/banner.png)
+
+Wonolog is a package whose scope is logging "things" that happen in WordPress and WordPress plugins/themes/packages.
 
 Logging means *to persist somewhere* information. When developing a plugin/theme/library, the infrastructure where the code runs is unknown, it is only known at *the website* level. That is why **Wonolog is a package to be used at the website level**.
 
@@ -67,16 +69,16 @@ Wonolog"*](./05-logging-code-not-designed-for-wonolog.md) will document how to w
 
 ---
 
-0. **Introduction**
-1. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
-2. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
-3. [What is logged by default](./03-what-is-logged-by-default.md)
-4. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
-5. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
-6. [Log records handlers](./06-log-records-handlers.md)
-7. [Log records processors](./07-log-records-processors.md)
-8. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
-9. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
+1. **Introduction**
+2. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
+3. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
+4. [What is logged by default](./03-what-is-logged-by-default.md)
+5. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
+6. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
+7. [Log records handlers](./06-log-records-handlers.md)
+8. [Log records processors](./07-log-records-processors.md)
+9. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
+10. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
 
 ---
 
