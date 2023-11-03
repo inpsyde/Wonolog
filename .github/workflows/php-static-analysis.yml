@@ -49,6 +49,19 @@ jobs:
         with:
             PHP_VERSION: '8.2'
 
-    static-code-analysis-php:
+    static-code-analysis-php-80:
         if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run Psalm only')) }}
         uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@main
+        with:
+            PHP_VERSION: '8.0'
+    static-code-analysis-php-81:
+        if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run Psalm only')) }}
+        uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@main
+        with:
+            PHP_VERSION: '8.1'
+    static-code-analysis-php-82:
+        if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run Psalm only')) }}
+        uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@main
+        with:
+            PHP_VERSION: '8.2'
+
