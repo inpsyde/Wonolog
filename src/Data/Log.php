@@ -30,9 +30,9 @@ final class Log implements LogDataInterface {
 	 * @var array
 	 */
 	private static $filters = [
-		self::MESSAGE => FILTER_SANITIZE_STRING,
+		self::MESSAGE => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
 		self::LEVEL   => FILTER_SANITIZE_NUMBER_INT,
-		self::CHANNEL => FILTER_SANITIZE_STRING,
+		self::CHANNEL => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
 		self::CONTEXT => [ 'filter' => FILTER_UNSAFE_RAW, 'flags' => FILTER_REQUIRE_ARRAY ],
 	];
 
