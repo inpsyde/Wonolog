@@ -52,7 +52,7 @@ final class WpDieHandlerListener implements FilterListenerInterface {
 
 		return function ( $message, $title = '', $args = [] ) use ( $handler ) {
 
-			$msg                = filter_var( $message, FILTER_SANITIZE_STRING );
+			$msg                = filter_var( $message, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 			$context            = $args;
 			$context[ 'title' ] = $title;
 
