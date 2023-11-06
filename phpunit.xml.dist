@@ -1,34 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.5/phpunit.xsd"
-	backupGlobals="false"
-	backupStaticAttributes="false"
-	bootstrap="tests/bootstrap.php"
-	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
-    convertDeprecationsToExceptions="true"
-	processIsolation="false"
-	stopOnFailure="false">
-
-    <extensions>
-        <extension class="Inpsyde\Wonolog\Tests\IntegrationTestsExtension"/>
-    </extensions>
-
-	<testsuites>
-		<testsuite name="unit">
-			<directory suffix="Test.php">tests/unit</directory>
-		</testsuite>
-		<testsuite name="integration">
-			<directory suffix="Test.php">tests/integration</directory>
-		</testsuite>
-	</testsuites>
-
-	<filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">src</directory>
-        </whitelist>
-	</filter>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+         backupGlobals="false"
+         backupStaticAttributes="false"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         convertDeprecationsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false">
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">src</directory>
+    </include>
+  </coverage>
+  <extensions>
+    <extension class="Inpsyde\Wonolog\Tests\IntegrationTestsExtension"/>
+  </extensions>
+  <testsuites>
+    <testsuite name="unit">
+      <directory suffix="Test.php">tests/unit</directory>
+    </testsuite>
+    <testsuite name="integration">
+      <directory suffix="Test.php">tests/integration</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>
