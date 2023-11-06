@@ -72,7 +72,7 @@ class PsrBridge extends AbstractLogger
      *
      * phpcs:disable Generic.Metrics.CyclomaticComplexity
      */
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         // phpcs:enable Generic.Metrics.CyclomaticComplexity
         $throwable = null;

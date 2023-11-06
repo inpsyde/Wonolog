@@ -52,7 +52,8 @@
         "symfony/process": "^v4.4.44",
         "globalis/wp-cli-bin": "^2.7.1",
         "vimeo/psalm": "^5.15",
-        "phpunit/phpunit": "^9.6"
+        "phpunit/phpunit": "^9.6",
+        "fig/log-test": "^1.1"
     },
     "provide": {
         "psr/log-implementation": "1.0.0"
