@@ -37,7 +37,7 @@
         }
     ],
     "require": {
-        "php": ">=8.0",
+        "php": ">=8.0 < 8.3",
         "psr/log": "^2.0||^3.0",
         "wecodemore/wordpress-early-hook": "^1.1.0",
         "monolog/monolog": "^2.3.5"
