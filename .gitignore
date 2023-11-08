@@ -15,3 +15,6 @@
 # Adding a folder to put things temporarily
 temp/
 
+# IDE
+.idea/
+
