@@ -33,35 +33,20 @@ jobs:
         with:
             PHP_MATRIX: '["8.0", "8.1", "8.2"]'
 
-    coding-standards-analysis-php-80:
+    coding-standards-analysis-php:
         if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run PHPCS only')) }}
         uses: inpsyde/reusable-workflows/.github/workflows/coding-standards-php.yml@main
+        strategy:
+            matrix:
+                php-version: ['8.0', '8.1', '8.2']
         with:
-            PHP_VERSION: '8.0'
-    coding-standards-analysis-php-81:
-        if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run PHPCS only')) }}
-        uses: inpsyde/reusable-workflows/.github/workflows/coding-standards-php.yml@main
-        with:
-            PHP_VERSION: '8.1'
-    coding-standards-analysis-php-82:
-        if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run PHPCS only')) }}
-        uses: inpsyde/reusable-workflows/.github/workflows/coding-standards-php.yml@main
-        with:
-            PHP_VERSION: '8.2'
+            PHP_VERSION: ${{ matrix.php-version }}
 
-    static-code-analysis-php-80:
+    static-code-analysis-php:
         if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run Psalm only')) }}
         uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@main
+        strategy:
+            matrix:
+                php-version: [ '8.0', '8.1', '8.2' ]
         with:
-            PHP_VERSION: '8.0'
-    static-code-analysis-php-81:
-        if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run Psalm only')) }}
-        uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@main
-        with:
-            PHP_VERSION: '8.1'
-    static-code-analysis-php-82:
-        if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run Psalm only')) }}
-        uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@main
-        with:
-            PHP_VERSION: '8.2'
-
+            PHP_VERSION: ${{ matrix.php-version }}
