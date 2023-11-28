@@ -88,6 +88,7 @@
     },
     "scripts": {
         "cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
+        "cs:fix": "@php ./vendor/bin/phpcbf",
         "psalm": "@php ./vendor/vimeo/psalm/psalm --no-suggestions --find-unused-psalm-suppress --no-diff --no-cache --no-file-cache",
         "tests:unit": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit",
         "tests:unit:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --no-coverage",

@@ -24,7 +24,10 @@ class TestLoggerV2V3 implements LoggerInterface
 {
     use LoggerTrait;
 
+    // phpcs:ignore Inpsyde.CodeQuality.ForbiddenPublicProperty.Found, PHPCompatibility.Classes.NewTypedProperties.Found
     public array $records = [];
+
+    // phpcs:ignore Inpsyde.CodeQuality.ForbiddenPublicProperty.Found, PHPCompatibility.Classes.NewTypedProperties.Found
     public array $recordsByLevel = [];
 
     /**
@@ -62,7 +65,7 @@ class TestLoggerV2V3 implements LoggerInterface
             $record = ['message' => $record];
         }
 
-        return $this->hasRecordThatPasses(function ($rec) use ($record) {
+        return $this->hasRecordThatPasses(static function ($rec) use ($record) {
             if ($rec['message'] !== $record['message']) {
                 return false;
             }
@@ -117,6 +120,7 @@ class TestLoggerV2V3 implements LoggerInterface
      */
     public function __call($method, $args)
     {
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         @trigger_error(sprintf('Since psr/log-util 1.1: Method "%s" is deprecated and should not be called. Use method "%s" instead.', __FUNCTION__, $method), \E_USER_DEPRECATED);
 
         if (preg_match('/(.*)(Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)(.*)/', $method, $matches) > 0) {
