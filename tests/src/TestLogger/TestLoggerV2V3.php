@@ -83,7 +83,10 @@ class TestLoggerV2V3 implements LoggerInterface
      */
     public function hasRecordThatContains($message, $level)
     {
-        return $this->hasRecordThatPasses(fn ($rec) => str_contains($rec['message'], $message), $level);
+        return $this->hasRecordThatPasses(
+            fn ($rec) => str_contains($rec['message'], $message),
+            $level
+        );
     }
 
     /**
@@ -93,7 +96,10 @@ class TestLoggerV2V3 implements LoggerInterface
      */
     public function hasRecordThatMatches($regex, $level)
     {
-        return $this->hasRecordThatPasses(fn ($rec) => preg_match($regex, $rec['message']) > 0, $level);
+        return $this->hasRecordThatPasses(
+            fn ($rec) => preg_match($regex, $rec['message']) > 0,
+            $level
+        );
     }
 
     /**
@@ -120,18 +126,38 @@ class TestLoggerV2V3 implements LoggerInterface
      */
     public function __call($method, $args)
     {
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        @trigger_error(sprintf('Since psr/log-util 1.1: Method "%s" is deprecated and should not be called. Use method "%s" instead.', __FUNCTION__, $method), \E_USER_DEPRECATED);
+        // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @trigger_error(
+            sprintf(
+                // phpcs:ignore Inpsyde.CodeQuality.LineLength.TooLong
+                'Since psr/log-util 1.1: Method "%s" is deprecated and should not be called. Use method "%s" instead.',
+                __FUNCTION__,
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                $method
+            ),
+            \E_USER_DEPRECATED
+        );
 
-        if (preg_match('/(.*)(Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)(.*)/', $method, $matches) > 0) {
-            $genericMethod = $matches[1] . ('Records' !== $matches[3] ? 'Record' : '') . $matches[3];
+        if (
+            preg_match(
+                '/(.*)(Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)(.*)/',
+                $method,
+                $matches
+            ) > 0
+        ) {
+            $genericMethod = $matches[1]
+                . ('Records' !== $matches[3] ? 'Record' : '')
+                . $matches[3];
             $level = strtolower($matches[2]);
             if (method_exists($this, $genericMethod)) {
                 $args[] = $level;
+                // phpcs:ignore NeutronStandard.Functions.DisallowCallUserFunc.CallUserFunc
                 return call_user_func_array([$this, $genericMethod], $args);
             }
         }
-        throw new \BadMethodCallException('Call to undefined method ' . get_class($this) . '::' . $method . '()');
+        throw new \BadMethodCallException(
+            'Call to undefined method ' . get_class($this) . '::' . $method . '()'
+        );
     }
 
     public function hasEmergency($record): bool
