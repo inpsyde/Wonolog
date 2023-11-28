@@ -25,23 +25,19 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-versions: [ '8.0', '8.1', '8.2' ]
+                php-versions: [ '7.4', '8.0', '8.1', '8.2' ]
                 dependency-versions: ['highest', 'lowest']
 
         steps:
             - name: Checkout
               uses: actions/checkout@v3
 
-            - name: Use coverage?
-              if: ${{ matrix.php-versions == '7.4' }}
-              run: echo "USE_COVERAGE=yes" >> $GITHUB_ENV
-
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php-versions }}
                   ini-values: zend.assertions=1, error_reporting=E_ALL, display_errors=On
-                  coverage: ${{ ((env.USE_COVERAGE == 'yes') && 'xdebug') || 'none' }}
+                  coverage: ${{ env.USE_COVERAGE == 'yes' && 'xdebug' || 'none' }}
 
             - name: Install Composer dependencies
               uses: ramsey/composer-install@v2
@@ -49,14 +45,6 @@ jobs:
                 dependency-versions: ${{ matrix.dependency-versions }}
 
             - name: Run unit tests
-              run: composer tests:unit:${{ ((env.USE_COVERAGE == 'yes') && 'codecov') || 'no-cov' }}
+              run: composer tests:unit:no-cov
 
-            - name: Update coverage
-              if: ${{ env.USE_COVERAGE == 'yes' }}
-              uses: codecov/codecov-action@v3
-              with:
-                  token: ${{ secrets.CODECOV_TOKEN }}
-                  files: ./coverage.xml
-                  flags: unittests
-                  verbose: true
 
