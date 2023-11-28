@@ -22,7 +22,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-service: [ '72', '73', '74', '80', '81', '82' ]
+                php-service: [ '74', '80', '81', '82' ]
         steps:
             -   name: Checkout
                 uses: actions/checkout@v3
