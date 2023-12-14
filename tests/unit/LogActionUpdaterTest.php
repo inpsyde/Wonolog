@@ -166,6 +166,6 @@ class LogActionUpdaterTest extends UnitTestCase
 
     private function buildLogger()
     {
-        return version_compare(phpversion(), '8.0') ? new TestLoggerV2V3() : new TestLoggerV1();
+        return version_compare(phpversion(), '8.0', '>=') ? new TestLoggerV2V3() : new TestLoggerV1();
     }
 }
