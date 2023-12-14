@@ -37,22 +37,22 @@
         }
     ],
     "require": {
-        "php": ">=7.2 < 8.3",
-        "psr/log": "^1.1.4",
+        "php": "^7.4||>=8.0 < 8.3",
+        "psr/log": ">=1.0.1 <2.0||^2.0||^3.0",
         "wecodemore/wordpress-early-hook": "^1.1.0",
-        "monolog/monolog": "^2.3.5"
+        "monolog/monolog": ">=2.0.1 <3"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.5.33",
         "brain/monkey": "^2.6.1",
         "mockery/mockery": "^1.3.6",
         "mikey179/vfsstream": "~v1.6.11",
         "inpsyde/php-coding-standards": "^1",
-        "vimeo/psalm": "^4.30.0",
         "inpsyde/wp-stubs-versions": "dev-latest",
         "roots/wordpress-no-content": ">=6.1.1",
         "symfony/process": "^v4.4.44",
-        "globalis/wp-cli-bin": "^2.7.1"
+        "globalis/wp-cli-bin": "^2.7.1",
+        "vimeo/psalm": "^5.15",
+        "phpunit/phpunit": "^9.6"
     },
     "provide": {
         "psr/log-implementation": "1.0.0"
@@ -88,6 +88,7 @@
     },
     "scripts": {
         "cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
+        "cs:fix": "@php ./vendor/bin/phpcbf",
         "psalm": "@php ./vendor/vimeo/psalm/psalm --no-suggestions --find-unused-psalm-suppress --no-diff --no-cache --no-file-cache",
         "tests:unit": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit",
         "tests:unit:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --no-coverage",

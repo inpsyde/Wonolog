@@ -10,6 +10,8 @@ use Inpsyde\Wonolog\Configurator;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel as WonologLogLevel;
+use Inpsyde\Wonolog\Tests\TestLogger\TestLoggerV1;
+use Inpsyde\Wonolog\Tests\TestLogger\TestLoggerV2V3;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Logger;
 use Psr\Log\LogLevel;
@@ -94,7 +96,8 @@ class LogActionUpdaterTest extends UnitTestCase
 
         $log = new Log('Test me', Logger::EMERGENCY, Channels::SECURITY, ['foo' => 'bar']);
 
-        $logger = new TestLogger();
+
+        $logger = $this->buildLogger();
 
         $channels = \Mockery::mock(Channels::class);
         $channels->expects('isIgnored')->with($log)->andReturn(false);
@@ -145,7 +148,7 @@ class LogActionUpdaterTest extends UnitTestCase
 
         $log = new Log('Test me', Logger::EMERGENCY, Channels::SECURITY, $context);
 
-        $logger = new TestLogger();
+        $logger = $this->buildLogger();
 
         $channels = \Mockery::mock(Channels::class);
         $channels->expects('isIgnored')->with($log)->andReturn(false);
@@ -159,5 +162,10 @@ class LogActionUpdaterTest extends UnitTestCase
         static::assertSame('Test me', $record['message']);
         static::assertSame(LogLevel::EMERGENCY, $record['level']);
         static::assertSame($contextExpected, $record['context']);
+    }
+
+    private function buildLogger()
+    {
+        return version_compare(phpversion(), '8.0', '>=') ? new TestLoggerV2V3() : new TestLoggerV1();
     }
 }

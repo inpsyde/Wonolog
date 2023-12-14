@@ -109,8 +109,8 @@ class CronDebugListenerTest extends UnitTestCase
 
         $regxp = '~^Cron action "%s" performed\. Duration: [0|1]\.[0-9]+ seconds\.$~';
 
-        static::assertRegExp(sprintf($regxp, 'wp_scheduled_delete'), $logs[0]);
-        static::assertRegExp(sprintf($regxp, 'wp_update_plugins'), $logs[1]);
-        static::assertRegExp(sprintf($regxp, 'wp_version_check'), $logs[2]);
+        static::assertMatchesRegularExpression(sprintf($regxp, 'wp_scheduled_delete'), $logs[0]);
+        static::assertMatchesRegularExpression(sprintf($regxp, 'wp_update_plugins'), $logs[1]);
+        static::assertMatchesRegularExpression(sprintf($regxp, 'wp_version_check'), $logs[2]);
     }
 }

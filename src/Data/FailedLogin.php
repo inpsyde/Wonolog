@@ -107,15 +107,25 @@ final class FailedLogin implements LogData
             || !isset($attempts[$userIp]['count'])
             || !isset($attempts[$userIp]['last_logged'])
         ) {
-            $attempts[$userIp] = ['count' => 0, 'last_logged' => 0];
+            /**
+             * @var array<string, array{count: int, last_logged: int}> $data
+             */
+            $data = ['count' => 0, 'last_logged' => 0];
+            $attempts[$userIp] = $data;
         }
 
         /** @psalm-suppress MixedOperand */
         $attempts[$userIp]['count']++;
-        /** @psalm-suppress PropertyTypeCoercion */
+        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $this->attemptsData = $attempts;
 
+        /**
+         * Psalm warns us about count and last_logged possibly being bool to int converted
+         * We assume the value retrieved when calling get_site_transient is an integer on both
+         * @psalm-suppress RiskyCast
+         */
         $count = (int)$attempts[$userIp]['count'];
+        /** @psalm-suppress RiskyCast */
         $lastLogged = (int)$attempts[$userIp]['last_logged'];
 
         /**

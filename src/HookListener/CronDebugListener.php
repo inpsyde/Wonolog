@@ -83,7 +83,7 @@ final class CronDebugListener implements ActionListener
         }
 
         $cronArray = _get_cron_array();
-        /** @psalm-suppress DocblockTypeContradiction  */
+        /** @psalm-suppress TypeDoesNotContainType,DocblockTypeContradiction  */
         if (!$cronArray || !is_array($cronArray)) {
             return;
         }
