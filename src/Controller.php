@@ -69,11 +69,11 @@ class Controller {
 
 		add_action( LOG, $listener, $priority, PHP_INT_MAX );
 
-        $levels = array_combine(Level::VALUES, Level::NAMES);
-        foreach ( $levels as $level_code => $level ) {
-			// $level_code is from 100 (DEBUG) to 600 (EMERGENCY) this makes hook priority based on level priority
-			add_action( LOG . '.' . strtolower( $level ), $listener, $priority + ( 601 - $level_code ), PHP_INT_MAX );
-		}
+		foreach ( Level::VALUES as $value ) {
+	            $level = Level::fromValue($value);
+	            // $level_code is from 100 (DEBUG) to 600 (EMERGENCY) this makes hook priority based on level priority
+	            add_action( LOG . '.' . strtolower( $level->name ), $listener, $priority + ( 601 - $value ), PHP_INT_MAX );
+	        }
 
 		add_action( 'muplugins_loaded', [ HookListenersRegistry::class, 'initialize' ], PHP_INT_MAX );
 
