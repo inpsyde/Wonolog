@@ -11,6 +11,7 @@
 namespace Inpsyde\Wonolog;
 
 use Monolog\Logger;
+use Monolog\Level;
 
 /**
  * Utility object used to build default minimum logging level based WordPress and environment settings.
@@ -53,8 +54,12 @@ class LogLevel {
 		// here $min_level is a string (raw env vars are always strings) or false
 		$min_level = $env_level;
 
-		$levels = Logger::getLevels();
-		$min_level = $this->check_level( $min_level, $levels );
+		$levels = [];
+	        foreach ( Level::VALUES as $value ) {
+	            $level = Level::fromValue($value);
+	            $levels[$value] = $level->name;
+	        }
+		$min_level = $this->check_level( $min_level, array_flip( $levels ) );
 		// Now here $min_level is surely a integer, but could be 0, and in that case we set it from WP constants
 		if ( ! $min_level ) {
 			$const     = defined( 'WP_DEBUG_LOG' ) ? 'WP_DEBUG_LOG' : 'WP_DEBUG';
