@@ -120,8 +120,4 @@ Documentation of Wonolog features, defaults, configuration and ways to extends i
 
 ## License and Copyright
 
-Copyright (c) 2017 Inpsyde GmbH.
-
-Wonolog code is licensed under [MIT license](https://opensource.org/licenses/MIT).
-
-The team at [Inpsyde](https://inpsyde.com) is engineering the Web since 2006.
+This repository is a free software, and is released under the terms of the MIT license. See [LICENSE](./LICENSE) for complete license.
