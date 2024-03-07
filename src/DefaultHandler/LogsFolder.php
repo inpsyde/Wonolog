@@ -35,7 +35,11 @@ class LogsFolder
          * them, and package could be fully functional even if failures happen.
          * Silence looks like best option here.
          *
+         * Also for some reason __return_true seems not to be a valid argument?
+         * I found this related issue https://github.com/vimeo/psalm/issues/3571
+         *
          * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+         * @psalm-suppress PossiblyInvalidArgument
          */
         set_error_handler('__return_true');
 
