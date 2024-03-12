@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Monolog\Logger;
+use Monolog\Level;
 
 /**
  * Utility object used to build default min logging level based WordPress and environment settings.
@@ -21,14 +21,14 @@ use Monolog\Logger;
  */
 abstract class LogLevel
 {
-    public const DEBUG = Logger::DEBUG;
-    public const INFO = Logger::INFO;
-    public const NOTICE = Logger::NOTICE;
-    public const WARNING = Logger::WARNING;
-    public const ERROR = Logger::ERROR;
-    public const CRITICAL = Logger::CRITICAL;
-    public const ALERT = Logger::ALERT;
-    public const EMERGENCY = Logger::EMERGENCY;
+    public const DEBUG = Level::Debug;
+    public const INFO = Level::Info;
+    public const NOTICE = Level::Notice;
+    public const WARNING = Level::Warning;
+    public const ERROR = Level::Error;
+    public const CRITICAL = Level::Critical;
+    public const ALERT = Level::Alert;
+    public const EMERGENCY = Level::Emergency;
 
     /**
      * @var int|null
@@ -45,7 +45,13 @@ abstract class LogLevel
      */
     final public static function allLevels(): array
     {
-        return Logger::getLevels();
+        $levels = [];
+        foreach ( Level::VALUES as $value ) {
+            $level = Level::fromValue($value);
+            $levels[$value] = $level->name;
+        }
+
+        return array_flip($levels);
     }
 
     /**
@@ -69,7 +75,7 @@ abstract class LogLevel
         // If no valid level is defined via env var, then let's resort to WP constants.
         if (!$minLevel) {
             $const = defined('WP_DEBUG_LOG') ? 'WP_DEBUG_LOG' : 'WP_DEBUG';
-            $minLevel = (defined($const) && constant($const)) ? Logger::DEBUG : Logger::WARNING;
+            $minLevel = (defined($const) && constant($const)) ? Level::Debug : Level::Warning;
         }
 
         self::$minLevel = $minLevel;
