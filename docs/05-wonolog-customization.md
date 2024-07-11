@@ -15,7 +15,7 @@
     - [Adding Handlers](#adding-handlers)
         - [Handler IDs](#handler-ids)
     - [Customizing the Default Processor](#customizing-the-default-processor)
-    - [Adding Processors](#add-processors)
+    - [Adding Processors](#adding-processors)
         - [Adding Processors to Loggers](#adding-processors-to-loggers)
         - [Adding Processors to Handlers](#adding-processors-to-handlers)
         - [Processor IDs](#processor-ids)
@@ -23,7 +23,6 @@
 - [Loggers and Handlers Hooks](#loggers-and-handlers-hooks)
     - [Configuring Loggers via Hooks](#configuring-loggers-via-hooks)
     - [Configuring Handlers via Hooks](#configuring-handlers-via-hooks)
-
 
 ## Safe Wonolog Bootstrapping
 
@@ -51,7 +50,6 @@ That constant is defined in the same file as the bootstrap function, and there's
 
 Considering that checking a constant is faster than checking a function (constant is even defined at compile time, allowing for opcode cache optimization) and considering that such code will run on every single request to your website, we suggest this practice as it is a good compromise between safety and performance.
 
-
 ## Programmatically Disabling Wonolog
 
 When (reasonably) the same code is deployed to all environments, it is not possible to enable or disable Wonolog per environment (and not being a plugin, there is no way to _deactivate_ it).
@@ -71,7 +69,7 @@ Sometimes it may be necessary to enable or disable logging based on other condit
 In those cases, Wonolog offers a filter, `'wonolog.disable'`, that can be used for the scope:
 
 ```php
-// Let a callback decide if we want to have loggin enabled or not:
+// Let a callback decide if we want to have logging enabled or not:
 add_filter( 'wonolog.disable', 'My\App\should_logging_be_disabled' );
 
 // Or, disable it right away:
@@ -82,9 +80,7 @@ The filter will receive a single argument that is initially set according to the
 
 Note: When you want to disable Wonolog no matter what, however, you would probably better not be calling `Inpsyde\Wonolog\bootstrap()` at all instead.
 
-
 ## Bootstrap Configuration
-
 
 ### Wonolog Default Handler
 
@@ -93,7 +89,7 @@ When bootstrapping Wonolog with all the defaults, the most notable thing that ha
 When no handler is added, Monolog uses a handler for all loggers that just dumps the content of log record to "standard output".
 
 This choice makes sense for a library like Monolog that leaves it to implementers to decide how logs should be handled by default.
-But for Wonolog, being a project-specific package (it targets WordPress and nothing else), we thought that providing a *persistent* default handler out-of-the-box makes sense.
+But for Wonolog, being a project-specific package (it targets WordPress and nothing else), we thought that providing a _persistent_ default handler out-of-the-box makes sense.
 
 As mentioned in [Getting Started](../#getting-started), Wonolog uses a default handler built around Monolog's [`StreamHandler`](https://github.com/Seldaek/monolog/blob/master/src/Monolog/Handler/StreamHandler.php) that writes all the logs to a file whose path changes based on the record date.
 
@@ -110,13 +106,12 @@ Don't worry, everything regarding the default handler is very configurable, in m
 
 That can be done by the following:
 
-- setting the `WONOLOG_DEFAULT_HANDLER_ROOT_DIR` environment variable to the desired path;
-- using the `'wonolog.default-handler-folder'` filter to return the desired path.
+- Setting the `WONOLOG_DEFAULT_HANDLER_ROOT_DIR` environment variable to the desired path.
+- Using the `'wonolog.default-handler-folder'` filter to return the desired path.
 
 Callbacks attached to the filter will initially receive the value of the `WONOLOG_DEFAULT_HANDLER_ROOT_DIR` environment variable, if set, or the `{WP_CONTENT_DIR}/wonolog/` full path when the environment variable is not defined.
 
 There are different other configurations possible for Wonolog default handler, all available via filter hooks.
-
 
 #### Default Handler Filter Hooks
 
@@ -132,7 +127,6 @@ When a handler has the bubble property set to false, the records it handles will
 
 The filter **`wonolog.default-handler-use-locking`** tells the Monolog `StreamHandler` used by the Wonolog default handler to acquire exclusive lock on the log file to be written.
 The default value is `true`.
-
 
 #### Replacing the Default Handler
 
@@ -157,7 +151,6 @@ if ( ! defined( 'Inpsyde\Wonolog\LOG' ) ) {
 
 Wonolog\bootstrap( new Handler\NewRelicHandler ( Logger::ERROR, true, 'my_new_relic_app' ) );
 ```
-
 
 ### Bootstrap Flags
 
@@ -191,9 +184,7 @@ Wonolog will be bootstrapped, but none of the four default tasks will be perform
 
 Don't fear, the `Wonolog\bootstrap()` function returns an instance of `Wonolog\Controller`: an object that provides an API to configure Wonolog according to any needs.
 
-
 ## The `Controller` API
-
 
 ### Logging PHP Errors
 
@@ -217,7 +208,6 @@ Wonolog\bootstrap( null, Wonolog\USE_DEFAULT_NONE )
 
 The argument accepted by `log_php_errors()` is the same as the second argument accepted by the PHP [`set_error_handler()`](http://php.net/manual/en/function.set-error-handler.php) function.
 
-
 ### Customizing the Default Handler
 
 When `null` is passed as first bootstrap argument, and the flag `USE_DEFAULT_HANDLER` is not part of the flags bitmask, no default handler will be initialized, which means that no log will be written, unless some handlers are added.
@@ -234,7 +224,6 @@ Wonolog\bootstrap( null, Wonolog\USE_DEFAULT_NONE )
 ```
 
 Note: if the `USE_DEFAULT_HANDLER` flag is used in the `bootstrap()` function, or when a handler instance is passed as first argument to it, calling `use_default_handler()` on the returned `Controller` object will do nothing, because the default handler is already set by `bootstrap()`.
-
 
 ### Adding Handlers
 
@@ -282,8 +271,7 @@ The above code tells Wonolog to use the default Wonolog handler for all loggers,
 Moreover, for the channel `Channels::SECURITY` (one of the five default Wonolog channels) a handler is set up to send log records with a minimum level of `Logger::ERROR` via email.
 The handler is provided by Monolog.
 
-
-##### Handler IDs
+#### Handler IDs
 
 There's an additional optional argument that `use_handler()` takes: `$handler_id`.
 
@@ -294,7 +282,6 @@ And to be able to identify handlers for the scope, it is necessary to know the h
 
 Another reason to use handler IDs is that during execution Wonolog triggers some hooks passing handlers as arguments for further configuration.
 For those hooks, the given handler ID will also be passed as hook argument, allowing to uniquely distinguish handlers inside hook callbacks.
-
 
 ### Customizing the Default Processor
 
@@ -314,7 +301,6 @@ Wonolog\bootstrap( null, Wonolog\USE_DEFAULT_NONE )
 
 Note: obviously, the controller implements a fluent interface, that is each method returns the same instance on which it was called, allowing to chain further method calls.
 
-
 ### Adding Processors
 
 In Monolog, processors are callbacks that receive the record array and return a possibly altered value before the record is passed to handlers.
@@ -328,7 +314,6 @@ The default Wonolog processor is assigned to the loggers of all channels.
 This means that it will have effect on all the log records processed by Wonolog.
 
 The controller object returned by `bootstrap()` provides an API to add processors to loggers or to handlers.
-
 
 #### Adding Processors to Loggers
 
@@ -348,7 +333,6 @@ Wonolog\bootstrap()
 ```
 
 The above code will add a custom function as processors for all the records in the security channel.
-
 
 #### Adding Processors to Handlers
 
@@ -373,15 +357,13 @@ Wonolog\bootstrap()
 The above code first adds two handlers, the first for all channels, the second only for security channel.
 Finally it adds a processor to be used for those two handlers, referencing them by their individual ID.
 
-
 #### Processor IDs
 
 The `use_processor()` and `use_processor_for_handlers()` methods accept as third argument a unique ID for the processor.
 
-This will be passed as argument by some hooks triggered by Wonolog, and allows to distinguish processors inside hook callbacks. 
+This will be passed as argument by some hooks triggered by Wonolog, and allows to distinguish processors inside hook callbacks.
 
-More on this in [Configuring Handlers via Hooks](#configuring-handlers-via-hooks]).
-
+More on this in [Configuring Handlers via Hooks](#configuring-handlers-via-hooks).
 
 ### Customizing Default Hook Listeners
 
@@ -389,7 +371,7 @@ The flag `USE_DEFAULT_HOOK_LISTENERS` tells Wonolog to use all the hook listener
 
 The same result can be obtained by calling **`use_default_hook_listeners()`** on the returned controller object.
 
-Wonolog also offers the possibility to choose which listener to use, by using  **`use_hook_listener()`** on the controller, passing as argument an instance of the listener to be used. 
+Wonolog also offers the possibility to choose which listener to use, by using  **`use_hook_listener()`** on the controller, passing as argument an instance of the listener to be used.
 
 An example:
 
@@ -410,7 +392,6 @@ Note that the `use_hook_listener()` method also needs to be used to tell Wonolog
 
 Refer to [Custom Hook Listeners](06-custom-hook-listeners.md) for a complete example of a custom hook listener implementation and its integration in Wonolog.
 
-
 ## Loggers and Handlers Hooks
 
 The API that the controller provides should be enough to set up Wonolog for all the possible use cases.
@@ -418,7 +399,6 @@ The API that the controller provides should be enough to set up Wonolog for all 
 However, the controller API is accessible only in the MU plugin that bootstraps Wonolog.
 
 If, for any reason, some further configuration for handlers and processors is necessary, Wonolog provides hooks that allow to configure loggers, handlers and processors from other places, very likely other MU plugins.
-
 
 ### Configuring Loggers via Hooks
 
@@ -475,7 +455,6 @@ The above code surely more concise and probably preferable, but can only be used
 Moreover, the controller API method necessitate the security handler to be instantiated on bootstrap, no matter if it will be used or not.
 This is not an issue if instantiation of the object is trivial (as it probably should be), but if that's not the case, the **'wonolog.logger'** action can be used to perform just-in-time logger configuration.
 
-
 ### Configuring Handlers via Hooks
 
 When using `use_handler()` in the MU plugin where Wonolog is bootstrapped, there's the possibility to configure the handler as necessary.
@@ -524,31 +503,30 @@ add_action( 'wonolog.handler-setup', function( HandlerInterface $handler, $handl
 
 The code above pushes the same processor that was added via `use_processor_for_handlers()` finding it by its ID.
 
-This relies on the fact that the the processor ID argument was used (it is optional).
+This relies on the fact that the processor ID argument was used (it is optional).
 It's worth noting, however, that in some cases it could be possible to guess the processor ID even when it was not passed to `use_processor_for_handlers()`.
 
 In fact, a processor is a PHP `callable`, which can be a string (i.e., a function name), an arrays (i.e., a static or a dynamic object method) or an object (i.e., a closure, or an invokable object).
 
 When processors are functions, their processor ID, if not provided, is assumed by Wonolog to be the function name itself.
 
-When processors are static methods, their processor ID, if not provided, is assumed to be the a string in the form `'Fully\Qualified\ProcessorClassName::methodName'`.
+When processors are static methods, their processor ID, if not provided, is assumed to be a string in the form `'Fully\Qualified\ProcessorClassName::methodName'`.
 
 When processors are dynamic methods, if processor ID was not provided, it is calculated by Wonolog using `spl_object_hash()` that is not predictable and so, in those cases, the only chance to find the registered processor inside **'wonolog.handler-setup'** is that a custom processor ID was passed as third argument to `use_processor()` or `use_processor_for_handlers()`.
 
-
--------
+---
 
 Read next:
 
 - [06 - Custom Hook Listeners](06-custom-hook-listeners.md) to see a complete example of a custom hook listener, its integration in Wonolog, and all the things that you need to know in order to write reusable Wonolog extensions.
 
-Read previous: 
+Read previous:
 
 - [04 - Hook Listeners](04-hook-listeners.md) to read about hook listeners, the powerful feature of Wonolog that allows for logging any WordPress code.
 - [03 - A Deeper Look at Wonolog](03-a-deeper-look-at-wonolog.md) to learn more advanced concepts and features of Wonolog.
 - [02 - Basic Wonolog Concepts](02-basic-wonolog-concepts.md) to learn the basics of logging with Wonolog.
 - [01 - Monolog Primer](01-monolog-primer.md) to learn a bit more about Monolog core concepts.
 
--------
+---
 
 [< Back to Index](https://github.com/inpsyde/Wonolog/)

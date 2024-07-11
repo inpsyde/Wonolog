@@ -7,7 +7,6 @@
 - [Default Handler Minimum Log Level](#default-handler-minimum-log-level)
 - [The "Logging Dilemma"](#the-logging-dilemma)
 
-
 ## Wonolog Channels
 
 When installed, Wonolog comes with five default channels, mainly intended to log things that happen within WordPress core.
@@ -44,7 +43,6 @@ add_filter( 'wonolog.channels', function( array $channels ) {
 
 Please keep in mind that such customization **must be done in an MU plugin**, because Wonolog's bootstrapping assumes any configuration is done before the `'muplugins_loaded'` action, thus any customization that happens afterwards is not assured to work.
 
-
 ## Wonolog PHP Error Handler
 
 As mentioned before, by default, Wonolog logs all kinds of PHP errors. It does not log silenced PHP errors.
@@ -77,7 +75,8 @@ The **log channel** used for these events is `Channels::PHP_ERROR`, and the **lo
 Refer to [Wonolog Customization](05-wonolog-customization.md) to learn how to customize or even disable this PHP error handler.
 
 If you want to log also silenced PHP errors you can do so with a filter:
-```
+
+```php
 add_filter('wonolog.report-silenced-errors', '__return_true');
 ```
 
@@ -110,7 +109,6 @@ putenv( 'WONOLOG_DEFAULT_MIN_LEVEL=500' );
 Refer to [Wonolog Customization](05-wonolog-customization.md), to see how Wonolog allows to replace its default handler with a custom one.
 
 When a custom handler is in use, its minimum level is out of control for Wonolog, and so the `WP_DEBUG_LOG` or the `'WONOLOG_DEFAULT_MIN_LEVEL'` environment variable will have no effect on it.
-
 
 ## The "Logging Dilemma"
 
@@ -146,8 +144,7 @@ Leveraging hooks for logging is exactly what Wonolog does and suggests to do.
 
 As pretty much anything in Wonolog, this is done by specialized objects, called [**Hook Listeners**](04-hook-listeners.md).
 
-
-----
+---
 
 Read next:
 
@@ -155,11 +152,11 @@ Read next:
 - [05 - Wonolog Customization](05-wonolog-customization.md) for a deep travel through all the possible configurations available for any aspect of the package.
 - [06 - Custom Hook Listeners](06-custom-hook-listeners.md) to see a complete example of a custom hook listener, its integration in Wonolog, and all the things that you need to know in order to write reusable Wonolog extensions.
 
-Read previous: 
+Read previous:
 
 - [02 - Basic Wonolog Concepts](02-basic-wonolog-concepts.md) to learn the basics of logging with Wonolog.
 - [01 - Monolog Primer](01-monolog-primer.md) to learn a bit more about Monolog core concepts.
 
--------
+---
 
 [< Back to Index](https://github.com/inpsyde/Wonolog/)
