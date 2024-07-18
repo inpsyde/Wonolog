@@ -9,7 +9,6 @@
 - [What about Filters?](#what-about-filters)
 - [Custom Hook Priority](#custom-hook-priority)
 
-
 ## Custom Hook Listeners
 
 The suggested way to log custom code with Wonolog is to use custom hook listeners.
@@ -21,7 +20,6 @@ Hook listeners allow to completely decouple the code to be logged from Wonolog, 
 The only thing that is required is that the code to be logged fires actions when "meaningful things" happen during execution, allowing Wonolog to listen to these actions and create log records.
 
 Let's clarify with an example.
-
 
 ## The Fictional "MyFiles" Plugin
 
@@ -40,15 +38,14 @@ do_action( 'myfiles_file_upload_failed', $file_info, $reason, $uploader_user_id 
 do_action( 'myfiles_file_downloaded', $file_name, $downloader_user_id );
 ```
 
-We will create a custom hook listener that can be used to log actions fired by the plugin, and we will se how to integrate the custom hook listener with Wonolog.
-
+We will create a custom hook listener that can be used to log actions fired by the plugin, and we will see how to integrate the custom hook listener with Wonolog.
 
 ## Custom Listener Example
 
 For the website where this plugin is installed, we can write a Wonolog hook listener that will look more or less like this (please note that the following code is PHP 5.6+):
 
 ```php
-namespace MyWebiste;
+namespace MyWebsite;
 
 use Inpsyde\Wonolog\Data;
 use Inpsyde\Wonolog\HookListener\ActionListenerInterface;
@@ -116,7 +113,6 @@ Based on the actual hook, a different private method is called, passing received
 - Each of  those private methods returns a Wonolog log object that will be handled by Wonolog according to its configuration (i.e., handlers, processors, channels etc.).
 - All log objects returned have a custom channel, 'MyFilesPlugin', so Wonolog will have to _know_ about it to be able to handle the log records.
 
-
 ## Integrating a Custom Listener
 
 With the listener class from above available, we still have to tell Wonolog to use it.
@@ -146,7 +142,6 @@ add_filter( 'wonolog.channels', function( array $channels ) {
 Wonolog\bootstrap()->use_hook_listener( new MyFilesListener() );
 ```
 
-
 ## What about Filters?
 
 When possible, it is preferable to use **actions** to trigger log records.
@@ -166,7 +161,6 @@ public function filter( array $args ) {
     return $args[0];
 }
 ```
-
 
 ## Custom Hook Priority
 
@@ -217,10 +211,9 @@ class MyFilesListener implements ActionListenerInterface {
 }
 ```
 
+---
 
--------
-
-Read previous: 
+Read previous:
 
 - [05 - Wonolog Customization](05-wonolog-customization.md) for a deep travel through all the possible configurations available for any aspect of the package.
 - [04 - Hook Listeners](04-hook-listeners.md) to read about hook listeners, the powerful feature of Wonolog that allows for logging any WordPress code.
@@ -228,6 +221,6 @@ Read previous:
 - [02 - Basic Wonolog Concepts](02-basic-wonolog-concepts.md) to learn the basics of logging with Wonolog.
 - [01 - Monolog Primer](01-monolog-primer.md) to learn a bit more about Monolog core concepts.
 
--------
+---
 
 [< Back to Index](https://github.com/inpsyde/Wonolog/)

@@ -7,7 +7,6 @@
 - [Log Processors](#log-processors)
 - [Monolog Record Processing Workflow](#monolog-record-processing-workflow)
 
-
 ## Monolog Concepts
 
 Wonolog is a sort of "bridge" between WordPress and Monolog.
@@ -16,10 +15,9 @@ To get the best out of Wonolog, the understanding of some Monolog basics are req
 
 It is strongly suggested to read the [Monolog documentation about its core concepts](https://github.com/Seldaek/monolog/blob/master/doc/01-usage.md#core-concepts) to get a better understanding of the library.
 
-
 ## Loggers and Handlers
 
-The main objects in Monolog are *loggers*. 
+The main objects in Monolog are *loggers*.
 
 Every logger has a *channel* and one or more *handlers*.
 
@@ -39,10 +37,9 @@ And refer to [Wonolog Customization](05-wonolog-customization.md) to explore the
 
 Every Monolog handler comes with:
 
-- one or more *log processors*;
-- a minimum *log level*;
-- a *bubble* property.
-
+- One or more *log processors*;
+- A minimum *log level*;
+- A *bubble* property.
 
 ## Log Processors
 
@@ -62,14 +59,13 @@ Please refer to the [Monolog documentation](https://github.com/Seldaek/monolog/b
 
 **Wonolog ships with a default log processor that is applied by default to all log records.**
 
-This processor adds to each record the context regarding the WordPress status at the time the record was created. 
+This processor adds to each record the context regarding the WordPress status at the time the record was created.
 
 It will, in fact, add information about the kind of request (i.e., admin, AJAX, REST or XML-RPC), whether or not this is a multisite installation (and, when multisite, other multisite-specific information such as the current site ID) and the ID of the current user, if logged in.
 
 Just like any other Wonolog feature, this default processor can be customized, or even disabled.
 
 Please refer to [Wonolog Customization](05-wonolog-customization.md).
-
 
 ## Log Levels
 
@@ -94,7 +90,6 @@ They are (in descending order of severity):
 - `Logger::INFO`
 - `Logger::DEBUG`
 
-
 ## Monolog Record Processing Workflow
 
 This is the workflow Monolog uses to process a log record:
@@ -106,8 +101,7 @@ This is the workflow Monolog uses to process a log record:
 If the handler determines it has to handle the record, all processors assigned to the handler will process the record before the handler actually handles it.
 1. After a log has been handled by a handler with the "bubble" property set to `true`, the record is passed on to the next handler. This is repeated until there are no more handlers assigned to the logger, or until a handler with the "bubble" property set to `false` was encountered.
 
-
--------
+---
 
 Read next:
 
@@ -117,6 +111,6 @@ Read next:
 - [05 - Wonolog Customization](05-wonolog-customization.md) for a deep travel through all the possible configurations available for any aspect of the package.
 - [06 - Custom Hook Listeners](06-custom-hook-listeners.md) to see a complete example of a custom hook listener, its integration in Wonolog, and all the things that you need to know in order to write reusable Wonolog extensions.
 
--------
+---
 
 [< Back to Index](https://github.com/inpsyde/Wonolog/)

@@ -9,7 +9,6 @@
 - [Log Record Data from Exceptions](#log-record-data-from-exceptions)
 - [Level-rich Log Hooks](#level-rich-log-hooks)
 
-
 ## Wonolog Main Logging Hook
 
 One of the goals of Wonolog is to allow for plugins and themes to be compatible with it, without requiring it as a dependency.
@@ -27,7 +26,6 @@ do_action( 'wonolog.log', 'Something happened.' );
 This is nice and easy, however, there are a few thing missing, the most important ones being the *channel* and the *level* of the log event.
 
 It still works because Wonolog will _kindly_ set them according to defaults, but in general it is better to take control over this.
-
 
 ## Log Record Data
 
@@ -59,7 +57,6 @@ By using arrays containing log data, and `do_action()` to trigger the actual log
 If code like the above is executed without Wonolog being available, nothing (bad) happens.
 
 Moreover, at any point it would be possible to hook the log event with some other logging package, being able to log data in a different way without changing any code.
-
 
 ## Log Record Data as Wonolog Objects
 
@@ -95,7 +92,6 @@ For example, the same result of the example above could be obtained with this:
 ```php
 do_action( 'wonolog.log', new Data\Critical( 'Something happened.' ) );
 ```
-
 
 ## Log Record Data from `WP_Error` Objects
 
@@ -137,7 +133,6 @@ Also, the channel can be set explicitly, providing a third argument:
 do_action( 'wonolog.log', $wp_error, Logger::WARNING, Channels::DEBUG );
 ```
 
-
 ## Log Record Data from Exceptions
 
 Another common use case is to log an exception thrown during execution of code.
@@ -171,7 +166,6 @@ However, it is possible to explicitly pass error level and error channel, like t
 do_action( 'wonolog.log', $exception, Logger::CRITICAL, Channels::DB );
 ```
 
-
 ## Level-rich Log Hooks
 
 So far, we only used a single Wonolog action: **`'wonolog.log'`**.
@@ -204,7 +198,7 @@ There is one hook for each of the PSR-3 log levels, so we have:
 - `'wonolog.log.notice'`
 - `'wonolog.log.info'`
 - `'wonolog.log.debug'`
-
+In case one of the above hook is used passing some data that *also* contains hook level information, the **level with higher severity _wins_**.
 In case one of the above hook is used passing some data that *also* contains hook level information, the **level with higher severity _wins_**.
 
 Let's have some examples:
@@ -227,8 +221,7 @@ do_action( 'wonolog.log.error', new Data\Debug( 'Please log me!' ) );
 do_action( 'wonolog.log.critical', new Data\Error( 'Please log me!' ) );
 ```
 
-
-----
+---
 
 Read next:
 
@@ -237,10 +230,10 @@ Read next:
 - [05 - Wonolog Customization](05-wonolog-customization.md) for a deep travel through all the possible configurations available for any aspect of the package.
 - [06 - Custom Hook Listeners](06-custom-hook-listeners.md) to see a complete example of a custom hook listener, its integration in Wonolog, and all the things that you need to know in order to write reusable Wonolog extensions.
 
-Read previous: 
+Read previous:
 
 - [01 - Monolog Primer](01-monolog-primer.md) to learn a bit more about Monolog core concepts.
 
--------
+---
 
 [< Back to Index](https://github.com/inpsyde/Wonolog/)
