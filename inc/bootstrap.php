@@ -67,9 +67,9 @@ function bootstrap(
 		$controller->use_default_processor();
 	}
 
-	if (!($flags & DISABLE_SETUP)) {
-		return $controller->setup($log_hook_priority);
+	if ( $flags & DISABLE_SETUP ) {
+		return $controller;
 	}
 
-	return $controller;
+	return $controller->setup($log_hook_priority);
 }
