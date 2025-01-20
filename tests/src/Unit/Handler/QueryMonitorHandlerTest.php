@@ -1,12 +1,4 @@
 <?php # -*- coding: utf-8 -*-
-/*
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
 namespace Inpsyde\Wonolog\Tests\Unit\Handler;
 
@@ -18,7 +10,6 @@ use function Brain\Monkey\Actions\expectDone;
 
 /**
  * @package wonolog\tests
- * @license http://opensource.org/licenses/MIT MIT
  */
 class QueryMonitorHandlerTest extends TestCase {
     /**

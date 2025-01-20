@@ -19,7 +19,7 @@
 - [Getting Started](#getting-started)
 - [Wonolog Defaults](#wonolog-defaults)
 - [Learn More](#learn-more)
-- [License and Copyright](#license-and-copyright)
+- [Copyright and License](#copyright-and-license)
 
 ------
 
@@ -118,6 +118,7 @@ Documentation of Wonolog features, defaults, configuration and ways to extends i
 - [06 - Custom Hook Listeners](docs/06-custom-hook-listeners.md) to see a complete example of a custom hook listener, its integration in Wonolog, and all the things that you need to know in order to write reusable Wonolog extensions.
 
 
-## License and Copyright
+## Copyright and License
 
-This repository is a free software, and is released under the terms of the MIT license. See [LICENSE](./LICENSE) for complete license.
+Good news, this library is free for everyone! Since it's released under the MIT License you can use it free of charge on your personal or commercial website.
+
