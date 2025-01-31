@@ -45,15 +45,12 @@ class Configurator
         HookListener\WpDieHandlerListener::class,
     ];
 
-    /**
-     * @var Factory
-     */
-    protected $factory;
+    protected Factory $factory;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $config = [
+    protected array $config = [
         self::CONF_BASE_HOOK_PRIORITY => 100,
         self::CONF_ERROR_TYPES => null,
         self::CONF_LOG_EXCEPTIONS => true,

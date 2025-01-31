@@ -20,10 +20,7 @@ class LogActionUpdater
     public const ACTION_LOGGER_ERROR = 'wonolog.logger-error';
     public const FILTER_CONTEXT = 'wonolog.log-data-context';
 
-    /**
-     * @var Channels
-     */
-    private $channels;
+    private Channels $channels;
 
     /**
      * @param Channels $channels

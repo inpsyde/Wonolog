@@ -23,10 +23,7 @@ use Inpsyde\Wonolog\LogLevel;
  */
 final class DbErrorListener implements ActionListener
 {
-    /**
-     * @var int
-     */
-    private $logLevel;
+    private int $logLevel;
 
     /**
      * @param int $logLevel

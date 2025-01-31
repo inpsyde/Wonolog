@@ -23,17 +23,11 @@ class HookListenersRegistry
     /**
      * @var array<string, array{FilterListener|ActionListener, int|null}>
      */
-    private $listeners = [];
+    private array $listeners = [];
 
-    /**
-     * @var bool
-     */
-    private $booted = false;
+    private bool $booted = false;
 
-    /**
-     * @var LogActionUpdater
-     */
-    private $updater;
+    private LogActionUpdater $updater;
 
     /**
      * @param LogActionUpdater $updater

@@ -42,37 +42,25 @@ class Channels
     /**
      * @var array<string, int>
      */
-    private $channels;
+    private array $channels;
 
-    /**
-     * @var Registry\HandlersRegistry
-     */
-    private $handlersRegistry;
+    private Registry\HandlersRegistry $handlersRegistry;
 
-    /**
-     * @var Registry\ProcessorsRegistry
-     */
-    private $processorsRegistry;
+    private Registry\ProcessorsRegistry $processorsRegistry;
 
-    /**
-     * @var \DateTimeZone|null
-     */
-    private $timezone;
+    private ?\DateTimeZone $timezone = null;
 
     /**
      * @var array<string, LoggerInterface>|null
      */
-    private $loggers = [];
+    private ?array $loggers = [];
 
     /**
      * @var array<string, array{string, array<string, int|null>}>
      */
-    private $ignoreList = [];
+    private array $ignoreList = [];
 
-    /**
-     * @var string
-     */
-    private $defaultChannel;
+    private string $defaultChannel;
 
     /**
      * @param Registry\HandlersRegistry $handlers

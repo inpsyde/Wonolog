@@ -24,10 +24,7 @@ use Inpsyde\Wonolog\LogLevel;
  */
 class MailerListener implements ActionListener
 {
-    /**
-     * @var int
-     */
-    private $errorLogLevel;
+    private int $errorLogLevel;
 
     /**
      * @param int $errorLogLevel

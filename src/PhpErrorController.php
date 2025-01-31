@@ -54,15 +54,9 @@ class PhpErrorController
         | E_RECOVERABLE_ERROR
         | E_PARSE;
 
-    /**
-     * @var bool
-     */
-    private $logSilencedErrors;
+    private bool $logSilencedErrors;
 
-    /**
-     * @var LogActionUpdater
-     */
-    private $updater;
+    private LogActionUpdater $updater;
 
     /**
      * @param int $errorTypes

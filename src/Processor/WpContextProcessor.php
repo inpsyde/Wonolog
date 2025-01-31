@@ -15,10 +15,7 @@ namespace Inpsyde\Wonolog\Processor;
 
 class WpContextProcessor
 {
-    /**
-     * @var bool|null
-     */
-    private $isRestRequest;
+    private ?bool $isRestRequest = null;
 
     /**
      * @return WpContextProcessor

@@ -28,17 +28,14 @@ class HandlersRegistry implements \Countable
     /**
      * @var array<string, array{HandlerInterface, array<string, bool>}>
      */
-    private $handlers = [];
+    private array $handlers = [];
 
-    /**
-     * @var ProcessorsRegistry
-     */
-    private $processorsRegistry;
+    private ProcessorsRegistry $processorsRegistry;
 
     /**
      * @var list<string>
      */
-    private $initialized = [];
+    private array $initialized = [];
 
     /**
      * @param ProcessorsRegistry $processorsRegistry

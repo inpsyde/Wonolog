@@ -18,7 +18,7 @@ class ProcessorsRegistry implements \Countable
     /**
      * @var array<string, array{callable(array):array, array<string, bool>|null}>
      */
-    private $processors = [];
+    private array $processors = [];
 
     public static function new(): ProcessorsRegistry
     {

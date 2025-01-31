@@ -30,40 +30,19 @@ class FileHandler implements
     FormattableHandlerInterface,
     ResettableInterface
 {
-    /**
-     * @var string|null
-     */
-    private $folder;
+    private ?string $folder = null;
 
-    /**
-     * @var string|null
-     */
-    private $filename;
+    private ?string $filename = null;
 
-    /**
-     * @var int|null
-     */
-    private $minLevel;
+    private ?int $minLevel = null;
 
-    /**
-     * @var bool
-     */
-    private $bubble = true;
+    private bool $bubble = true;
 
-    /**
-     * @var bool
-     */
-    private $buffering = true;
+    private bool $buffering = true;
 
-    /**
-     * @var HandlerInterface|null
-     */
-    private $handler;
+    private ?HandlerInterface $handler = null;
 
-    /**
-     * @var string|null
-     */
-    private $logFilePath;
+    private ?string $logFilePath = null;
 
     /**
      * @return FileHandler
@@ -339,6 +318,7 @@ class FileHandler implements
             throw new \Exception('Could not create valid log file path.');
         }
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
         if (!is_writable($logFileFir)) {
             throw new \Exception('Could not obtain valid log file path: not writable.');
         }

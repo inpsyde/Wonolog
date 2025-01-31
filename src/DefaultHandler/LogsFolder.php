@@ -15,10 +15,7 @@ namespace Inpsyde\Wonolog\DefaultHandler;
 
 class LogsFolder
 {
-    /**
-     * @var string|null
-     */
-    private static $folder;
+    private static ?string $folder = null;
 
     /**
      * @param string|null $customFolder
@@ -147,6 +144,8 @@ class LogsFolder
 	Deny from all
 </IfModule>
 HTACCESS;
+
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
         file_put_contents("{$targetDir}.htaccess", $htaccess);
 
         return $targetDir;

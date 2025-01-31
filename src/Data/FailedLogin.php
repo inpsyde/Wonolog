@@ -20,27 +20,21 @@ final class FailedLogin implements LogData
 {
     public const TRANSIENT_NAME = 'wonolog.failed-login-count';
 
-    /**
-     * @var string
-     */
-    private $username;
+    private string $username;
 
     /**
      * Contains the actual IP and the method used to retrieve it
      *
      * @var array{string, string}|null
      */
-    private $ipData;
+    private ?array $ipData = null;
 
     /**
      * @var array<string, array{count:int, last_logged:int}>|null
      */
-    private $attemptsData;
+    private ?array $attemptsData = null;
 
-    /**
-     * @var int|null
-     */
-    private $attempts;
+    private ?int $attempts = null;
 
     /**
      * @param string $username Username used for the failed login attempt

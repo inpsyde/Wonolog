@@ -20,20 +20,14 @@ use Inpsyde\Wonolog\LogLevel;
 
 final class CronDebugListener implements ActionListener
 {
-    /**
-     * @var bool
-     */
-    private static $ran = false;
+    private static bool $ran = false;
 
-    /**
-     * @var int
-     */
-    private $logLevel;
+    private int $logLevel;
 
     /**
      * @var array<string, array{float, string|null}>
      */
-    private $done = [];
+    private array $done = [];
 
     /**
      * @param int $logLevel

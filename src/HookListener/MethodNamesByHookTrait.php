@@ -9,10 +9,7 @@ use Inpsyde\Wonolog\LogActionUpdater;
 
 trait MethodNamesByHookTrait
 {
-    /**
-     * @var string
-     */
-    private $prefix = '';
+    private string $prefix = '';
 
     /**
      * @param string $prefix

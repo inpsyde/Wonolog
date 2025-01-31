@@ -11,25 +11,13 @@ use Psr\Log\AbstractLogger;
 
 class PsrBridge extends AbstractLogger
 {
-    /**
-     * @var LogActionUpdater
-     */
-    private $updater;
+    private LogActionUpdater $updater;
 
-    /**
-     * @var Channels
-     */
-    private $channels;
+    private Channels $channels;
 
-    /**
-     * @var string|null
-     */
-    private $defaultChannel;
+    private ?string $defaultChannel = null;
 
-    /**
-     * @var PsrLogMessageProcessor
-     */
-    private $processor;
+    private PsrLogMessageProcessor $processor;
 
     /**
      * @param LogActionUpdater $updater

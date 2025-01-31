@@ -40,15 +40,9 @@ final class Log implements LogData
         ],
     ];
 
-    /**
-     * @var WpErrorChannel|null
-     */
-    private static $wpErrorChannel;
+    private static ?WpErrorChannel $wpErrorChannel = null;
 
-    /**
-     * @var int
-     */
-    private $level;
+    private int $level;
 
     /**
      * @param array $logData

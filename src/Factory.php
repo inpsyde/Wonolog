@@ -15,45 +15,24 @@ namespace Inpsyde\Wonolog;
 
 class Factory
 {
-    /**
-     * @var Channels|null
-     */
-    private $channels;
+    private ?Channels $channels = null;
 
-    /**
-     * @var Registry\HandlersRegistry|null
-     */
-    private $handlersRegistry;
+    private ?Registry\HandlersRegistry $handlersRegistry = null;
 
-    /**
-     * @var Registry\ProcessorsRegistry|null
-     */
-    private $processorsRegistry;
+    private ?Registry\ProcessorsRegistry $processorsRegistry = null;
 
-    /**
-     * @var Registry\HookListenersRegistry|null
-     */
-    private $listenersRegistry;
+    private ?Registry\HookListenersRegistry $listenersRegistry = null;
 
-    /**
-     * @var HookLogFactory|null
-     */
-    private $hookLogFactory;
+    private ?HookLogFactory $hookLogFactory = null;
 
-    /**
-     * @var LogActionSubscriber|null
-     */
-    private $logActionSubscriber;
+    private ?LogActionSubscriber $logActionSubscriber = null;
 
-    /**
-     * @var LogActionUpdater|null
-     */
-    private $logActionUpdater;
+    private ?LogActionUpdater $logActionUpdater = null;
 
     /**
      * @var PsrBridge[]
      */
-    private $psr3Loggers = [];
+    private array $psr3Loggers = [];
 
     /**
      * @return Factory

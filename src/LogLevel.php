@@ -30,15 +30,12 @@ abstract class LogLevel
     public const ALERT = Logger::ALERT;
     public const EMERGENCY = Logger::EMERGENCY;
 
-    /**
-     * @var int|null
-     */
-    private static $minLevel;
+    private static ?int $minLevel = null;
 
     /**
      * @var array<int|string, int|null>
      */
-    private static $mappedLevels = [];
+    private static array $mappedLevels = [];
 
     /**
      * @return array<string, int>

@@ -68,7 +68,7 @@ abstract class Serializer
     /**
      * @var list<string>|null
      */
-    private static $maskedKeys = null;
+    private static ?array $maskedKeys = null;
 
     /**
      * @param mixed $message

@@ -15,15 +15,9 @@ namespace Inpsyde\Wonolog;
 
 class LogActionSubscriber
 {
-    /**
-     * @var LogActionUpdater
-     */
-    private $updater;
+    private LogActionUpdater $updater;
 
-    /**
-     * @var HookLogFactory
-     */
-    private $factory;
+    private HookLogFactory $factory;
 
     /**
      * @param LogActionUpdater $updater
