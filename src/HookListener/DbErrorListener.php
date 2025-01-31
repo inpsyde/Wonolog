@@ -58,7 +58,7 @@ final class DbErrorListener implements ActionListener
      */
     public function update(string $hook, array $args, LogActionUpdater $updater): void
     {
-        // phpcs:disable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
+        // phpcs:disable Syde.NamingConventions.VariableName
         global $EZSQL_ERROR;
         if (empty($EZSQL_ERROR)) {
             return;
@@ -66,7 +66,7 @@ final class DbErrorListener implements ActionListener
 
         /** @var non-empty-array<array> $errors */
         $errors = $EZSQL_ERROR;
-        // phpcs:enable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
+        // phpcs:enable Syde.NamingConventions.VariableName
 
         $last = end($errors);
         $message = isset($last['error_str']) ? (string) $last['error_str'] : 'DB error.';

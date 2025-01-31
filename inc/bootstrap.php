@@ -9,11 +9,14 @@
  * file that was distributed with this source code.
  */
 
+// phpcs:ignoreFile PSR1.Files.SideEffects
+
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Psr\Log\{LoggerInterface, NullLogger};
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 use function WeCodeMore\earlyAddAction;
 

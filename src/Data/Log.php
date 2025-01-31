@@ -83,7 +83,7 @@ final class Log implements LogData
      * @param string|null $defaultChannel Channel name
      * @return Log
      *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     * phpcs:disable Syde.Functions.ArgumentTypeDeclaration
      */
     public static function fromWpError(
         \WP_Error $error,
@@ -116,7 +116,7 @@ final class Log implements LogData
      * @param array $context
      * @return Log
      *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     * phpcs:disable Syde.Functions.ArgumentTypeDeclaration
      */
     public static function fromThrowable(
         \Throwable $throwable,
@@ -207,7 +207,7 @@ final class Log implements LogData
      *
      * @return Log
      *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     * phpcs:disable Syde.Functions.ArgumentTypeDeclaration
      */
     public function with(string $key, $value): Log
     {

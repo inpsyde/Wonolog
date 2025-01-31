@@ -126,11 +126,11 @@ abstract class LogLevel
      * @param mixed $level
      * @return int|null
      *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+     * phpcs:disable Syde.Functions.ArgumentTypeDeclaration
      */
     final public static function normalizeLevel($level): ?int
     {
-        // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+        // phpcs:enable Syde.Functions.ArgumentTypeDeclaration
 
         $numeric = is_numeric($level);
         $string = !$numeric && is_string($level);

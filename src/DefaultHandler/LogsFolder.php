@@ -88,9 +88,13 @@ class LogsFolder
      *
      * @param string $folder
      * @return string|null
+     *
+     * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */
     private static function maybeCreateHtaccess(string $folder): ?string
     {
+        // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
+
         $targetDir = rtrim((string) wp_normalize_path($folder), '/');
         if (!$targetDir) {
             return null;

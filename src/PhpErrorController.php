@@ -183,9 +183,8 @@ class PhpErrorController
      */
     private function isSilencedError(): bool
     {
-        // phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_error_reporting, WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
         $errorReporting = error_reporting();
-        // phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
 
         /**
          * Prior to PHP 8, calling error_reporting() inside a custom error handler would return

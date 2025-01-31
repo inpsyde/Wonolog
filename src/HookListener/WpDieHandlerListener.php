@@ -66,7 +66,7 @@ final class WpDieHandlerListener implements FilterListener
         }
 
         $level = $this->logLevel;
-        $updater = static function (string $msg, array $context) use ($updater, $level) {
+        $updater = static function (string $msg, array $context) use ($updater, $level): void {
             // Log the wp_die() error message.
             $updater->update(new Log($msg, $level, Channels::DB, $context));
         };
@@ -96,6 +96,7 @@ final class WpDieHandlerListener implements FilterListener
      */
     private function stackTraceHasDbError(): bool
     {
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
         $stacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         foreach ($stacktrace as $item) {
             $function = $item['function'] ?? null;

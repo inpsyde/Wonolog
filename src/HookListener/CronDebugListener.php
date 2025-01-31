@@ -93,7 +93,7 @@ final class CronDebugListener implements ActionListener
         }
 
         register_shutdown_function(
-            function () use ($updater) {
+            function () use ($updater): void {
                 $this->logUnfinishedHooks($updater);
             }
         );
@@ -120,12 +120,14 @@ final class CronDebugListener implements ActionListener
      */
     private function registerEventListenerForHook(string $hook, LogActionUpdater $updater): void
     {
-        $profileCallback = function () use ($hook, $updater) {
+        $profileCallback = function () use ($hook, $updater): void {
             $this->cronActionProfile($hook, $updater);
         };
 
+        // phpcs:disable Syde.WordPress.HookPriority
         add_action($hook, $profileCallback, PHP_INT_MIN);
         add_action($hook, $profileCallback, PHP_INT_MAX);
+        // phpcs:enable Syde.WordPress.HookPriority
     }
 
     /**

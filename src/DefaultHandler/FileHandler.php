@@ -269,11 +269,11 @@ class FileHandler implements
      * @param FormatterInterface $formatter
      * @return static
      *
-     * phpcs:disable Inpsyde.CodeQuality.NoAccessors
+     * phpcs:disable Syde.Classes.DisallowGetterSetter
      */
     public function setFormatter(FormatterInterface $formatter): HandlerInterface
     {
-        // phpcs:enable Inpsyde.CodeQuality.NoAccessors
+        // phpcs:enable Syde.Classes.DisallowGetterSetter
         $this->ensureHandler();
         if ($this->handler instanceof FormattableHandlerInterface) {
             $this->handler->setFormatter($formatter);
@@ -285,10 +285,11 @@ class FileHandler implements
     /**
      * @return FormatterInterface
      *
-     * phpcs:disable Inpsyde.CodeQuality.NoAccessors
+     * phpcs:disable Syde.Classes.DisallowGetterSetter
      */
     public function getFormatter(): FormatterInterface
     {
+        // phpcs:enable Syde.Classes.DisallowGetterSetter
         $this->ensureHandler();
         if ($this->handler instanceof FormattableHandlerInterface) {
             return $this->handler->getFormatter();
@@ -304,7 +305,7 @@ class FileHandler implements
     /**
      * @return void
      */
-    public function reset()
+    public function reset(): void
     {
         $this->ensureHandler();
         if ($this->handler instanceof ResettableInterface) {

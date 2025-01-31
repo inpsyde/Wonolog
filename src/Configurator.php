@@ -894,11 +894,11 @@ class Configurator
      * @param list<string> $allValues
      * @return list<string>|null
      *
-     * phpcs:disable Generic.Metrics.CyclomaticComplexity
+     * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */
     private function parseEnabledDisabledConfig(string $key, array $allValues): ?array
     {
-        // phpcs:enable Generic.Metrics.CyclomaticComplexity
+        // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
 
         /** @var array $config */
         $config = $this->config[$key];
@@ -1015,6 +1015,7 @@ class Configurator
             return;
         }
 
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
         set_error_handler([$controller, 'onError'], $errorTypes);
         if (PhpErrorController::typesMaskContainsFatals($errorTypes)) {
             register_shutdown_function([$controller, 'onShutdown']);
@@ -1076,7 +1077,7 @@ class Configurator
 
         $subscriber = $this->factory->logActionSubscriber();
 
-        // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+        // phpcs:disable Syde.Functions.ArgumentTypeDeclaration
         $listen = static function (...$args) use ($subscriber, $defaultChannel): void {
             $subscriber->listen($args, null, $defaultChannel);
         };
@@ -1084,13 +1085,13 @@ class Configurator
         $listenWithLevel = [];
 
         foreach (LogLevel::allLevels() as $level => $severity) {
-            $callable = static function (...$args) use ($subscriber, $level, $defaultChannel) {
+            $callable = static function (...$args) use ($subscriber, $level, $defaultChannel): void {
                 $subscriber->listen($args, $level, $defaultChannel);
             };
 
             $listenWithLevel[$level] = [$callable, $severity];
         }
-        // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+        // phpcs:enable Syde.Functions.ArgumentTypeDeclaration
 
         $data[$defaultChannel] = [$listen, $listenWithLevel];
 

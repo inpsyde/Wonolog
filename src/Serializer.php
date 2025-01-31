@@ -74,7 +74,7 @@ abstract class Serializer
      * @param mixed $message
      * @return string
      */
-    final public static function serializeMessage($message): string
+    final public static function serializeMessage(mixed $message): string
     {
         return static::forceString($message);
     }
@@ -92,11 +92,11 @@ abstract class Serializer
      * @param mixed $input
      * @return string
      *
-     * phpcs:disable Generic.Metrics.CyclomaticComplexity
+     * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */
-    private static function forceString($input): string
+    private static function forceString(mixed $input): string
     {
-        // phpcs:enable Generic.Metrics.CyclomaticComplexity
+        // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
         if (is_string($input)) {
             return $input;
         }
@@ -177,9 +177,9 @@ abstract class Serializer
     /**
      * @param mixed $input
      * @param int $level
-     * @return mixed
+     * @return array|string
      */
-    private static function maybeMaskInputInner($input, int $level = 0)
+    private static function maybeMaskInputInner(mixed $input, int $level = 0): array|string
     {
         /** @var array|object $input */
 
@@ -215,11 +215,11 @@ abstract class Serializer
      *
      * @psalm-return ($ensureString is true ? string : string|null)
      *
-     * phpcs:disable Generic.Metrics.CyclomaticComplexity
+     * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */
     private static function serializeObject(object $value, bool $ensureString): ?string
     {
-        // phpcs:enable Generic.Metrics.CyclomaticComplexity
+        // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
 
         switch (true) {
             case ($value instanceof \WP_Error):
