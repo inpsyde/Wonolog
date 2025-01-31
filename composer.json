@@ -26,7 +26,8 @@
         "source": "https://github.com/inpsyde/Wonolog",
         "docs": "https://inpsyde.github.io/Wonolog/docs"
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "repositories": [
         {
             "type": "composer",
@@ -46,14 +47,14 @@
         "brain/monkey": "^2.6.1",
         "mockery/mockery": "^1.3.6",
         "mikey179/vfsstream": "~v1.6.11",
-        "inpsyde/php-coding-standards": "^1",
         "inpsyde/wp-stubs-versions": "dev-latest",
         "roots/wordpress-no-content": ">=6.1.1",
         "symfony/process": "^v4.4.44",
         "globalis/wp-cli-bin": "^2.7.1",
         "vimeo/psalm": "^5.15",
         "phpunit/phpunit": "^9.6",
-        "fig/log-test": "^1.1"
+        "fig/log-test": "^1.1",
+        "syde/phpcs": "^1.0"
     },
     "provide": {
         "psr/log-implementation": "1.0.0"
