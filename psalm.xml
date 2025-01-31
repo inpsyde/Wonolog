@@ -21,6 +21,7 @@
     </projectFiles>
 
     <stubs>
+        <file name="tests/stubs/constants.php"/>
         <file name="vendor/inpsyde/wp-stubs-versions/latest.php"/>
     </stubs>
 
@@ -32,5 +33,6 @@
         <UndefinedConstant errorLevel="suppress" />
         <RedundantCastGivenDocblockType errorLevel="suppress" />
         <RedundantConditionGivenDocblockType errorLevel="suppress" />
+        <RiskyTruthyFalsyComparison errorLevel="suppress" />
     </issueHandlers>
 </psalm>

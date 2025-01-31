@@ -182,7 +182,8 @@ HTACCESS;
     {
         $maybeLogFiles = [];
 
-        if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && is_string(WP_DEBUG_LOG)) {
+        if (defined('WP_DEBUG_LOG') && is_string(WP_DEBUG_LOG)) {
+            /** @var ?bool $isBool */
             $isBool = filter_var(WP_DEBUG_LOG, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
             ($isBool === null) and $maybeLogFiles[] = WP_DEBUG_LOG;
         }

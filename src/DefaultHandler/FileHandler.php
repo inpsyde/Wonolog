@@ -309,17 +309,17 @@ class FileHandler implements
 
         $logFileName = $this->filename ?? (date('Y/m/d') . '.log');
         $logFilePath = $folder . ltrim($logFileName, '/\\');
-        $logFileFir = dirname($logFilePath);
-        if (!$logFileFir || $logFileFir === '.') {
+        $logFileDir = dirname($logFilePath);
+        if ($logFileDir === '.') {
             throw new \Exception('Could not determine valid log file path.');
         }
 
-        if (!wp_mkdir_p($logFileFir)) {
+        if (!wp_mkdir_p($logFileDir)) {
             throw new \Exception('Could not create valid log file path.');
         }
 
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
-        if (!is_writable($logFileFir)) {
+        if (!is_writable($logFileDir)) {
             throw new \Exception('Could not obtain valid log file path: not writable.');
         }
 
