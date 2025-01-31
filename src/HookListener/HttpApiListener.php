@@ -137,7 +137,7 @@ final class HttpApiListener implements ActionListener
             return false;
         }
 
-        return !in_array((int)$code, self::HTTP_SUCCESS_CODES, true);
+        return !in_array((int) $code, self::HTTP_SUCCESS_CODES, true);
     }
 
     /**
@@ -146,7 +146,7 @@ final class HttpApiListener implements ActionListener
      */
     private function isCron(string $url): bool
     {
-        return basename((string)parse_url($url, PHP_URL_PATH)) === 'wp-cron.php';
+        return basename((string) parse_url($url, PHP_URL_PATH)) === 'wp-cron.php';
     }
 
     /**

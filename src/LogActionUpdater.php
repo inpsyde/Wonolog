@@ -46,6 +46,7 @@ class LogActionUpdater
      * @param LogData $log
      * @return void
      */
+
     /**
      * @param LogData $log
      * @return void

@@ -234,7 +234,7 @@ class Channels
      */
     public function hasChannel(string $channel): bool
     {
-        return (bool)($this->channels[$channel] ?? false);
+        return (bool) ($this->channels[$channel] ?? false);
     }
 
     /**

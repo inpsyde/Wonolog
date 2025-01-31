@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\DefaultHandler;
 
+use Inpsyde\Wonolog\LogLevel;
+use Inpsyde\Wonolog\Processor;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\BufferHandler;
 use Monolog\Handler\FormattableHandlerInterface;
@@ -21,8 +23,6 @@ use Monolog\Handler\NullHandler;
 use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\ResettableInterface;
-use Inpsyde\Wonolog\LogLevel;
-use Inpsyde\Wonolog\Processor;
 
 class FileHandler implements
     HandlerInterface,
@@ -342,7 +342,7 @@ class FileHandler implements
             throw new \Exception('Could not obtain valid log file path: not writable.');
         }
 
-        return (string)wp_normalize_path($logFilePath);
+        return (string) wp_normalize_path($logFilePath);
     }
 
     /**

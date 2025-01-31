@@ -160,7 +160,7 @@ class HookListenersRegistry
      */
     public function hasListeners(): bool
     {
-        return (bool)$this->listeners;
+        return (bool) $this->listeners;
     }
 
     /**

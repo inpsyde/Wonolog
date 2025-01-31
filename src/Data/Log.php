@@ -67,13 +67,13 @@ final class Log implements LogData
         }
 
         $logData = array_filter(filter_var_array($logData, self::FILTERS) ?: []);
-        $message = (string)($logData[self::MESSAGE] ?? 'Unknown error');
+        $message = (string) ($logData[self::MESSAGE] ?? 'Unknown error');
 
         return new self(
             htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false),
-            (int)($logData[self::LEVEL] ?? $defaultLevel ?? LogLevel::DEBUG),
-            (string)($logData[self::CHANNEL] ?? $defaultChannel ?? Channels::DEBUG),
-            (array)($logData[self::CONTEXT] ?? [])
+            (int) ($logData[self::LEVEL] ?? $defaultLevel ?? LogLevel::DEBUG),
+            (string) ($logData[self::CHANNEL] ?? $defaultChannel ?? Channels::DEBUG),
+            (array) ($logData[self::CONTEXT] ?? [])
         );
     }
 
@@ -92,8 +92,8 @@ final class Log implements LogData
     ): Log {
 
         $level = LogLevel::normalizeLevel($defaultLevel) ?? LogLevel::NOTICE;
-        $message = (string)$error->get_error_message();
-        $context = (array)($error->get_error_data() ?: []);
+        $message = (string) $error->get_error_message();
+        $context = (array) ($error->get_error_data() ?: []);
 
         self::$wpErrorChannel or self::$wpErrorChannel = WpErrorChannel::new();
 
@@ -106,7 +106,7 @@ final class Log implements LogData
             $level = LogLevel::NOTICE;
         }
 
-        return new self((string)$message, $level, $channel, $context);
+        return new self((string) $message, $level, $channel, $context);
     }
 
     /**

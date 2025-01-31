@@ -201,7 +201,7 @@ class PhpErrorController
 
             // If the fixed value returned by `error_reporting()` for silenced error is set in the
             // config we can't really tell the error was suppressed.
-            return (int)ini_get('error_reporting') !== $errorReporting;
+            return (int) ini_get('error_reporting') !== $errorReporting;
         }
 
         return $errorReporting === 0;

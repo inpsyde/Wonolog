@@ -44,7 +44,7 @@ class WpErrorChannel
                 continue;
             }
 
-            $channel = $this->filterChannel((string)$data['channel'], $error);
+            $channel = $this->filterChannel((string) $data['channel'], $error);
             if ($channel) {
                 return $channel;
             }
@@ -52,7 +52,7 @@ class WpErrorChannel
 
         $channel = null;
         while (!$channel && $codes) {
-            $code = (string)array_shift($codes);
+            $code = (string) array_shift($codes);
             $channel = $this->maybeDbChannel($code);
             $channel or $channel = $this->maybeHttpChannel($code);
             $channel or $channel = $this->maybeSecurityChannel($code);

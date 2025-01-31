@@ -33,7 +33,7 @@ class ProcessorsRegistry implements \Countable
         static $name;
         $name or $name = '~*~' . bin2hex(random_bytes(8));
 
-        return (string)$name;
+        return (string) $name;
     }
 
     private function __construct()
@@ -205,7 +205,7 @@ class ProcessorsRegistry implements \Countable
             return true;
         }
 
-        foreach ((array)$channels as $enabled) {
+        foreach ((array) $channels as $enabled) {
             if ($enabled) {
                 return true;
             }

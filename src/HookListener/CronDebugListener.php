@@ -89,7 +89,7 @@ final class CronDebugListener implements ActionListener
         }
 
         foreach ($cronArray as $cronData) {
-            $this->registerEventListenerForHooks((array)$cronData, $updater);
+            $this->registerEventListenerForHooks((array) $cronData, $updater);
         }
 
         register_shutdown_function(
@@ -141,7 +141,7 @@ final class CronDebugListener implements ActionListener
         }
 
         if (!isset($this->done[$hook])) {
-            $this->done[$hook] = [(float)microtime(true), null];
+            $this->done[$hook] = [(float) microtime(true), null];
 
             return;
         }
@@ -151,7 +151,7 @@ final class CronDebugListener implements ActionListener
             return;
         }
 
-        $duration = number_format((float)microtime(true) - $start, 2);
+        $duration = number_format((float) microtime(true) - $start, 2);
         $this->done[$hook] = [$start, $duration];
 
         $message = sprintf('Cron action "%s" performed. Duration: %s seconds.', $hook, $duration);

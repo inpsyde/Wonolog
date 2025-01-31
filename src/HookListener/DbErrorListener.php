@@ -69,7 +69,7 @@ final class DbErrorListener implements ActionListener
         // phpcs:enable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
 
         $last = end($errors);
-        $message = isset($last['error_str']) ? (string)$last['error_str'] : 'DB error.';
+        $message = isset($last['error_str']) ? (string) $last['error_str'] : 'DB error.';
         $context = ['last_wpdb_query' => $last['query'] ?? '', 'last_wpdb_errors' => $errors];
 
         $updater->update(new Log($message, $this->logLevel, Channels::DB, $context));

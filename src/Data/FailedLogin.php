@@ -124,9 +124,9 @@ final class FailedLogin implements LogData
          * We assume the value retrieved when calling get_site_transient is an integer on both
          * @psalm-suppress RiskyCast
          */
-        $count = (int)$attempts[$userIp]['count'];
+        $count = (int) $attempts[$userIp]['count'];
         /** @psalm-suppress RiskyCast */
-        $lastLogged = (int)$attempts[$userIp]['last_logged'];
+        $lastLogged = (int) $attempts[$userIp]['last_logged'];
 
         /**
          * During a brute force attack, logging all the failed attempts
@@ -176,7 +176,7 @@ final class FailedLogin implements LogData
 
         /** @var array<string, string> $ips */
         $ips = array_intersect_key($_SERVER, $ipServerKeys);
-        $this->ipData = $ips ? [(string)reset($ips), (string)key($ips)] : ['0.0.0.0', 'Hidden IP'];
+        $this->ipData = $ips ? [(string) reset($ips), (string) key($ips)] : ['0.0.0.0', 'Hidden IP'];
     }
 
     /**

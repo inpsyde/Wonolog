@@ -102,8 +102,8 @@ class PsrBridge extends AbstractLogger
 
         /** @psalm-suppress InvalidArgument */
         $record = ($this->processor)(compact('message', 'context'));
-        array_key_exists('message', $record) and $message = (string)$record['message'];
-        array_key_exists('context', $record) and $context = (array)$record['context'];
+        array_key_exists('message', $record) and $message = (string) $record['message'];
+        array_key_exists('context', $record) and $context = (array) $record['context'];
 
         unset($context['exception']);
         $throwable and $context['exception'] = $throwable;

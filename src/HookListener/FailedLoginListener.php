@@ -42,6 +42,6 @@ final class FailedLoginListener implements ActionListener
     {
         $username = $args ? reset($args) : 'Unknown user';
 
-        $updater->update(new FailedLogin((string)$username));
+        $updater->update(new FailedLogin((string) $username));
     }
 }

@@ -54,7 +54,7 @@ class LogsFolder
 
             if ($folder === null) {
                 $uploadDir = static::uploadsBaseDir();
-                $uploadDir and $folder = (string)wp_normalize_path("{$uploadDir}/wonolog");
+                $uploadDir and $folder = (string) wp_normalize_path("{$uploadDir}/wonolog");
             }
 
             if ($folder === null && defined('WP_CONTENT_DIR')) {
@@ -91,7 +91,7 @@ class LogsFolder
      */
     private static function maybeCreateHtaccess(string $folder): ?string
     {
-        $targetDir = rtrim((string)wp_normalize_path($folder), '/');
+        $targetDir = rtrim((string) wp_normalize_path($folder), '/');
         if (!$targetDir) {
             return null;
         }
@@ -159,10 +159,10 @@ HTACCESS;
             return $uploadsBaseDir[0];
         }
 
-        $uploads = (array)wp_upload_dir(null, false);
+        $uploads = (array) wp_upload_dir(null, false);
         if (empty($uploads['error']) && !empty($uploads['basedir'])) {
-            $baseDir = (string)$uploads['basedir'];
-            $uploadsBaseDir = [rtrim((string)wp_normalize_path($baseDir), '/') ?: null];
+            $baseDir = (string) $uploads['basedir'];
+            $uploadsBaseDir = [rtrim((string) wp_normalize_path($baseDir), '/') ?: null];
 
             return $uploadsBaseDir[0];
         }
@@ -192,9 +192,9 @@ HTACCESS;
         foreach ($maybeLogFiles as $maybeLogFile) {
             $dirByConstant = dirname($maybeLogFile);
             if ($dirByConstant && $dirByConstant !== '.') {
-                $folder = wp_normalize_path((string)trailingslashit($dirByConstant) . 'wonolog');
+                $folder = wp_normalize_path((string) trailingslashit($dirByConstant) . 'wonolog');
 
-                return (string)$folder;
+                return (string) $folder;
             }
         }
 

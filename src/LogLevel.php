@@ -153,7 +153,7 @@ abstract class LogLevel
             return static::$mappedLevels[$level];
         }
 
-        $level = (int)$level;
+        $level = (int) $level;
         if (in_array($level, $allLevels, true)) {
             static::$mappedLevels[$level] = $level;
 

@@ -13,10 +13,9 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Inpsyde\Wonolog\HookListener;
+use Inpsyde\Wonolog\Processor\WpContextProcessor;
 use Monolog\Handler\HandlerInterface;
 use Psr\Log\LoggerInterface;
-use Inpsyde\Wonolog\Processor\WpContextProcessor;
 
 class Configurator
 {
@@ -290,8 +289,7 @@ class Configurator
             self::CONF_FALLBACK_HANDLER,
             true,
             $channel,
-            ...
-            $channels
+            ...$channels
         );
     }
 
@@ -309,8 +307,7 @@ class Configurator
             self::CONF_FALLBACK_HANDLER,
             false,
             $channel,
-            ...
-            $channels
+            ...$channels
         );
     }
 
@@ -461,8 +458,7 @@ class Configurator
             self::CONF_WP_CONTEXT_PROCESSOR,
             true,
             $channel,
-            ...
-            $channels
+            ...$channels
         );
     }
 
@@ -480,8 +476,7 @@ class Configurator
             self::CONF_WP_CONTEXT_PROCESSOR,
             false,
             $channel,
-            ...
-            $channels
+            ...$channels
         );
     }
 
@@ -524,8 +519,7 @@ class Configurator
             self::CONF_DEFAULT_LISTENERS,
             true,
             $listener,
-            ...
-            $listeners
+            ...$listeners
         );
     }
 
@@ -543,8 +537,7 @@ class Configurator
             self::CONF_DEFAULT_LISTENERS,
             false,
             $listener,
-            ...
-            $listeners
+            ...$listeners
         );
     }
 
@@ -633,7 +626,7 @@ class Configurator
             return $this;
         }
 
-        $aliases = (array)($this->config[self::CONF_HOOK_ALIASES] ?? []);
+        $aliases = (array) ($this->config[self::CONF_HOOK_ALIASES] ?? []);
         $aliases[$normalized] = $defaultChannel;
         $this->config[self::CONF_HOOK_ALIASES] = $aliases;
         if ($defaultChannel) {
@@ -789,13 +782,13 @@ class Configurator
         $this->setupPhpErrorListener($errorTypes, $exceptions);
         $this->setupWpContextProcessor($channels);
 
-        $maxSeverity = (int)max(LogLevel::allLevels() ?: [LogLevel::EMERGENCY]);
+        $maxSeverity = (int) max(LogLevel::allLevels() ?: [LogLevel::EMERGENCY]);
         $defaultChannel = $channels->defaultChannel();
         $this->setupLogActionSubscriberForHook(LOG, $defaultChannel, $maxSeverity);
 
-        foreach ((array)$this->config[self::CONF_HOOK_ALIASES] as $alias => $aliasChannel) {
-            $channel = (string)($aliasChannel ?? $defaultChannel);
-            $this->setupLogActionSubscriberForHook((string)$alias, $channel, $maxSeverity);
+        foreach ((array) $this->config[self::CONF_HOOK_ALIASES] as $alias => $aliasChannel) {
+            $channel = (string) ($aliasChannel ?? $defaultChannel);
+            $this->setupLogActionSubscriberForHook((string) $alias, $channel, $maxSeverity);
         }
 
         $this->setupHookListeners();
@@ -851,8 +844,8 @@ class Configurator
      */
     private function shouldlogErrorsAndExceptions(): array
     {
-        $errorTypes = (int)($this->config[self::CONF_ERROR_TYPES] ?? (E_ALL | E_STRICT));
-        $exceptions = (bool)($this->config[self::CONF_LOG_EXCEPTIONS] ?? false);
+        $errorTypes = (int) ($this->config[self::CONF_ERROR_TYPES] ?? (E_ALL | E_STRICT));
+        $exceptions = (bool) ($this->config[self::CONF_LOG_EXCEPTIONS] ?? false);
 
         return [$errorTypes, $exceptions];
     }
@@ -871,10 +864,10 @@ class Configurator
         string ...$configValues
     ): Configurator {
 
-        $config = (array)($this->config[$key] ?? []);
+        $config = (array) ($this->config[$key] ?? []);
 
-        $enabled = (array)($config[self::ENABLED] ?? []);
-        $disabled = (array)($config[self::DISABLED] ?? []);
+        $enabled = (array) ($config[self::ENABLED] ?? []);
+        $disabled = (array) ($config[self::DISABLED] ?? []);
         $config[self::ALL] = null;
 
         array_unshift($configValues, $configValue);
@@ -918,8 +911,8 @@ class Configurator
             return $allValues;
         }
 
-        $enabled = array_keys((array)($config[self::ENABLED] ?? []));
-        $disabled = array_keys((array)($config[self::DISABLED] ?? []));
+        $enabled = array_keys((array) ($config[self::ENABLED] ?? []));
+        $disabled = array_keys((array) ($config[self::DISABLED] ?? []));
 
         $toEnable = null;
         switch (true) {
@@ -1003,7 +996,7 @@ class Configurator
             $listeners->addFilterListener($class, $listener);
         }
 
-        $listeners->listenAll((int)$this->config[self::CONF_BASE_HOOK_PRIORITY]);
+        $listeners->listenAll((int) $this->config[self::CONF_BASE_HOOK_PRIORITY]);
     }
 
     /**
@@ -1013,7 +1006,7 @@ class Configurator
     protected function setupPhpErrorListener(int $errorTypes, bool $logExceptions): void
     {
         $updater = $this->factory->logActionUpdater();
-        $logSilenced = (bool)$this->config[self::CONF_SILENCED_ERRORS];
+        $logSilenced = (bool) $this->config[self::CONF_SILENCED_ERRORS];
         $controller = PhpErrorController::new($logSilenced, $updater);
 
         $logExceptions and set_exception_handler([$controller, 'onException']);
@@ -1042,7 +1035,7 @@ class Configurator
 
         [$listen, $listenWithLevel] = $this->listenCallbacksData($defaultChannel);
 
-        $basePriority = (int)$this->config[self::CONF_BASE_HOOK_PRIORITY];
+        $basePriority = (int) $this->config[self::CONF_BASE_HOOK_PRIORITY];
         add_action($hook, $listen, $basePriority + $maxSeverity + 1, PHP_INT_MAX);
 
         foreach ($listenWithLevel as $levelName => [$callback, $severity]) {

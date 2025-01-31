@@ -91,9 +91,9 @@ class WpContextProcessor
             $GLOBALS['wp_rewrite'] = new \WP_Rewrite();
         }
 
-        $restUrl = (string)set_url_scheme(get_rest_url());
-        $currentUrl = (string)set_url_scheme(add_query_arg([]));
-        $this->isRestRequest = strpos($currentUrl, (string)set_url_scheme($restUrl)) === 0;
+        $restUrl = (string) set_url_scheme(get_rest_url());
+        $currentUrl = (string) set_url_scheme(add_query_arg([]));
+        $this->isRestRequest = strpos($currentUrl, (string) set_url_scheme($restUrl)) === 0;
 
         return $this->isRestRequest;
     }

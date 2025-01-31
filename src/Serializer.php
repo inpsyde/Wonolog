@@ -114,21 +114,21 @@ abstract class Serializer
         }
 
         if (is_numeric($input)) {
-            if (is_infinite((float)$input)) {
+            if (is_infinite((float) $input)) {
                 return ($input > 0 ? '' : '-') . 'INF';
             }
 
-            if (is_nan((float)$input)) {
+            if (is_nan((float) $input)) {
                 return 'NaN';
             }
 
-            return (string)$input;
+            return (string) $input;
         }
 
         if (is_array($input) || ($input instanceof \stdClass)) {
-            $masked = static::maybeMaskInput((array)$input);
+            $masked = static::maybeMaskInput((array) $input);
 
-            return (string)json_encode($masked, self::JSON_ENC_FLAGS, 32);
+            return (string) json_encode($masked, self::JSON_ENC_FLAGS, 32);
         }
 
         if (is_object($input)) {
@@ -188,7 +188,7 @@ abstract class Serializer
         }
 
         if ($input instanceof \stdClass) {
-            return static::maybeMaskInput((array)$input, $level + 1);
+            return static::maybeMaskInput((array) $input, $level + 1);
         }
 
         $serialized = static::serializeObject($input, !($input instanceof \JsonSerializable));
@@ -232,7 +232,7 @@ abstract class Serializer
             case ($value instanceof \WP_Comment):
                 return sprintf('%s (ID: %s)', get_class($value), $value->comment_ID);
             case ($value instanceof \WP_Meta_Query):
-                $args = (array)$value->queries;
+                $args = (array) $value->queries;
                 // fallback
             case ($value instanceof \WP_Query):
                 /** @psalm-suppress UndefinedPropertyFetch */
@@ -242,7 +242,7 @@ abstract class Serializer
             case ($value instanceof \WP_Term_Query):
             case ($value instanceof \WP_Comment_Query):
                 /** @psalm-suppress UndefinedPropertyFetch */
-                $args = static::maybeMaskInput((array)($args ?? $value->query_vars ?: []), 7);
+                $args = static::maybeMaskInput((array) ($args ?? $value->query_vars ?: []), 7);
                 $argsStr = json_encode($args, self::JSON_ENC_FLAGS, 8);
                 return sprintf('%s (%s)', get_class($value), $argsStr);
             case ($value instanceof \Throwable):
@@ -250,7 +250,7 @@ abstract class Serializer
             case ($value instanceof \DateTimeInterface):
                 return sprintf('%s: %s', get_class($value), $value->format('r'));
             case (is_callable([$value, '__toString'])):
-                return (string)$value;
+                return (string) $value;
         }
 
         return $ensureString
