@@ -11,5 +11,5 @@ parameters:
     scanDirectories:
         - vendor/roots/wordpress-no-content/wp-includes/PHPMailer
     paths:
-        - src/
+        - src/Registry
     treatPhpDocTypesAsCertain: false
