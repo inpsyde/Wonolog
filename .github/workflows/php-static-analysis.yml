@@ -30,8 +30,11 @@ jobs:
     lint-php:
         uses: inpsyde/reusable-workflows/.github/workflows/lint-php.yml@main
         if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run lint only')) }}
+        strategy:
+            matrix:
+                php-version: ["8.1", "8.2", "8.3", "8.4"]
         with:
-            PHP_MATRIX: '["8.1", "8.2", "8.3", "8.4"]'
+            PHP_VERSION: ${{ matrix.php-version }}
 
     coding-standards-analysis-php:
         if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run PHPCS only')) }}
@@ -44,6 +47,6 @@ jobs:
         uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@main
         strategy:
             matrix:
-                php-version: '["8.1", "8.2", "8.3", "8.4"]'
+                php-version: ["8.1", "8.2", "8.3", "8.4"]
         with:
             PHP_VERSION: ${{ matrix.php-version }}
