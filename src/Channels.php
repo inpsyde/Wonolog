@@ -53,9 +53,9 @@ class Channels
     private ?\DateTimeZone $timezone = null;
 
     /**
-     * @var array<string, LoggerInterface>|null
+     * @var array<string, LoggerInterface>
      */
-    private ?array $loggers = [];
+    private array $loggers = [];
 
     /**
      * @var array<string, array{string, array<string, int|null>}>
@@ -145,10 +145,14 @@ class Channels
         $id = 'L' . substr(md5($ignorePattern), -12, 10) . bin2hex(random_bytes(3));
         $ignorePattern = "(?<{$id}>{$ignorePattern})";
 
-        $channels or $channels = [self::ALL_CHANNELS];
+        if ($channels === []) {
+            $channels = [self::ALL_CHANNELS];
+        }
         foreach ($channels as $channel) {
             [$pattern, $levels] = $this->ignoreList[$channel] ?? ['', []];
-            $pattern and $pattern .= '|';
+            if ($pattern !== '') {
+                $pattern .= '|';
+            }
             $pattern .= $ignorePattern;
             $levels[$id] = $levelThreshold;
 

@@ -129,21 +129,21 @@ abstract class LogLevel
 
         /** @var string|int $level */
 
-        if (array_key_exists($level, static::$mappedLevels)) {
-            return static::$mappedLevels[$level];
+        if (array_key_exists($level, self::$mappedLevels)) {
+            return self::$mappedLevels[$level];
         }
 
         $allLevels = self::allLevels();
 
         if ($string) {
-            static::$mappedLevels[$level] = $allLevels[strtoupper(trim($level))] ?? null;
+            self::$mappedLevels[$level] = $allLevels[strtoupper(trim($level))] ?? null;
 
-            return static::$mappedLevels[$level];
+            return self::$mappedLevels[$level];
         }
 
         $level = (int) $level;
         if (in_array($level, $allLevels, true)) {
-            static::$mappedLevels[$level] = $level;
+            self::$mappedLevels[$level] = $level;
 
             return $level;
         }
@@ -155,8 +155,8 @@ abstract class LogLevel
             }
         }
 
-        static::$mappedLevels[$level] = $maxLevel ?? self::DEBUG;
+        self::$mappedLevels[$level] = $maxLevel ?? self::DEBUG;
 
-        return static::$mappedLevels[$level];
+        return self::$mappedLevels[$level];
     }
 }

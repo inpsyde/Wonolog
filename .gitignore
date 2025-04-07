@@ -18,3 +18,4 @@ temp/
 # IDE
 .idea/
 
+/phpstan.neon

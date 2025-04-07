@@ -178,7 +178,9 @@ class PhpErrorController
          * if that value is different from what is set in ini.
          * @see https://www.php.net/manual/en/language.operators.errorcontrol.php
          */
-        if (PHP_MAJOR_VERSION >= 8) {
+        /** @var positive-int $phpVersion */
+        $phpVersion = PHP_MAJOR_VERSION;
+        if ($phpVersion >= 8) {
             if ($errorReporting !== self::PHP_8_SILENCED_ERROR_CODE) {
                 return false;
             }

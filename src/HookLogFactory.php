@@ -29,8 +29,8 @@ class HookLogFactory
         ?string $defaultChannel = null
     ): array {
 
-        ($defaultChannel === null) and $defaultChannel = Channels::DEBUG;
-        ($defaultLevel === null) and $defaultLevel = LogLevel::DEBUG;
+        $defaultChannel ??= Channels::DEBUG;
+        $defaultLevel ??= LogLevel::DEBUG;
 
         // When no arguments are passed, there's not much we can do
         if (!$params) {

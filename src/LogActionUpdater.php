@@ -74,7 +74,9 @@ class LogActionUpdater
         $context = $log->context();
 
         $filteredContext = apply_filters(self::FILTER_CONTEXT, $context, $log);
-        is_array($filteredContext) and $context = $filteredContext;
+        if (is_array($filteredContext)) {
+            $context = $filteredContext;
+        }
 
         return Serializer::serializeContext($context);
     }
