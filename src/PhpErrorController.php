@@ -20,7 +20,6 @@ class PhpErrorController
         E_WARNING => LogLevel::WARNING,
         E_NOTICE => LogLevel::NOTICE,
         E_DEPRECATED => LogLevel::NOTICE,
-        E_STRICT => LogLevel::NOTICE, // @phpstan-ignore constant.deprecated
         E_ERROR => LogLevel::CRITICAL,
         E_PARSE => LogLevel::CRITICAL,
         E_CORE_ERROR => LogLevel::CRITICAL,
