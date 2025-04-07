@@ -832,7 +832,7 @@ class Configurator
      */
     private function shouldlogErrorsAndExceptions(): array
     {
-        $errorTypes = (int) ($this->config[self::CONF_ERROR_TYPES] ?? (E_ALL | E_STRICT));
+        $errorTypes = (int) ($this->config[self::CONF_ERROR_TYPES] ?? E_ALL);
         $exceptions = (bool) ($this->config[self::CONF_LOG_EXCEPTIONS] ?? false);
 
         return [$errorTypes, $exceptions];
