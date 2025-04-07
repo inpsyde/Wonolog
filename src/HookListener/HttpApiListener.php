@@ -90,8 +90,8 @@ final class HttpApiListener implements ActionListener
             return;
         }
 
-        is_array($httpArgs) or $httpArgs = [];
-        is_string($url) or $url = '';
+         $httpArgs = is_array($httpArgs) ? $httpArgs : [];
+         $url = is_string($url) ? $url : '';
 
         /** @var LogData|null $log */
         $log = null;
@@ -212,7 +212,9 @@ final class HttpApiListener implements ActionListener
         $code = $response['code'] ?? null;
         if ($code && is_scalar($code)) {
             $msg .= " - Response code: {$response[ 'code' ]}";
-            empty($data['headers']) or $logContext['headers'] = $data['headers'];
+            if (!empty($data['headers'])) {
+                $logContext['headers'] = $data['headers'];
+            }
         }
 
         return new Log($msg, $this->errorLogLevel, Channels::HTTP, $logContext);

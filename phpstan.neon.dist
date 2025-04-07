@@ -3,8 +3,13 @@ includes:
     - vendor/swissspidy/phpstan-no-private/rules.neon
 parameters:
     level: 5
+    excludePaths:
+      - src/HookListener/MethodNamesByHookTrait.php
+      - src/HookListener/FilterFromUpdateTrait.php
     scanFiles:
         - vendor/inpsyde/wp-stubs-versions/latest.php
+    scanDirectories:
+        - vendor/roots/wordpress-no-content/wp-includes/PHPMailer
     paths:
         - src/
     treatPhpDocTypesAsCertain: false

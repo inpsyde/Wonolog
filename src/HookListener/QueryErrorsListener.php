@@ -51,8 +51,13 @@ final class QueryErrorsListener implements ActionListener
         }
 
         $error = [];
-        isset($wp->query_vars['error']) and $error[] = $wp->query_vars['error'];
-        is_404() and $error[] = '404 Page not found';
+        if (isset($wp->query_vars['error'])) {
+            $error[] = $wp->query_vars['error'];
+        }
+
+        if (is_404()) {
+            $error[] = '404 Page not found';
+        }
 
         if (empty($error)) {
             return;

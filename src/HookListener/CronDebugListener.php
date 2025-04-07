@@ -154,7 +154,10 @@ final class CronDebugListener implements ActionListener
     {
         $unfinished = [];
         foreach ($this->done as $hook => [, $duration]) {
-            ($duration === null) and $unfinished[] = $hook;
+            if ($duration !== null) {
+                continue;
+            }
+          $unfinished[] = $hook;
         }
 
         if (!$unfinished) {

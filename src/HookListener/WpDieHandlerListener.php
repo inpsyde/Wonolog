@@ -87,7 +87,7 @@ final class WpDieHandlerListener implements FilterListener
         // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
         $stacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         foreach ($stacktrace as $item) {
-            $function = $item['function'] ?? null;
+            $function = $item['function'] ?? null; // @phpstan-ignore-line
             $class = $item['class'] ?? null;
             if ($class === \wpdb::class && ($function === 'bail' || $function === 'print_error')) {
                 return true;

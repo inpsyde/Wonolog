@@ -9,6 +9,7 @@ use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel;
+use PHPMailer\PHPMailer\PHPMailer;
 
 /**
  * Try to log any error in PHPMailer.
@@ -72,8 +73,8 @@ class MailerListener implements ActionListener
     protected function onMailerInit(array $args, LogActionUpdater $updater): void
     {
         $mailer = $args ? reset($args) : null;
-        /** @psalm-suppress UndefinedClass */
-        if ($mailer instanceof \PHPMailer) {
+
+        if ($mailer instanceof PHPMailer) {
             $mailer->SMTPDebug = 2;
             $mailer->Debugoutput = static function (string $message) use ($updater): void {
                 $updater->update(new Debug($message, Channels::HTTP));
