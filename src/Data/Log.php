@@ -111,7 +111,7 @@ final class Log implements LogData
     ): Log {
 
         $level = LogLevel::normalizeLevel($level) ?? LogLevel::ERROR;
-        $channel or $channel = Channels::DEBUG;
+        $channel = in_array($channel, Channels::CHANNELS, true) ? $channel : Channels::DEBUG;
 
         $context['throwable'] = [
             'class' => get_class($throwable),

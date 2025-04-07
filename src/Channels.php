@@ -20,6 +20,17 @@ class Channels
     public const ACTION_LOGGER = 'wonolog.logger';
     public const ACTION_MONOLOG_LOGGER = 'wonolog.monolog-logger';
 
+    public const CHANNELS = [
+        self::HTTP,
+        self::DB,
+        self::PHP_ERROR,
+        self::SECURITY,
+        self::DEBUG,
+        self::CRON,
+        self::ACTION_LOGGER,
+        self::ACTION_MONOLOG_LOGGER,
+    ];
+
     public const DEFAULT_CHANNELS = [
         self::HTTP,
         self::DB,
