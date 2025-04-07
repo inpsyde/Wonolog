@@ -6,7 +6,7 @@ on:
             - '**workflows/php-static-analysis.yml'
             - '**.php'
             - '**phpcs.xml.dist'
-            - '**psalm.xml'
+            - '**phpstan.neon.dist'
             - '**composer.json'
     pull_request:
     workflow_dispatch:
@@ -19,7 +19,7 @@ on:
                 options:
                     - 'Run all'
                     - 'Run PHPCS only'
-                    - 'Run Psalm only'
+                    - 'Run static analysis only'
                     - 'Run lint only'
 
 concurrency:
@@ -31,7 +31,7 @@ jobs:
         uses: inpsyde/reusable-workflows/.github/workflows/lint-php.yml@main
         if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run lint only')) }}
         with:
-            PHP_MATRIX: '["8.1", "8.2"]'
+            PHP_MATRIX: '["8.1", "8.2", "8.3", "8.4"]'
 
     coding-standards-analysis-php:
         if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run PHPCS only')) }}
@@ -40,10 +40,10 @@ jobs:
             PHP_VERSION: '8.1'
 
     static-code-analysis-php:
-        if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run Psalm only')) }}
+        if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run static analysis only')) }}
         uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@main
         strategy:
             matrix:
-                php-version: [ '8.1', '8.2' ]
+                php-version: '["8.1", "8.2", "8.3", "8.4"]'
         with:
             PHP_VERSION: ${{ matrix.php-version }}
