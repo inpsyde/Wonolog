@@ -8,6 +8,7 @@ use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\BufferHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\ProcessableHandlerInterface;
+use Random\RandomException;
 
 class HandlersRegistry implements \Countable
 {
@@ -39,6 +40,7 @@ class HandlersRegistry implements \Countable
 
     /**
      * @return string
+     * @throws RandomException
      */
     private static function allChannelsName(): string
     {
@@ -73,7 +75,7 @@ class HandlersRegistry implements \Countable
         }
 
         $allChannels = self::allChannelsName();
-        $channels or $channels = [$allChannels];
+        $channels = $channels ?: [$allChannels];
 
         [$currentHandler, $currentChannels] = $this->handlers[$identifier] ?? [null, []];
         if ($currentHandler && $currentHandler !== $handler) {
@@ -85,7 +87,10 @@ class HandlersRegistry implements \Countable
 
         $enabledChannels = array_fill_keys($channels, true);
         $newChannels = array_replace($currentChannels, $enabledChannels);
-        $alreadyAddedForAll and $newChannels[$allChannels] = $alreadyAddedForAll;
+
+        if ($alreadyAddedForAll) {
+            $newChannels[$allChannels] = $alreadyAddedForAll;
+        }
 
         $this->handlers[$identifier] = [$handler, $newChannels];
 
@@ -128,7 +133,9 @@ class HandlersRegistry implements \Countable
         $disabledChannels = array_fill_keys($channels, false);
 
         $newChannels = array_replace($currentChannels, $disabledChannels);
-        $default and $newChannels[$allChannels] = $default;
+        if ($default) {
+            $newChannels[$allChannels] = $default;
+        }
 
         if (!array_filter($newChannels)) {
             unset($this->handlers[$identifier]);

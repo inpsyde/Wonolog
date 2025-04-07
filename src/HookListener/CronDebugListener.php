@@ -157,7 +157,7 @@ final class CronDebugListener implements ActionListener
             if ($duration !== null) {
                 continue;
             }
-          $unfinished[] = $hook;
+            $unfinished[] = $hook;
         }
 
         if (!$unfinished) {
