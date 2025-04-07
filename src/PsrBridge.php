@@ -9,6 +9,9 @@ use Inpsyde\Wonolog\Data\LogData;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\AbstractLogger;
 
+/**
+ * @phpstan-import-type Record from \Monolog\Logger
+ */
 class PsrBridge extends AbstractLogger
 {
     private LogActionUpdater $updater;
@@ -88,13 +91,22 @@ class PsrBridge extends AbstractLogger
         }
         unset($context[LogData::CHANNEL]);
 
-        /** @psalm-suppress InvalidArgument */
-        $record = ($this->processor)(compact('message', 'context'));
-        array_key_exists('message', $record) and $message = (string) $record['message'];
-        array_key_exists('context', $record) and $context = (array) $record['context'];
+        /** @var Record $record */
+        $record = compact('message', 'context', 'level');
+        $record = ($this->processor)($record);
+        // @phpstan-ignore function.alreadyNarrowedType
+        if (array_key_exists('message', $record)) {
+            $message = (string) $record['message'];
+        }
+        // @phpstan-ignore function.alreadyNarrowedType
+        if (array_key_exists('context', $record)) {
+            $context = (array) $record['context'];
+        }
 
         unset($context['exception']);
-        $throwable and $context['exception'] = $throwable;
+        if ($throwable) {
+            $context['exception'] = $throwable;
+        }
 
         $this->updater->update(new Log($message, $level, $channel, $context));
     }
