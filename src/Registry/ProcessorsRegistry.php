@@ -51,7 +51,7 @@ class ProcessorsRegistry implements \Countable
             return $this;
         }
 
-        $currentChannels =  $currentChannels ?: [];
+        $currentChannels = $currentChannels ?: [];
         $alreadyAddedForAll = $currentChannels[$allChannels] ?? null;
         unset($currentChannels[$allChannels]);
 
