@@ -8,7 +8,6 @@ use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\BufferHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\ProcessableHandlerInterface;
-use Random\RandomException;
 
 class HandlersRegistry implements \Countable
 {
@@ -40,7 +39,7 @@ class HandlersRegistry implements \Countable
 
     /**
      * @return string
-     * @throws RandomException
+     * @return string
      */
     private static function allChannelsName(): string
     {
@@ -329,7 +328,7 @@ class HandlersRegistry implements \Countable
         }
 
         /**
-         * Filter whether an handler has to be buffered or not.
+         * Filter whether a handler has to be buffered or not.
          *
          * @param bool $buffer
          * @param string $identifier
