@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\DefaultHandler;
@@ -43,14 +34,14 @@ class LogsFolder
         try {
             if ($customFolder) {
                 return wp_mkdir_p($customFolder)
-                    ? static::maybeCreateHtaccess($customFolder)
+                    ? self::maybeCreateHtaccess($customFolder)
                     : null;
             }
 
-            $folder = static::maybeDetermineFolderByConstant();
+            $folder = self::maybeDetermineFolderByConstant();
 
             if ($folder === null) {
-                $uploadDir = static::uploadsBaseDir();
+                $uploadDir = self::uploadsBaseDir();
                 $uploadDir and $folder = (string) wp_normalize_path("{$uploadDir}/wonolog");
             }
 
@@ -63,7 +54,7 @@ class LogsFolder
                 return null;
             }
 
-            self::$folder = static::maybeCreateHtaccess($folder);
+            self::$folder = self::maybeCreateHtaccess($folder);
 
             return self::$folder;
         } catch (\Throwable $throwable) {
@@ -106,7 +97,7 @@ class LogsFolder
             ? rtrim(wp_normalize_path(WP_CONTENT_DIR), '/')
             : null;
 
-        $uploadDir = static::uploadsBaseDir();
+        $uploadDir = self::uploadsBaseDir();
 
         if (!$contentDir && !$uploadDir) {
             return $targetDir;
@@ -124,8 +115,13 @@ class LogsFolder
         }
 
         $targetDir .= '/';
-        $contentDir and $contentDir .= '/';
-        $uploadDir and $uploadDir .= '/';
+        if ($contentDir) {
+            $contentDir .= '/';
+        }
+
+        if ($uploadDir) {
+            $uploadDir .= '/';
+        }
 
         // We will create .htaccess only if target dir is inside one of the two directories we
         // assume are publicly accessible.
@@ -182,17 +178,19 @@ HTACCESS;
     {
         $maybeLogFiles = [];
 
+        // @phpstan-ignore function.impossibleType
         if (defined('WP_DEBUG_LOG') && is_string(WP_DEBUG_LOG)) {
             /** @var ?bool $isBool */
             $isBool = filter_var(WP_DEBUG_LOG, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-            ($isBool === null) and $maybeLogFiles[] = WP_DEBUG_LOG;
+            if (is_null($isBool)) {
+                $maybeLogFiles[] = WP_DEBUG_LOG;
+            }
         }
 
         if (defined('ERRORLOGFILE') && ERRORLOGFILE && is_string(ERRORLOGFILE)) {
             $maybeLogFiles[] = ERRORLOGFILE;
         }
 
-        /** @var string $maybeLogFile */
         foreach ($maybeLogFiles as $maybeLogFile) {
             $dirByConstant = dirname($maybeLogFile);
             if ($dirByConstant && $dirByConstant !== '.') {
