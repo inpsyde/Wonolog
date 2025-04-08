@@ -1,12 +1,4 @@
 <?php # -*- coding: utf-8 -*-
-/*
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
 namespace Inpsyde\Wonolog\Data;
 
@@ -16,7 +8,6 @@ use Inpsyde\Wonolog\Channels;
  * Class that is used to "guess" a proper channel from a WP_Error object based on its error codes.
  *
  * @package wonolog
- * @license http://opensource.org/licenses/MIT MIT
  */
 class WpErrorChannel {
 
