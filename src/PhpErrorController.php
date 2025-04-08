@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
@@ -29,7 +20,6 @@ class PhpErrorController
         E_WARNING => LogLevel::WARNING,
         E_NOTICE => LogLevel::NOTICE,
         E_DEPRECATED => LogLevel::NOTICE,
-        E_STRICT => LogLevel::NOTICE,
         E_ERROR => LogLevel::CRITICAL,
         E_PARSE => LogLevel::CRITICAL,
         E_CORE_ERROR => LogLevel::CRITICAL,
@@ -187,7 +177,9 @@ class PhpErrorController
          * if that value is different from what is set in ini.
          * @see https://www.php.net/manual/en/language.operators.errorcontrol.php
          */
-        if (PHP_MAJOR_VERSION >= 8) {
+        /** @var positive-int $phpVersion */
+        $phpVersion = PHP_MAJOR_VERSION;
+        if ($phpVersion >= 8) {
             if ($errorReporting !== self::PHP_8_SILENCED_ERROR_CODE) {
                 return false;
             }

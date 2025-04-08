@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Data;
@@ -92,7 +83,7 @@ final class FailedLogin implements LogData
         $userIp = $this->ipData[0];
 
         $attempts = get_site_transient(self::TRANSIENT_NAME);
-        is_array($attempts) or $attempts = [];
+        $attempts = is_array($attempts) ? $attempts : [];
 
         // Seems the first time a failed attempt for this IP
         if (
@@ -101,9 +92,6 @@ final class FailedLogin implements LogData
             || !isset($attempts[$userIp]['count'])
             || !isset($attempts[$userIp]['last_logged'])
         ) {
-            /**
-             * @var array<string, array{count: int, last_logged: int}> $data
-             */
             $data = ['count' => 0, 'last_logged' => 0];
             $attempts[$userIp] = $data;
         }
@@ -139,7 +127,10 @@ final class FailedLogin implements LogData
             || ($count < 1000 && ($count - $lastLogged) === 100)
             || (($count - $lastLogged) === 200);
 
-        $doLog and $attempts[$userIp]['last_logged'] = $count;
+        if ($doLog) {
+            $attempts[$userIp]['last_logged'] = $count;
+        }
+
         set_site_transient(self::TRANSIENT_NAME, $attempts, $ttl);
 
         $this->attempts = $doLog ? $count : 0;

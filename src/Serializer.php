@@ -76,7 +76,7 @@ abstract class Serializer
      */
     final public static function serializeMessage(mixed $message): string
     {
-        return static::forceString($message);
+        return self::forceString($message);
     }
 
     /**
@@ -85,7 +85,7 @@ abstract class Serializer
      */
     final public static function serializeContext(array $context): array
     {
-        return static::maybeMaskInput($context);
+        return self::maybeMaskInput($context);
     }
 
     /**
@@ -126,13 +126,13 @@ abstract class Serializer
         }
 
         if (is_array($input) || ($input instanceof \stdClass)) {
-            $masked = static::maybeMaskInput((array) $input);
+            $masked = self::maybeMaskInput((array) $input);
 
             return (string) json_encode($masked, self::JSON_ENC_FLAGS, 32);
         }
 
         if (is_object($input)) {
-            return static::serializeObject($input, true);
+            return self::serializeObject($input, true);
         }
 
         return gettype($input);
@@ -147,11 +147,13 @@ abstract class Serializer
      */
     private static function maybeMaskInput(iterable $input, int $level = 0): array
     {
-        if (static::$maskedKeys === null) {
+        if (self::$maskedKeys === null) {
             $maskedKeys = apply_filters(self::FILTER_MASKED_KEYS, self::SECRET_KEYS);
-            is_array($maskedKeys) or $maskedKeys = self::SECRET_KEYS;
+            if (!is_array($maskedKeys)) {
+                $maskedKeys = self::SECRET_KEYS;
+            }
             /** @var list<string> $maskedKeys */
-            static::$maskedKeys = $maskedKeys;
+            self::$maskedKeys = $maskedKeys;
         }
 
         if ($level > 8) {
@@ -161,14 +163,14 @@ abstract class Serializer
 
         $out = [];
         foreach ($input as $key => $value) {
-            if (in_array($key, static::$maskedKeys, true)) {
+            if (in_array($key, self::$maskedKeys, true)) {
                 $out[$key] = '***';
                 continue;
             }
 
             $out[$key] = (is_object($value) || is_array($value))
-                ? static::maybeMaskInputInner($value, $level)
-                : static::forceString($value);
+                ? self::maybeMaskInputInner($value, $level)
+                : self::forceString($value);
         }
 
         return $out;
@@ -184,14 +186,14 @@ abstract class Serializer
         /** @var array|object $input */
 
         if (is_iterable($input)) {
-            return static::maybeMaskInput($input, $level + 1);
+            return self::maybeMaskInput($input, $level + 1);
         }
 
         if ($input instanceof \stdClass) {
-            return static::maybeMaskInput((array) $input, $level + 1);
+            return self::maybeMaskInput((array) $input, $level + 1);
         }
 
-        $serialized = static::serializeObject($input, !($input instanceof \JsonSerializable));
+        $serialized = self::serializeObject($input, !($input instanceof \JsonSerializable));
         if ($serialized !== null) {
             return $serialized;
         }
@@ -202,10 +204,10 @@ abstract class Serializer
         // phpcs:enable WordPress.PHP.NoSilencedErrors
 
         if (is_iterable($plain)) {
-            return static::maybeMaskInput($plain, $level + 1);
+            return self::maybeMaskInput($plain, $level + 1);
         }
 
-        return is_string($json) ? $json : static::forceString($input);
+        return is_string($json) ? $json : self::forceString($input);
     }
 
     /**
@@ -242,7 +244,7 @@ abstract class Serializer
             case ($value instanceof \WP_Term_Query):
             case ($value instanceof \WP_Comment_Query):
                 /** @psalm-suppress UndefinedPropertyFetch */
-                $args = static::maybeMaskInput((array) ($args ?? $value->query_vars ?: []), 7);
+                $args = self::maybeMaskInput((array) ($args ?? $value->query_vars ?: []), 7);
                 $argsStr = json_encode($args, self::JSON_ENC_FLAGS, 8);
                 return sprintf('%s (%s)', get_class($value), $argsStr);
             case ($value instanceof \Throwable):

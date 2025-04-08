@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
@@ -83,7 +74,9 @@ class LogActionUpdater
         $context = $log->context();
 
         $filteredContext = apply_filters(self::FILTER_CONTEXT, $context, $log);
-        is_array($filteredContext) and $context = $filteredContext;
+        if (!is_array($filteredContext)) {
+            $context = $filteredContext;
+        }
 
         return Serializer::serializeContext($context);
     }

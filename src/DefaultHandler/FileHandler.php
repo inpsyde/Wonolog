@@ -22,6 +22,7 @@ use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Monolog\ResettableInterface;
 
 class FileHandler implements
@@ -276,9 +277,8 @@ class FileHandler implements
 
         /** @var FormatterInterface|null $noopFormatter */
         static $noopFormatter;
-        $noopFormatter or $noopFormatter = new PassthroughFormatter();
 
-        return $noopFormatter;
+        return $noopFormatter ?? $noopFormatter = new PassthroughFormatter();
     }
 
     /**
@@ -340,6 +340,9 @@ class FileHandler implements
         try {
             $this->logFilePath = $this->logFilePath();
             $level = $this->minLevel ?? LogLevel::defaultMinLevel();
+            if (!$level) {
+                $level = Logger::DEBUG;
+            }
             $streamBuffer = $this->buffering || $this->bubble;
             $handler = new StreamHandler($this->logFilePath, $level, $streamBuffer, null, true);
             $this->handler = $this->buffering

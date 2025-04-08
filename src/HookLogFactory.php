@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
@@ -38,8 +29,8 @@ class HookLogFactory
         ?string $defaultChannel = null
     ): array {
 
-        ($defaultChannel === null) and $defaultChannel = Channels::DEBUG;
-        ($defaultLevel === null) and $defaultLevel = LogLevel::DEBUG;
+        $defaultChannel ??= Channels::DEBUG;
+        $defaultLevel ??= LogLevel::DEBUG;
 
         // When no arguments are passed, there's not much we can do
         if (!$params) {

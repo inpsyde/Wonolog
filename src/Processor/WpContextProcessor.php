@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Processor;
@@ -36,10 +27,9 @@ class WpContextProcessor
      */
     public function __invoke(array $record): array
     {
-        /** @psalm-suppress RedundantCondition */
         $data = [
-            'doing_cron' => defined('DOING_CRON') && DOING_CRON,
-            'doing_ajax' => defined('DOING_AJAX') && DOING_AJAX,
+            'doing_cron' => defined('DOING_CRON') && DOING_CRON, // @phpstan-ignore-line
+            'doing_ajax' => defined('DOING_AJAX') && DOING_AJAX, // @phpstan-ignore-line
             'is_admin' => is_admin(),
             'doing_rest' => $this->doingRest(),
         ];
@@ -73,6 +63,7 @@ class WpContextProcessor
         }
 
         // phpcs:disable WordPress.Security.NonceVerification
+        // @phpstan-ignore-next-line
         if ((defined('REST_REQUEST') && REST_REQUEST) || !empty($_REQUEST['rest_route'])) {
             // phpcs:enable WordPress.Security.NonceVerification
             $this->isRestRequest = true;

@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
@@ -273,7 +264,7 @@ class Configurator
     /**
      * @param string $channel
      * @param string ...$channels
-     * @return $this
+     * @return static
      */
     public function enableFallbackHandlerForChannels(
         string $channel,
@@ -442,7 +433,7 @@ class Configurator
     /**
      * @param string $channel
      * @param string ...$channels
-     * @return $this
+     * @return static
      */
     public function enableWpContextProcessorForChannels(
         string $channel,
@@ -462,7 +453,7 @@ class Configurator
     /**
      * @param string $channel
      * @param string ...$channels
-     * @return $this
+     * @return static
      */
     public function disableWpContextProcessorForChannels(
         string $channel,
@@ -841,7 +832,7 @@ class Configurator
      */
     private function shouldlogErrorsAndExceptions(): array
     {
-        $errorTypes = (int) ($this->config[self::CONF_ERROR_TYPES] ?? (E_ALL | E_STRICT));
+        $errorTypes = (int) ($this->config[self::CONF_ERROR_TYPES] ?? E_ALL);
         $exceptions = (bool) ($this->config[self::CONF_LOG_EXCEPTIONS] ?? false);
 
         return [$errorTypes, $exceptions];
@@ -889,7 +880,7 @@ class Configurator
     /**
      * @param string $key
      * @param list<string> $allValues
-     * @return list<string>|null
+     * @return non-empty-list<string>|null
      *
      * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */
@@ -914,15 +905,15 @@ class Configurator
         $toEnable = null;
         switch (true) {
             case ($enabled && $disabled):
-                /** @var list<string> $toEnable */
+                /** @var non-empty-list<string>|null $toEnable */
                 $toEnable = array_intersect(array_diff($enabled, $disabled), $allValues) ?: null;
                 break;
             case ($enabled):
-                /** @var list<string> $toEnable */
+                /** @var non-empty-list<string>|null $toEnable */
                 $toEnable = array_intersect($enabled, $allValues) ?: null;
                 break;
             case ($disabled):
-                /** @var list<string> $toEnable */
+                /** @var non-empty-list<string>|null $toEnable */
                 $toEnable = array_diff($allValues, $disabled) ?: null;
                 break;
         }

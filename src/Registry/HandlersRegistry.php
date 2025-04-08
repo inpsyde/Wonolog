@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Registry;
@@ -48,6 +39,7 @@ class HandlersRegistry implements \Countable
 
     /**
      * @return string
+     * @return string
      */
     private static function allChannelsName(): string
     {
@@ -82,7 +74,7 @@ class HandlersRegistry implements \Countable
         }
 
         $allChannels = self::allChannelsName();
-        $channels or $channels = [$allChannels];
+        $channels = $channels ?: [$allChannels];
 
         [$currentHandler, $currentChannels] = $this->handlers[$identifier] ?? [null, []];
         if ($currentHandler && $currentHandler !== $handler) {
@@ -94,7 +86,10 @@ class HandlersRegistry implements \Countable
 
         $enabledChannels = array_fill_keys($channels, true);
         $newChannels = array_replace($currentChannels, $enabledChannels);
-        $alreadyAddedForAll and $newChannels[$allChannels] = $alreadyAddedForAll;
+
+        if ($alreadyAddedForAll) {
+            $newChannels[$allChannels] = $alreadyAddedForAll;
+        }
 
         $this->handlers[$identifier] = [$handler, $newChannels];
 
@@ -137,7 +132,9 @@ class HandlersRegistry implements \Countable
         $disabledChannels = array_fill_keys($channels, false);
 
         $newChannels = array_replace($currentChannels, $disabledChannels);
-        $default and $newChannels[$allChannels] = $default;
+        if ($default) {
+            $newChannels[$allChannels] = $default;
+        }
 
         if (!array_filter($newChannels)) {
             unset($this->handlers[$identifier]);
@@ -331,7 +328,7 @@ class HandlersRegistry implements \Countable
         }
 
         /**
-         * Filter whether an handler has to be buffered or not.
+         * Filter whether a handler has to be buffered or not.
          *
          * @param bool $buffer
          * @param string $identifier

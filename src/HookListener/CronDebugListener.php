@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\HookListener;
@@ -163,7 +154,10 @@ final class CronDebugListener implements ActionListener
     {
         $unfinished = [];
         foreach ($this->done as $hook => [, $duration]) {
-            ($duration === null) and $unfinished[] = $hook;
+            if ($duration !== null) {
+                continue;
+            }
+            $unfinished[] = $hook;
         }
 
         if (!$unfinished) {

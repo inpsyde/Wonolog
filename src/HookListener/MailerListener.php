@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\HookListener;
@@ -81,7 +72,7 @@ class MailerListener implements ActionListener
     protected function onMailerInit(array $args, LogActionUpdater $updater): void
     {
         $mailer = $args ? reset($args) : null;
-        /** @psalm-suppress UndefinedClass */
+
         if ($mailer instanceof \PHPMailer) {
             $mailer->SMTPDebug = 2;
             $mailer->Debugoutput = static function (string $message) use ($updater): void {
