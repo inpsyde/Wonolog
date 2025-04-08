@@ -18,6 +18,7 @@ const USE_DEFAULT_HOOK_LISTENERS = 2;
 const USE_DEFAULT_HANDLER = 4;
 const USE_DEFAULT_PROCESSOR = 8;
 const USE_DEFAULT_ALL = 15;
+const DISABLE_SETUP = 16;
 const USE_DEFAULT_NONE = 0;
 
 /**
@@ -58,5 +59,9 @@ function bootstrap(
 		$controller->use_default_processor();
 	}
 
-	return $controller->setup( $log_hook_priority );
+	if ( $flags & DISABLE_SETUP ) {
+		return $controller;
+	}
+
+	return $controller->setup($log_hook_priority);
 }
