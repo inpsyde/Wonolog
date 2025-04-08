@@ -1,15 +1,15 @@
 # Wonolog
 
 [![Version](https://img.shields.io/static/v1?label=inpsyde/wonolog&message=v2&color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog#2.0.0-beta.1)
-[![PHP Version](https://img.shields.io/static/v1?label=php&message=>=7.2&color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog#2.0.0-beta.1)
+[![PHP Version](https://img.shields.io/static/v1?label=php&message=>=8.1&color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog#2.0.0-beta.1)
 [![Monolog Version](https://img.shields.io/static/v1?label=monolog/monolog&message=^2.3.5&color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog#2.0.0-beta.1)
 [![Downloads](https://img.shields.io/packagist/dt/inpsyde/wonolog.svg?color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog)
 
 ### _Monolog-based logging package for WordPress_
 
-[![PHP Static Code Analysis](https://github.com/inpsyde/Wonolog/actions/workflows/php-static-analysis.yml/badge.svg?branch=2.x)](https://github.com/inpsyde/Wonolog/actions/workflows/php-static-analysis.yml)
-[![PHP Unit Tests](https://github.com/inpsyde/Wonolog/actions/workflows/php-unit-tests.yml/badge.svg?branch=2.x)](https://github.com/inpsyde/Wonolog/actions/workflows/php-unit-tests.yml)
-[![PHP Integration Tests](https://github.com/inpsyde/Wonolog/actions/workflows/php-integration-tests.yml/badge.svg?branch=2.x)](https://github.com/inpsyde/Wonolog/actions/workflows/php-integration-tests.yml)
+[![PHP Static Code Analysis](https://github.com/inpsyde/Wonolog/actions/workflows/php-static-analysis.yml/badge.svg)](https://github.com/inpsyde/Wonolog/actions/workflows/php-static-analysis.yml)
+[![PHP Unit Tests](https://github.com/inpsyde/Wonolog/actions/workflows/php-unit-tests.yml/badge.svg)](https://github.com/inpsyde/Wonolog/actions/workflows/php-unit-tests.yml)
+[![PHP Integration Tests](https://github.com/inpsyde/Wonolog/actions/workflows/php-integration-tests.yml/badge.svg)](https://github.com/inpsyde/Wonolog/actions/workflows/php-integration-tests.yml)
 
 ------
 
@@ -27,7 +27,7 @@ Wonolog v2 uses Monolog v2.
 
 Wonolog requires:
 
-- PHP 7.2+
+- PHP 8.1+
 - WordPress 5.9+
 
 Via [Composer](https://getcomposer.org), Wonolog requires `monolog/monolog` (MIT).
