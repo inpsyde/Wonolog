@@ -92,6 +92,7 @@
     },
     "scripts": {
         "cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
+        "cs:fix": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcbf",
         "phpstan": "@php ./vendor/bin/phpstan analyse --memory-limit=1G",
         "tests:unit": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit",
         "tests:unit:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --no-coverage",

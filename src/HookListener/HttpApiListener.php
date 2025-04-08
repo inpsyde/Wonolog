@@ -90,8 +90,8 @@ final class HttpApiListener implements ActionListener
             return;
         }
 
-         $httpArgs = is_array($httpArgs) ? $httpArgs : [];
-         $url = is_string($url) ? $url : '';
+        $httpArgs = is_array($httpArgs) ? $httpArgs : [];
+        $url = is_string($url) ? $url : '';
 
         /** @var LogData|null $log */
         $log = null;
