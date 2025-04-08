@@ -13,3 +13,6 @@ parameters:
     paths:
         - src
     treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        - '#Class PHPMailer not found.#'
+        - '#Access to property \$\w+ on an unknown class PHPMailer#'
