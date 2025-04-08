@@ -278,7 +278,7 @@ class FileHandler implements
         /** @var FormatterInterface|null $noopFormatter */
         static $noopFormatter;
 
-        return $noopFormatter instanceof FormatterInterface ? $noopFormatter : new PassthroughFormatter();
+        return $noopFormatter ?? $noopFormatter = new PassthroughFormatter();
     }
 
     /**

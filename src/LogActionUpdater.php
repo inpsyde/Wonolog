@@ -74,7 +74,7 @@ class LogActionUpdater
         $context = $log->context();
 
         $filteredContext = apply_filters(self::FILTER_CONTEXT, $context, $log);
-        if (is_array($filteredContext)) {
+        if (!is_array($filteredContext)) {
             $context = $filteredContext;
         }
 

@@ -149,7 +149,7 @@ abstract class Serializer
     {
         if (self::$maskedKeys === null) {
             $maskedKeys = apply_filters(self::FILTER_MASKED_KEYS, self::SECRET_KEYS);
-            if (is_array($maskedKeys)) {
+            if (!is_array($maskedKeys)) {
                 $maskedKeys = self::SECRET_KEYS;
             }
             /** @var list<string> $maskedKeys */
