@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\HookListener;
@@ -23,10 +14,7 @@ use Inpsyde\Wonolog\LogLevel;
  */
 final class DbErrorListener implements ActionListener
 {
-    /**
-     * @var int
-     */
-    private $logLevel;
+    private int $logLevel;
 
     /**
      * @param int $logLevel
@@ -58,7 +46,7 @@ final class DbErrorListener implements ActionListener
      */
     public function update(string $hook, array $args, LogActionUpdater $updater): void
     {
-        // phpcs:disable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
+        // phpcs:disable Syde.NamingConventions.VariableName
         global $EZSQL_ERROR;
         if (empty($EZSQL_ERROR)) {
             return;
@@ -66,10 +54,10 @@ final class DbErrorListener implements ActionListener
 
         /** @var non-empty-array<array> $errors */
         $errors = $EZSQL_ERROR;
-        // phpcs:enable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
+        // phpcs:enable Syde.NamingConventions.VariableName
 
         $last = end($errors);
-        $message = isset($last['error_str']) ? (string)$last['error_str'] : 'DB error.';
+        $message = isset($last['error_str']) ? (string) $last['error_str'] : 'DB error.';
         $context = ['last_wpdb_query' => $last['query'] ?? '', 'last_wpdb_errors' => $errors];
 
         $updater->update(new Log($message, $this->logLevel, Channels::DB, $context));

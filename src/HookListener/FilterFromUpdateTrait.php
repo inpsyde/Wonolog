@@ -17,7 +17,7 @@ trait FilterFromUpdateTrait
      * @param LogActionUpdater $updater
      * @return mixed
      */
-    public function filter(string $hook, array $args, LogActionUpdater $updater)
+    public function filter(string $hook, array $args, LogActionUpdater $updater): mixed
     {
         $value = $args ? reset($args) : null;
         $this->update($hook, $args, $updater);

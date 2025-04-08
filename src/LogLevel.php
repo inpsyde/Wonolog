@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
@@ -30,15 +21,12 @@ abstract class LogLevel
     public const ALERT = Logger::ALERT;
     public const EMERGENCY = Logger::EMERGENCY;
 
-    /**
-     * @var int|null
-     */
-    private static $minLevel;
+    private static ?int $minLevel = null;
 
     /**
      * @var array<int|string, int|null>
      */
-    private static $mappedLevels = [];
+    private static array $mappedLevels = [];
 
     /**
      * @return array<string, int>
@@ -126,11 +114,11 @@ abstract class LogLevel
      * @param mixed $level
      * @return int|null
      *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+     * phpcs:disable Syde.Functions.ArgumentTypeDeclaration
      */
     final public static function normalizeLevel($level): ?int
     {
-        // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+        // phpcs:enable Syde.Functions.ArgumentTypeDeclaration
 
         $numeric = is_numeric($level);
         $string = !$numeric && is_string($level);
@@ -141,21 +129,21 @@ abstract class LogLevel
 
         /** @var string|int $level */
 
-        if (array_key_exists($level, static::$mappedLevels)) {
-            return static::$mappedLevels[$level];
+        if (array_key_exists($level, self::$mappedLevels)) {
+            return self::$mappedLevels[$level];
         }
 
         $allLevels = self::allLevels();
 
         if ($string) {
-            static::$mappedLevels[$level] = $allLevels[strtoupper(trim($level))] ?? null;
+            self::$mappedLevels[$level] = $allLevels[strtoupper(trim($level))] ?? null;
 
-            return static::$mappedLevels[$level];
+            return self::$mappedLevels[$level];
         }
 
-        $level = (int)$level;
+        $level = (int) $level;
         if (in_array($level, $allLevels, true)) {
-            static::$mappedLevels[$level] = $level;
+            self::$mappedLevels[$level] = $level;
 
             return $level;
         }
@@ -167,8 +155,8 @@ abstract class LogLevel
             }
         }
 
-        static::$mappedLevels[$level] = $maxLevel ?? self::DEBUG;
+        self::$mappedLevels[$level] = $maxLevel ?? self::DEBUG;
 
-        return static::$mappedLevels[$level];
+        return self::$mappedLevels[$level];
     }
 }

@@ -34,4 +34,4 @@ jobs:
 
             -   name: Run integration tests
                 working-directory: .github/workflows/docker
-                run: docker-compose run --rm php${{ matrix.php-service }} sh -c "wait-for.sh wonolog-mysql:3306 -t 15 -- composer update && composer tests:integration"
+                run: docker compose run --rm php${{ matrix.php-service }} sh -c "wait-for.sh wonolog-db:3306 -t 15 -- composer update && composer tests:integration"

@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Registry;
@@ -18,7 +9,7 @@ class ProcessorsRegistry implements \Countable
     /**
      * @var array<string, array{callable(array):array, array<string, bool>|null}>
      */
-    private $processors = [];
+    private array $processors = [];
 
     public static function new(): ProcessorsRegistry
     {
@@ -33,7 +24,7 @@ class ProcessorsRegistry implements \Countable
         static $name;
         $name or $name = '~*~' . bin2hex(random_bytes(8));
 
-        return (string)$name;
+        return (string) $name;
     }
 
     private function __construct()
@@ -53,20 +44,23 @@ class ProcessorsRegistry implements \Countable
     ): ProcessorsRegistry {
 
         $allChannels = self::allChannelsName();
-        $channels or $channels = [$allChannels];
+        $channels = $channels ?: [$allChannels];
 
         [$currentProcessor, $currentChannels] = $this->processors[$identifier] ?? [null, []];
         if ($currentProcessor && $currentProcessor !== $processor) {
             return $this;
         }
 
-        $currentChannels or $currentChannels = [];
+        $currentChannels = $currentChannels ?: [];
         $alreadyAddedForAll = $currentChannels[$allChannels] ?? null;
         unset($currentChannels[$allChannels]);
 
         $enabledChannels = array_fill_keys($channels, true);
         $newChannels = array_replace($currentChannels, $enabledChannels);
-        $alreadyAddedForAll and $newChannels[$allChannels] = $alreadyAddedForAll;
+
+        if ($alreadyAddedForAll) {
+            $newChannels[$allChannels] = $alreadyAddedForAll;
+        }
 
         $this->processors[$identifier] = [$processor, $newChannels];
 
@@ -102,7 +96,7 @@ class ProcessorsRegistry implements \Countable
         }
 
         $allChannels = self::allChannelsName();
-        $currentChannels or $currentChannels = [];
+        $currentChannels = $currentChannels ?: [];
         $default = $currentChannels[$allChannels] ?? null;
         unset($currentChannels[$allChannels]);
 
@@ -110,7 +104,9 @@ class ProcessorsRegistry implements \Countable
         $disabledChannels = array_fill_keys($channels, false);
 
         $newChannels = array_replace($currentChannels, $disabledChannels);
-        $default and $newChannels[$allChannels] = $default;
+        if ($default) {
+            $newChannels[$allChannels] = $default;
+        }
 
         if (!array_filter($newChannels)) {
             unset($this->processors[$identifier]);
@@ -205,7 +201,7 @@ class ProcessorsRegistry implements \Countable
             return true;
         }
 
-        foreach ((array)$channels as $enabled) {
+        foreach ((array) $channels as $enabled) {
             if ($enabled) {
                 return true;
             }

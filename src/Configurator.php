@@ -1,22 +1,12 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Inpsyde\Wonolog\HookListener;
+use Inpsyde\Wonolog\Processor\WpContextProcessor;
 use Monolog\Handler\HandlerInterface;
 use Psr\Log\LoggerInterface;
-use Inpsyde\Wonolog\Processor\WpContextProcessor;
 
 class Configurator
 {
@@ -46,15 +36,12 @@ class Configurator
         HookListener\WpDieHandlerListener::class,
     ];
 
-    /**
-     * @var Factory
-     */
-    protected $factory;
+    protected Factory $factory;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $config = [
+    protected array $config = [
         self::CONF_BASE_HOOK_PRIORITY => 100,
         self::CONF_ERROR_TYPES => null,
         self::CONF_LOG_EXCEPTIONS => true,
@@ -277,7 +264,7 @@ class Configurator
     /**
      * @param string $channel
      * @param string ...$channels
-     * @return $this
+     * @return static
      */
     public function enableFallbackHandlerForChannels(
         string $channel,
@@ -290,8 +277,7 @@ class Configurator
             self::CONF_FALLBACK_HANDLER,
             true,
             $channel,
-            ...
-            $channels
+            ...$channels
         );
     }
 
@@ -309,8 +295,7 @@ class Configurator
             self::CONF_FALLBACK_HANDLER,
             false,
             $channel,
-            ...
-            $channels
+            ...$channels
         );
     }
 
@@ -448,7 +433,7 @@ class Configurator
     /**
      * @param string $channel
      * @param string ...$channels
-     * @return $this
+     * @return static
      */
     public function enableWpContextProcessorForChannels(
         string $channel,
@@ -461,15 +446,14 @@ class Configurator
             self::CONF_WP_CONTEXT_PROCESSOR,
             true,
             $channel,
-            ...
-            $channels
+            ...$channels
         );
     }
 
     /**
      * @param string $channel
      * @param string ...$channels
-     * @return $this
+     * @return static
      */
     public function disableWpContextProcessorForChannels(
         string $channel,
@@ -480,8 +464,7 @@ class Configurator
             self::CONF_WP_CONTEXT_PROCESSOR,
             false,
             $channel,
-            ...
-            $channels
+            ...$channels
         );
     }
 
@@ -524,8 +507,7 @@ class Configurator
             self::CONF_DEFAULT_LISTENERS,
             true,
             $listener,
-            ...
-            $listeners
+            ...$listeners
         );
     }
 
@@ -543,8 +525,7 @@ class Configurator
             self::CONF_DEFAULT_LISTENERS,
             false,
             $listener,
-            ...
-            $listeners
+            ...$listeners
         );
     }
 
@@ -633,7 +614,7 @@ class Configurator
             return $this;
         }
 
-        $aliases = (array)($this->config[self::CONF_HOOK_ALIASES] ?? []);
+        $aliases = (array) ($this->config[self::CONF_HOOK_ALIASES] ?? []);
         $aliases[$normalized] = $defaultChannel;
         $this->config[self::CONF_HOOK_ALIASES] = $aliases;
         if ($defaultChannel) {
@@ -789,13 +770,13 @@ class Configurator
         $this->setupPhpErrorListener($errorTypes, $exceptions);
         $this->setupWpContextProcessor($channels);
 
-        $maxSeverity = (int)max(LogLevel::allLevels() ?: [LogLevel::EMERGENCY]);
+        $maxSeverity = (int) max(LogLevel::allLevels() ?: [LogLevel::EMERGENCY]);
         $defaultChannel = $channels->defaultChannel();
         $this->setupLogActionSubscriberForHook(LOG, $defaultChannel, $maxSeverity);
 
-        foreach ((array)$this->config[self::CONF_HOOK_ALIASES] as $alias => $aliasChannel) {
-            $channel = (string)($aliasChannel ?? $defaultChannel);
-            $this->setupLogActionSubscriberForHook((string)$alias, $channel, $maxSeverity);
+        foreach ((array) $this->config[self::CONF_HOOK_ALIASES] as $alias => $aliasChannel) {
+            $channel = (string) ($aliasChannel ?? $defaultChannel);
+            $this->setupLogActionSubscriberForHook((string) $alias, $channel, $maxSeverity);
         }
 
         $this->setupHookListeners();
@@ -851,8 +832,8 @@ class Configurator
      */
     private function shouldlogErrorsAndExceptions(): array
     {
-        $errorTypes = (int)($this->config[self::CONF_ERROR_TYPES] ?? (E_ALL | E_STRICT));
-        $exceptions = (bool)($this->config[self::CONF_LOG_EXCEPTIONS] ?? false);
+        $errorTypes = (int) ($this->config[self::CONF_ERROR_TYPES] ?? E_ALL);
+        $exceptions = (bool) ($this->config[self::CONF_LOG_EXCEPTIONS] ?? false);
 
         return [$errorTypes, $exceptions];
     }
@@ -871,10 +852,10 @@ class Configurator
         string ...$configValues
     ): Configurator {
 
-        $config = (array)($this->config[$key] ?? []);
+        $config = (array) ($this->config[$key] ?? []);
 
-        $enabled = (array)($config[self::ENABLED] ?? []);
-        $disabled = (array)($config[self::DISABLED] ?? []);
+        $enabled = (array) ($config[self::ENABLED] ?? []);
+        $disabled = (array) ($config[self::DISABLED] ?? []);
         $config[self::ALL] = null;
 
         array_unshift($configValues, $configValue);
@@ -899,13 +880,13 @@ class Configurator
     /**
      * @param string $key
      * @param list<string> $allValues
-     * @return list<string>|null
+     * @return non-empty-list<string>|null
      *
-     * phpcs:disable Generic.Metrics.CyclomaticComplexity
+     * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */
     private function parseEnabledDisabledConfig(string $key, array $allValues): ?array
     {
-        // phpcs:enable Generic.Metrics.CyclomaticComplexity
+        // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
 
         /** @var array $config */
         $config = $this->config[$key];
@@ -918,21 +899,21 @@ class Configurator
             return $allValues;
         }
 
-        $enabled = array_keys((array)($config[self::ENABLED] ?? []));
-        $disabled = array_keys((array)($config[self::DISABLED] ?? []));
+        $enabled = array_keys((array) ($config[self::ENABLED] ?? []));
+        $disabled = array_keys((array) ($config[self::DISABLED] ?? []));
 
         $toEnable = null;
         switch (true) {
             case ($enabled && $disabled):
-                /** @var list<string> $toEnable */
+                /** @var non-empty-list<string>|null $toEnable */
                 $toEnable = array_intersect(array_diff($enabled, $disabled), $allValues) ?: null;
                 break;
             case ($enabled):
-                /** @var list<string> $toEnable */
+                /** @var non-empty-list<string>|null $toEnable */
                 $toEnable = array_intersect($enabled, $allValues) ?: null;
                 break;
             case ($disabled):
-                /** @var list<string> $toEnable */
+                /** @var non-empty-list<string>|null $toEnable */
                 $toEnable = array_diff($allValues, $disabled) ?: null;
                 break;
         }
@@ -1003,7 +984,7 @@ class Configurator
             $listeners->addFilterListener($class, $listener);
         }
 
-        $listeners->listenAll((int)$this->config[self::CONF_BASE_HOOK_PRIORITY]);
+        $listeners->listenAll((int) $this->config[self::CONF_BASE_HOOK_PRIORITY]);
     }
 
     /**
@@ -1013,7 +994,7 @@ class Configurator
     protected function setupPhpErrorListener(int $errorTypes, bool $logExceptions): void
     {
         $updater = $this->factory->logActionUpdater();
-        $logSilenced = (bool)$this->config[self::CONF_SILENCED_ERRORS];
+        $logSilenced = (bool) $this->config[self::CONF_SILENCED_ERRORS];
         $controller = PhpErrorController::new($logSilenced, $updater);
 
         $logExceptions and set_exception_handler([$controller, 'onException']);
@@ -1022,6 +1003,7 @@ class Configurator
             return;
         }
 
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
         set_error_handler([$controller, 'onError'], $errorTypes);
         if (PhpErrorController::typesMaskContainsFatals($errorTypes)) {
             register_shutdown_function([$controller, 'onShutdown']);
@@ -1042,7 +1024,7 @@ class Configurator
 
         [$listen, $listenWithLevel] = $this->listenCallbacksData($defaultChannel);
 
-        $basePriority = (int)$this->config[self::CONF_BASE_HOOK_PRIORITY];
+        $basePriority = (int) $this->config[self::CONF_BASE_HOOK_PRIORITY];
         add_action($hook, $listen, $basePriority + $maxSeverity + 1, PHP_INT_MAX);
 
         foreach ($listenWithLevel as $levelName => [$callback, $severity]) {
@@ -1083,7 +1065,7 @@ class Configurator
 
         $subscriber = $this->factory->logActionSubscriber();
 
-        // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+        // phpcs:disable Syde.Functions.ArgumentTypeDeclaration
         $listen = static function (...$args) use ($subscriber, $defaultChannel): void {
             $subscriber->listen($args, null, $defaultChannel);
         };
@@ -1091,13 +1073,13 @@ class Configurator
         $listenWithLevel = [];
 
         foreach (LogLevel::allLevels() as $level => $severity) {
-            $callable = static function (...$args) use ($subscriber, $level, $defaultChannel) {
+            $callable = static function (...$args) use ($subscriber, $level, $defaultChannel): void {
                 $subscriber->listen($args, $level, $defaultChannel);
             };
 
             $listenWithLevel[$level] = [$callable, $severity];
         }
-        // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+        // phpcs:enable Syde.Functions.ArgumentTypeDeclaration
 
         $data[$defaultChannel] = [$listen, $listenWithLevel];
 

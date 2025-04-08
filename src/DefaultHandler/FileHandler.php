@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\DefaultHandler;
 
+use Inpsyde\Wonolog\LogLevel;
+use Inpsyde\Wonolog\Processor;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\BufferHandler;
 use Monolog\Handler\FormattableHandlerInterface;
@@ -20,9 +22,8 @@ use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Monolog\ResettableInterface;
-use Inpsyde\Wonolog\LogLevel;
-use Inpsyde\Wonolog\Processor;
 
 class FileHandler implements
     HandlerInterface,
@@ -30,40 +31,19 @@ class FileHandler implements
     FormattableHandlerInterface,
     ResettableInterface
 {
-    /**
-     * @var string|null
-     */
-    private $folder;
+    private ?string $folder = null;
 
-    /**
-     * @var string|null
-     */
-    private $filename;
+    private ?string $filename = null;
 
-    /**
-     * @var int|null
-     */
-    private $minLevel;
+    private ?int $minLevel = null;
 
-    /**
-     * @var bool
-     */
-    private $bubble = true;
+    private bool $bubble = true;
 
-    /**
-     * @var bool
-     */
-    private $buffering = true;
+    private bool $buffering = true;
 
-    /**
-     * @var HandlerInterface|null
-     */
-    private $handler;
+    private ?HandlerInterface $handler = null;
 
-    /**
-     * @var string|null
-     */
-    private $logFilePath;
+    private ?string $logFilePath = null;
 
     /**
      * @return FileHandler
@@ -269,11 +249,11 @@ class FileHandler implements
      * @param FormatterInterface $formatter
      * @return static
      *
-     * phpcs:disable Inpsyde.CodeQuality.NoAccessors
+     * phpcs:disable Syde.Classes.DisallowGetterSetter
      */
     public function setFormatter(FormatterInterface $formatter): HandlerInterface
     {
-        // phpcs:enable Inpsyde.CodeQuality.NoAccessors
+        // phpcs:enable Syde.Classes.DisallowGetterSetter
         $this->ensureHandler();
         if ($this->handler instanceof FormattableHandlerInterface) {
             $this->handler->setFormatter($formatter);
@@ -285,10 +265,11 @@ class FileHandler implements
     /**
      * @return FormatterInterface
      *
-     * phpcs:disable Inpsyde.CodeQuality.NoAccessors
+     * phpcs:disable Syde.Classes.DisallowGetterSetter
      */
     public function getFormatter(): FormatterInterface
     {
+        // phpcs:enable Syde.Classes.DisallowGetterSetter
         $this->ensureHandler();
         if ($this->handler instanceof FormattableHandlerInterface) {
             return $this->handler->getFormatter();
@@ -296,15 +277,14 @@ class FileHandler implements
 
         /** @var FormatterInterface|null $noopFormatter */
         static $noopFormatter;
-        $noopFormatter or $noopFormatter = new PassthroughFormatter();
 
-        return $noopFormatter;
+        return $noopFormatter ?? $noopFormatter = new PassthroughFormatter();
     }
 
     /**
      * @return void
      */
-    public function reset()
+    public function reset(): void
     {
         $this->ensureHandler();
         if ($this->handler instanceof ResettableInterface) {
@@ -329,20 +309,21 @@ class FileHandler implements
 
         $logFileName = $this->filename ?? (date('Y/m/d') . '.log');
         $logFilePath = $folder . ltrim($logFileName, '/\\');
-        $logFileFir = dirname($logFilePath);
-        if (!$logFileFir || $logFileFir === '.') {
+        $logFileDir = dirname($logFilePath);
+        if ($logFileDir === '.') {
             throw new \Exception('Could not determine valid log file path.');
         }
 
-        if (!wp_mkdir_p($logFileFir)) {
+        if (!wp_mkdir_p($logFileDir)) {
             throw new \Exception('Could not create valid log file path.');
         }
 
-        if (!is_writable($logFileFir)) {
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+        if (!is_writable($logFileDir)) {
             throw new \Exception('Could not obtain valid log file path: not writable.');
         }
 
-        return (string)wp_normalize_path($logFilePath);
+        return (string) wp_normalize_path($logFilePath);
     }
 
     /**
@@ -359,6 +340,9 @@ class FileHandler implements
         try {
             $this->logFilePath = $this->logFilePath();
             $level = $this->minLevel ?? LogLevel::defaultMinLevel();
+            if (!$level) {
+                $level = Logger::DEBUG;
+            }
             $streamBuffer = $this->buffering || $this->bubble;
             $handler = new StreamHandler($this->logFilePath, $level, $streamBuffer, null, true);
             $this->handler = $this->buffering

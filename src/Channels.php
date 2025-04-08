@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
@@ -29,6 +20,17 @@ class Channels
     public const ACTION_LOGGER = 'wonolog.logger';
     public const ACTION_MONOLOG_LOGGER = 'wonolog.monolog-logger';
 
+    public const CHANNELS = [
+        self::HTTP,
+        self::DB,
+        self::PHP_ERROR,
+        self::SECURITY,
+        self::DEBUG,
+        self::CRON,
+        self::ACTION_LOGGER,
+        self::ACTION_MONOLOG_LOGGER,
+    ];
+
     public const DEFAULT_CHANNELS = [
         self::HTTP,
         self::DB,
@@ -42,37 +44,25 @@ class Channels
     /**
      * @var array<string, int>
      */
-    private $channels;
+    private array $channels;
+
+    private Registry\HandlersRegistry $handlersRegistry;
+
+    private Registry\ProcessorsRegistry $processorsRegistry;
+
+    private ?\DateTimeZone $timezone = null;
 
     /**
-     * @var Registry\HandlersRegistry
+     * @var array<string, LoggerInterface>
      */
-    private $handlersRegistry;
-
-    /**
-     * @var Registry\ProcessorsRegistry
-     */
-    private $processorsRegistry;
-
-    /**
-     * @var \DateTimeZone|null
-     */
-    private $timezone;
-
-    /**
-     * @var array<string, LoggerInterface>|null
-     */
-    private $loggers = [];
+    private array $loggers = [];
 
     /**
      * @var array<string, array{string, array<string, int|null>}>
      */
-    private $ignoreList = [];
+    private array $ignoreList = [];
 
-    /**
-     * @var string
-     */
-    private $defaultChannel;
+    private string $defaultChannel;
 
     /**
      * @param Registry\HandlersRegistry $handlers
@@ -155,10 +145,14 @@ class Channels
         $id = 'L' . substr(md5($ignorePattern), -12, 10) . bin2hex(random_bytes(3));
         $ignorePattern = "(?<{$id}>{$ignorePattern})";
 
-        $channels or $channels = [self::ALL_CHANNELS];
+        if ($channels === []) {
+            $channels = [self::ALL_CHANNELS];
+        }
         foreach ($channels as $channel) {
             [$pattern, $levels] = $this->ignoreList[$channel] ?? ['', []];
-            $pattern and $pattern .= '|';
+            if ($pattern !== '') {
+                $pattern .= '|';
+            }
             $pattern .= $ignorePattern;
             $levels[$id] = $levelThreshold;
 
@@ -234,7 +228,7 @@ class Channels
      */
     public function hasChannel(string $channel): bool
     {
-        return (bool)($this->channels[$channel] ?? false);
+        return (bool) ($this->channels[$channel] ?? false);
     }
 
     /**

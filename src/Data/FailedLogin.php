@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Data;
@@ -20,27 +11,21 @@ final class FailedLogin implements LogData
 {
     public const TRANSIENT_NAME = 'wonolog.failed-login-count';
 
-    /**
-     * @var string
-     */
-    private $username;
+    private string $username;
 
     /**
      * Contains the actual IP and the method used to retrieve it
      *
      * @var array{string, string}|null
      */
-    private $ipData;
+    private ?array $ipData = null;
 
     /**
      * @var array<string, array{count:int, last_logged:int}>|null
      */
-    private $attemptsData;
+    private ?array $attemptsData = null;
 
-    /**
-     * @var int|null
-     */
-    private $attempts;
+    private ?int $attempts = null;
 
     /**
      * @param string $username Username used for the failed login attempt
@@ -98,7 +83,7 @@ final class FailedLogin implements LogData
         $userIp = $this->ipData[0];
 
         $attempts = get_site_transient(self::TRANSIENT_NAME);
-        is_array($attempts) or $attempts = [];
+        $attempts = is_array($attempts) ? $attempts : [];
 
         // Seems the first time a failed attempt for this IP
         if (
@@ -107,9 +92,6 @@ final class FailedLogin implements LogData
             || !isset($attempts[$userIp]['count'])
             || !isset($attempts[$userIp]['last_logged'])
         ) {
-            /**
-             * @var array<string, array{count: int, last_logged: int}> $data
-             */
             $data = ['count' => 0, 'last_logged' => 0];
             $attempts[$userIp] = $data;
         }
@@ -124,9 +106,9 @@ final class FailedLogin implements LogData
          * We assume the value retrieved when calling get_site_transient is an integer on both
          * @psalm-suppress RiskyCast
          */
-        $count = (int)$attempts[$userIp]['count'];
+        $count = (int) $attempts[$userIp]['count'];
         /** @psalm-suppress RiskyCast */
-        $lastLogged = (int)$attempts[$userIp]['last_logged'];
+        $lastLogged = (int) $attempts[$userIp]['last_logged'];
 
         /**
          * During a brute force attack, logging all the failed attempts
@@ -145,7 +127,10 @@ final class FailedLogin implements LogData
             || ($count < 1000 && ($count - $lastLogged) === 100)
             || (($count - $lastLogged) === 200);
 
-        $doLog and $attempts[$userIp]['last_logged'] = $count;
+        if ($doLog) {
+            $attempts[$userIp]['last_logged'] = $count;
+        }
+
         set_site_transient(self::TRANSIENT_NAME, $attempts, $ttl);
 
         $this->attempts = $doLog ? $count : 0;
@@ -176,7 +161,10 @@ final class FailedLogin implements LogData
 
         /** @var array<string, string> $ips */
         $ips = array_intersect_key($_SERVER, $ipServerKeys);
-        $this->ipData = $ips ? [(string)reset($ips), (string)key($ips)] : ['0.0.0.0', 'Hidden IP'];
+
+        $this->ipData = $ips
+            ? [(string) reset($ips), (string) key($ips)]
+            : ['0.0.0.0', 'Hidden IP'];
     }
 
     /**

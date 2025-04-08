@@ -2,7 +2,7 @@ version: '3.7'
 
 x-db-environment:
   &db-environment
-    WORDPRESS_DB_HOST: wonolog-mysql
+    WORDPRESS_DB_HOST: wonolog-db
     WORDPRESS_DB_NAME: wordpress
     WORDPRESS_DB_USER: wordpress
     WORDPRESS_DB_PASSWORD: wordpress
@@ -14,61 +14,21 @@ x-wp-volume:
         target: /var/www/html
 
 services:
-    mysql:
-        image: mysql:5.7
-        container_name: wonolog-mysql
+    db:
+        image: mariadb:10.5
+        container_name: wonolog-db
         environment:
-            MYSQL_ROOT_PASSWORD: wordpress
-            MYSQL_DATABASE: wordpress
-            MYSQL_USER: wordpress
-            MYSQL_PASSWORD: wordpress
+            MARIADB_ROOT_PASSWORD: wordpress
+            MARIADB_DATABASE: wordpress
+            MARIADB_USER: wordpress
+            MARIADB_PASSWORD: wordpress
 
-    php72:
-        container_name: wonolog-php-72
-        build:
-            context: ./php72
-        depends_on:
-            - mysql
-        environment:
-          *db-environment
-        volumes:
-          *wp-volume
-    php73:
-        container_name: wonolog-php-73
-        build:
-            context: ./php73
-        depends_on:
-            - mysql
-        environment:
-          *db-environment
-        volumes:
-          *wp-volume
-    php74:
-        container_name: wonolog-php-74
-        build:
-            context: ./php74
-        depends_on:
-            - mysql
-        environment:
-          *db-environment
-        volumes:
-          *wp-volume
-    php80:
-        container_name: wonolog-php-80
-        build:
-            context: ./php80
-        depends_on:
-            - mysql
-        environment:
-          *db-environment
-        volumes:
-          *wp-volume
     php81:
         container_name: wonolog-php-81
         build:
             context: ./php81
         depends_on:
-            - mysql
+            - db
         environment:
           *db-environment
         volumes:
@@ -78,7 +38,7 @@ services:
         build:
             context: ./php82
         depends_on:
-            - mysql
+            - db
         environment:
           *db-environment
         volumes:

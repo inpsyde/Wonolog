@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\HookListener;
@@ -20,20 +11,14 @@ use Inpsyde\Wonolog\LogLevel;
 
 final class CronDebugListener implements ActionListener
 {
-    /**
-     * @var bool
-     */
-    private static $ran = false;
+    private static bool $ran = false;
 
-    /**
-     * @var int
-     */
-    private $logLevel;
+    private int $logLevel;
 
     /**
      * @var array<string, array{float, string|null}>
      */
-    private $done = [];
+    private array $done = [];
 
     /**
      * @param int $logLevel
@@ -89,11 +74,11 @@ final class CronDebugListener implements ActionListener
         }
 
         foreach ($cronArray as $cronData) {
-            $this->registerEventListenerForHooks((array)$cronData, $updater);
+            $this->registerEventListenerForHooks((array) $cronData, $updater);
         }
 
         register_shutdown_function(
-            function () use ($updater) {
+            function () use ($updater): void {
                 $this->logUnfinishedHooks($updater);
             }
         );
@@ -120,12 +105,14 @@ final class CronDebugListener implements ActionListener
      */
     private function registerEventListenerForHook(string $hook, LogActionUpdater $updater): void
     {
-        $profileCallback = function () use ($hook, $updater) {
+        $profileCallback = function () use ($hook, $updater): void {
             $this->cronActionProfile($hook, $updater);
         };
 
+        // phpcs:disable Syde.WordPress.HookPriority
         add_action($hook, $profileCallback, PHP_INT_MIN);
         add_action($hook, $profileCallback, PHP_INT_MAX);
+        // phpcs:enable Syde.WordPress.HookPriority
     }
 
     /**
@@ -141,7 +128,7 @@ final class CronDebugListener implements ActionListener
         }
 
         if (!isset($this->done[$hook])) {
-            $this->done[$hook] = [(float)microtime(true), null];
+            $this->done[$hook] = [(float) microtime(true), null];
 
             return;
         }
@@ -151,7 +138,7 @@ final class CronDebugListener implements ActionListener
             return;
         }
 
-        $duration = number_format((float)microtime(true) - $start, 2);
+        $duration = number_format((float) microtime(true) - $start, 2);
         $this->done[$hook] = [$start, $duration];
 
         $message = sprintf('Cron action "%s" performed. Duration: %s seconds.', $hook, $duration);
@@ -167,7 +154,10 @@ final class CronDebugListener implements ActionListener
     {
         $unfinished = [];
         foreach ($this->done as $hook => [, $duration]) {
-            ($duration === null) and $unfinished[] = $hook;
+            if ($duration !== null) {
+                continue;
+            }
+            $unfinished[] = $hook;
         }
 
         if (!$unfinished) {

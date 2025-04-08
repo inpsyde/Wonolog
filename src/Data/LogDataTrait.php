@@ -1,39 +1,24 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Data;
 
 trait LogDataTrait
 {
-    /**
-     * @var string
-     */
-    private $message;
+    private string $message;
+
+    private string $channel;
 
     /**
-     * @var string
+     * @var mixed[]
      */
-    private $channel;
-
-    /**
-     * @var array
-     */
-    private $context;
+    private array $context;
 
     /**
      * @param string $message
      * @param string $channel
-     * @param array $context
+     * @param mixed[] $context
      */
     public function __construct(string $message, string $channel, array $context = [])
     {

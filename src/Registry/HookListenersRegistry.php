@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Registry;
@@ -23,17 +14,11 @@ class HookListenersRegistry
     /**
      * @var array<string, array{FilterListener|ActionListener, int|null}>
      */
-    private $listeners = [];
+    private array $listeners = [];
 
-    /**
-     * @var bool
-     */
-    private $booted = false;
+    private bool $booted = false;
 
-    /**
-     * @var LogActionUpdater
-     */
-    private $updater;
+    private LogActionUpdater $updater;
 
     /**
      * @param LogActionUpdater $updater
@@ -160,7 +145,7 @@ class HookListenersRegistry
      */
     public function hasListeners(): bool
     {
-        return (bool)$this->listeners;
+        return (bool) $this->listeners;
     }
 
     /**

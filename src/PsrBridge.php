@@ -9,27 +9,18 @@ use Inpsyde\Wonolog\Data\LogData;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\AbstractLogger;
 
+/**
+ * @phpstan-import-type Record from \Monolog\Logger
+ */
 class PsrBridge extends AbstractLogger
 {
-    /**
-     * @var LogActionUpdater
-     */
-    private $updater;
+    private LogActionUpdater $updater;
 
-    /**
-     * @var Channels
-     */
-    private $channels;
+    private Channels $channels;
 
-    /**
-     * @var string|null
-     */
-    private $defaultChannel;
+    private ?string $defaultChannel = null;
 
-    /**
-     * @var PsrLogMessageProcessor
-     */
-    private $processor;
+    private PsrLogMessageProcessor $processor;
 
     /**
      * @param LogActionUpdater $updater
@@ -70,11 +61,11 @@ class PsrBridge extends AbstractLogger
      * @param array $context
      * @return void
      *
-     * phpcs:disable Generic.Metrics.CyclomaticComplexity
+     * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */
-    public function log($level, $message, array $context = []): void
+    public function log(mixed $level, mixed $message, array $context = []): void
     {
-        // phpcs:enable Generic.Metrics.CyclomaticComplexity
+        // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
         $throwable = null;
         if ($message instanceof \Throwable) {
             $throwable = $message;
@@ -100,13 +91,22 @@ class PsrBridge extends AbstractLogger
         }
         unset($context[LogData::CHANNEL]);
 
-        /** @psalm-suppress InvalidArgument */
-        $record = ($this->processor)(compact('message', 'context'));
-        array_key_exists('message', $record) and $message = (string)$record['message'];
-        array_key_exists('context', $record) and $context = (array)$record['context'];
+        /** @var Record $record */
+        $record = compact('message', 'context', 'level');
+        $record = ($this->processor)($record);
+        // @phpstan-ignore function.alreadyNarrowedType
+        if (array_key_exists('message', $record)) {
+            $message = (string) $record['message'];
+        }
+        // @phpstan-ignore function.alreadyNarrowedType
+        if (array_key_exists('context', $record)) {
+            $context = (array) $record['context'];
+        }
 
         unset($context['exception']);
-        $throwable and $context['exception'] = $throwable;
+        if ($throwable) {
+            $context['exception'] = $throwable;
+        }
 
         $this->updater->update(new Log($message, $level, $channel, $context));
     }

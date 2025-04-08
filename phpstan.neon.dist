@@ -1,0 +1,18 @@
+includes:
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - vendor/swissspidy/phpstan-no-private/rules.neon
+parameters:
+    level: 5
+    excludePaths:
+      - src/HookListener/MethodNamesByHookTrait.php
+      - src/HookListener/FilterFromUpdateTrait.php
+    scanFiles:
+        - vendor/inpsyde/wp-stubs-versions/latest.php
+    scanDirectories:
+        - vendor/roots/wordpress-no-content/wp-includes/PHPMailer
+    paths:
+        - src
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        - '#Class PHPMailer not found.#'
+        - '#Access to property \$\w+ on an unknown class PHPMailer#'

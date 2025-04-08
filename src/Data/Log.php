@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Data;
@@ -40,15 +31,9 @@ final class Log implements LogData
         ],
     ];
 
-    /**
-     * @var WpErrorChannel|null
-     */
-    private static $wpErrorChannel;
+    private static ?WpErrorChannel $wpErrorChannel = null;
 
-    /**
-     * @var int
-     */
-    private $level;
+    private int $level;
 
     /**
      * @param array $logData
@@ -67,13 +52,13 @@ final class Log implements LogData
         }
 
         $logData = array_filter(filter_var_array($logData, self::FILTERS) ?: []);
-        $message = (string)($logData[self::MESSAGE] ?? 'Unknown error');
+        $message = (string) ($logData[self::MESSAGE] ?? 'Unknown error');
 
         return new self(
             htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false),
-            (int)($logData[self::LEVEL] ?? $defaultLevel ?? LogLevel::DEBUG),
-            (string)($logData[self::CHANNEL] ?? $defaultChannel ?? Channels::DEBUG),
-            (array)($logData[self::CONTEXT] ?? [])
+            (int) ($logData[self::LEVEL] ?? $defaultLevel ?? LogLevel::DEBUG),
+            (string) ($logData[self::CHANNEL] ?? $defaultChannel ?? Channels::DEBUG),
+            (array) ($logData[self::CONTEXT] ?? [])
         );
     }
 
@@ -83,7 +68,7 @@ final class Log implements LogData
      * @param string|null $defaultChannel Channel name
      * @return Log
      *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     * phpcs:disable Syde.Functions.ArgumentTypeDeclaration
      */
     public static function fromWpError(
         \WP_Error $error,
@@ -92,8 +77,8 @@ final class Log implements LogData
     ): Log {
 
         $level = LogLevel::normalizeLevel($defaultLevel) ?? LogLevel::NOTICE;
-        $message = (string)$error->get_error_message();
-        $context = (array)($error->get_error_data() ?: []);
+        $message = (string) $error->get_error_message();
+        $context = (array) ($error->get_error_data() ?: []);
 
         self::$wpErrorChannel or self::$wpErrorChannel = WpErrorChannel::new();
 
@@ -106,7 +91,7 @@ final class Log implements LogData
             $level = LogLevel::NOTICE;
         }
 
-        return new self((string)$message, $level, $channel, $context);
+        return new self((string) $message, $level, $channel, $context);
     }
 
     /**
@@ -116,7 +101,7 @@ final class Log implements LogData
      * @param array $context
      * @return Log
      *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     * phpcs:disable Syde.Functions.ArgumentTypeDeclaration
      */
     public static function fromThrowable(
         \Throwable $throwable,
@@ -126,7 +111,7 @@ final class Log implements LogData
     ): Log {
 
         $level = LogLevel::normalizeLevel($level) ?? LogLevel::ERROR;
-        $channel or $channel = Channels::DEBUG;
+        $channel = in_array($channel, Channels::CHANNELS, true) ? $channel : Channels::DEBUG;
 
         $context['throwable'] = [
             'class' => get_class($throwable),
@@ -207,7 +192,7 @@ final class Log implements LogData
      *
      * @return Log
      *
-     * phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+     * phpcs:disable Syde.Functions.ArgumentTypeDeclaration
      */
     public function with(string $key, $value): Log
     {

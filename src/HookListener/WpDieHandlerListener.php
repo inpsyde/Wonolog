@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\HookListener;
@@ -23,10 +14,7 @@ use Inpsyde\Wonolog\LogLevel;
  */
 final class WpDieHandlerListener implements FilterListener
 {
-    /**
-     * @var int
-     */
-    private $logLevel;
+    private int $logLevel;
 
     /**
      * @param int $logLevel
@@ -66,7 +54,7 @@ final class WpDieHandlerListener implements FilterListener
         }
 
         $level = $this->logLevel;
-        $updater = static function (string $msg, array $context) use ($updater, $level) {
+        $updater = static function (string $msg, array $context) use ($updater, $level): void {
             // Log the wp_die() error message.
             $updater->update(new Log($msg, $level, Channels::DB, $context));
         };
@@ -96,9 +84,10 @@ final class WpDieHandlerListener implements FilterListener
      */
     private function stackTraceHasDbError(): bool
     {
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
         $stacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         foreach ($stacktrace as $item) {
-            $function = $item['function'] ?? null;
+            $function = $item['function'] ?? null; // @phpstan-ignore-line
             $class = $item['class'] ?? null;
             if ($class === \wpdb::class && ($function === 'bail' || $function === 'print_error')) {
                 return true;

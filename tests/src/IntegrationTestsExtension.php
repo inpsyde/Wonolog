@@ -20,7 +20,40 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
         }
 
         fwrite(STDOUT, "Resetting WP database...\n");
-        static::runWpCliCommand(['db', 'reset', '--yes']);
+        [$dbHost, $dbName, $dbUser, $dbPwd] = static::loadEnvVars();
+        // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysqli_connect
+        $conn = mysqli_connect($dbHost, $dbUser, $dbPwd, $dbName);
+        if (!$conn) {
+            // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysqli_connect_error
+            throw new \Exception("Connection failed: " . mysqli_connect_error());
+        }
+
+        fwrite(STDOUT, "Connected successfully\n");
+
+        $sql = "DROP DATABASE IF EXISTS `$dbName`";
+
+        // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysqli_query
+        if (mysqli_query($conn, $sql)) {
+            fwrite(STDOUT, "Database '$dbName' deleted successfully (if it existed)\n");
+        // phpcs:ignore Syde.ControlStructures.DisallowElse.ElseFound
+        } else {
+            // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysqli_error
+            throw new \Exception("Error deleting database: " . mysqli_error($conn));
+        }
+
+        $sql = "CREATE DATABASE `$dbName`";
+
+        // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysqli_query
+        if (mysqli_query($conn, $sql)) {
+            fwrite(STDOUT, "Database '$dbName' created successfully\n");
+        // phpcs:ignore Syde.ControlStructures.DisallowElse.ElseFound
+        } else {
+            // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysqli_error
+            throw new \Exception("Error creating database: " . mysqli_error($conn));
+        }
+
+        // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysqli_close
+        mysqli_close($conn);
 
         fwrite(STDOUT, "Re-installing WP database...\n");
         static::runWpCliCommand(
@@ -107,6 +140,7 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
                 "--dbpass={$dbPwd}",
                 "--dbhost={$dbHost}",
                 '--force',
+                '--skip-check',
             ]
         );
 

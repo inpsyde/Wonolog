@@ -1,24 +1,12 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\DefaultHandler;
 
 class LogsFolder
 {
-    /**
-     * @var string|null
-     */
-    private static $folder;
+    private static ?string $folder = null;
 
     /**
      * @param string|null $customFolder
@@ -46,15 +34,15 @@ class LogsFolder
         try {
             if ($customFolder) {
                 return wp_mkdir_p($customFolder)
-                    ? static::maybeCreateHtaccess($customFolder)
+                    ? self::maybeCreateHtaccess($customFolder)
                     : null;
             }
 
-            $folder = static::maybeDetermineFolderByConstant();
+            $folder = self::maybeDetermineFolderByConstant();
 
             if ($folder === null) {
-                $uploadDir = static::uploadsBaseDir();
-                $uploadDir and $folder = (string)wp_normalize_path("{$uploadDir}/wonolog");
+                $uploadDir = self::uploadsBaseDir();
+                $uploadDir and $folder = (string) wp_normalize_path("{$uploadDir}/wonolog");
             }
 
             if ($folder === null && defined('WP_CONTENT_DIR')) {
@@ -66,7 +54,7 @@ class LogsFolder
                 return null;
             }
 
-            self::$folder = static::maybeCreateHtaccess($folder);
+            self::$folder = self::maybeCreateHtaccess($folder);
 
             return self::$folder;
         } catch (\Throwable $throwable) {
@@ -88,10 +76,14 @@ class LogsFolder
      *
      * @param string $folder
      * @return string|null
+     *
+     * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */
     private static function maybeCreateHtaccess(string $folder): ?string
     {
-        $targetDir = rtrim((string)wp_normalize_path($folder), '/');
+        // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
+
+        $targetDir = rtrim((string) wp_normalize_path($folder), '/');
         if (!$targetDir) {
             return null;
         }
@@ -105,7 +97,7 @@ class LogsFolder
             ? rtrim(wp_normalize_path(WP_CONTENT_DIR), '/')
             : null;
 
-        $uploadDir = static::uploadsBaseDir();
+        $uploadDir = self::uploadsBaseDir();
 
         if (!$contentDir && !$uploadDir) {
             return $targetDir;
@@ -123,8 +115,13 @@ class LogsFolder
         }
 
         $targetDir .= '/';
-        $contentDir and $contentDir .= '/';
-        $uploadDir and $uploadDir .= '/';
+        if ($contentDir) {
+            $contentDir .= '/';
+        }
+
+        if ($uploadDir) {
+            $uploadDir .= '/';
+        }
 
         // We will create .htaccess only if target dir is inside one of the two directories we
         // assume are publicly accessible.
@@ -143,6 +140,8 @@ class LogsFolder
 	Deny from all
 </IfModule>
 HTACCESS;
+
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
         file_put_contents("{$targetDir}.htaccess", $htaccess);
 
         return $targetDir;
@@ -159,10 +158,10 @@ HTACCESS;
             return $uploadsBaseDir[0];
         }
 
-        $uploads = (array)wp_upload_dir(null, false);
+        $uploads = (array) wp_upload_dir(null, false);
         if (empty($uploads['error']) && !empty($uploads['basedir'])) {
-            $baseDir = (string)$uploads['basedir'];
-            $uploadsBaseDir = [rtrim((string)wp_normalize_path($baseDir), '/') ?: null];
+            $baseDir = (string) $uploads['basedir'];
+            $uploadsBaseDir = [rtrim((string) wp_normalize_path($baseDir), '/') ?: null];
 
             return $uploadsBaseDir[0];
         }
@@ -179,22 +178,25 @@ HTACCESS;
     {
         $maybeLogFiles = [];
 
-        if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && is_string(WP_DEBUG_LOG)) {
+        // @phpstan-ignore function.impossibleType
+        if (defined('WP_DEBUG_LOG') && is_string(WP_DEBUG_LOG)) {
+            /** @var ?bool $isBool */
             $isBool = filter_var(WP_DEBUG_LOG, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-            ($isBool === null) and $maybeLogFiles[] = WP_DEBUG_LOG;
+            if (is_null($isBool)) {
+                $maybeLogFiles[] = WP_DEBUG_LOG;
+            }
         }
 
         if (defined('ERRORLOGFILE') && ERRORLOGFILE && is_string(ERRORLOGFILE)) {
             $maybeLogFiles[] = ERRORLOGFILE;
         }
 
-        /** @var string $maybeLogFile */
         foreach ($maybeLogFiles as $maybeLogFile) {
             $dirByConstant = dirname($maybeLogFile);
             if ($dirByConstant && $dirByConstant !== '.') {
-                $folder = wp_normalize_path((string)trailingslashit($dirByConstant) . 'wonolog');
+                $folder = wp_normalize_path((string) trailingslashit($dirByConstant) . 'wonolog');
 
-                return (string)$folder;
+                return (string) $folder;
             }
         }
 

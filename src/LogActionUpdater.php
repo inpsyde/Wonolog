@@ -1,14 +1,5 @@
 <?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
@@ -20,10 +11,7 @@ class LogActionUpdater
     public const ACTION_LOGGER_ERROR = 'wonolog.logger-error';
     public const FILTER_CONTEXT = 'wonolog.log-data-context';
 
-    /**
-     * @var Channels
-     */
-    private $channels;
+    private Channels $channels;
 
     /**
      * @param Channels $channels
@@ -46,6 +34,7 @@ class LogActionUpdater
      * @param LogData $log
      * @return void
      */
+
     /**
      * @param LogData $log
      * @return void
@@ -85,7 +74,9 @@ class LogActionUpdater
         $context = $log->context();
 
         $filteredContext = apply_filters(self::FILTER_CONTEXT, $context, $log);
-        is_array($filteredContext) and $context = $filteredContext;
+        if (!is_array($filteredContext)) {
+            $context = $filteredContext;
+        }
 
         return Serializer::serializeContext($context);
     }
