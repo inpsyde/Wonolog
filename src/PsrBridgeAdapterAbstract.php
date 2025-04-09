@@ -7,9 +7,6 @@ namespace Inpsyde\Wonolog;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\AbstractLogger;
 
-/**
- * @phpstan-import-type Record from \Monolog\Logger
- */
 abstract class PsrBridgeAdapterAbstract extends AbstractLogger
 {
     protected LogActionUpdater $updater;

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
+use Inpsyde\Wonolog\MonologV2\Levels as MonologV2Levels;
+use Inpsyde\Wonolog\MonologV3\Levels as MonologV3Levels;
 use Monolog\Logger;
 
 /**
@@ -12,13 +14,21 @@ use Monolog\Logger;
  */
 abstract class LogLevel
 {
+    /** @phpstan-ignore-next-line classConstant.deprecated */
     public const DEBUG = Logger::DEBUG;
+    /** @phpstan-ignore-next-line classConstant.deprecated */
     public const INFO = Logger::INFO;
+    /** @phpstan-ignore-next-line classConstant.deprecated */
     public const NOTICE = Logger::NOTICE;
+    /** @phpstan-ignore-next-line classConstant.deprecated */
     public const WARNING = Logger::WARNING;
+    /** @phpstan-ignore-next-line classConstant.deprecated */
     public const ERROR = Logger::ERROR;
+    /** @phpstan-ignore-next-line classConstant.deprecated */
     public const CRITICAL = Logger::CRITICAL;
+    /** @phpstan-ignore-next-line classConstant.deprecated */
     public const ALERT = Logger::ALERT;
+    /** @phpstan-ignore-next-line classConstant.deprecated */
     public const EMERGENCY = Logger::EMERGENCY;
 
     private static ?int $minLevel = null;
@@ -33,7 +43,9 @@ abstract class LogLevel
      */
     final public static function allLevels(): array
     {
-        return Logger::getLevels();
+        return MonologUtils::version() === 3
+            ? MonologV3Levels::allLevels()
+            : MonologV2Levels::allLevels();
     }
 
     /**
@@ -57,6 +69,7 @@ abstract class LogLevel
         // If no valid level is defined via env var, then let's resort to WP constants.
         if (!$minLevel) {
             $const = defined('WP_DEBUG_LOG') ? 'WP_DEBUG_LOG' : 'WP_DEBUG';
+            /** @phpstan-ignore-next-line classConstant.deprecated */
             $minLevel = (defined($const) && constant($const)) ? Logger::DEBUG : Logger::WARNING;
         }
 
