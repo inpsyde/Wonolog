@@ -6,7 +6,6 @@ parameters:
     excludePaths:
       - src/HookListener/MethodNamesByHookTrait.php
       - src/HookListener/FilterFromUpdateTrait.php
-      - src/MonologV2
     scanFiles:
         - vendor/inpsyde/wp-stubs-versions/latest.php
     scanDirectories:
@@ -14,6 +13,7 @@ parameters:
     paths:
         - src
     treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - '#Class PHPMailer not found.#'
         - '#Access to property \$\w+ on an unknown class PHPMailer#'

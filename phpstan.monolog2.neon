@@ -1,0 +1,8 @@
+includes:
+    - phpstan.neon.dist
+
+parameters:
+    excludePaths:
+      - src/MonologV3
+    ignoreErrors:
+      - '#No error to ignore is reported on line#'

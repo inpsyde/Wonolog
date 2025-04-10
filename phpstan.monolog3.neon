@@ -1,0 +1,7 @@
+includes:
+    - phpstan.neon.dist
+
+parameters:
+    excludePaths:
+      - src/MonologV2
+      - src/DefaultHandler/PassthroughFormatter.php
