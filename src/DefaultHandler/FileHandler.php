@@ -176,7 +176,6 @@ class FileHandler implements
     public function handle(array|LogRecord $record): bool
     {
         $this->ensureHandler();
-
         return $this->handler->handle($record);
     }
 
@@ -189,7 +188,6 @@ class FileHandler implements
     public function isHandling(array|LogRecord $record): bool
     {
         $this->ensureHandler();
-
         return $this->handler->isHandling($record);
     }
 
@@ -345,7 +343,6 @@ class FileHandler implements
         if ($this->handler) {
             return;
         }
-
         try {
             $this->logFilePath = $this->logFilePath();
             $level = $this->minLevel ?? LogLevel::defaultMinLevel();

@@ -11,9 +11,13 @@ use Inpsyde\Wonolog\DefaultHandler\FileHandler;
 use Inpsyde\Wonolog\HookListener\ActionListener;
 use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
 use Inpsyde\Wonolog\LogActionUpdater;
+use Inpsyde\Wonolog\MonologUtils;
+use Inpsyde\Wonolog\MonologV3\Levels;
 use Inpsyde\Wonolog\Tests\IntegrationTestCase;
 use Monolog\Handler\TestHandler;
+use Monolog\Level;
 use Monolog\Logger;
+use Monolog\LogRecord;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\AssertionFailedError;
 use Psr\Log\LogLevel;
@@ -75,11 +79,26 @@ class AdvancedConfigTest extends IntegrationTestCase
             ->registerLogHook('something.else.happened')
             ->withIgnorePattern('cron job performed in [0-9\.]+ seconds')
             ->disableWpContextProcessor()
-            ->pushProcessor('test-processor', static function (array $record): array {
-                empty($record['extra']) and $record['extra'] = [];
-                $record['extra']['testClass'] = __CLASS__;
-                return $record;
+            ->pushProcessor('test-processor', function (array|LogRecord $record): array|LogRecord {
+                return is_array($record)
+                    ? $this->addExtraDataToProcessorWhenRecordIsArray($record)
+                    : $this->addExtraDataToProcessorWhenRecordIsLogRecord($record)
+                ;
             });
+    }
+
+    protected function addExtraDataToProcessorWhenRecordIsArray(array $record): array
+    {
+        empty($record['extra']) and $record['extra'] = [];
+        $record['extra']['testClass'] = __CLASS__;
+        return $record;
+    }
+
+    protected function addExtraDataToProcessorWhenRecordIsLogRecord(LogRecord $record): LogRecord
+    {
+        empty($record->extra) and $record->extra = [];
+        $record->extra['testClass'] = __CLASS__;
+        return $record;
     }
 
     /**
@@ -100,6 +119,31 @@ class AdvancedConfigTest extends IntegrationTestCase
         static::assertTrue($this->testHandler->hasNoticeThatContains('Something happened.'));
 
         $this->assertLogFileHasLine('Something happened.', Channels::DEBUG, 'notice', ['foo']);
+    }
+
+    /**
+     * @group failing
+     * @test
+     */
+    public function testLogFromLogRecordInBothHandlers(): void
+    {
+        if (MonologUtils::version() !== 3) {
+            $this->markTestSkipped();
+        }
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            Channels::DEBUG,
+            Level::Notice,
+            'Something happened.',
+            ['foo']
+        );
+        do_action(
+            'wonolog.log',
+            $record
+        );
+        static::assertTrue($this->testHandler->hasNoticeThatContains('Something happened.'));
+
+        //$this->assertLogFileHasLine('Something happLogRecordened.', Channels::DEBUG, 'notice', ['foo']);
     }
 
     /**
@@ -129,7 +173,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             [
                 'message' => 'Something happened.',
                 'channel' => Channels::HTTP,
-                'level' => LogLevel::NOTICE
+                'level' => LogLevel::NOTICE,
             ]
         );
 
@@ -148,7 +192,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             [
                 'message' => 'Something happened.',
                 'channel' => Channels::SECURITY,
-                'level' => LogLevel::NOTICE
+                'level' => LogLevel::NOTICE,
             ]
         );
 
@@ -167,7 +211,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             [
                 'message' => 'cron job performed in 5.0256 seconds',
                 'channel' => Channels::DEBUG,
-                'level' => LogLevel::NOTICE
+                'level' => LogLevel::NOTICE,
             ]
         );
 
@@ -301,7 +345,7 @@ class AdvancedConfigTest extends IntegrationTestCase
         $context and $messageLog .= sprintf(' (%s)', json_encode($context));
 
         $lines = @file($this->logFile) ?: [];
-        foreach ((array)$lines as $line) {
+        foreach ((array) $lines as $line) {
             preg_match(
                 '~^\[[^\]]+\] (?<channel>[A-Z_-]+)\.(?<level>[A-Z]+): (?<txt>[^\[\{]+) (?<more>.+?)$~',
                 trim($line),

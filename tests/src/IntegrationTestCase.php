@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Tests;
 
 use Inpsyde\Wonolog\Configurator;
+use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Registry\HandlersRegistry;
 
 abstract class IntegrationTestCase extends \PHPUnit\Framework\TestCase
@@ -45,6 +46,11 @@ abstract class IntegrationTestCase extends \PHPUnit\Framework\TestCase
                 $this->bootstrapWonolog($configurator);
             }
         );
+
+        add_action(LogActionUpdater::ACTION_LOGGER_ERROR, function($log, $throwable) {
+            debug_print_backtrace();
+            var_dump('There was an error', $throwable->getMessage());
+        }, 10, 2);
 
         require_once ABSPATH . 'wp-config.php';
     }
