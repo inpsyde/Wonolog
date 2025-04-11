@@ -4,23 +4,13 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Inpsyde\Wonolog\Data\Log;
-use Inpsyde\Wonolog\Data\LogData;
-use Monolog\Processor\PsrLogMessageProcessor;
+use Inpsyde\Wonolog\MonologV2\PsrBridgeAdapter as MonologV2PsrBridgeAdapter;
+use Inpsyde\Wonolog\MonologV3\PsrBridgeAdapter as MonologV3PsrBridgeAdapter;
 use Psr\Log\AbstractLogger;
 
-/**
- * @phpstan-import-type Record from \Monolog\Logger
- */
 class PsrBridge extends AbstractLogger
 {
-    private LogActionUpdater $updater;
-
-    private Channels $channels;
-
-    private ?string $defaultChannel = null;
-
-    private PsrLogMessageProcessor $processor;
+    private PsrBridgeAdapterAbstract $adapter;
 
     /**
      * @param LogActionUpdater $updater
@@ -29,18 +19,15 @@ class PsrBridge extends AbstractLogger
      */
     public static function new(LogActionUpdater $updater, Channels $channels): PsrBridge
     {
-        return new self($updater, $channels);
+        $adapter = MonologUtils::version() === 3
+            ? new MonologV3PsrBridgeAdapter($updater, $channels)
+            : new MonologV2PsrBridgeAdapter($updater, $channels);
+        return new self($adapter);
     }
 
-    /**
-     * @param LogActionUpdater $updater
-     * @param Channels $channels
-     */
-    private function __construct(LogActionUpdater $updater, Channels $channels)
+    private function __construct(PsrBridgeAdapterAbstract $adapter)
     {
-        $this->updater = $updater;
-        $this->channels = $channels;
-        $this->processor = new PsrLogMessageProcessor(null, true);
+        $this->adapter = $adapter;
     }
 
     /**
@@ -49,9 +36,7 @@ class PsrBridge extends AbstractLogger
      */
     public function withDefaultChannel(string $defaultChannel): PsrBridge
     {
-        $this->channels->addChannel($defaultChannel);
-        $this->defaultChannel = $defaultChannel;
-
+        $this->adapter->withDefaultChannel($defaultChannel);
         return $this;
     }
 
@@ -65,49 +50,6 @@ class PsrBridge extends AbstractLogger
      */
     public function log(mixed $level, mixed $message, array $context = []): void
     {
-        // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
-        $throwable = null;
-        if ($message instanceof \Throwable) {
-            $throwable = $message;
-            $message = $message->getMessage();
-        }
-        $throwable = $throwable ?? $context['exception'] ?? null;
-        if ($throwable && !($throwable instanceof \Throwable)) {
-            $throwable = null;
-        }
-
-        $message = Serializer::serializeMessage($message);
-
-        $level = LogLevel::normalizeLevel($level);
-        if (!$level) {
-            $level = $throwable ? LogLevel::ERROR : LogLevel::DEBUG;
-        }
-
-        $channel = $context[LogData::CHANNEL] ?? null;
-        if (!$channel || !is_string($channel)) {
-            $channel = $throwable
-                ? ($this->defaultChannel ?? Channels::PHP_ERROR)
-                : ($this->defaultChannel ?? $this->channels->defaultChannel());
-        }
-        unset($context[LogData::CHANNEL]);
-
-        /** @var Record $record */
-        $record = compact('message', 'context', 'level');
-        $record = ($this->processor)($record);
-        // @phpstan-ignore function.alreadyNarrowedType
-        if (array_key_exists('message', $record)) {
-            $message = (string) $record['message'];
-        }
-        // @phpstan-ignore function.alreadyNarrowedType
-        if (array_key_exists('context', $record)) {
-            $context = (array) $record['context'];
-        }
-
-        unset($context['exception']);
-        if ($throwable) {
-            $context['exception'] = $throwable;
-        }
-
-        $this->updater->update(new Log($message, $level, $channel, $context));
+        $this->adapter->log($level, $message, $context);
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Processor;
 
+use Monolog\LogRecord;
+
 class WpContextProcessor
 {
     private ?bool $isRestRequest = null;
@@ -21,11 +23,11 @@ class WpContextProcessor
     }
 
     /**
-     * @param array $record The complete log record containing 'message', 'context'
+     * @param array|LogRecord $record The complete log record containing 'message', 'context'
      *                      'level', 'level_name', 'channel', 'datetime' and 'extra'
-     * @return array
+     * @return array|LogRecord
      */
-    public function __invoke(array $record): array
+    public function __invoke(array|LogRecord $record): array|LogRecord
     {
         $data = [
             'doing_cron' => defined('DOING_CRON') && DOING_CRON, // @phpstan-ignore-line
@@ -44,12 +46,29 @@ class WpContextProcessor
             $data['network_id'] = get_current_network_id();
         }
 
+        if ($record instanceof LogRecord) {
+            return $this->handleExtraInfoFromLogRecord($record, $data);
+        }
+        return $this->handleExtraInfoFromArrayRecord($record, $data);
+    }
+
+    private function handleExtraInfoFromArrayRecord(array $record, array $data): array
+    {
         if (!isset($record['extra']) || !is_array($record['extra'])) {
             $record['extra'] = [];
         }
 
         $record['extra']['wp'] = $data;
+        return $record;
+    }
 
+    private function handleExtraInfoFromLogRecord(LogRecord $record, array $data): LogRecord
+    {
+        if (!isset($record->extra) || !is_array($record->extra)) {
+            $record->extra = [];
+        }
+
+        $record->extra['wp'] = $data;
         return $record;
     }
 

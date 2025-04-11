@@ -48,7 +48,6 @@ class LogActionUpdater
         ) {
             return;
         }
-
         try {
             $context = $this->parseContext($log);
             $this->channels
