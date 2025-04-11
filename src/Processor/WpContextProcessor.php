@@ -46,20 +46,10 @@ class WpContextProcessor
             $data['network_id'] = get_current_network_id();
         }
 
-        switch (true) {
-            case is_array($record):
-                return $this->handleExtraInfoFromArrayRecord($record, $data);
-            case $record instanceof LogRecord:
-                return $this->handleExtraInfoFromLogRecord($record, $data);
+        if ($record instanceof LogRecord) {
+            return $this->handleExtraInfoFromLogRecord($record, $data);
         }
-
-        if (!isset($record['extra']) || !is_array($record['extra'])) {
-            $record['extra'] = [];
-        }
-
-        $record['extra']['wp'] = $data;
-
-        return $record;
+        return $this->handleExtraInfoFromArrayRecord($record, $data);
     }
 
     private function handleExtraInfoFromArrayRecord(array $record, array $data): array

@@ -13,6 +13,7 @@ class PassThroughFormatter implements FormatterInterface
      * @param LogRecord $record
      * @return LogRecord
      */
+    // phpcs:ignore Syde.Functions.ReturnTypeDeclaration.NoReturnType
     public function format(LogRecord $record)
     {
         return $record;
@@ -22,9 +23,9 @@ class PassThroughFormatter implements FormatterInterface
      * @param array<LogRecord> $records
      * @return mixed
      */
+    // phpcs:ignore Syde.Functions.ReturnTypeDeclaration.NoReturnType
     public function formatBatch(array $records)
     {
         return $records;
     }
-
 }

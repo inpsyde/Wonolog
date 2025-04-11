@@ -47,8 +47,10 @@ abstract class IntegrationTestCase extends \PHPUnit\Framework\TestCase
             }
         );
 
-        add_action(LogActionUpdater::ACTION_LOGGER_ERROR, function($log, $throwable) {
+        add_action(LogActionUpdater::ACTION_LOGGER_ERROR, static function ($log, $throwable) {
+            //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_print_backtrace
             debug_print_backtrace();
+            //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_dump
             var_dump('There was an error', $throwable->getMessage());
         }, 10, 2);
 

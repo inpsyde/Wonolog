@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Processor;
 
-use Monolog\LogRecord;
-
 abstract class WpContextProcessorAdapterAbstract
 {
     protected ?bool $isRestRequest = null;
