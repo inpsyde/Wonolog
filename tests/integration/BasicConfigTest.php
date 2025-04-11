@@ -6,8 +6,11 @@ namespace Inpsyde\Wonolog\Tests\Integration;
 
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Configurator;
+use Inpsyde\Wonolog\MonologUtils;
 use Inpsyde\Wonolog\Tests\IntegrationTestCase;
 use Monolog\Handler\TestHandler;
+use Monolog\Level;
+use Monolog\LogRecord;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
@@ -50,6 +53,32 @@ class BasicConfigTest extends IntegrationTestCase
 
         static::assertTrue($this->handler->hasNoticeThatContains('Something happened.'));
     }
+
+    /**
+     * @group failing
+     * @test
+     */
+    /*public function testLogFromLogRecord(): void
+    {
+        if (MonologUtils::version() !== 3) {
+            $this->markTestSkipped();
+        }
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            Channels::DEBUG,
+            Level::Notice,
+            'Something happened.',
+            ['foo']
+        );
+        do_action(
+            'wonolog.log',
+            $record
+        );
+        static::assertTrue($this->handler->hasNoticeRecords());
+        static::assertTrue($this->handler->hasRecord('Something happened.', Level::Notice));
+
+        //$this->assertLogFileHasLine('Something happLogRecordened.', Channels::DEBUG, 'notice', ['foo']);
+    }*/
 
     /**
      * @test

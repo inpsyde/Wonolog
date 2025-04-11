@@ -6,6 +6,7 @@ namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\Data\LogData;
+use Monolog\LogRecord;
 
 class HookLogFactory
 {
@@ -50,6 +51,9 @@ class HookLogFactory
             case (is_array($firstArg)):
                 $logs[] = $this->fromArray($firstArg, $params, $defaultLevel, $defaultChannel);
                 break;
+//            case ($firstArg instanceof LogRecord):
+//                $logs[] = $this->fromLogRecord($firstArg, $params, $defaultLevel, $defaultChannel);
+//                break;
             case ($firstArg instanceof \WP_Error):
                 $logs[] = $this->fromWpError($firstArg, $params, $defaultLevel, $defaultChannel);
                 break;
@@ -63,6 +67,29 @@ class HookLogFactory
 
         return $logs;
     }
+
+    /**
+     * @param LogRecord $value
+     * @param array $arguments
+     * @param int $defaultLevel
+     * @param string $defaultChannel
+     * @return LogData
+     */
+    /*private function fromLogRecord(
+        LogRecord $value,
+        array $arguments,
+        int $defaultLevel,
+        string $defaultChannel
+    ): LogData {
+
+        $value = $value->toArray();
+        return $this->fromArray(
+            $value,
+            $arguments,
+            $defaultLevel,
+            $defaultChannel
+        );
+    }*/
 
     /**
      * @param array $value
