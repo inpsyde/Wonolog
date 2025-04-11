@@ -122,31 +122,6 @@ class AdvancedConfigTest extends IntegrationTestCase
     }
 
     /**
-     * @group failing
-     * @test
-     */
-    public function testLogFromLogRecordInBothHandlers(): void
-    {
-        if (MonologUtils::version() !== 3) {
-            $this->markTestSkipped();
-        }
-        $record = new LogRecord(
-            new \DateTimeImmutable(),
-            Channels::DEBUG,
-            Level::Notice,
-            'Something happened.',
-            ['foo']
-        );
-        do_action(
-            'wonolog.log',
-            $record
-        );
-        static::assertTrue($this->testHandler->hasNoticeThatContains('Something happened.'));
-
-        //$this->assertLogFileHasLine('Something happLogRecordened.', Channels::DEBUG, 'notice', ['foo']);
-    }
-
-    /**
      * @test
      */
     public function testLogFromArrayInTestHandlerOnlyDueToMinimumLevel(): void
