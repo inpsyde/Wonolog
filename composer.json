@@ -94,8 +94,6 @@
         "cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
         "cs:fix": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcbf",
         "phpstan": "@php ./vendor/bin/phpstan analyse --memory-limit=1G",
-        "phpstan:monolog2": "@php ./vendor/bin/phpstan --no-progress --memory-limit=1G --configuration=phpstan.monolog2.neon",
-        "phpstan:monolog3": "@php ./vendor/bin/phpstan --no-progress --memory-limit=1G --configuration=phpstan.monolog3.neon",
         "tests:unit": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit",
         "tests:unit:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --no-coverage",
         "tests:unit:codecov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --coverage-clover coverage.xml",

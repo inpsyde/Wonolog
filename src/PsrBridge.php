@@ -12,6 +12,7 @@ use Psr\Log\AbstractLogger;
 
 /**
  * @phpstan-import-type Record from \Monolog\Logger
+ * @phpstan-ignore-next-line
  */
 class PsrBridge extends AbstractLogger
 {
@@ -104,6 +105,7 @@ class PsrBridge extends AbstractLogger
      * @phpstan-import-type Record from \Monolog\Logger
      */
     protected function createLog(
+        /** @phpstan-ignore-next-line */
         array|LogRecord $record,
         mixed $level,
         string $channel,

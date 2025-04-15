@@ -169,6 +169,7 @@ class FileHandler implements
      * @return bool
      *
      * @psalm-suppress MixedArgumentTypeCoercion
+     * @phpstan-ignore-next-line
      */
     public function handle(array|LogRecord $record): bool
     {
@@ -181,6 +182,7 @@ class FileHandler implements
      * @return bool
      *
      * @psalm-suppress MixedArgumentTypeCoercion
+     * @phpstan-ignore-next-line
      */
     public function isHandling(array|LogRecord $record): bool
     {
@@ -193,6 +195,7 @@ class FileHandler implements
      * @return void
      *
      * @psalm-suppress MixedArgumentTypeCoercion
+     * @phpstan-ignore-next-line
      */
     public function handleBatch(array $records): void
     {

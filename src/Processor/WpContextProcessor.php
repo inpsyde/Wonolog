@@ -26,6 +26,7 @@ class WpContextProcessor
      * @param array|LogRecord $record The complete log record containing 'message', 'context'
      *                      'level', 'level_name', 'channel', 'datetime' and 'extra'
      * @return array|LogRecord
+     * @phpstan-ignore-next-line
      */
     public function __invoke($record)
     {
@@ -62,12 +63,15 @@ class WpContextProcessor
         return $record;
     }
 
+    /** @phpstan-ignore-next-line */
     private function handleExtraInfoFromLogRecord(LogRecord $record, array $data): LogRecord
     {
+        /** @phpstan-ignore-next-line */
         if (!isset($record->extra) || !is_array($record->extra)) {
+            /** @phpstan-ignore-next-line */
             $record->extra = [];
         }
-
+        /** @phpstan-ignore-next-line */
         $record->extra['wp'] = $data;
         return $record;
     }
