@@ -45,7 +45,7 @@ jobs:
 
     static-code-analysis-php:
         if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run static analysis only')) }}
-        uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@main
+        uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@allow_skip_cache_in_static_analysis
         strategy:
             matrix:
                 php-version: ["8.1", "8.2", "8.3", "8.4"]
@@ -53,3 +53,4 @@ jobs:
         with:
             PHP_VERSION: ${{ matrix.php-version }}
             PHPSTAN_ARGS: "--no-progress --memory-limit=1G ${{ matrix.dependency-versions == 'highest' && '--configuration=phpstan.monolog3.neon' || '--configuration=phpstan.monolog2.neon' }}"
+            CUSTOM_CACHE_KEY: "${{ matrix.php-version }}-${{ matrix.dependency-versions }}"
