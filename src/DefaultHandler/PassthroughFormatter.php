@@ -9,10 +9,10 @@ use Monolog\Formatter\FormatterInterface;
 class PassthroughFormatter implements FormatterInterface
 {
     /**
-     * @param array $record
+     * @param array|LogRecord $record
      * @return array
      */
-    public function format(array $record): array
+    public function format(array $record): array|LogRecord
     {
         return $record;
     }

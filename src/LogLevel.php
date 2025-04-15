@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Inpsyde\Wonolog\MonologV2\Levels as MonologV2Levels;
-use Inpsyde\Wonolog\MonologV3\Levels as MonologV3Levels;
 use Monolog\Logger;
 
 /**
@@ -43,9 +41,7 @@ abstract class LogLevel
      */
     final public static function allLevels(): array
     {
-        return MonologUtils::version() === 3
-            ? MonologV3Levels::allLevels()
-            : MonologV2Levels::allLevels();
+        return Levels::allLevels();
     }
 
     /**

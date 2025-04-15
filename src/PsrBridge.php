@@ -4,13 +4,25 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Inpsyde\Wonolog\MonologV2\PsrBridgeAdapter as MonologV2PsrBridgeAdapter;
-use Inpsyde\Wonolog\MonologV3\PsrBridgeAdapter as MonologV3PsrBridgeAdapter;
+use Inpsyde\Wonolog\Data\Log;
+use Inpsyde\Wonolog\Data\LogData;
+use Monolog\LogRecord;
+use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\AbstractLogger;
 
+/**
+ * @phpstan-import-type Record from \Monolog\Logger
+ */
 class PsrBridge extends AbstractLogger
 {
-    private PsrBridgeAdapterAbstract $adapter;
+    private LogActionUpdater $updater;
+
+    private Channels $channels;
+
+    private ?string $defaultChannel = null;
+
+    private PsrLogMessageProcessor $processor;
+    private RecordFactory $recordFactory;
 
     /**
      * @param LogActionUpdater $updater
@@ -19,15 +31,19 @@ class PsrBridge extends AbstractLogger
      */
     public static function new(LogActionUpdater $updater, Channels $channels): PsrBridge
     {
-        $adapter = MonologUtils::version() === 3
-            ? new MonologV3PsrBridgeAdapter($updater, $channels)
-            : new MonologV2PsrBridgeAdapter($updater, $channels);
-        return new self($adapter);
+        return new self($updater, $channels);
     }
 
-    private function __construct(PsrBridgeAdapterAbstract $adapter)
+    /**
+     * @param LogActionUpdater $updater
+     * @param Channels $channels
+     */
+    private function __construct(LogActionUpdater $updater, Channels $channels)
     {
-        $this->adapter = $adapter;
+        $this->updater = $updater;
+        $this->channels = $channels;
+        $this->processor = new PsrLogMessageProcessor(null, true);
+        $this->recordFactory = new RecordFactory($this->processor);
     }
 
     /**
@@ -36,7 +52,9 @@ class PsrBridge extends AbstractLogger
      */
     public function withDefaultChannel(string $defaultChannel): PsrBridge
     {
-        $this->adapter->withDefaultChannel($defaultChannel);
+        $this->channels->addChannel($defaultChannel);
+        $this->defaultChannel = $defaultChannel;
+
         return $this;
     }
 
@@ -50,6 +68,68 @@ class PsrBridge extends AbstractLogger
      */
     public function log(mixed $level, mixed $message, array $context = []): void
     {
-        $this->adapter->log($level, $message, $context);
+        // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
+        $throwable = null;
+        if ($message instanceof \Throwable) {
+            $throwable = $message;
+            $message = $message->getMessage();
+        }
+        $throwable = $throwable ?? $context['exception'] ?? null;
+        if ($throwable && !($throwable instanceof \Throwable)) {
+            $throwable = null;
+        }
+
+        $message = Serializer::serializeMessage($message);
+
+        $level = LogLevel::normalizeLevel($level);
+        if (!$level) {
+            $level = $throwable ? LogLevel::ERROR : LogLevel::DEBUG;
+        }
+
+        $channel = $context[LogData::CHANNEL] ?? null;
+        if (!$channel || !is_string($channel)) {
+            $channel = $throwable
+                ? ($this->defaultChannel ?? Channels::PHP_ERROR)
+                : ($this->defaultChannel ?? $this->channels->defaultChannel());
+        }
+        unset($context[LogData::CHANNEL]);
+
+        $record = $this->recordFactory->createRecord($message, $level, $channel, $context);
+        $record = ($this->processor)($record);
+
+        $this->updater->update($this->createLog($record, $level, $channel, $throwable));
+    }
+
+    /**
+     * @phpstan-import-type Record from \Monolog\Logger
+     */
+    protected function createLog(
+        array|LogRecord $record,
+        mixed $level,
+        string $channel,
+        ?\Throwable $throwable
+    ): Log {
+
+        $class = 'Monolog\\LogRecord';
+        $recordData = (class_exists($class) && $record instanceof $class)
+            ? $record->toArray()
+            : $record;
+        // we receive the $record after the processor, we have to check if key exists
+        // @phpstan-ignore function.alreadyNarrowedType
+        $message = (string) (array_key_exists('message', $recordData)
+            ? $recordData['message']
+            : ''
+        );
+        $context = [];
+        // @phpstan-ignore function.alreadyNarrowedType
+        if (array_key_exists('context', $recordData)) {
+            $context = (array) $recordData['context'];
+        }
+
+        unset($context['exception']);
+        if ($throwable) {
+            $context['exception'] = $throwable;
+        }
+        return new Log($message, $level, $channel, $context);
     }
 }

@@ -13,10 +13,7 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\DefaultHandler;
 
-use Inpsyde\Wonolog\DefaultHandler\PassthroughFormatter as PassThroughFormatterMonologV2;
 use Inpsyde\Wonolog\LogLevel;
-use Inpsyde\Wonolog\MonologUtils;
-use Inpsyde\Wonolog\MonologV3\PassThroughFormatter as PassThroughFormatterMonologV3;
 use Inpsyde\Wonolog\Processor;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\BufferHandler;
@@ -281,11 +278,7 @@ class FileHandler implements
         static $noopFormatter;
 
         return $noopFormatter
-            ?? $noopFormatter = (
-                MonologUtils::version() === 3
-                ? new PassThroughFormatterMonologV3()
-                : new PassThroughFormatterMonologV2()
-            );
+            ?? $noopFormatter = new PassthroughFormatter();
     }
 
     /**

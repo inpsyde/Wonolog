@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Inpsyde\Wonolog\MonologV3;
+namespace Inpsyde\Wonolog;
 
 class Levels
 {
@@ -63,7 +63,7 @@ class Levels
      *
      * @phpstan-var array<int, string> $levels Logging levels with the levels as key
      */
-    protected static $levels = [
+    protected static array $levels = [
         self::DEBUG => 'DEBUG',
         self::INFO => 'INFO',
         self::NOTICE => 'NOTICE',
