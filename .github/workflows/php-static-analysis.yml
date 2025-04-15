@@ -49,6 +49,7 @@ jobs:
         strategy:
             matrix:
                 php-version: ["8.1", "8.2", "8.3", "8.4"]
+                dependency-versions: ["lowest", "highest"]
         with:
             PHP_VERSION: ${{ matrix.php-version }}
             PHPSTAN_ARGS: "--no-progress --memory-limit=1G ${{ matrix.dependency-versions == 'highest' && '--configuration=phpstan.monolog3.neon' || '--configuration=phpstan.monolog2.neon' }}"
