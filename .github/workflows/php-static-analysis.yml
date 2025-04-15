@@ -53,4 +53,4 @@ jobs:
         with:
             PHP_VERSION: ${{ matrix.php-version }}
             PHPSTAN_ARGS: "--no-progress --memory-limit=1G ${{ matrix.dependency-versions == 'highest' && '--configuration=phpstan.monolog3.neon' || '--configuration=phpstan.monolog2.neon' }}"
-            CUSTOM_CACHE_KEY: "${{ matrix.php-version }}-${{ matrix.dependency-versions }}"
+            COMPOSER_ARGS: "--prefer-dist ${{ matrix.dependency-versions }}"
