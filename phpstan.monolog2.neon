@@ -6,3 +6,4 @@ parameters:
       - src/MonologV3
     ignoreErrors:
       - '#No error to ignore is reported on line#'
+      - '#Monolog\\LogRecord#'

@@ -27,7 +27,7 @@ class WpContextProcessor
      *                      'level', 'level_name', 'channel', 'datetime' and 'extra'
      * @return array|LogRecord
      */
-    public function __invoke(array|LogRecord $record): array|LogRecord
+    public function __invoke($record)
     {
         $data = [
             'doing_cron' => defined('DOING_CRON') && DOING_CRON, // @phpstan-ignore-line
@@ -45,8 +45,8 @@ class WpContextProcessor
             $data['site_id'] = get_current_blog_id();
             $data['network_id'] = get_current_network_id();
         }
-
-        if ($record instanceof LogRecord) {
+        $logRecordClass = 'Monolog\LogRecord';
+        if (class_exists($logRecordClass) && $record instanceof $logRecordClass) {
             return $this->handleExtraInfoFromLogRecord($record, $data);
         }
         return $this->handleExtraInfoFromArrayRecord($record, $data);

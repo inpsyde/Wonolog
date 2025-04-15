@@ -813,7 +813,9 @@ class Configurator
 
         // We use WONOLOG_DISABLE instead of WONOLOG_ENABLE so that enabled is the default.
         $disabled = getenv('WONOLOG_DISABLE');
-        defined('WONOLOG_DISABLE') and $disabled = WONOLOG_DISABLE;
+        if (defined('WONOLOG_DISABLE')) {
+            $disabled = WONOLOG_DISABLE;
+        }
 
         /**
          * Filters whether to completely disable Wonolog.

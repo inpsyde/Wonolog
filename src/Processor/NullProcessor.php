@@ -8,7 +8,11 @@ use Monolog\LogRecord;
 
 class NullProcessor
 {
-    public function __invoke(array|LogRecord $record): array|LogRecord
+    /**
+     * @param array|LogRecord $record
+     * @return array|LogRecord
+     */
+    public function __invoke($record)
     {
         return $record;
     }
