@@ -26,7 +26,8 @@ services:
     php81:
         container_name: wonolog-php-81
         build:
-            context: ./php81
+            context: .
+            dockerfile: ./php81/Dockerfile
         depends_on:
             - db
         environment:
@@ -36,7 +37,8 @@ services:
     php82:
         container_name: wonolog-php-82
         build:
-            context: ./php82
+            context: .
+            dockerfile: ./php82/Dockerfile
         depends_on:
             - db
         environment:
