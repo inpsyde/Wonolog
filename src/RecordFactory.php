@@ -6,15 +6,9 @@ namespace Inpsyde\Wonolog;
 
 use Monolog\Level;
 use Monolog\LogRecord;
-use Monolog\Processor\PsrLogMessageProcessor;
 
 class RecordFactory
 {
-    public function __construct(
-        private PsrLogMessageProcessor $processor
-    ) {
-    }
-
     /**
      * @phpstan-import-type Record from \Monolog\Logger
      */
@@ -34,8 +28,6 @@ class RecordFactory
         /** @var Record $record */
         /** @phpstan-ignore-next-line */
         $record = compact('message', 'context', 'level');
-        /** @phpstan-ignore-next-line argument.type */
-        $record = ($this->processor)($record);
         /** @phpstan-ignore-next-line */
         return $record;
     }
