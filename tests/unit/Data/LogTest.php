@@ -16,6 +16,7 @@ namespace Inpsyde\Wonolog\Tests\Unit\Data;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\Data\LogData;
+use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Logger;
 
@@ -26,12 +27,12 @@ class LogTest extends UnitTestCase
      */
     public function testBasicProperties(): void
     {
-        $log = new Log('message', Logger::EMERGENCY, Channels::DEBUG, ['foo']);
+        $log = new Log('message', Levels::EMERGENCY, Channels::DEBUG, ['foo']);
 
         static::assertSame(Channels::DEBUG, $log->channel());
         static::assertSame('message', $log->message());
         static::assertSame(['foo'], $log->context());
-        static::assertSame(Logger::EMERGENCY, $log->level());
+        static::assertSame(Levels::EMERGENCY, $log->level());
     }
 
     /**
@@ -50,7 +51,7 @@ class LogTest extends UnitTestCase
         static::assertSame(Channels::DEBUG, $log->channel());
         static::assertSame('Error!', $log->message());
         static::assertSame(['!'], $log->context());
-        static::assertSame(Logger::NOTICE, $log->level());
+        static::assertSame(Levels::NOTICE, $log->level());
     }
 
     /**
@@ -64,12 +65,12 @@ class LogTest extends UnitTestCase
         $error->allows('get_error_data')->andReturn(['!']);
         $error->allows('get_error_codes')->andReturn(['x']);
 
-        $log = Log::fromWpError($error, Logger::DEBUG);
+        $log = Log::fromWpError($error, Levels::DEBUG);
 
         static::assertSame(Channels::DEBUG, $log->channel());
         static::assertSame('Error!', $log->message());
         static::assertSame(['!'], $log->context());
-        static::assertSame(Logger::DEBUG, $log->level());
+        static::assertSame(Levels::DEBUG, $log->level());
     }
 
     /**
@@ -83,12 +84,12 @@ class LogTest extends UnitTestCase
         $error->allows('get_error_data')->andReturn(['!']);
         $error->allows('get_error_codes')->andReturn(['x']);
 
-        $log = Log::fromWpError($error, Logger::DEBUG, Channels::DB);
+        $log = Log::fromWpError($error, Levels::DEBUG, Channels::DB);
 
         static::assertSame(Channels::DB, $log->channel());
         static::assertSame('Error!', $log->message());
         static::assertSame(['!'], $log->context());
-        static::assertSame(Logger::NOTICE, $log->level());
+        static::assertSame(Levels::NOTICE, $log->level());
     }
 
     /**
@@ -106,7 +107,7 @@ class LogTest extends UnitTestCase
 
         static::assertSame(Channels::DEBUG, $log->channel());
         static::assertSame('Fail!, Fail!', $log->message());
-        static::assertSame(Logger::ERROR, $log->level());
+        static::assertSame(Levels::ERROR, $log->level());
         static::assertArrayHasKey('throwable', $context);
         static::assertSame($context['throwable']['class'], \Exception::class);
         static::assertSame($context['throwable']['file'], __FILE__);
@@ -121,7 +122,7 @@ class LogTest extends UnitTestCase
     {
         $exception = new \Exception('Fail!, Fail!', 123);
 
-        $log = Log::fromThrowable($exception, Logger::DEBUG);
+        $log = Log::fromThrowable($exception, Levels::DEBUG);
         static::assertInstanceOf(Log::class, $log);
 
         $context = $log->context();
@@ -129,7 +130,7 @@ class LogTest extends UnitTestCase
 
         static::assertSame(Channels::DEBUG, $log->channel());
         static::assertSame('Fail!, Fail!', $log->message());
-        static::assertSame(Logger::DEBUG, $log->level());
+        static::assertSame(Levels::DEBUG, $log->level());
         static::assertArrayHasKey('throwable', $context);
         static::assertSame($context['throwable']['class'], \Exception::class);
         static::assertSame($context['throwable']['file'], __FILE__);
@@ -144,7 +145,7 @@ class LogTest extends UnitTestCase
     {
         $exception = new \Exception('Fail!, Fail!', 123);
 
-        $log = Log::fromThrowable($exception, Logger::NOTICE, Channels::HTTP);
+        $log = Log::fromThrowable($exception, Levels::NOTICE, Channels::HTTP);
         static::assertInstanceOf(Log::class, $log);
 
         $context = $log->context();
@@ -152,7 +153,7 @@ class LogTest extends UnitTestCase
 
         static::assertSame(Channels::HTTP, $log->channel());
         static::assertSame('Fail!, Fail!', $log->message());
-        static::assertSame(Logger::NOTICE, $log->level());
+        static::assertSame(Levels::NOTICE, $log->level());
         static::assertArrayHasKey('throwable', $context);
         static::assertSame($context['throwable']['class'], \Exception::class);
         static::assertSame($context['throwable']['file'], __FILE__);
@@ -168,7 +169,7 @@ class LogTest extends UnitTestCase
         $log = Log::fromArray(
             [
                 LogData::MESSAGE => 'message',
-                LogData::LEVEL => Logger::EMERGENCY,
+                LogData::LEVEL => Levels::EMERGENCY,
                 LogData::CHANNEL => Channels::HTTP,
                 LogData::CONTEXT => ['foo'],
             ]
@@ -177,7 +178,7 @@ class LogTest extends UnitTestCase
         static::assertSame(Channels::HTTP, $log->channel());
         static::assertSame('message', $log->message());
         static::assertSame(['foo'], $log->context());
-        static::assertSame(Logger::EMERGENCY, $log->level());
+        static::assertSame(Levels::EMERGENCY, $log->level());
     }
 
     /**
@@ -195,6 +196,6 @@ class LogTest extends UnitTestCase
         static::assertSame(Channels::DEBUG, $log->channel());
         static::assertSame('message', $log->message());
         static::assertSame(['foo'], $log->context());
-        static::assertSame(Logger::DEBUG, $log->level());
+        static::assertSame(Levels::DEBUG, $log->level());
     }
 }

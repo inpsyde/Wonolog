@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
-use Monolog\Logger;
-
 /**
  * Utility object used to build default min logging level based WordPress and environment settings.
  * It also has a method to check the validity of a value as level identifier.
@@ -13,21 +11,21 @@ use Monolog\Logger;
 abstract class LogLevel
 {
     /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const DEBUG = Logger::DEBUG;
+    public const DEBUG = Levels::DEBUG;
     /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const INFO = Logger::INFO;
+    public const INFO = Levels::INFO;
     /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const NOTICE = Logger::NOTICE;
+    public const NOTICE = Levels::NOTICE;
     /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const WARNING = Logger::WARNING;
+    public const WARNING = Levels::WARNING;
     /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const ERROR = Logger::ERROR;
+    public const ERROR = Levels::ERROR;
     /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const CRITICAL = Logger::CRITICAL;
+    public const CRITICAL = Levels::CRITICAL;
     /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const ALERT = Logger::ALERT;
+    public const ALERT = Levels::ALERT;
     /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const EMERGENCY = Logger::EMERGENCY;
+    public const EMERGENCY = Levels::EMERGENCY;
 
     private static ?int $minLevel = null;
 
@@ -66,7 +64,7 @@ abstract class LogLevel
         if (!$minLevel) {
             $const = defined('WP_DEBUG_LOG') ? 'WP_DEBUG_LOG' : 'WP_DEBUG';
             /** @phpstan-ignore-next-line classConstant.deprecated */
-            $minLevel = (defined($const) && constant($const)) ? Logger::DEBUG : Logger::WARNING;
+            $minLevel = (defined($const) && constant($const)) ? Levels::DEBUG : Levels::WARNING;
         }
 
         self::$minLevel = $minLevel;

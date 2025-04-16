@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog;
 
 use Monolog\Level;
-use Monolog\Logger;
 use Monolog\LogRecord;
 use Monolog\Processor\PsrLogMessageProcessor;
 
@@ -20,8 +19,9 @@ class RecordFactory
      * @phpstan-import-type Record from \Monolog\Logger
      */
     public function createRecord(string $message, int $level, string $channel, array $context = []): array|LogRecord
-        {/** @phpstan-ignore-next-line */
-        return (Logger::API < 3)
+    {
+/** @phpstan-ignore-next-line */
+        return (MonologUtils::version() < 3)
             ? $this->createRecordV2($message, $level, $context)
             : $this->createRecordV3($message, $level, $channel, $context);
     }

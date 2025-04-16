@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
+/**
+ * This is a copy of the Logger class in Monolog v2
+ */
 class Levels
 {
     /**
