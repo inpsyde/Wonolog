@@ -11,12 +11,9 @@ use Inpsyde\Wonolog\DefaultHandler\FileHandler;
 use Inpsyde\Wonolog\HookListener\ActionListener;
 use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
 use Inpsyde\Wonolog\LogActionUpdater;
-use Inpsyde\Wonolog\MonologUtils;
-use Inpsyde\Wonolog\MonologV3\Levels;
 use Inpsyde\Wonolog\Tests\IntegrationTestCase;
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
-use Monolog\Logger;
 use Monolog\LogRecord;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\AssertionFailedError;
@@ -63,7 +60,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             ->disableBuffering()
             ->withFolder($dir->url() . '/logs')
             ->withFilename('wonolog.log')
-            ->withMinimumLevel(\Inpsyde\Wonolog\Levels::NOTICE);
+            ->withMinimumLevel(Levels::NOTICE);
 
         $this->logFile = $dir->url() . '/logs/wonolog.log';
         $this->testHandler = new TestHandler();
