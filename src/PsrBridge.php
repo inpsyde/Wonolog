@@ -44,7 +44,7 @@ class PsrBridge extends AbstractLogger
         $this->updater = $updater;
         $this->channels = $channels;
         $this->processor = new PsrLogMessageProcessor(null, true);
-        $this->recordFactory = new RecordFactory($this->processor);
+        $this->recordFactory = new RecordFactory();
     }
 
     /**
