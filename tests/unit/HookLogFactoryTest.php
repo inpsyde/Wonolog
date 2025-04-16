@@ -19,6 +19,7 @@ use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\Error;
 use Inpsyde\Wonolog\Data\LogData;
 use Inpsyde\Wonolog\HookLogFactory;
+use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Logger;
 use Psr\Log\LogLevel;
@@ -83,19 +84,19 @@ class HookLogFactoryTest extends UnitTestCase
         $args = compact('first', 'second');
 
         $factory = HookLogFactory::new();
-        $logs = $factory->logsFromHookArguments($args, Logger::WARNING);
+        $logs = $factory->logsFromHookArguments($args, Levels::WARNING);
 
         static::assertIsArray($logs);
         static::assertCount(2, $logs);
 
         static::assertInstanceOf(LogData::class, $first);
-        static::assertSame(Logger::WARNING, $logs[0]->level());
+        static::assertSame(Levels::WARNING, $logs[0]->level());
         static::assertSame($logs[0]->message(), $first->message());
         static::assertSame($logs[0]->channel(), $first->channel());
         static::assertSame($logs[0]->context(), $first->context());
 
         static::assertInstanceOf(LogData::class, $second);
-        static::assertSame(Logger::ERROR, $logs[1]->level());
+        static::assertSame(Levels::ERROR, $logs[1]->level());
         static::assertSame($logs[1]->message(), $second->message());
         static::assertSame($logs[1]->channel(), $second->channel());
         static::assertSame($logs[1]->context(), $second->context());
@@ -141,7 +142,7 @@ class HookLogFactoryTest extends UnitTestCase
 
         static::assertInstanceOf(LogData::class, $log);
         static::assertSame($log->message(), 'Foo!');
-        static::assertSame($log->level(), Logger::NOTICE);
+        static::assertSame($log->level(), Levels::NOTICE);
         static::assertSame($log->channel(), Channels::DB);
         static::assertSame($log->context(), ['db broken']);
     }
@@ -170,7 +171,7 @@ class HookLogFactoryTest extends UnitTestCase
 
         static::assertInstanceOf(LogData::class, $log);
         static::assertSame('Error!', $log->message());
-        static::assertSame(Logger::ERROR, $log->level());
+        static::assertSame(Levels::ERROR, $log->level());
         static::assertSame(Channels::SECURITY, $log->channel());
         static::assertSame(['some', 'data'], $log->context());
     }
@@ -193,7 +194,7 @@ class HookLogFactoryTest extends UnitTestCase
 
         static::assertInstanceOf(LogData::class, $log);
         static::assertSame($log->message(), 'Foo!');
-        static::assertSame($log->level(), Logger::ERROR);
+        static::assertSame($log->level(), Levels::ERROR);
         static::assertSame($log->channel(), Channels::DEBUG);
         static::assertIsArray($log->context());
     }
@@ -205,13 +206,13 @@ class HookLogFactoryTest extends UnitTestCase
     {
         $data = [
             'message' => 'Hello!',
-            'level' => Logger::NOTICE,
+            'level' => Levels::NOTICE,
             'channel' => Channels::SECURITY,
             'context' => ['foo', 'bar'],
         ];
 
         $factory = HookLogFactory::new();
-        $logs = $factory->logsFromHookArguments([$data, 'x', 'y'], Logger::DEBUG);
+        $logs = $factory->logsFromHookArguments([$data, 'x', 'y'], Levels::DEBUG);
 
         static::assertIsArray($logs);
         static::assertCount(1, $logs);
@@ -221,7 +222,7 @@ class HookLogFactoryTest extends UnitTestCase
 
         static::assertInstanceOf(LogData::class, $log);
         static::assertSame($log->message(), 'Hello!');
-        static::assertSame($log->level(), Logger::NOTICE);
+        static::assertSame($log->level(), Levels::NOTICE);
         static::assertSame($log->channel(), Channels::SECURITY);
         static::assertIsArray(['foo', 'bar']);
     }
@@ -233,13 +234,13 @@ class HookLogFactoryTest extends UnitTestCase
     {
         $data = [
             'message' => 'Hello!',
-            'level' => Logger::DEBUG,
+            'level' => Levels::DEBUG,
             'channel' => Channels::SECURITY,
             'context' => ['foo', 'bar'],
         ];
 
         $factory = HookLogFactory::new();
-        $logs = $factory->logsFromHookArguments([$data, 600, 'y'], Logger::NOTICE);
+        $logs = $factory->logsFromHookArguments([$data, 600, 'y'], Levels::NOTICE);
 
         static::assertIsArray($logs);
         static::assertCount(1, $logs);
@@ -249,7 +250,7 @@ class HookLogFactoryTest extends UnitTestCase
 
         static::assertInstanceOf(LogData::class, $log);
         static::assertSame($log->message(), 'Hello!');
-        static::assertSame($log->level(), Logger::NOTICE);
+        static::assertSame($log->level(), Levels::NOTICE);
         static::assertSame($log->channel(), Channels::SECURITY);
         static::assertIsArray(['foo', 'bar']);
     }
@@ -266,12 +267,12 @@ class HookLogFactoryTest extends UnitTestCase
 
         $monologNumData = [
             'message' => 'Monolog numeric level format',
-            'level' => Logger::NOTICE,
+            'level' => Levels::NOTICE,
         ];
 
         $monologStringData = [
             'message' => 'Monolog string level format',
-            'level' => Logger::getLevelName(Logger::INFO),
+            'level' => Logger::getLevelName(Levels::INFO),
         ];
 
         $factory = HookLogFactory::new();
@@ -279,8 +280,8 @@ class HookLogFactoryTest extends UnitTestCase
         $monologNum = $factory->logsFromHookArguments([$monologNumData]);
         $monologString = $factory->logsFromHookArguments([$monologStringData]);
 
-        static::assertSame($psr[0]->level(), Logger::WARNING);
-        static::assertSame($monologNum[0]->level(), Logger::NOTICE);
-        static::assertSame($monologString[0]->level(), Logger::INFO);
+        static::assertSame($psr[0]->level(), Levels::WARNING);
+        static::assertSame($monologNum[0]->level(), Levels::NOTICE);
+        static::assertSame($monologString[0]->level(), Levels::INFO);
     }
 }

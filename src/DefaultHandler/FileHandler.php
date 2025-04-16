@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\DefaultHandler;
 
+use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Processor;
 use Monolog\Formatter\FormatterInterface;
@@ -22,7 +23,6 @@ use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
 use Monolog\LogRecord;
 use Monolog\ResettableInterface;
 
@@ -344,7 +344,7 @@ class FileHandler implements
             $level = $this->minLevel ?? LogLevel::defaultMinLevel();
             if (!$level) {
                 /** @phpstan-ignore-next-line classConstant.deprecated */
-                $level = Logger::DEBUG;
+                $level = Levels::DEBUG;
             }
             $streamBuffer = $this->buffering || $this->bubble;
             $handler = new StreamHandler($this->logFilePath, $level, $streamBuffer, null, true);

@@ -23,6 +23,7 @@ use Inpsyde\Wonolog\Data\Info;
 use Inpsyde\Wonolog\Data\LogData;
 use Inpsyde\Wonolog\Data\Notice;
 use Inpsyde\Wonolog\Data\Warning;
+use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Logger;
 
@@ -46,14 +47,14 @@ class CustomLogDataTest extends UnitTestCase
     public function dataProviderLogLevels(): array
     {
         return [
-            [Logger::ALERT, new Alert('test', Channels::DEBUG)],
-            [Logger::CRITICAL, new Critical('test', Channels::DEBUG)],
-            [Logger::DEBUG, new Debug('test', Channels::DEBUG)],
-            [Logger::EMERGENCY, new Emergency('test', Channels::DEBUG)],
-            [Logger::ERROR, new Error('test', Channels::DEBUG)],
-            [Logger::INFO, new Info('test', Channels::DEBUG)],
-            [Logger::NOTICE, new Notice('test', Channels::DEBUG)],
-            [Logger::WARNING, new Warning('test', Channels::DEBUG)],
+            [Levels::ALERT, new Alert('test', Channels::DEBUG)],
+            [Levels::CRITICAL, new Critical('test', Channels::DEBUG)],
+            [Levels::DEBUG, new Debug('test', Channels::DEBUG)],
+            [Levels::EMERGENCY, new Emergency('test', Channels::DEBUG)],
+            [Levels::ERROR, new Error('test', Channels::DEBUG)],
+            [Levels::INFO, new Info('test', Channels::DEBUG)],
+            [Levels::NOTICE, new Notice('test', Channels::DEBUG)],
+            [Levels::WARNING, new Warning('test', Channels::DEBUG)],
         ];
     }
 }

@@ -21,6 +21,7 @@ use Monolog\LogRecord;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\AssertionFailedError;
 use Psr\Log\LogLevel;
+use Inpsyde\Wonolog\Levels;
 
 use function Inpsyde\Wonolog\makeLogger;
 
@@ -62,7 +63,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             ->disableBuffering()
             ->withFolder($dir->url() . '/logs')
             ->withFilename('wonolog.log')
-            ->withMinimumLevel(Logger::NOTICE);
+            ->withMinimumLevel(\Inpsyde\Wonolog\Levels::NOTICE);
 
         $this->logFile = $dir->url() . '/logs/wonolog.log';
         $this->testHandler = new TestHandler();
@@ -73,7 +74,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             ->removeHandlerFromChannels('default-handler', Channels::SECURITY)
             ->pushHandlerForChannels($this->testHandler, 'test-handler', Channels::DEBUG, 'TESTS')
             ->disableAllDefaultHookListeners()
-            ->addActionListener(new QueryErrorsListener(Logger::NOTICE))
+            ->addActionListener(new QueryErrorsListener(Levels::NOTICE))
             ->addActionListener($listener, 'test-listener')
             ->registerLogHook('my-plugin.log', 'MY_PLUGIN')
             ->registerLogHook('something.else.happened')

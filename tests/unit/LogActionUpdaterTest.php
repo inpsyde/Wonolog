@@ -8,6 +8,7 @@ use Brain\Monkey;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Configurator;
 use Inpsyde\Wonolog\Data\Log;
+use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel as WonologLogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
@@ -92,7 +93,7 @@ class LogActionUpdaterTest extends UnitTestCase
     {
         do_action(Configurator::ACTION_LOADED);
 
-        $log = new Log('Test me', Logger::EMERGENCY, Channels::SECURITY, ['foo' => 'bar']);
+        $log = new Log('Test me', Levels::EMERGENCY, Channels::SECURITY, ['foo' => 'bar']);
 
         $logger = new TestLogger();
 
@@ -143,7 +144,7 @@ class LogActionUpdaterTest extends UnitTestCase
             ]
         ];
 
-        $log = new Log('Test me', Logger::EMERGENCY, Channels::SECURITY, $context);
+        $log = new Log('Test me', Levels::EMERGENCY, Channels::SECURITY, $context);
 
         $logger = new TestLogger();
 
