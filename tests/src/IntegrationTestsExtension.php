@@ -150,7 +150,7 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
         static::runWpCliCommand(['config', 'set', 'SAVEQUERIES', 'true']);
 
         static::resetDb();
-        $this->createDefaultTheme();
+        $this->createThemesFolder();
     }
 
     /**
@@ -159,7 +159,6 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
     public function executeAfterLastTest(): void
     {
         $this->resetWpConfig(true);
-        $this->deleteDefaultTheme();
     }
 
     /**
@@ -189,32 +188,19 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
         return true;
     }
 
-    private function createDefaultTheme(): void
+    private function createThemesFolder(): void
     {
-        $themeDir = ABSPATH . 'wp-content/themes/test-theme';
+        $themeDir = ABSPATH . 'wp-content/themes';
+		$result = true;
         if (!\is_dir($themeDir)) {
-            \mkdir($themeDir, 0755, true);
+	        $result = \mkdir($themeDir, 0755, true);
         }
 
-        \file_put_contents($themeDir . '/style.css', '/* Theme Name: Test Theme */');
-        \file_put_contents($themeDir . '/functions.php', '<?php // Test theme functions');
-        $result = \fwrite(STDOUT, "Test theme created at $themeDir\n");
-        if ($result === false) {
-            throw new \Exception("Failed to create test theme at $themeDir");
-        }
-    }
+	    if ($result === false) {
+		    throw new \Exception("Failed to create test theme at $themeDir");
+	    }
 
-    private function deleteDefaultTheme(): void
-    {
-        $themeDir = ABSPATH . 'wp-content/themes/test-theme';
-        if (!\is_dir($themeDir)) {
-            \fwrite(STDOUT, "Test theme not found at $themeDir\n");
-            return;
-        }
-
-        \array_map('unlink', (array) \glob($themeDir . '/*.*'));
-        \rmdir($themeDir);
-        \fwrite(STDOUT, "Test theme deleted from $themeDir\n");
+        \fwrite(STDOUT, "Test theme created at $themeDir\n");
     }
 
     /**
