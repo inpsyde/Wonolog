@@ -207,10 +207,10 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
     private function deleteDefaultTheme(): void
     {
         $themeDir = ABSPATH . 'wp-content/themes/test-theme';
-		if (!\is_dir($themeDir)) {
-			\fwrite(STDOUT, "Test theme not found at $themeDir\n");
-			return;
-		}
+        if (!\is_dir($themeDir)) {
+            \fwrite(STDOUT, "Test theme not found at $themeDir\n");
+            return;
+        }
 
         \array_map('unlink', (array) \glob($themeDir . '/*.*'));
         \rmdir($themeDir);
