@@ -14,8 +14,12 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Tests\Unit\Processor;
 
 use Brain\Monkey\Functions;
+use Inpsyde\Wonolog\Levels;
+use Inpsyde\Wonolog\MonologUtils;
 use Inpsyde\Wonolog\Processor\WpContextProcessor;
+use Inpsyde\Wonolog\RecordFactory;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
+use Monolog\LogRecord;
 
 class WpContextProcessorTest extends UnitTestCase
 {
@@ -31,7 +35,7 @@ class WpContextProcessorTest extends UnitTestCase
     /**
      * @test
      */
-    public function testAdminBeforeInitSingleSite():void
+    public function testAdminBeforeInitSingleSite(): void
     {
         Functions\when('is_admin')->justReturn(true);
         Functions\when('is_multisite')->justReturn(false);
@@ -86,6 +90,11 @@ class WpContextProcessorTest extends UnitTestCase
         $this->assertEquals($expected, $actual);
     }
 
+    private function whenRecordIsTestMessage(string $type): string
+    {
+        return 'when $record is of type ' . $type;
+    }
+
     /**
      * @test
      */
@@ -102,21 +111,43 @@ class WpContextProcessorTest extends UnitTestCase
 
         $processor = WpContextProcessor::new();
 
-        $actual = $processor([]);
-
         $expected = [
-            'extra' => [
-                'wp' => [
-                    'doing_cron' => false,
-                    'doing_ajax' => false,
-                    'is_admin' => true,
-                    'doing_rest' => false,
-                    'user_id' => 1,
-                ],
+            'wp' => [
+                'doing_cron' => false,
+                'doing_ajax' => false,
+                'is_admin' => true,
+                'doing_rest' => false,
+                'user_id' => 1,
             ],
         ];
 
-        $this->assertEquals($expected, $actual);
+        $processedRecord = $processor([]);
+        $this->assertEquals(
+            $expected,
+            $processedRecord['extra'],
+            $this->whenRecordIsTestMessage('array')
+        );
+        if (MonologUtils::version() < 3) {
+            return;
+        }
+        $processedRecord = $processor($this->buildLogRecord());
+        $this->assertEquals(
+            $expected,
+            $processedRecord->extra,
+            $this->whenRecordIsTestMessage(LogRecord::class)
+        );
+    }
+
+    /**
+     * @return LogRecord
+     */
+    private static function buildLogRecord(): LogRecord
+    {
+        return RecordFactory::createRecordV3(
+            'foo log msg',
+            Levels::DEBUG,
+            'default'
+        );
     }
 
     /**
@@ -140,21 +171,31 @@ class WpContextProcessorTest extends UnitTestCase
 
         $processor = WpContextProcessor::new();
 
-        $actual = $processor([]);
-
         $expected = [
-            'extra' => [
-                'wp' => [
-                    'doing_cron' => false,
-                    'doing_ajax' => false,
-                    'is_admin' => false,
-                    'doing_rest' => true,
-                    'user_id' => 1,
-                ],
+            'wp' => [
+                'doing_cron' => false,
+                'doing_ajax' => false,
+                'is_admin' => false,
+                'doing_rest' => true,
+                'user_id' => 1,
             ],
         ];
 
-        $this->assertEquals($expected, $actual);
+        $processedRecord = $processor([]);
+        $this->assertEquals(
+            $expected,
+            $processedRecord['extra'],
+            $this->whenRecordIsTestMessage('array')
+        );
+        if (MonologUtils::version() < 3) {
+            return;
+        }
+        $processedRecord = $processor($this->buildLogRecord());
+        $this->assertEquals(
+            $expected,
+            $processedRecord->extra,
+            $this->whenRecordIsTestMessage(LogRecord::class)
+        );
     }
 
     /**
@@ -174,21 +215,31 @@ class WpContextProcessorTest extends UnitTestCase
 
         $processor = WpContextProcessor::new();
 
-        $actual = $processor([]);
-
         $expected = [
-            'extra' => [
-                'wp' => [
-                    'doing_cron' => false,
-                    'doing_ajax' => false,
-                    'is_admin' => false,
-                    'doing_rest' => false,
-                    'user_id' => 1,
-                ],
+            'wp' => [
+                'doing_cron' => false,
+                'doing_ajax' => false,
+                'is_admin' => false,
+                'doing_rest' => false,
+                'user_id' => 1,
             ],
         ];
 
-        $this->assertEquals($expected, $actual);
+        $processedRecord = $processor([]);
+        $this->assertEquals(
+            $expected,
+            $processedRecord['extra'],
+            $this->whenRecordIsTestMessage('array')
+        );
+        if (MonologUtils::version() < 3) {
+            return;
+        }
+        $processedRecord = $processor($this->buildLogRecord());
+        $this->assertEquals(
+            $expected,
+            $processedRecord->extra,
+            $this->whenRecordIsTestMessage(LogRecord::class)
+        );
     }
 
     public function testFrontendAfterParseRequestMultiSite(): void
@@ -206,23 +257,33 @@ class WpContextProcessorTest extends UnitTestCase
 
         $processor = WpContextProcessor::new();
 
-        $actual = $processor([]);
-
         $expected = [
-            'extra' => [
-                'wp' => [
-                    'doing_cron' => false,
-                    'doing_ajax' => false,
-                    'is_admin' => false,
-                    'doing_rest' => false,
-                    'user_id' => 1,
-                    'ms_switched' => true,
-                    'site_id' => 2,
-                    'network_id' => 3,
-                ],
+            'wp' => [
+                'doing_cron' => false,
+                'doing_ajax' => false,
+                'is_admin' => false,
+                'doing_rest' => false,
+                'user_id' => 1,
+                'ms_switched' => true,
+                'site_id' => 2,
+                'network_id' => 3,
             ],
         ];
 
-        $this->assertEquals($expected, $actual);
+        $processedRecord = $processor([]);
+        $this->assertEquals(
+            $expected,
+            $processedRecord['extra'],
+            $this->whenRecordIsTestMessage('array')
+        );
+        if (MonologUtils::version() < 3) {
+            return;
+        }
+        $processedRecord = $processor($this->buildLogRecord());
+        $this->assertEquals(
+            $expected,
+            $processedRecord->extra,
+            $this->whenRecordIsTestMessage(LogRecord::class)
+        );
     }
 }
