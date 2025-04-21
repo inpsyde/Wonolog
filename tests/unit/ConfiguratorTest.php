@@ -47,7 +47,7 @@ class ConfiguratorTest extends UnitTestCase
      * @test
      * @runInSeparateProcess
      */
-    public function testConfiguratorDisabledViaConstant()
+    public function testConfiguratorDisabledViaConstant(): void
     {
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->never();
         Monkey\Actions\expectDone(Configurator::ACTION_LOADED)->never();
@@ -60,7 +60,7 @@ class ConfiguratorTest extends UnitTestCase
      * @test
      * @runInSeparateProcess
      */
-    public function testConfiguratorDisabledViaFilter()
+    public function testConfiguratorDisabledViaFilter(): void
     {
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->never();
         Monkey\Actions\expectDone(Configurator::ACTION_LOADED)->never();
@@ -76,7 +76,7 @@ class ConfiguratorTest extends UnitTestCase
      * @test
      * @runInSeparateProcess
      */
-    public function testConfiguratorDisabledBecauseNoHandlers()
+    public function testConfiguratorDisabledBecauseNoHandlers(): void
     {
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
         Monkey\Actions\expectDone(Configurator::ACTION_LOADED)->never();
@@ -93,7 +93,7 @@ class ConfiguratorTest extends UnitTestCase
      * @test
      * @runInSeparateProcess
      */
-    public function testEnabledViaCustomHandler()
+    public function testEnabledViaCustomHandler(): void
     {
         Monkey\Functions\when('remove_all_actions')->justReturn();
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
@@ -112,7 +112,7 @@ class ConfiguratorTest extends UnitTestCase
      * @test
      * @runInSeparateProcess
      */
-    public function testFallbackHandlerDisabledInOneChannel()
+    public function testFallbackHandlerDisabledInOneChannel(): void
     {
         Monkey\Functions\when('remove_all_actions')->justReturn();
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
@@ -152,7 +152,7 @@ class ConfiguratorTest extends UnitTestCase
      * @test
      * @runInSeparateProcess
      */
-    public function testFallbackHandlerEnabledInSpecificChannels()
+    public function testFallbackHandlerEnabledInSpecificChannels(): void
     {
         Monkey\Functions\when('remove_all_actions')->justReturn();
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
@@ -190,7 +190,7 @@ class ConfiguratorTest extends UnitTestCase
      * @test
      * @runInSeparateProcess
      */
-    public function testWpContextProcessorEnabledInSpecificChannels()
+    public function testWpContextProcessorEnabledInSpecificChannels(): void
     {
         Monkey\Functions\when('remove_all_actions')->justReturn();
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
@@ -227,7 +227,7 @@ class ConfiguratorTest extends UnitTestCase
      * @test
      * @runInSeparateProcess
      */
-    public function testWpContextProcessorDisabledInSpecificChannels()
+    public function testWpContextProcessorDisabledInSpecificChannels(): void
     {
         Monkey\Functions\when('remove_all_actions')->justReturn();
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
@@ -264,7 +264,7 @@ class ConfiguratorTest extends UnitTestCase
      * @test
      * @runInSeparateProcess
      */
-    public function testDefaultHookListenersOptIn()
+    public function testDefaultHookListenersOptIn(): void
     {
         Monkey\Functions\when('remove_all_actions')->justReturn();
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
@@ -292,7 +292,7 @@ class ConfiguratorTest extends UnitTestCase
      * @test
      * @runInSeparateProcess
      */
-    public function testDefaultHookListenersOptOut()
+    public function testDefaultHookListenersOptOut(): void
     {
         Monkey\Functions\when('remove_all_actions')->justReturn();
         Monkey\Actions\expectDone(Configurator::ACTION_SETUP)->once();
