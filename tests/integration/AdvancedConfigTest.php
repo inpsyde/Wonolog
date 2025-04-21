@@ -132,7 +132,7 @@ class AdvancedConfigTest extends IntegrationTestCase
         );
 
         static::assertTrue($this->testHandler->hasDebugThatContains('Something happened.'));
-//        static::assertFalse(file_exists($this->logFile));
+        static::assertFalse(file_exists($this->logFile));
     }
 
     /**
@@ -170,7 +170,7 @@ class AdvancedConfigTest extends IntegrationTestCase
 
         static::assertFalse($this->testHandler->hasNoticeThatContains('Something happened.'));
 
-//        static::assertFalse(file_exists($this->logFile));
+        static::assertFalse(file_exists($this->logFile));
     }
 
     /**
@@ -188,7 +188,7 @@ class AdvancedConfigTest extends IntegrationTestCase
         );
 
         static::assertFalse($this->testHandler->hasNoticeThatContains('cron job'));
-//        static::assertFalse(file_exists($this->logFile));
+        static::assertFalse(file_exists($this->logFile));
     }
 
     /**

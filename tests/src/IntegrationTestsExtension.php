@@ -150,6 +150,7 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
         static::runWpCliCommand(['config', 'set', 'SAVEQUERIES', 'true']);
 
         static::resetDb();
+        $this->createThemesFolder();
     }
 
     /**
@@ -185,6 +186,21 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
         }
 
         return true;
+    }
+
+    private function createThemesFolder(): void
+    {
+        $themeDir = ABSPATH . 'wp-content/themes';
+        $result = true;
+        if (!\is_dir($themeDir)) {
+            $result = \mkdir($themeDir, 0755, true);
+        }
+
+        if ($result === false) {
+            throw new \Exception("Failed to create test theme at $themeDir");
+        }
+
+        \fwrite(STDOUT, "Test theme created at $themeDir\n");
     }
 
     /**
