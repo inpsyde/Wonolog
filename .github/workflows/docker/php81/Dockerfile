@@ -10,4 +10,6 @@ RUN chmod +x /usr/bin/install-composer.sh && /usr/bin/install-composer.sh && mv 
 COPY wait-for.sh /usr/bin/wait-for.sh
 RUN chmod +x /usr/bin/wait-for.sh
 
+RUN git config --global --add safe.directory /var/www/html
+
 WORKDIR /var/www/html
