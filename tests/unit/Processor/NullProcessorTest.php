@@ -6,7 +6,6 @@ namespace Inpsyde\Wonolog\Tests\Unit\Processor;
 
 use Brain\Monkey\Functions;
 use Inpsyde\Wonolog\Levels;
-use Inpsyde\Wonolog\MonologUtils;
 use Inpsyde\Wonolog\Processor\NullProcessor;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Level;
@@ -25,9 +24,6 @@ class NullProcessorTest extends UnitTestCase
 
     public function testProcessesLogRecordCorrectly(): void
     {
-        if (MonologUtils::version() < 3) {
-            $this->markTestSkipped('We support LogRecord from monolog 3');
-        }
         $processor = new NullProcessor();
         $message = 'mymessage';
         $level = Levels::ERROR;

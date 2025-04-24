@@ -74,7 +74,10 @@
             "Inpsyde\\Wonolog\\Tests\\": "tests/src/",
             "Inpsyde\\Wonolog\\Tests\\Unit\\": "tests/unit/",
             "Inpsyde\\Wonolog\\Tests\\Integration\\": "tests/integration/"
-        }
+        },
+		"files": [
+			"tests/stubs/monolog-polyfill.php"
+		]
     },
     "config": {
         "optimize-autoloader": true,
