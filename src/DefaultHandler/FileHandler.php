@@ -17,12 +17,10 @@ use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Processor;
 use Monolog\Formatter\FormatterInterface;
-use Monolog\Handler\BufferHandler;
 use Monolog\Handler\FormattableHandlerInterface;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\ProcessableHandlerInterface;
-use Monolog\Handler\StreamHandler;
 use Monolog\LogRecord;
 use Monolog\ResettableInterface;
 
@@ -44,21 +42,22 @@ class FileHandler implements
 
     private ?HandlerInterface $handler = null;
 
+    private HandlerFactoryInterface $factory;
+
     private ?string $logFilePath = null;
 
-    /**
-     * @return FileHandler
-     */
-    public static function new(): FileHandler
-    {
-        return new self();
+    public static function new(
+        HandlerFactoryInterface $factory = null
+    ): FileHandler {
+
+        return new self($factory);
     }
 
-    /**
-     * Empty on purpose.
-     */
-    private function __construct()
-    {
+    private function __construct(
+        ?HandlerFactoryInterface $factory = null
+    ) {
+
+        $this->factory = $factory ?? new HandlerFactory();
     }
 
     /**
@@ -295,9 +294,6 @@ class FileHandler implements
         }
     }
 
-    /**
-     * @return string
-     */
     public function logFilePath(): string
     {
         if ($this->logFilePath) {
@@ -330,8 +326,6 @@ class FileHandler implements
     }
 
     /**
-     * @return void
-     *
      * @psalm-assert HandlerInterface $this->handler
      */
     private function ensureHandler(): void
@@ -346,12 +340,9 @@ class FileHandler implements
                 /** @phpstan-ignore-next-line classConstant.deprecated */
                 $level = Levels::DEBUG;
             }
-            $streamBuffer = $this->buffering || $this->bubble;
-            $handler = new StreamHandler($this->logFilePath, $level, $streamBuffer, null, true);
-            $this->handler = $this->buffering
-                ? new BufferHandler($handler, 0, $level, $this->bubble)
-                : $handler;
-        } catch (\Throwable $throwable) {
+
+            $this->handler = $this->factory->make($this->logFilePath, $level, $this->buffering, $this->bubble);
+        } catch (\Throwable) {
             $this->handler = new NullHandler();
         }
     }
