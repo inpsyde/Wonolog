@@ -7,9 +7,14 @@ namespace Inpsyde\Wonolog\DefaultHandler;
 use Monolog\Handler\BufferHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 class HandlerFactory implements HandlerFactoryInterface
 {
+    /**
+     * phpcs:ignore Syde.Files.LineLength.TooLong
+     * @param Logger::DEBUG|Logger::INFO|Logger::NOTICE|Logger::WARNING|Logger::ERROR|Logger::CRITICAL|Logger::ALERT|Logger::EMERGENCY $level
+     */
     public function make(string $logFilePath, int $level, bool $buffering, bool $bubble): HandlerInterface
     {
         $streamBuffer = $buffering || $bubble;

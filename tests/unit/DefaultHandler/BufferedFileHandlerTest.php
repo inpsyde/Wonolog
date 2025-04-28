@@ -13,12 +13,10 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Tests\Unit\DefaultHandler;
 
-use Brain\Monkey;
 use Inpsyde\Wonolog\DefaultHandler\FileHandler;
+use Inpsyde\Wonolog\DefaultHandler\HandlerFactoryInterface;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
-use Monolog\Formatter\JsonFormatter;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
+use Monolog\Handler\BufferHandler;
 
 /**
  * @runTestsInSeparateProcesses
@@ -26,4 +24,23 @@ use org\bovigo\vfs\vfsStreamDirectory;
 class BufferedFileHandlerTest extends UnitTestCase
 {
     use FileHandlerTrait;
+
+    private function makeSut(HandlerFactoryInterface $factory = null): FileHandler
+    {
+        $sut = FileHandler::new($factory);
+        $sut->enableBuffering();
+        return $sut;
+    }
+
+    public function testBuffering(): void
+    {
+        $this->setupFolders();
+        $sut = $this->makeSut();
+        $reflection = new \ReflectionClass($sut);
+        $method = $reflection->getMethod('ensureHandler');
+        $method->invoke($sut);
+        $property = $reflection->getProperty('handler');
+
+        $this->assertInstanceOf(BufferHandler::class, $property->getValue($sut));
+    }
 }

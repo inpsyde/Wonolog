@@ -60,18 +60,11 @@ class FileHandler implements
         $this->factory = $factory ?? new HandlerFactory();
     }
 
-    /**
-     * Close on destruct.
-     */
     public function __destruct()
     {
         $this->close();
     }
 
-    /**
-     * @param string $folder
-     * @return static
-     */
     public function withFolder(string $folder): FileHandler
     {
         $this->folder = wp_normalize_path($folder);
@@ -79,10 +72,6 @@ class FileHandler implements
         return $this;
     }
 
-    /**
-     * @param string $filename
-     * @return static
-     */
     public function withFilename(string $filename): FileHandler
     {
         $this->filename = $filename;
@@ -90,11 +79,6 @@ class FileHandler implements
         return $this;
     }
 
-    /**
-     * @param string $format
-     * @param string $extension
-     * @return static
-     */
     public function withDateBasedFileFormat(
         string $format,
         string $extension = 'log'
@@ -112,10 +96,6 @@ class FileHandler implements
         return $this;
     }
 
-    /**
-     * @param int $level
-     * @return static
-     */
     public function withMinimumLevel(int $level): FileHandler
     {
         $this->minLevel = LogLevel::normalizeLevel($level);
@@ -123,9 +103,6 @@ class FileHandler implements
         return $this;
     }
 
-    /**
-     * @return static
-     */
     public function enableBubbling(): FileHandler
     {
         $this->bubble = true;
@@ -133,9 +110,6 @@ class FileHandler implements
         return $this;
     }
 
-    /**
-     * @return static
-     */
     public function disableBubbling(): FileHandler
     {
         $this->bubble = false;
@@ -143,9 +117,6 @@ class FileHandler implements
         return $this;
     }
 
-    /**
-     * @return static
-     */
     public function enableBuffering(): FileHandler
     {
         $this->buffering = true;
@@ -153,9 +124,6 @@ class FileHandler implements
         return $this;
     }
 
-    /**
-     * @return static
-     */
     public function disableBuffering(): FileHandler
     {
         $this->buffering = false;
@@ -163,39 +131,18 @@ class FileHandler implements
         return $this;
     }
 
-    /**
-     * @param array|LogRecord $record
-     * @return bool
-     *
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @phpstan-ignore-next-line
-     */
     public function handle(array|LogRecord $record): bool
     {
         $this->ensureHandler();
         return $this->handler->handle($record);
     }
 
-    /**
-     * @param array|LogRecord $record
-     * @return bool
-     *
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @phpstan-ignore-next-line
-     */
     public function isHandling(array|LogRecord $record): bool
     {
         $this->ensureHandler();
         return $this->handler->isHandling($record);
     }
 
-    /**
-     * @param array<array>|array<LogRecord> $records
-     * @return void
-     *
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @phpstan-ignore-next-line
-     */
     public function handleBatch(array $records): void
     {
         $this->ensureHandler();
@@ -203,23 +150,11 @@ class FileHandler implements
         $this->handler->handleBatch($records);
     }
 
-    /**
-     * @return void
-     */
     public function close(): void
     {
-        if ($this->handler) {
-            $this->handler->close();
-        }
+        $this->handler?->close();
     }
 
-    /**
-     * @param callable(array):array|\Monolog\Processor\ProcessorInterface $callback
-     * @return static
-     *
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @psalm-suppress MoreSpecificImplementedParamType
-     */
     public function pushProcessor(callable $callback): HandlerInterface
     {
         $this->ensureHandler();
@@ -230,12 +165,6 @@ class FileHandler implements
         return $this;
     }
 
-    /**
-     * @return callable(array):array | callable(LogRecord):LogRecord
-     *
-     * @psalm-suppress MixedReturnTypeCoercion
-     * @psalm-suppress LessSpecificImplementedReturnType
-     */
     public function popProcessor(): callable
     {
         $this->ensureHandler();
@@ -247,9 +176,6 @@ class FileHandler implements
     }
 
     /**
-     * @param FormatterInterface $formatter
-     * @return static
-     *
      * phpcs:disable Syde.Classes.DisallowGetterSetter
      */
     public function setFormatter(FormatterInterface $formatter): HandlerInterface
@@ -264,8 +190,6 @@ class FileHandler implements
     }
 
     /**
-     * @return FormatterInterface
-     *
      * phpcs:disable Syde.Classes.DisallowGetterSetter
      */
     public function getFormatter(): FormatterInterface
@@ -283,9 +207,6 @@ class FileHandler implements
             ?? $noopFormatter = new PassthroughFormatter();
     }
 
-    /**
-     * @return void
-     */
     public function reset(): void
     {
         $this->ensureHandler();
@@ -309,11 +230,11 @@ class FileHandler implements
         $logFileName = $this->filename ?? (date('Y/m/d') . '.log');
         $logFilePath = $folder . ltrim($logFileName, '/\\');
         $logFileDir = dirname($logFilePath);
-        if ($logFileDir === '.') {
+        if ($logFileDir === '.') {// This will never throw an exception because the path is already determined above by `LogsFolder::determineFolder`
             throw new \Exception('Could not determine valid log file path.');
         }
 
-        if (!wp_mkdir_p($logFileDir)) {
+        if (!wp_mkdir_p($logFileDir)) {// This will never throw an exception because `wp_mkdir_p` is already checked above by `LogsFolder::determineFolder`
             throw new \Exception('Could not create valid log file path.');
         }
 
@@ -325,9 +246,6 @@ class FileHandler implements
         return (string) wp_normalize_path($logFilePath);
     }
 
-    /**
-     * @psalm-assert HandlerInterface $this->handler
-     */
     private function ensureHandler(): void
     {
         if ($this->handler) {
