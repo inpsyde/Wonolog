@@ -230,6 +230,18 @@ class FileHandler implements
         $logFileName = $this->filename ?? (date('Y/m/d') . '.log');
         $logFilePath = $folder . ltrim($logFileName, '/\\');
         $logFileDir = dirname($logFilePath);
+//        if ($logFileDir === '.') {
+//            throw new \Exception('Could not determine valid log file path.');
+//        }
+
+        /**
+         * This ensures that the directory for `$logFileName` has the correct permissions.
+         * While `LogsFolder::determineFolder` already calls `wp_mkdir_p`, it only applies to `$this->folder`.
+         * This second call ensures that `$logFileName` is also properly ?created and writable.
+         */
+        if (!wp_mkdir_p($logFileDir)) {
+            throw new \Exception('Could not create valid log file path.');
+        }
 
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
         if (!is_writable($logFileDir)) {

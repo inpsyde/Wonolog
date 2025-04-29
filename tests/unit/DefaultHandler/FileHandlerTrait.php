@@ -59,7 +59,54 @@ trait FileHandlerTrait
         $this->expectExceptionMessage('Could not determine or create valid log file path.');
 
         $this->makeSut()
-            ->withFolder('invalid-folder')
+            ->logFilePath();
+    }
+
+//    public function testThrowExceptionOnInvalidLogFileDir(): void
+//    {
+//        Monkey\Functions\when('wp_mkdir_p')->alias(static function (string $path): bool {
+//            return true;
+//        });
+//
+//        $this->expectException(\Exception::class);
+//        $this->expectExceptionMessage('Could not determine valid log file path.');
+//        $this->makeSut()
+//            ->withFolder('.')
+//            ->withFilename('/')
+//            ->logFilePath();
+//    }
+
+    public function testThrowExceptionOnInvalidCreationOfLogFiledir(): void
+    {
+        $dir = $this->setupFolders();
+
+        $call = 0;
+        Monkey\Functions\when('wp_mkdir_p')->alias(static function (string $path) use (&$call): bool {
+            $call++;
+            return $call === 1;
+        });
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Could not create valid log file path.');
+
+        $this->makeSut()
+             ->withFolder($dir->url() . '/public/wp-content')
+            ->logFilePath();
+    }
+
+    public function testThrowExceptionOnInvalidFolderNotWritable(): void
+    {
+        $dir = $this->setupFolders();
+
+        Monkey\Functions\when('wp_mkdir_p')->alias(static function (string $path): bool {
+            return true;
+        });
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Could not obtain valid log file path: not writable.');
+
+        $this->makeSut()
+             ->withFolder($dir->url() . '/public/wp-content')
             ->logFilePath();
     }
 
