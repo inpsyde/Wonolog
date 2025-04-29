@@ -177,7 +177,7 @@ class ProcessorsRegistry implements \Countable
      */
     public function hasAnyProcessorForChannel(string $channel): bool
     {
-        foreach (array_keys($this->processors) as $identifier) {
+        foreach ($this->processors as $identifier => $unused) {
             if ($this->hasProcessorForChannel($identifier, $channel)) {
                 return true;
             }
