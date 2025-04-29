@@ -62,20 +62,6 @@ trait FileHandlerTrait
             ->logFilePath();
     }
 
-//    public function testThrowExceptionOnInvalidLogFileDir(): void
-//    {
-//        Monkey\Functions\when('wp_mkdir_p')->alias(static function (string $path): bool {
-//            return true;
-//        });
-//
-//        $this->expectException(\Exception::class);
-//        $this->expectExceptionMessage('Could not determine valid log file path.');
-//        $this->makeSut()
-//            ->withFolder('.')
-//            ->withFilename('/')
-//            ->logFilePath();
-//    }
-
     public function testThrowExceptionOnInvalidCreationOfLogFiledir(): void
     {
         $dir = $this->setupFolders();

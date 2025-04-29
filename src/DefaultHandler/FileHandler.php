@@ -230,9 +230,6 @@ class FileHandler implements
         $logFileName = $this->filename ?? (date('Y/m/d') . '.log');
         $logFilePath = $folder . ltrim($logFileName, '/\\');
         $logFileDir = dirname($logFilePath);
-//        if ($logFileDir === '.') {
-//            throw new \Exception('Could not determine valid log file path.');
-//        }
 
         /**
          * This ensures that the directory for `$logFileName` has the correct permissions.
