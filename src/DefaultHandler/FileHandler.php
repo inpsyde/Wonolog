@@ -42,22 +42,22 @@ class FileHandler implements
 
     private ?HandlerInterface $handler = null;
 
-    private readonly HandlerFactoryInterface $factory;
+    private readonly HandlerFactoryInterface $handlerFactory;
 
     private ?string $logFilePath = null;
 
     public static function new(
-        ?HandlerFactoryInterface $factory = null
+        ?HandlerFactoryInterface $handlerFactory = null
     ): FileHandler {
 
-        return new self($factory);
+        return new self($handlerFactory);
     }
 
     private function __construct(
-        ?HandlerFactoryInterface $factory = null
+        ?HandlerFactoryInterface $handlerFactory = null
     ) {
 
-        $this->factory = $factory ?? new HandlerFactory();
+        $this->handlerFactory = $handlerFactory ?? new HandlerFactory();
     }
 
     public function __destruct()
@@ -85,12 +85,12 @@ class FileHandler implements
     ): FileHandler {
 
         $date = date($format);
-        if (!$date) {
+        if ($date === '' || $date === '0') {
             return $this;
         }
 
         $this->filename = ($extension && $extension !== '.')
-            ? "{$date}." . ltrim($extension, '.')
+            ? $date . '.' . ltrim($extension, '.')
             : $date;
 
         return $this;
@@ -246,22 +246,28 @@ class FileHandler implements
             throw new \Exception('Could not obtain valid log file path: not writable.');
         }
 
-        return (string) wp_normalize_path($logFilePath);
+        return wp_normalize_path($logFilePath);
     }
 
     private function ensureHandler(): void
     {
-        if ($this->handler) {
+        if ($this->handler instanceof \Monolog\Handler\HandlerInterface) {
             return;
         }
+
         try {
             $this->logFilePath = $this->logFilePath();
             $level = $this->minLevel ?? LogLevel::defaultMinLevel();
-            if (!$level) {
+            if ($level === 0) {
                 $level = Levels::DEBUG;
             }
 
-            $this->handler = $this->factory->make($this->logFilePath, $level, $this->buffering, $this->bubble);
+            $this->handler = $this->handlerFactory->make(
+                $this->logFilePath,
+                $level,
+                $this->buffering,
+                $this->bubble
+            );
         } catch (\Throwable) {
             $this->handler = new NullHandler();
         }
