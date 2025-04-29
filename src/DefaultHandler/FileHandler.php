@@ -42,12 +42,12 @@ class FileHandler implements
 
     private ?HandlerInterface $handler = null;
 
-    private HandlerFactoryInterface $factory;
+    private readonly HandlerFactoryInterface $factory;
 
     private ?string $logFilePath = null;
 
     public static function new(
-        HandlerFactoryInterface $factory = null
+        ?HandlerFactoryInterface $factory = null
     ): FileHandler {
 
         return new self($factory);
