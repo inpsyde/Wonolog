@@ -25,7 +25,7 @@ class BufferedFileHandlerTest extends UnitTestCase
 {
     use FileHandlerTrait;
 
-    private function makeSut(HandlerFactoryInterface $factory = null): FileHandler
+    private function makeSut(?HandlerFactoryInterface $factory = null): FileHandler
     {
         $sut = FileHandler::new($factory);
         $sut->enableBuffering();
