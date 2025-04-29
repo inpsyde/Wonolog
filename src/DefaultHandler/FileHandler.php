@@ -233,7 +233,8 @@ class FileHandler implements
 
         /**
          * This ensures that the directory for `$logFileName` has the correct permissions.
-         * While `LogsFolder::determineFolder` already calls `wp_mkdir_p`, it only applies to `$this->folder`.
+         * While `LogsFolder::determineFolder` already calls `wp_mkdir_p`,
+         * it only applies to `$this->folder`.
          * This second call ensures that `$logFileName` is also properly ?created and writable.
          */
         if (!wp_mkdir_p($logFileDir)) {
@@ -257,7 +258,6 @@ class FileHandler implements
             $this->logFilePath = $this->logFilePath();
             $level = $this->minLevel ?? LogLevel::defaultMinLevel();
             if (!$level) {
-                /** @phpstan-ignore-next-line classConstant.deprecated */
                 $level = Levels::DEBUG;
             }
 
