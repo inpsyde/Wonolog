@@ -74,8 +74,12 @@ class LogActionUpdater
         $context = $log->context();
 
         $filteredContext = apply_filters(self::FILTER_CONTEXT, $context, $log);
-        if (!is_array($filteredContext)) {
-            $context = $filteredContext;
+        if (is_array($filteredContext)) {
+            return Serializer::serializeContext($filteredContext);
+        }
+
+        if ($filteredContext instanceof \Traversable) {
+            return Serializer::serializeContext(iterator_to_array($filteredContext));
         }
 
         return Serializer::serializeContext($context);
