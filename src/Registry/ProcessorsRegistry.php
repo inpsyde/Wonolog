@@ -201,13 +201,7 @@ class ProcessorsRegistry implements \Countable
             return true;
         }
 
-        foreach ((array) $channels as $enabled) {
-            if ($enabled) {
-                return true;
-            }
-        }
-
-        return false;
+        return (bool) array_filter($channels);
     }
 
     /**
