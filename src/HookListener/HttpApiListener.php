@@ -125,7 +125,7 @@ final class HttpApiListener implements ActionListenerInterface {
 
 		return
 			is_array( $response )
-			&& basename( parse_url( $url, PHP_URL_PATH ) ) === 'wp-cron.php';
+			&& basename((string) parse_url( $url, PHP_URL_PATH ) ) === 'wp-cron.php';
 	}
 
 	/**
