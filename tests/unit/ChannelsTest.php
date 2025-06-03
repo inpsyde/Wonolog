@@ -19,6 +19,7 @@ use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\Emergency;
 use Inpsyde\Wonolog\Data\Info;
 use Inpsyde\Wonolog\Factory;
+use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\Registry\HandlersRegistry;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Handler\BufferHandler;
@@ -116,7 +117,7 @@ class ChannelsTest extends UnitTestCase
         $channels
             ->withIgnorePattern('~annoying')
             ->withIgnorePattern('^prefix')
-            ->withIgnorePattern('ABC: [0-9]+', Logger::ALERT)
+            ->withIgnorePattern('ABC: [0-9]+', Levels::ALERT)
             ->withIgnorePattern('cron "[^"]+"', null, Channels::CRON);
 
         static::assertTrue($channels->isIgnored(new Debug('~~annoying~~', Channels::DEBUG)));

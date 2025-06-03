@@ -15,6 +15,7 @@ namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
 use Brain\Monkey;
 use Inpsyde\Wonolog\Data\LogData;
+use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Inpsyde\Wonolog\HookListener\CronDebugListener;
@@ -89,11 +90,11 @@ class CronDebugListenerTest extends UnitTestCase
             ->andReturnUsing(
                 static function (LogData $log) use (&$logs): void {
                     $logs[] = $log->message();
-                    static::assertSame(Logger::NOTICE, $log->level());
+                    static::assertSame(Levels::NOTICE, $log->level());
                 }
             );
 
-        (new CronDebugListener(Logger::NOTICE))->update('wp_loaded', [], $updater);
+        (new CronDebugListener(Levels::NOTICE))->update('wp_loaded', [], $updater);
 
         static::assertIsCallable($cb1);
         static::assertIsCallable($cb2);

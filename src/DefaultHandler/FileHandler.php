@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\DefaultHandler;
 
+use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Processor;
 use Monolog\Formatter\FormatterInterface;
@@ -22,7 +23,7 @@ use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
+use Monolog\LogRecord;
 use Monolog\ResettableInterface;
 
 class FileHandler implements
@@ -164,36 +165,37 @@ class FileHandler implements
     }
 
     /**
-     * @param array $record
+     * @param array|LogRecord $record
      * @return bool
      *
      * @psalm-suppress MixedArgumentTypeCoercion
+     * @phpstan-ignore-next-line
      */
-    public function handle(array $record): bool
+    public function handle(array|LogRecord $record): bool
     {
         $this->ensureHandler();
-
         return $this->handler->handle($record);
     }
 
     /**
-     * @param array $record
+     * @param array|LogRecord $record
      * @return bool
      *
      * @psalm-suppress MixedArgumentTypeCoercion
+     * @phpstan-ignore-next-line
      */
-    public function isHandling(array $record): bool
+    public function isHandling(array|LogRecord $record): bool
     {
         $this->ensureHandler();
-
         return $this->handler->isHandling($record);
     }
 
     /**
-     * @param array<array> $records
+     * @param array<array>|array<LogRecord> $records
      * @return void
      *
      * @psalm-suppress MixedArgumentTypeCoercion
+     * @phpstan-ignore-next-line
      */
     public function handleBatch(array $records): void
     {
@@ -230,7 +232,7 @@ class FileHandler implements
     }
 
     /**
-     * @return callable(array):array
+     * @return callable(array):array | callable(LogRecord):LogRecord
      *
      * @psalm-suppress MixedReturnTypeCoercion
      * @psalm-suppress LessSpecificImplementedReturnType
@@ -278,7 +280,8 @@ class FileHandler implements
         /** @var FormatterInterface|null $noopFormatter */
         static $noopFormatter;
 
-        return $noopFormatter ?? $noopFormatter = new PassthroughFormatter();
+        return $noopFormatter
+            ?? $noopFormatter = new PassthroughFormatter();
     }
 
     /**
@@ -336,12 +339,12 @@ class FileHandler implements
         if ($this->handler) {
             return;
         }
-
         try {
             $this->logFilePath = $this->logFilePath();
             $level = $this->minLevel ?? LogLevel::defaultMinLevel();
             if (!$level) {
-                $level = Logger::DEBUG;
+                /** @phpstan-ignore-next-line classConstant.deprecated */
+                $level = Levels::DEBUG;
             }
             $streamBuffer = $this->buffering || $this->bubble;
             $handler = new StreamHandler($this->logFilePath, $level, $streamBuffer, null, true);

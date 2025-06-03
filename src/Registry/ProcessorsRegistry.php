@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Registry;
 
+use Monolog\LogRecord;
+
 class ProcessorsRegistry implements \Countable
 {
     /**
@@ -212,7 +214,7 @@ class ProcessorsRegistry implements \Countable
 
     /**
      * @param string $channel
-     * @return list<callable(array):array>
+     * @return list<callable(array):array>|list<callable(LogRecord):LogRecord>
      */
     public function findForChannel(string $channel): array
     {

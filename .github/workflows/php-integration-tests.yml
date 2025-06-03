@@ -23,6 +23,7 @@ jobs:
             fail-fast: false
             matrix:
                 php-service: [ '81', '82' ]
+                dependency-versions: [ 'lowest', 'highest' ]
         steps:
             -   name: Checkout
                 uses: actions/checkout@v3
@@ -34,4 +35,6 @@ jobs:
 
             -   name: Run integration tests
                 working-directory: .github/workflows/docker
-                run: docker compose run --rm php${{ matrix.php-service }} sh -c "wait-for.sh wonolog-db:3306 -t 15 -- composer update && composer tests:integration"
+                run: |
+                    COMPOSER_DEPENDENCY_VERSIONS=${{ matrix.dependency-versions == 'lowest' && '--prefer-lowest' || '' }}
+                    docker compose run --rm php${{ matrix.php-service }} sh -c "wait-for.sh wonolog-db:3306 -t 15 -- composer update $COMPOSER_DEPENDENCY_VERSIONS && composer tests:integration"

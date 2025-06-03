@@ -16,6 +16,7 @@ namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\LogData;
 use Inpsyde\Wonolog\HookListener\WpDieHandlerListener;
+use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Logger;
@@ -30,12 +31,12 @@ class WpDieHandlerListenerTest extends UnitTestCase
         require_once getenv('TESTS_PATH') . '/stubs/wpdb.php';
 
         $wpdb = new \wpdb('user', 'password', 'db', 'host');
-        $wpdb->wp_die_listener = new WpDieHandlerListener(Logger::CRITICAL);
+        $wpdb->wp_die_listener = new WpDieHandlerListener(Levels::CRITICAL);
 
         $updater = \Mockery::mock(LogActionUpdater::class);
         $updater->expects('update')
             ->andReturnUsing(static function (LogData $log): void {
-                static::assertSame(Logger::CRITICAL, $log->level());
+                static::assertSame(Levels::CRITICAL, $log->level());
                 static::assertSame('Bailed!', $log->message());
                 static::assertSame(Channels::DB, $log->channel());
             });
@@ -58,7 +59,7 @@ class WpDieHandlerListenerTest extends UnitTestCase
         $updater = \Mockery::mock(LogActionUpdater::class);
         $updater->expects('update')
             ->andReturnUsing(static function (LogData $log): void {
-                static::assertSame(Logger::CRITICAL, $log->level());
+                static::assertSame(Levels::CRITICAL, $log->level());
                 static::assertSame('Error!', $log->message());
                 static::assertSame(Channels::DB, $log->channel());
             });

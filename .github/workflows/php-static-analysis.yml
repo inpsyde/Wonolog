@@ -33,6 +33,7 @@ jobs:
         strategy:
             matrix:
                 php-version: ["8.1", "8.2", "8.3", "8.4"]
+                dependency-versions: ['highest', 'lowest']
         with:
             PHP_VERSION: ${{ matrix.php-version }}
 
@@ -44,9 +45,12 @@ jobs:
 
     static-code-analysis-php:
         if: ${{ (github.event_name != 'workflow_dispatch') || ((github.event.inputs.jobs == 'Run all') || (github.event.inputs.jobs == 'Run static analysis only')) }}
-        uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@main
+        uses: inpsyde/reusable-workflows/.github/workflows/static-analysis-php.yml@support_dependency_versions_in_static_analysis
         strategy:
             matrix:
                 php-version: ["8.1", "8.2", "8.3", "8.4"]
+                dependency-versions: ["lowest", "highest"]
         with:
             PHP_VERSION: ${{ matrix.php-version }}
+            PHPSTAN_ARGS: "--no-progress --memory-limit=1G"
+            DEPENDENCY_VERSIONS: ${{ matrix.dependency-versions }}

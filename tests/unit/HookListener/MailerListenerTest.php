@@ -18,6 +18,7 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\LogData;
 use Inpsyde\Wonolog\HookListener\MailerListener;
+use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Logger;
@@ -76,7 +77,7 @@ class MailerListenerTest extends UnitTestCase
             ->andReturnUsing(
                 static function (LogData $log): void {
                     static::assertInstanceOf(LogData::class, $log);
-                    static::assertSame(Logger::ERROR, $log->level());
+                    static::assertSame(Levels::ERROR, $log->level());
                     static::assertSame(Channels::HTTP, $log->channel());
                 }
             );

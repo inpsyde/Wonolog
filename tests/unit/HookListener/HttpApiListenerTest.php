@@ -15,6 +15,7 @@ namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\LogData;
+use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Inpsyde\Wonolog\HookListener\HttpApiListener;
@@ -36,7 +37,7 @@ class HttpApiListenerTest extends UnitTestCase
                 static function (LogData $log): void {
                     static::assertSame('WP HTTP API Error: Test!', $log->message());
                     static::assertSame(Channels::HTTP, $log->channel());
-                    static::assertSame(Logger::ERROR, $log->level());
+                    static::assertSame(Levels::ERROR, $log->level());
                     static::assertSame(
                         [
                             'transport' => 'TestClass',
@@ -87,7 +88,7 @@ class HttpApiListenerTest extends UnitTestCase
             ->andReturnUsing(
                 static function (LogData $log): void {
                     static::assertSame(Channels::HTTP, $log->channel());
-                    static::assertSame(Logger::ERROR, $log->level());
+                    static::assertSame(Levels::ERROR, $log->level());
                     static::assertSame(
                         'WP HTTP API Error: Internal Server Error - Response code: 500',
                         $log->message()
@@ -186,7 +187,7 @@ class HttpApiListenerTest extends UnitTestCase
 
                     static::assertSame('Cron request', $log->message());
                     static::assertSame(Channels::DEBUG, $log->channel());
-                    static::assertSame(Logger::DEBUG, $log->level());
+                    static::assertSame(Levels::DEBUG, $log->level());
                     static::assertSame(
                         [
                             'transport' => 'TestClass',

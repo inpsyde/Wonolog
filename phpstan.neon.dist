@@ -13,6 +13,9 @@ parameters:
     paths:
         - src
     treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - '#Class PHPMailer not found.#'
         - '#Access to property \$\w+ on an unknown class PHPMailer#'
+        - '#has invalid return type Monolog\\LogRecord#'
+        - '#Instantiated class Monolog\\LogRecord not found#'

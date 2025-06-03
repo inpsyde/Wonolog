@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Processor;
 
+use Monolog\LogRecord;
+
 class WpContextProcessor
 {
     private ?bool $isRestRequest = null;
@@ -21,11 +23,12 @@ class WpContextProcessor
     }
 
     /**
-     * @param array $record The complete log record containing 'message', 'context'
+     * @param array|LogRecord $record The complete log record containing 'message', 'context'
      *                      'level', 'level_name', 'channel', 'datetime' and 'extra'
-     * @return array
+     * @return array|LogRecord
+     * @phpstan-ignore-next-line
      */
-    public function __invoke(array $record): array
+    public function __invoke($record)
     {
         $data = [
             'doing_cron' => defined('DOING_CRON') && DOING_CRON, // @phpstan-ignore-line
@@ -43,13 +46,33 @@ class WpContextProcessor
             $data['site_id'] = get_current_blog_id();
             $data['network_id'] = get_current_network_id();
         }
+        $logRecordClass = 'Monolog\LogRecord';
+        if (class_exists($logRecordClass) && $record instanceof $logRecordClass) {
+            return $this->handleExtraInfoFromLogRecord($record, $data);
+        }
+        return $this->handleExtraInfoFromArrayRecord($record, $data);
+    }
 
+    private function handleExtraInfoFromArrayRecord(array $record, array $data): array
+    {
         if (!isset($record['extra']) || !is_array($record['extra'])) {
             $record['extra'] = [];
         }
 
         $record['extra']['wp'] = $data;
+        return $record;
+    }
 
+    /** @phpstan-ignore-next-line */
+    private function handleExtraInfoFromLogRecord(LogRecord $record, array $data): LogRecord
+    {
+        /** @phpstan-ignore-next-line */
+        if (!isset($record->extra) || !is_array($record->extra)) {
+            /** @phpstan-ignore-next-line */
+            $record->extra = [];
+        }
+        /** @phpstan-ignore-next-line */
+        $record->extra['wp'] = $data;
         return $record;
     }
 

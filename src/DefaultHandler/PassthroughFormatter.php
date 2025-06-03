@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\DefaultHandler;
 
 use Monolog\Formatter\FormatterInterface;
+use Monolog\LogRecord;
 
 class PassthroughFormatter implements FormatterInterface
 {
     /**
-     * @param array $record
+     * @param array|LogRecord $record
      * @return array
+     * @phpstan-ignore-next-line
      */
-    public function format(array $record): array
+    public function format(array|LogRecord $record): array|LogRecord
     {
         return $record;
     }
