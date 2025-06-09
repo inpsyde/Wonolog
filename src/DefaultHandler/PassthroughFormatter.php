@@ -11,7 +11,7 @@ class PassthroughFormatter implements FormatterInterface
 {
     /**
      * @param array|LogRecord $record
-     * @return array
+     * @return array|LogRecord
      * @phpstan-ignore-next-line
      */
     public function format(array|LogRecord $record): array|LogRecord

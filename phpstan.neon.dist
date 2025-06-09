@@ -11,12 +11,18 @@ parameters:
         - vendor/inpsyde/wp-stubs-versions/latest.php
     scanDirectories:
         - vendor/roots/wordpress-no-content/wp-includes/PHPMailer
+        - tests/stubs
     paths:
-        - src
+        - src/
+        - inc/
+        - tests/
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
-        - '#Class PHPMailer not found.#'
-        - '#Access to property \$\w+ on an unknown class PHPMailer#'
         - '#has invalid return type Monolog\\LogRecord#'
-        - '#Instantiated class Monolog\\LogRecord not found#'
+        - '#has invalid type Monolog\\LogRecord#'
+        - '#(c|C)lass Monolog\\LogRecord not found#'
+        - '#(c|C)lass Monolog\\Level not found#'
+        - '#unknown class Monolog\\LogRecord#'
+        - '#unknown class Monolog\\Level#'
+        - '#\$extra on array|Monolog\\LogRecord#'
