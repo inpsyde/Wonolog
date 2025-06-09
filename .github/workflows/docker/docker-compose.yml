@@ -45,3 +45,25 @@ services:
           *db-environment
         volumes:
           *wp-volume
+    php83:
+        container_name: wonolog-php-83
+        build:
+            context: .
+            dockerfile: ./php83/Dockerfile
+        depends_on:
+            - db
+        environment:
+          *db-environment
+        volumes:
+          *wp-volume
+    php84:
+        container_name: wonolog-php-84
+        build:
+            context: .
+            dockerfile: ./php84/Dockerfile
+        depends_on:
+            - db
+        environment:
+          *db-environment
+        volumes:
+          *wp-volume
