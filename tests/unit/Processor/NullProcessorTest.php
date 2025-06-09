@@ -35,7 +35,6 @@ class NullProcessorTest extends UnitTestCase
         $context = [
             'foo' => 'bar',
         ];
-        /** @var LogRecord $record */
         $record = new LogRecord(
             new \DateTimeImmutable(),
             $channel,
@@ -58,20 +57,19 @@ class NullProcessorTest extends UnitTestCase
     public function testProcessesArrayCorrectly(): void
     {
         $processor = new NullProcessor();
-        $message = 'mymessage';
+        $message = 'my-message';
         $level = Levels::ERROR;
-        $channel = 'mychannel'; // TODO: should we add this to the Record? looking for symmetry with LogRecord Model
+        $channel = 'my-channel';
         $context = [
             'foo' => 'bar',
         ];
-        /** @var array $record */
-        $record = compact('message', 'context', 'level');
-        /** @var array $record */
+        $record = compact('message', 'context', 'level', 'channel');
         $processedRecord = $processor($record);
 
         static::assertIsArray($processedRecord);
         static::assertEquals($processedRecord['message'], $message);
         static::assertEquals($processedRecord['context'], $context);
         static::assertEquals($processedRecord['level'], $level);
+        static::assertEquals($processedRecord['channel'], $channel);
     }
 }

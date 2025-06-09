@@ -1,10 +1,8 @@
 <?php
 
-// phpcs:disable PSR1.Files.SideEffects
-// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions
-// phpcs:disable WordPress.PHP.DevelopmentFunctions
-
 declare(strict_types=1);
+
+// phpcs:disable PSR1
 
 $testsDir = str_replace('\\', '/', __DIR__);
 $libDir = dirname($testsDir);
@@ -20,7 +18,7 @@ putenv('LIBRARY_PATH=' . $libDir);
 putenv('VENDOR_DIR=' . $vendorDir);
 
 error_reporting(E_ALL);
-ini_set('error_reporting', '-1');
+ini_set('error_reporting', '-1'); // phpcs:ignore WordPress.PHP.IniSet
 
 require_once "{$vendorDir}/antecedent/patchwork/Patchwork.php";
 
@@ -33,7 +31,10 @@ if (!getenv('GITHUB_WORKFLOW') && file_exists(__DIR__ . '/environment.php')) {
     require_once __DIR__ . '/environment.php';
 }
 
-defined('ABSPATH') or define('ABSPATH', "{$vendorDir}/roots/wordpress-no-content/");
+if (!defined('ABSPATH')) {
+    define('ABSPATH', "{$vendorDir}/roots/wordpress-no-content/");
+}
+
 require_once ABSPATH . '/wp-includes/PHPMailer/SMTP.php';
 require_once ABSPATH . '/wp-includes/PHPMailer/PHPMailer.php';
 

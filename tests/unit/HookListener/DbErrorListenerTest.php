@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
+use Brain\Monkey\Actions;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\LogData;
+use Inpsyde\Wonolog\HookListener\DbErrorListener;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
-use Inpsyde\Wonolog\HookListener\DbErrorListener;
-use Brain\Monkey\Actions;
 
 class DbErrorListenerTest extends UnitTestCase
 {
@@ -28,10 +28,10 @@ class DbErrorListenerTest extends UnitTestCase
      */
     public function testLogDone(): void
     {
-        // phpcs:disable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
-
+        // phpcs:disable Syde.NamingConventions.VariableName.SnakeCaseVar
         global $EZSQL_ERROR;
         $EZSQL_ERROR = [['query' => 'This is a SQL query', 'error_str' => 'This is an error']];
+        // phpcs:enable Syde.NamingConventions.VariableName.SnakeCaseVar
 
         $listener = new DbErrorListener();
 
@@ -40,13 +40,13 @@ class DbErrorListenerTest extends UnitTestCase
             ->with(\Mockery::type(LogData::class))
             ->andReturnUsing(
                 static function (LogData $log): void {
+                    // phpcs:disable Syde.NamingConventions.VariableName.SnakeCaseVar
                     global $EZSQL_ERROR;
                     $context = [
                         'last_wpdb_query' => 'This is a SQL query',
                         'last_wpdb_errors' => $EZSQL_ERROR,
                     ];
-                    // phpcs:enable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
-
+                    // phpcs:enable Syde.NamingConventions.VariableName.SnakeCaseVar
                     static::assertSame(Channels::DB, $log->channel());
                     static::assertSame('This is an error', $log->message());
                     static::assertEquals($context, $log->context());
@@ -69,10 +69,10 @@ class DbErrorListenerTest extends UnitTestCase
      */
     public function testLogNotDoneIfNoError(): void
     {
-        // phpcs:disable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
+        // phpcs:disable Syde.NamingConventions.VariableName.SnakeCaseVar
         global $EZSQL_ERROR;
         $EZSQL_ERROR = [];
-        // phpcs:enable Inpsyde.CodeQuality.VariablesName.SnakeCaseVar
+        // phpcs:enable Syde.NamingConventions.VariableName.SnakeCaseVar
 
         $listener = new DbErrorListener();
 

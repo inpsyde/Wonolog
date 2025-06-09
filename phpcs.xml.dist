@@ -9,11 +9,11 @@
     <config name="ignore_warnings_on_exit" value="1" />
 
     <!-- Check for cross-version support for PHP 8.1 and higher. -->
-    <config name="testVersion" value="8.1-8.2" />
+    <config name="testVersion" value="8.1-" />
 
     <file>./inc</file>
     <file>./src</file>
-    <file>./tests/src</file>
+    <file>./tests</file>
 
     <!-- Use colors, and show sniff error codes and progress. -->
     <arg name="colors" />
@@ -35,9 +35,32 @@
     <rule ref="WordPress.Security.EscapeOutput.ExceptionNotEscaped">
         <exclude-pattern>/tests/*</exclude-pattern>
     </rule>
-
     <rule ref="WordPress.WP.AlternativeFunctions">
         <exclude-pattern>/tests/*</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.PHP.Eval.Discouraged">
+        <exclude-pattern>/tests/*</exclude-pattern>
+    </rule>
+    <rule ref="Syde.Functions.FunctionLength">
+        <exclude-pattern>/tests/*</exclude-pattern>
+    </rule>
+    <rule ref="WordPress.PHP.DevelopmentFunctions">
+        <exclude-pattern>/tests/*</exclude-pattern>
+    </rule>
+    <rule ref="WordPress.PHP.NoSilencedErrors">
+        <exclude-pattern>/tests/*</exclude-pattern>
+    </rule>
+    <rule ref="WordPress.PHP.DiscouragedPHPFunctions">
+        <exclude-pattern>/tests/*</exclude-pattern>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Classes.ForbiddenPublicProperty">
+        <exclude-pattern>/tests/*</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.Classes.ValidClassName.NotCamelCaps">
+        <exclude-pattern>/tests/stubs/*</exclude-pattern>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Files.TypeNameMatchesFileName">
+        <exclude-pattern>/tests/stubs/*</exclude-pattern>
     </rule>
 
 </ruleset>

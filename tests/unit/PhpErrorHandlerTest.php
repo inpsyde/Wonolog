@@ -101,7 +101,7 @@ class PhpErrorHandlerTest extends UnitTestCase
 
         try {
             throw new \RuntimeException('Exception!');
-        } catch (\Exception $throwable) {
+        } catch (\Throwable $throwable) {
             $controller->onException($throwable);
         }
     }

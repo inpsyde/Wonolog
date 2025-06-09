@@ -18,7 +18,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineDefaultWhenUploadsInsideContent()
+    public function testDetermineDefaultWhenUploadsInsideContent(): void
     {
         define('WP_DEBUG_LOG', true);
         $dir = $this->setupFolders();
@@ -32,7 +32,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineDefaultWhenUploadsOutsideContent()
+    public function testDetermineDefaultWhenUploadsOutsideContent(): void
     {
         define('WP_DEBUG_LOG', true);
         $dir = $this->setupFolders(false);
@@ -46,7 +46,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineDefaultWhenUploadsOutsideContentButErrored()
+    public function testDetermineDefaultWhenUploadsOutsideContentButErrored(): void
     {
         define('WP_DEBUG_LOG', true);
         $dir = $this->setupFolders(false, false);
@@ -60,7 +60,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineDefaultWhenWpLogConstantDefinedAsPath()
+    public function testDetermineDefaultWhenWpLogConstantDefinedAsPath(): void
     {
         $dir = $this->setupFolders();
         define('WP_DEBUG_LOG', $dir->url() . '/tmp/wp.log');
@@ -74,7 +74,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineDefaultWhenErrorLogFileConstantDefinedAsPath()
+    public function testDetermineDefaultWhenErrorLogFileConstantDefinedAsPath(): void
     {
         $dir = $this->setupFolders();
         define('WP_DEBUG_LOG', true);
@@ -89,7 +89,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineCustomWhenUploadsInsideContentWithAppendedWonologDir()
+    public function testDetermineCustomWhenUploadsInsideContentWithAppendedWonologDir(): void
     {
         define('WP_DEBUG_LOG', true);
         $dir = $this->setupFolders();
@@ -103,7 +103,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineCustomWhenUploadsInsideContentWithoutAppendedWonologDir()
+    public function testDetermineCustomWhenUploadsInsideContentWithoutAppendedWonologDir(): void
     {
         define('WP_DEBUG_LOG', true);
         $dir = $this->setupFolders();
@@ -117,7 +117,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineCustomInWpContentWithAppendedWonologDir()
+    public function testDetermineCustomInWpContentWithAppendedWonologDir(): void
     {
         define('WP_DEBUG_LOG', true);
         $dir = $this->setupFolders();
@@ -131,7 +131,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineCustomInWpContentWithoutAppendedWonologDir()
+    public function testDetermineCustomInWpContentWithoutAppendedWonologDir(): void
     {
         define('WP_DEBUG_LOG', true);
         $dir = $this->setupFolders();
@@ -145,7 +145,7 @@ class LogsFolderTest extends UnitTestCase
     /**
      * @test
      */
-    public function testDetermineCustomOutsidePublic()
+    public function testDetermineCustomOutsidePublic(): void
     {
         define('WP_DEBUG_LOG', true);
         $dir = $this->setupFolders();
@@ -161,14 +161,17 @@ class LogsFolderTest extends UnitTestCase
      * @param bool $uploadsOk
      * @return vfsStreamDirectory
      */
-    private function setupFolders(bool $uploadsNested = true, $uploadsOk = true): vfsStreamDirectory
-    {
+    private function setupFolders(
+        bool $uploadsNested = true,
+        bool $uploadsOk = true
+    ): vfsStreamDirectory {
+
         $dir = vfsStream::setup('root', 0777);
         $structure = [
             'tmp' => [],
             'www' => [
                 'wp' => ['wp-includes' => [], 'wp-admin' => []],
-                'wp-content' => []
+                'wp-content' => [],
             ],
         ];
 
@@ -181,10 +184,14 @@ class LogsFolderTest extends UnitTestCase
         define('WP_CONTENT_DIR', $dir->url() . '/www/wp-content');
 
         Monkey\Functions\when('wp_upload_dir')
-            ->alias(static function () use ($uploadsNested, $uploadsOk, $dir): array {
-                $path = $uploadsNested ? '/www/wp-content/uploads' : '/www/uploads';
-                return $uploadsOk ? ['basedir' => $dir->url() . $path] : ['error' => 'error'];
-            });
+            ->alias(
+                static function () use ($uploadsNested, $uploadsOk, $dir): array {
+                    $path = $uploadsNested ? '/www/wp-content/uploads' : '/www/uploads';
+                    return $uploadsOk
+                        ? ['basedir' => $dir->url() . $path]
+                        : ['error' => 'error'];
+                }
+            );
 
         return $dir;
     }

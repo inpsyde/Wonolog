@@ -16,7 +16,6 @@ use Inpsyde\Wonolog\Data\Notice;
 use Inpsyde\Wonolog\Data\Warning;
 use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
-use Monolog\Logger;
 
 class CustomLogDataTest extends UnitTestCase
 {

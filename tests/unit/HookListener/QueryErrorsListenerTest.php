@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
-use Inpsyde\Wonolog\Channels;
-use Inpsyde\Wonolog\Data\LogData;
-use Inpsyde\Wonolog\LogActionUpdater;
-use Inpsyde\Wonolog\Tests\UnitTestCase;
-use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
 use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
+use Inpsyde\Wonolog\Channels;
+use Inpsyde\Wonolog\Data\LogData;
+use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
+use Inpsyde\Wonolog\LogActionUpdater;
+use Inpsyde\Wonolog\Tests\UnitTestCase;
 
 class QueryErrorsListenerTest extends UnitTestCase
 {
@@ -52,9 +52,7 @@ class QueryErrorsListenerTest extends UnitTestCase
 
         Actions\expectDone('wp')
             ->whenHappen(
-            // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-                static function (...$args) use ($listener, $updater): void {
-                    // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+                static function (mixed ...$args) use ($listener, $updater): void {
                     $listener->update('a', $args, $updater);
                 }
             );

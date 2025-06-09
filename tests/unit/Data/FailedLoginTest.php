@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Tests\Unit\Data;
 
+use Brain\Monkey\Functions;
 use Inpsyde\Wonolog\Channels;
+use Inpsyde\Wonolog\Data\FailedLogin;
 use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
-use Inpsyde\Wonolog\Data\FailedLogin;
-use Brain\Monkey\Functions;
-use Monolog\Logger;
 
 class FailedLoginTest extends UnitTestCase
 {
@@ -20,11 +19,7 @@ class FailedLoginTest extends UnitTestCase
     {
         $transient = false;
 
-        // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-        // phpcs:disable Inpsyde.CodeQuality.ReturnTypeDeclaration
-        $callback = static function (string $name, $value = null) use (&$transient) {
-            // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-            // phpcs:enable Inpsyde.CodeQuality.ReturnTypeDeclaration
+        $callback = static function (string $name, mixed $value = null) use (&$transient): bool {
             if ($value === null) {
                 return $transient;
             }
@@ -93,11 +88,7 @@ class FailedLoginTest extends UnitTestCase
     {
         $transient = false;
 
-        // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-        // phpcs:disable Inpsyde.CodeQuality.ReturnTypeDeclaration
-        $callback = static function (string $name, $value = null) use (&$transient) {
-            // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-            // phpcs:enable Inpsyde.CodeQuality.ReturnTypeDeclaration
+        $callback = static function (string $name, mixed $value = null) use (&$transient): bool {
             if ($value === null) {
                 return $transient;
             }

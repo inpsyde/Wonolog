@@ -13,10 +13,7 @@ use Inpsyde\Wonolog\Tests\UnitTestCase;
 
 class PsrBridgeTest extends UnitTestCase
 {
-    /**
-     * @var LogData|null
-     */
-    private $logged;
+    private LogData|null $logged;
 
     /**
      * @return void
@@ -30,7 +27,7 @@ class PsrBridgeTest extends UnitTestCase
     /**
      * @test
      */
-    public function testAutoBuildLog()
+    public function testAutoBuildLog(): void
     {
         $bridge = $this->factoryBridge();
         $bridge->emergency('test {x}', ['x' => 'X!', 'y' => 'Y!']);
@@ -44,7 +41,7 @@ class PsrBridgeTest extends UnitTestCase
     /**
      * @test
      */
-    public function testBuildLogWithDefaultChannel()
+    public function testBuildLogWithDefaultChannel(): void
     {
         $bridge = $this->factoryBridge('CUSTOM');
         $bridge->emergency('test {x}', ['x' => 'X!', 'y' => 'Y!']);
@@ -58,7 +55,7 @@ class PsrBridgeTest extends UnitTestCase
     /**
      * @test
      */
-    public function testBuildLogWithManualChannel()
+    public function testBuildLogWithManualChannel(): void
     {
         $bridge = $this->factoryBridge()->withDefaultChannel('MY_PLUGIN');
         $bridge->emergency('test {x}', ['x' => 'X!', 'y' => 'Y!']);
@@ -72,7 +69,7 @@ class PsrBridgeTest extends UnitTestCase
     /**
      * @test
      */
-    public function testBuildLogWithManualChannelFromBadLevel()
+    public function testBuildLogWithManualChannelFromBadLevel(): void
     {
         $bridge = $this->factoryBridge()->withDefaultChannel('MY_PLUGIN');
         $bridge->log('foo', 'test {x}', ['x' => 'X!', 'y' => 'Y!']);

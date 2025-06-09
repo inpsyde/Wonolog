@@ -6,11 +6,10 @@ namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
 use Brain\Monkey;
 use Inpsyde\Wonolog\Data\LogData;
+use Inpsyde\Wonolog\HookListener\CronDebugListener;
 use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
-use Inpsyde\Wonolog\HookListener\CronDebugListener;
-use Monolog\Logger;
 
 class CronDebugListenerTest extends UnitTestCase
 {
@@ -55,19 +54,19 @@ class CronDebugListenerTest extends UnitTestCase
         $cb3 = null;
 
         Monkey\Actions\expectAdded('wp_version_check')->twice()->whenHappen(
-            static function ($profileCallback) use (&$cb1): void {
+            static function (callable $profileCallback) use (&$cb1): void {
                 $cb1 = $profileCallback;
             }
         );
 
         Monkey\Actions\expectAdded('wp_update_plugins')->twice()->whenHappen(
-            static function ($profileCallback) use (&$cb2): void {
+            static function (callable $profileCallback) use (&$cb2): void {
                 $cb2 = $profileCallback;
             }
         );
 
         Monkey\Actions\expectAdded('wp_scheduled_delete')->twice()->whenHappen(
-            static function ($profileCallback) use (&$cb3): void {
+            static function (callable $profileCallback) use (&$cb3): void {
                 $cb3 = $profileCallback;
             }
         );

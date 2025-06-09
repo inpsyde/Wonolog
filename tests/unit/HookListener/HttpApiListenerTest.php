@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Tests\Unit\HookListener;
 
+use Brain\Monkey\Actions;
+use Brain\Monkey\Functions;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\LogData;
+use Inpsyde\Wonolog\HookListener\HttpApiListener;
 use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
-use Inpsyde\Wonolog\HookListener\HttpApiListener;
-use Brain\Monkey\Actions;
-use Brain\Monkey\Functions;
-use Monolog\Logger;
 
 class HttpApiListenerTest extends UnitTestCase
 {
@@ -49,8 +48,7 @@ class HttpApiListenerTest extends UnitTestCase
 
         Actions\expectDone('http_api_debug')
             ->whenHappen(
-            // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-                static function (...$args) use ($listener, $updater): void {
+                static function (mixed ...$args) use ($listener, $updater): void {
                     $listener->update('a', $args, $updater);
                 }
             );
