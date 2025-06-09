@@ -48,6 +48,10 @@ class RecordFactory
         array $context = []
     ): LogRecord {
 
+        if (!in_array($level, Level::VALUES, true)) {
+            $level = Levels::ERROR;
+        }
+
         return new LogRecord(
             new \DateTimeImmutable(),
             $channel,
