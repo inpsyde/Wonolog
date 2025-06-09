@@ -12,7 +12,6 @@ use Inpsyde\Wonolog\Data\LogData;
 use Inpsyde\Wonolog\HookLogFactory;
 use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
-use Monolog\Logger;
 use Psr\Log\LogLevel;
 
 class HookLogFactoryTest extends UnitTestCase

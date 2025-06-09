@@ -8,7 +8,6 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Configurator;
 use Inpsyde\Wonolog\Tests\IntegrationTestCase;
 use Monolog\Handler\TestHandler;
-use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 use function Inpsyde\Wonolog\makeLogger;
@@ -18,10 +17,7 @@ use function Inpsyde\Wonolog\makeLogger;
  */
 class BasicConfigTest extends IntegrationTestCase
 {
-    /**
-     * @var TestHandler
-     */
-    private $handler;
+    private TestHandler $handler;
 
     /**
      * @param Configurator $configurator
@@ -80,7 +76,7 @@ class BasicConfigTest extends IntegrationTestCase
     /**
      * @test
      */
-    public function testLevelRichHook()
+    public function testLevelRichHook(): void
     {
         do_action('wonolog.log.info', 'Hello, I\'m there');
 
@@ -90,7 +86,7 @@ class BasicConfigTest extends IntegrationTestCase
     /**
      * @test
      */
-    public function testPsrLogger()
+    public function testPsrLogger(): void
     {
         $logger = makeLogger('test');
         $logger->alert('From PSR-3 with love.', ['foo' => 'bar']);

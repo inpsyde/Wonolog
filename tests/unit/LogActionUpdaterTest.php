@@ -12,7 +12,6 @@ use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel as WonologLogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
-use Monolog\Logger;
 use Psr\Log\LogLevel;
 use Psr\Log\Test\TestLogger;
 
@@ -120,15 +119,15 @@ class LogActionUpdaterTest extends UnitTestCase
 
         $context = [
             'users' => [
-                (object)[
+                (object) [
                     'user_login' => 'foo',
                     'user_password' => 'secret1',
                 ],
-                (object)[
+                (object) [
                     'user_login' => 'bar',
                     'user_password' => 'secret2',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $contextExpected = [
@@ -140,8 +139,8 @@ class LogActionUpdaterTest extends UnitTestCase
                 [
                     'user_login' => 'bar',
                     'user_password' => '***',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $log = new Log('Test me', Levels::EMERGENCY, Channels::SECURITY, $context);

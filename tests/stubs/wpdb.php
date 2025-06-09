@@ -1,11 +1,8 @@
 <?php
 
-// phpcs:disable PSR1
-// phpcs:disable Inpsyde.CodeQuality.ForbiddenPublicProperty
-// phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-// phpcs:disable Inpsyde.CodeQuality.ReturnTypeDeclaration
-
 declare(strict_types=1);
+
+// phpcs:disable PSR1
 
 use Inpsyde\Wonolog\HookListener\WpDieHandlerListener;
 use Inpsyde\Wonolog\LogActionUpdater;
@@ -14,7 +11,7 @@ if (class_exists('wpdb')) {
     return;
 }
 
-class wpdb // phpcs:ignore
+class wpdb
 {
     public WpDieHandlerListener $wp_die_listener;
     public LogActionUpdater $logActionUpdater;
@@ -24,7 +21,7 @@ class wpdb // phpcs:ignore
      * @param string $code
      * @return string
      */
-    public function bail($message, $code = '500')
+    public function bail(string $message, string $code = '500'): string
     {
         $handler = $this->execute_die_listener();
 
@@ -35,7 +32,7 @@ class wpdb // phpcs:ignore
      * @param string $message
      * @return string
      */
-    public function print_error($message = '')
+    public function print_error(string $message = ''): string
     {
         $handler = $this->execute_die_listener();
 
@@ -43,7 +40,7 @@ class wpdb // phpcs:ignore
     }
 
     /**
-     * @return callable(string): string
+     * @return callable(string):string
      */
     private function execute_die_listener(): callable
     {

@@ -7,7 +7,6 @@ namespace Inpsyde\Wonolog\Tests\Unit;
 use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
-use Monolog\Logger;
 
 /**
  * @runTestsInSeparateProcesses

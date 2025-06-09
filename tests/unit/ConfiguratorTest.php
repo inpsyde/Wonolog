@@ -109,7 +109,8 @@ class ConfiguratorTest extends UnitTestCase
         Monkey\Actions\expectDone(Configurator::ACTION_LOADED)->once();
 
         $factory = Factory::new();
-        $config = new class($factory) extends Configurator {
+        $config = new class ($factory) extends Configurator
+        {
             public function __construct(Factory $factory)
             {
                 parent::__construct($factory);
@@ -149,7 +150,8 @@ class ConfiguratorTest extends UnitTestCase
         Monkey\Actions\expectDone(Configurator::ACTION_LOADED)->once();
 
         $factory = Factory::new();
-        $config = new class($factory) extends Configurator {
+        $config = new class ($factory) extends Configurator
+        {
             public function __construct(Factory $factory)
             {
                 parent::__construct($factory);
@@ -187,7 +189,8 @@ class ConfiguratorTest extends UnitTestCase
         Monkey\Actions\expectDone(Configurator::ACTION_LOADED)->once();
 
         $factory = Factory::new();
-        $config = new class($factory) extends Configurator {
+        $config = new class ($factory) extends Configurator
+        {
             public function __construct(Factory $factory)
             {
                 parent::__construct($factory);
@@ -224,7 +227,8 @@ class ConfiguratorTest extends UnitTestCase
         Monkey\Actions\expectDone(Configurator::ACTION_LOADED)->once();
 
         $factory = Factory::new();
-        $config = new class($factory) extends Configurator {
+        $config = new class ($factory) extends Configurator
+        {
             public function __construct(Factory $factory)
             {
                 parent::__construct($factory);

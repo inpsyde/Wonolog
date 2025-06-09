@@ -10,6 +10,7 @@ use Inpsyde\Wonolog\Data\Notice;
 use Inpsyde\Wonolog\DefaultHandler\FileHandler;
 use Inpsyde\Wonolog\HookListener\ActionListener;
 use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
+use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\IntegrationTestCase;
 use Monolog\Handler\TestHandler;
@@ -17,7 +18,6 @@ use Monolog\LogRecord;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\AssertionFailedError;
 use Psr\Log\LogLevel;
-use Inpsyde\Wonolog\Levels;
 
 use function Inpsyde\Wonolog\makeLogger;
 
@@ -26,14 +26,7 @@ use function Inpsyde\Wonolog\makeLogger;
  */
 class AdvancedConfigTest extends IntegrationTestCase
 {
-    /**
-     * @var string
-     */
     private ?string $logFile = null;
-
-    /**
-     * @var TestHandler
-     */
     private ?TestHandler $testHandler = null;
 
     /**
@@ -329,10 +322,11 @@ class AdvancedConfigTest extends IntegrationTestCase
         $context and $messageLog .= sprintf(' (%s)', json_encode($context));
 
         $lines = @file($this->logFile) ?: [];
-        $found = false;
         foreach ((array) $lines as $line) {
             preg_match(
-                '~^\[[^\]]+\] (?<channel>[A-Z_-]+)\.(?<level>[A-Z]+): (?<txt>[^\[\{]+) (?<more>.+?)$~',
+                '~^\[[^\]]+\] '
+                . '(?<channel>[A-Z_-]+)\.(?<level>[A-Z]+): (?<txt>[^\[\{]+) '
+                . '(?<more>.+?)$~',
                 trim($line),
                 $matches
             );

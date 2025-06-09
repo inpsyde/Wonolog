@@ -17,7 +17,7 @@ class SerializerTest extends UnitTestCase
      * @test
      * @dataProvider provideMessageExamples
      */
-    public function testMessageSerialization($message, string $expected): void
+    public function testMessageSerialization(mixed $message, string $expected): void
     {
         static::assertSame($expected, Serializer::serializeMessage($message));
     }
@@ -36,7 +36,7 @@ class SerializerTest extends UnitTestCase
      */
     public function testMessageSerializationWithException(): void
     {
-        static::assertSame('Error: Error!',  Serializer::serializeMessage(new \Error('Error!')));
+        static::assertSame('Error: Error!', Serializer::serializeMessage(new \Error('Error!')));
     }
 
     /**
@@ -46,11 +46,12 @@ class SerializerTest extends UnitTestCase
     {
         Monkey\Filters\expectApplied(Serializer::FILTER_MASKED_KEYS)
             ->once()
-            ->andReturnUsing(static function (array $keys): array {
-                $keys[]  = 'secret_key';
-
-                return $keys;
-            });
+            ->andReturnUsing(
+                static function (array $keys): array {
+                    $keys[] = 'secret_key';
+                    return $keys;
+                }
+            );
 
         if (!class_exists(\WP_Post::class)) {
             eval('class WP_Post { public $ID = null; }');
@@ -77,26 +78,26 @@ class SerializerTest extends UnitTestCase
         $throwable = new \Error('Foo');
         $datetime = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
-        $jsonScalar = new class implements \JsonSerializable {
-            #[\ReturnTypeWillChange]
-            public function jsonSerialize()
+        $jsonScalar = new class implements \JsonSerializable
+        {
+            public function jsonSerialize(): int
             {
                 return 1;
             }
         };
 
-        $jsonObj = new class implements \JsonSerializable {
-            #[\ReturnTypeWillChange]
-            public function jsonSerialize()
+        $jsonObj = new class implements \JsonSerializable
+        {
+            public function jsonSerialize(): object
             {
-                return (object)['token' => 'x'];
+                return (object) ['token' => 'x'];
             }
         };
 
         $input = [
             'array' => range('a', 'e'),
             'x' => [
-                'y' => (object)[
+                'y' => (object) [
                     'users' => [
                         'z1' => new \ArrayIterator([
                             ['username' => 'foo', 'password' => 's3cr3t1'],
@@ -106,13 +107,13 @@ class SerializerTest extends UnitTestCase
                             ['username' => 'foo', 'user_password' => 's3cr3t1'],
                             ['username' => 'bar', 'user_password' => 's3cr3t2'],
                         ]),
-                    ]
+                    ],
                 ],
             ],
-            'secrets' => (object)[
-                'one' => (object)['name' => 'one', 'secret_key' => '0n3!'],
-                'two' => (object)['name' => 'two', 'secret_key' => 'Tw0!'],
-                'three' => (object)['name' => 'three', 'secret_key' => 'Thr33!'],
+            'secrets' => (object) [
+                'one' => (object) ['name' => 'one', 'secret_key' => '0n3!'],
+                'two' => (object) ['name' => 'two', 'secret_key' => 'Tw0!'],
+                'three' => (object) ['name' => 'three', 'secret_key' => 'Thr33!'],
             ],
             'posts' => compact('post1', 'post2', 'post3'),
             'data' => [
@@ -136,7 +137,7 @@ class SerializerTest extends UnitTestCase
                             ['username' => 'foo', 'user_password' => '***'],
                             ['username' => 'bar', 'user_password' => '***'],
                         ],
-                    ]
+                    ],
                 ],
             ],
             'secrets' => [
@@ -177,8 +178,8 @@ class SerializerTest extends UnitTestCase
             [1.05, '1.05'],
             [NAN, 'NaN'],
             [INF, 'INF'],
-            [- INF, '-INF'],
-            [(object)['foo' => 'bar'], '{"foo":"bar"}'],
+            [-INF, '-INF'],
+            [(object) ['foo' => 'bar'], '{"foo":"bar"}'],
             [['foo' => 'bar'], '{"foo":"bar"}'],
         ];
     }

@@ -57,7 +57,7 @@ class BufferedFileHandlerTest extends UnitTestCase
         $this->setupFolders();
         $handler = FileHandler::new();
         $formatter = new JsonFormatter();
-        $processor = static function (array $record): array { return $record; };
+        $processor = static fn (array $record): array => $record;
         $handler->setFormatter($formatter);
         $handler->pushProcessor($processor);
 

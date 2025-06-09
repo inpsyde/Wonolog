@@ -6,8 +6,8 @@ namespace Inpsyde\Wonolog\Tests\Unit;
 
 use Brain\Monkey\Filters;
 use Inpsyde\Wonolog\Channels;
-use Inpsyde\Wonolog\WpErrorChannel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
+use Inpsyde\Wonolog\WpErrorChannel;
 
 class WpErrorChannelTest extends UnitTestCase
 {
