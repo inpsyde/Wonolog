@@ -1,8 +1,8 @@
 # Wonolog
 
-[![Version](https://img.shields.io/static/v1?label=inpsyde/wonolog&message=v2&color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog#2.0.0-beta.1)
+[![Version](https://img.shields.io/static/v1?label=inpsyde/wonolog&message=3&color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog)
 [![PHP Version](https://img.shields.io/static/v1?label=php&message=>=8.1&color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog#2.0.0-beta.1)
-[![Monolog Version](https://img.shields.io/static/v1?label=monolog/monolog&message=^2.3.5&color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog#2.0.0-beta.1)
+[![Monolog Version](https://img.shields.io/static/v1?label=monolog/monolog&message=2%20||%203&color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog)
 [![Downloads](https://img.shields.io/packagist/dt/inpsyde/wonolog.svg?color=9FC65D&labelColor=3C3D46&style=for-the-badge)](https://packagist.org/packages/inpsyde/wonolog)
 
 ### _Monolog-based logging package for WordPress_
