@@ -68,7 +68,7 @@ class SerializerTest extends UnitTestCase
             eval('class WP_Query { public $query_vars = [];  public $query = []; }');
         }
 
-        $post1 = new \WP_Post();
+        $post1 = new \WP_Post((object) []);
         $post2 = clone $post1;
         $post3 = clone $post1;
 

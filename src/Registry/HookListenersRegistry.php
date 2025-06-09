@@ -51,8 +51,9 @@ class HookListenersRegistry
 
         foreach ($this->listeners as [$listener, $priority]) {
             $hooks = $listener->listenTo();
+            $listenerPriority = $priority ?? $defaultPriority;
             foreach ($hooks as $hook) {
-                $this->listenHook($hook, $priority ?? $defaultPriority, $listener);
+                $this->listenHook($hook, $listenerPriority, $listener);
             }
         }
     }

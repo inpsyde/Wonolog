@@ -100,7 +100,6 @@ class ChannelsTest extends UnitTestCase
         static::assertSame($logger, $channels->logger(Channels::DEBUG));
 
         $handlers = $logger->getHandlers();
-        static::assertIsArray($handlers);
         static::assertCount(1, $handlers);
 
         $handler = reset($handlers);

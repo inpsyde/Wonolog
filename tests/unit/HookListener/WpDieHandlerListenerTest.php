@@ -31,7 +31,7 @@ class WpDieHandlerListenerTest extends UnitTestCase
         require_once getenv('TESTS_PATH') . '/stubs/wpdb.php';
 
         $wpdb = new \wpdb('user', 'password', 'db', 'host');
-        $wpdb->wp_die_listener = new WpDieHandlerListener(Levels::CRITICAL);
+        $wpdb->wp_die_listener = new WpDieHandlerListener(Levels::CRITICAL); // @phpstan-ignore property.notFound
 
         $updater = \Mockery::mock(LogActionUpdater::class);
         $updater->expects('update')
@@ -41,7 +41,7 @@ class WpDieHandlerListenerTest extends UnitTestCase
                 static::assertSame(Channels::DB, $log->channel());
             });
 
-        $wpdb->logActionUpdater = $updater;
+        $wpdb->logActionUpdater = $updater; // @phpstan-ignore property.notFound
 
         static::assertSame('Handled: Bailed!', $wpdb->bail('Bailed!'));
     }
@@ -54,7 +54,7 @@ class WpDieHandlerListenerTest extends UnitTestCase
         require_once getenv('TESTS_PATH') . '/stubs/wpdb.php';
 
         $wpdb = new \wpdb('user', 'password', 'db', 'host');
-        $wpdb->wp_die_listener = new WpDieHandlerListener();
+        $wpdb->wp_die_listener = new WpDieHandlerListener(); // @phpstan-ignore property.notFound
 
         $updater = \Mockery::mock(LogActionUpdater::class);
         $updater->expects('update')
@@ -64,7 +64,7 @@ class WpDieHandlerListenerTest extends UnitTestCase
                 static::assertSame(Channels::DB, $log->channel());
             });
 
-        $wpdb->logActionUpdater = $updater;
+        $wpdb->logActionUpdater = $updater; // @phpstan-ignore property.notFound
 
         static::assertSame('Handled: Error!', $wpdb->print_error('Error!'));
     }

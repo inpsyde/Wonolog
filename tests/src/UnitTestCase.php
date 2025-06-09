@@ -26,7 +26,7 @@ class UnitTestCase extends \PHPUnit\Framework\TestCase
         Monkey\setUp();
 
         Monkey\Functions\when('wp_is_stream')->alias(static function (string $path): bool {
-            return strpos($path, '://') !== false;
+            return str_contains($path, '://');
         });
 
         Monkey\Functions\when('wp_normalize_path')->alias(static function (string $path): string {
@@ -37,7 +37,9 @@ class UnitTestCase extends \PHPUnit\Framework\TestCase
             }
 
             $path = preg_replace('|(?<=.)/+|', '/', str_replace('\\', '/', $path));
-            ($path[0] === ':') and $path = ucfirst($path);
+            if (($path[1] ?? '') === ':') {
+                $path = ucfirst($path);
+            }
 
             return $wrapper . $path;
         });

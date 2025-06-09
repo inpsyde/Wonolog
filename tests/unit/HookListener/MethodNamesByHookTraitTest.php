@@ -24,7 +24,10 @@ use Inpsyde\Wonolog\Tests\UnitTestCase;
 
 class MethodNamesByHookTraitTest extends UnitTestCase
 {
-    public function testMethodName()
+    /**
+     * @test
+     */
+    public function testMethodName(): void
     {
         $logMessages = [];
 
@@ -37,7 +40,8 @@ class MethodNamesByHookTraitTest extends UnitTestCase
                 }
             );
 
-        $listener = new class implements ActionListener {
+        $listener = new class implements ActionListener
+        {
             use MethodNamesByHookTrait;
 
             public function listenTo(): array
@@ -45,23 +49,33 @@ class MethodNamesByHookTraitTest extends UnitTestCase
                 return ['hookOne', 'hook two', 'hook-three', 'hook.four', 'hookFive'];
             }
 
-            private function hookOne(): Log {
+            // @phpstan-ignore method.unused
+            private function hookOne(): Log
+            {
                 return new Log('one');
             }
 
-            private function hookTwo(): Log {
+            // @phpstan-ignore method.unused
+            private function hookTwo(): Log
+            {
                 return new Log('two');
             }
 
-            private function hookThree(): Log {
+            // @phpstan-ignore method.unused
+            private function hookThree(): Log
+            {
                 return new Log('three');
             }
 
-            private function hookFour(): Log {
+            // @phpstan-ignore method.unused
+            private function hookFour(): Log
+            {
                 return new Log('four');
             }
 
-            private function hookFive(): int {
+            // @phpstan-ignore method.unused
+            private function hookFive(): int
+            {
                 return 5;
             }
         };
@@ -75,7 +89,10 @@ class MethodNamesByHookTraitTest extends UnitTestCase
         static::assertSame(['one', 'two', 'three', 'four'], $logMessages);
     }
 
-    public function testMethodNameWithPrefix()
+    /**
+     * @test
+     */
+    public function testMethodNameWithPrefix(): void
     {
         $logMessages = [];
 
@@ -88,7 +105,8 @@ class MethodNamesByHookTraitTest extends UnitTestCase
                 }
             );
 
-        $listener = new class implements ActionListener {
+        $listener = new class implements ActionListener
+        {
             use MethodNamesByHookTrait;
 
             public function listenTo(): array
@@ -96,15 +114,21 @@ class MethodNamesByHookTraitTest extends UnitTestCase
                 return ['prefix.one', 'prefix_two', 'three'];
             }
 
-            private function one(): Log {
+            // @phpstan-ignore method.unused
+            private function one(): Log
+            {
                 return new Log('one');
             }
 
-            private function two(): Log {
+            // @phpstan-ignore method.unused
+            private function two(): Log
+            {
                 return new Log('two');
             }
 
-            private function three(): Log {
+            // @phpstan-ignore method.unused
+            private function three(): Log
+            {
                 return new Log('three');
             }
         };
@@ -118,7 +142,10 @@ class MethodNamesByHookTraitTest extends UnitTestCase
         static::assertSame(['one', 'two', 'three'], $logMessages);
     }
 
-    public function testInCombinationWithFilterFromUpdateTrait()
+    /**
+     * @test
+     */
+    public function testInCombinationWithFilterFromUpdateTrait(): void
     {
         $logMessage = null;
 
@@ -139,7 +166,9 @@ class MethodNamesByHookTraitTest extends UnitTestCase
                 return ['client.project.log'];
             }
 
-            private function log(): Log {
+            // @phpstan-ignore method.unused
+            private function log(): Log
+            {
                 return new Log('logged!');
             }
         };

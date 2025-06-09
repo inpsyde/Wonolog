@@ -45,7 +45,7 @@ final class WpDieHandlerListener implements FilterListener
      * @param LogActionUpdater $updater
      * @return mixed
      */
-    public function filter(string $hook, array $args, LogActionUpdater $updater)
+    public function filter(string $hook, array $args, LogActionUpdater $updater): mixed
     {
         $handler = $args ? reset($args) : null;
 

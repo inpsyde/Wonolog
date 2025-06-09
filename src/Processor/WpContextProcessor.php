@@ -26,9 +26,8 @@ class WpContextProcessor
      * @param array|LogRecord $record The complete log record containing 'message', 'context'
      *                      'level', 'level_name', 'channel', 'datetime' and 'extra'
      * @return array|LogRecord
-     * @phpstan-ignore-next-line
      */
-    public function __invoke($record)
+    public function __invoke(array|LogRecord $record): array|LogRecord
     {
         $data = [
             'doing_cron' => defined('DOING_CRON') && DOING_CRON, // @phpstan-ignore-line
@@ -41,18 +40,24 @@ class WpContextProcessor
             $data['user_id'] = get_current_user_id();
         }
 
-        if (is_multisite()) {
+        $multisite = is_multisite();
+        $data['multisite'] = $multisite;
+        if ($multisite) {
             $data['ms_switched'] = ms_is_switched();
             $data['site_id'] = get_current_blog_id();
             $data['network_id'] = get_current_network_id();
         }
-        $logRecordClass = 'Monolog\LogRecord';
-        if (class_exists($logRecordClass) && $record instanceof $logRecordClass) {
-            return $this->handleExtraInfoFromLogRecord($record, $data);
-        }
-        return $this->handleExtraInfoFromArrayRecord($record, $data);
+
+        return ($record instanceof LogRecord)
+            ? $this->handleExtraInfoFromLogRecord($record, $data)
+            : $this->handleExtraInfoFromArrayRecord($record, $data);
     }
 
+    /**
+     * @param array $record
+     * @param array $data
+     * @return array
+     */
     private function handleExtraInfoFromArrayRecord(array $record, array $data): array
     {
         if (!isset($record['extra']) || !is_array($record['extra'])) {
@@ -63,7 +68,11 @@ class WpContextProcessor
         return $record;
     }
 
-    /** @phpstan-ignore-next-line */
+    /**
+     * @param LogRecord $record
+     * @param array $data
+     * @return LogRecord
+     */
     private function handleExtraInfoFromLogRecord(LogRecord $record, array $data): LogRecord
     {
         /** @phpstan-ignore-next-line */
