@@ -44,11 +44,13 @@
         "monolog/monolog": "^2.0||^3.0"
     },
     "require-dev": {
-        "brain/monkey": "^2.6.1",
+        "antecedent/patchwork": "^2.2.1",
+        "hamcrest/hamcrest-php": "^2.1.1",
+        "brain/monkey": "^2.6.2",
         "mockery/mockery": "^1.6.12",
-        "mikey179/vfsstream": "~v1.6.12",
+        "mikey179/vfsstream": "~1.6.12",
         "roots/wordpress-no-content": ">=6.1.1",
-        "symfony/process": "^v4.4.44",
+        "symfony/process": "^4.4.44",
         "globalis/wp-cli-bin": "^2.8.1",
         "phpunit/phpunit": "^9.6.23",
         "fig/log-test": "^1.1.0",
