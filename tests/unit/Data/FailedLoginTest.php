@@ -18,12 +18,10 @@ class FailedLoginTest extends UnitTestCase
     public function testData(): void
     {
         $transient = false;
-
-        $callback = static function (string $name, mixed $value = null) use (&$transient): bool {
+        $callback = static function (string $name, mixed $value = null) use (&$transient): mixed {
             if ($value === null) {
                 return $transient;
             }
-
             $transient = $value;
 
             return true;
@@ -88,11 +86,10 @@ class FailedLoginTest extends UnitTestCase
     {
         $transient = false;
 
-        $callback = static function (string $name, mixed $value = null) use (&$transient): bool {
+        $callback = static function (string $name, mixed $value = null) use (&$transient): mixed {
             if ($value === null) {
                 return $transient;
             }
-
             $transient = $value;
 
             return true;
