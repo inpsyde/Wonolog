@@ -5,7 +5,7 @@ baseurl: /Wonolog # Your repo name with a leading slash.
 
 # Aux links for the upper right navigation
 aux_links:
-    "Inpsyde Modularity on GitHub":
+    "Wonolog on GitHub":
         - https://github.com/inpsyde/Wonolog
 
 # Footer "Edit this page on GitHub" link text
