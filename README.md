@@ -19,7 +19,7 @@ Wonolog is a Composer package (not a plugin) that allows to log anything that *h
 
 It is based on [Monolog](https://github.com/Seldaek/monolog), which, with its hundreds millions of downloads ([![Monolog Total Downloads](https://img.shields.io/packagist/dt/monolog/monolog.svg?color=9FC65D&labelColor=3C3D46&style=flat-square)](https://packagist.org/packages/monolog/monolog)) and thousands of dependent packages, is the most popular logging library for PHP, compatible with the [PSR-3 standard](https://www.php-fig.org/psr/psr-3/).
 
-Wonolog v2 uses Monolog v2.
+Wonolog v3 supports both Monolog v2 and v3.
 
 
 
@@ -130,10 +130,6 @@ Note that is highly recommended to **don't** write log files to a publicly acces
 
 
 
-## License and Copyright
+## Copyright and License
 
-Copyright (c) 2023 Inpsyde GmbH. See [LICENSE](LICENSE).
-
-Wonolog code is licensed under GPL v2 or newer license.
-
-The team at [Inpsyde](https://inpsyde.com) is engineering the Web since 2006.
+This package is [free software](https://www.gnu.org/philosophy/free-sw.en.html) distributed under the terms of the GNU General Public License version 2 or (at your option) any later version. For the full license, see [LICENSE](./LICENSE).
