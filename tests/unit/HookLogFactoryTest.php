@@ -34,7 +34,6 @@ class HookLogFactoryTest extends UnitTestCase
         $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments([]);
 
-        static::assertIsArray($logs);
         static::assertCount(1, $logs);
 
         /** @var LogData $log */
@@ -64,7 +63,6 @@ class HookLogFactoryTest extends UnitTestCase
         $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments($args);
 
-        static::assertIsArray($logs);
         static::assertCount(4, $logs);
 
         static::assertSame($logs[0], $first);
@@ -86,7 +84,6 @@ class HookLogFactoryTest extends UnitTestCase
         $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments($args, Levels::WARNING);
 
-        static::assertIsArray($logs);
         static::assertCount(2, $logs);
 
         static::assertInstanceOf(LogData::class, $first);
@@ -109,7 +106,6 @@ class HookLogFactoryTest extends UnitTestCase
     {
         $logs = HookLogFactory::new()->logsFromHookArguments(['Foo!', 'X', 'Y', 'Z']);
 
-        static::assertIsArray($logs);
         static::assertCount(1, $logs);
 
         /** @var LogData $log */
@@ -134,7 +130,6 @@ class HookLogFactoryTest extends UnitTestCase
         $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments([$error]);
 
-        static::assertIsArray($logs);
         static::assertCount(1, $logs);
 
         /** @var LogData $log */
@@ -163,7 +158,6 @@ class HookLogFactoryTest extends UnitTestCase
         $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments([$error]);
 
-        static::assertIsArray($logs);
         static::assertCount(1, $logs);
 
         /** @var LogData $log */
@@ -186,7 +180,6 @@ class HookLogFactoryTest extends UnitTestCase
         $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments([$exception]);
 
-        static::assertIsArray($logs);
         static::assertCount(1, $logs);
 
         /** @var LogData $log */
@@ -196,7 +189,6 @@ class HookLogFactoryTest extends UnitTestCase
         static::assertSame($log->message(), 'Foo!');
         static::assertSame($log->level(), Levels::ERROR);
         static::assertSame($log->channel(), Channels::DEBUG);
-        static::assertIsArray($log->context());
     }
 
     /**
@@ -214,7 +206,6 @@ class HookLogFactoryTest extends UnitTestCase
         $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments([$data, 'x', 'y'], Levels::DEBUG);
 
-        static::assertIsArray($logs);
         static::assertCount(1, $logs);
 
         /** @var LogData $log */
@@ -224,7 +215,6 @@ class HookLogFactoryTest extends UnitTestCase
         static::assertSame($log->message(), 'Hello!');
         static::assertSame($log->level(), Levels::NOTICE);
         static::assertSame($log->channel(), Channels::SECURITY);
-        static::assertIsArray(['foo', 'bar']);
     }
 
     /**
@@ -242,7 +232,6 @@ class HookLogFactoryTest extends UnitTestCase
         $factory = HookLogFactory::new();
         $logs = $factory->logsFromHookArguments([$data, 600, 'y'], Levels::NOTICE);
 
-        static::assertIsArray($logs);
         static::assertCount(1, $logs);
 
         /** @var LogData $log */
@@ -252,7 +241,6 @@ class HookLogFactoryTest extends UnitTestCase
         static::assertSame($log->message(), 'Hello!');
         static::assertSame($log->level(), Levels::NOTICE);
         static::assertSame($log->channel(), Channels::SECURITY);
-        static::assertIsArray(['foo', 'bar']);
     }
 
     /**
@@ -272,7 +260,7 @@ class HookLogFactoryTest extends UnitTestCase
 
         $monologStringData = [
             'message' => 'Monolog string level format',
-            'level' => Logger::getLevelName(Levels::INFO),
+            'level' => 'INFO',
         ];
 
         $factory = HookLogFactory::new();

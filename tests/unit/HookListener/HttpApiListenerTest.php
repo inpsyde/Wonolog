@@ -149,16 +149,17 @@ class HttpApiListenerTest extends UnitTestCase
 
         Actions\expectDone('http_api_debug')
             ->whenHappen(
-                // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
-                static function (...$args) use ($listener, $updater): void {
-                    // phpcs:enable Inpsyde.CodeQuality.ArgumentTypeDeclaration
+                static function (mixed ...$args) use ($listener, $updater): void {
                     $listener->update('a', $args, $updater);
                 }
             );
 
         $response = [
-            'response' => ['code' => 200, 'message' => 'OK'],
             'headers' => ['foo' => 'bar'],
+            'body' => '',
+            'response' => ['code' => 200, 'message' => 'OK'],
+            'cookies' => [],
+            'filename' => '',
         ];
 
         do_action(
@@ -183,8 +184,7 @@ class HttpApiListenerTest extends UnitTestCase
         $updater->expects('update')
             ->with(\Mockery::type(LogData::class))
             ->andReturnUsing(
-                static function (LogData $log) {
-
+                static function (LogData $log): void {
                     static::assertSame('Cron request', $log->message());
                     static::assertSame(Channels::DEBUG, $log->channel());
                     static::assertSame(Levels::DEBUG, $log->level());
@@ -201,7 +201,6 @@ class HttpApiListenerTest extends UnitTestCase
                 }
             );
 
-        /** @var \WP_Error|\Mockery\MockInterface $response */
         $response = [
             'response' => ['code' => 200, 'message' => 'Ok'],
             'headers' => ['foo' => 'bar'],

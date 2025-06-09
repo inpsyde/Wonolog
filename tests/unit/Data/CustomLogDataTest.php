@@ -42,7 +42,7 @@ class CustomLogDataTest extends UnitTestCase
     }
 
     /**
-     * @return array<array{0:int, 1:LogDataInterface}>
+     * @return array<array{int, LogData}>
      */
     public function dataProviderLogLevels(): array
     {

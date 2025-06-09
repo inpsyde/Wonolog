@@ -73,7 +73,7 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
      * @param array $command
      * @return void
      */
-    private static function runWpCliCommand(array $command): void
+    protected static function runWpCliCommand(array $command): void
     {
         static $cliPath;
         $cliPath or $cliPath = (getenv('VENDOR_DIR') ?: '') . '/bin';
@@ -104,7 +104,7 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
     /**
      * @return array{string, string, string, string}
      */
-    private static function loadEnvVars(): array
+    protected static function loadEnvVars(): array
     {
         $dbHost = getenv('WORDPRESS_DB_HOST');
         $dbName = getenv('WORDPRESS_DB_NAME');
@@ -210,16 +210,17 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
     private function phpUnitParam(string $paramName): string
     {
         static $maybeSanitize;
-        $maybeSanitize or $maybeSanitize = static function (string $str): string {
-            if (
-                preg_match('~^(["\'])([^"\']+)?(["\'])$~', $str, $matches)
-                && $matches[1] === $matches[3]
-            ) {
-                return $matches[2];
-            }
-
-            return $str;
-        };
+        if (!isset($maybeSanitize)) {
+            $maybeSanitize = static function (string $str): string {
+                if (
+                    preg_match('~^(["\'])([^"\']+)?(["\'])$~', $str, $matches)
+                    && ($matches[1] === $matches[3])
+                ) {
+                    return $matches[2];
+                }
+                return $str;
+            };
+        }
 
         global $argv;
         $value = '';
