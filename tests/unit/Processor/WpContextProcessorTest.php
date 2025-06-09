@@ -54,6 +54,7 @@ class WpContextProcessorTest extends UnitTestCase
                     'doing_ajax' => false,
                     'is_admin' => true,
                     'doing_rest' => false,
+                    'multisite' => false,
                 ],
             ],
         ];
@@ -83,6 +84,7 @@ class WpContextProcessorTest extends UnitTestCase
                     'doing_ajax' => false,
                     'is_admin' => false,
                     'doing_rest' => false,
+                    'multisite' => false,
                 ],
             ],
         ];
@@ -118,6 +120,7 @@ class WpContextProcessorTest extends UnitTestCase
                 'is_admin' => true,
                 'doing_rest' => false,
                 'user_id' => 1,
+                'multisite' => false,
             ],
         ];
 
@@ -178,6 +181,7 @@ class WpContextProcessorTest extends UnitTestCase
                 'is_admin' => false,
                 'doing_rest' => true,
                 'user_id' => 1,
+                'multisite' => false,
             ],
         ];
 
@@ -222,6 +226,7 @@ class WpContextProcessorTest extends UnitTestCase
                 'is_admin' => false,
                 'doing_rest' => false,
                 'user_id' => 1,
+                'multisite' => false,
             ],
         ];
 
@@ -264,6 +269,7 @@ class WpContextProcessorTest extends UnitTestCase
                 'is_admin' => false,
                 'doing_rest' => false,
                 'user_id' => 1,
+                'multisite' => true,
                 'ms_switched' => true,
                 'site_id' => 2,
                 'network_id' => 3,

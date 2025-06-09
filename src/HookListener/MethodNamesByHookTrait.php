@@ -43,7 +43,7 @@ trait MethodNamesByHookTrait
      */
     private function methodNameByHook(string $hook): ?callable
     {
-        if ($this->prefix && stripos($hook, $this->prefix) === 0) {
+        if ($this->prefix && str_starts_with($hook, $this->prefix)) {
             $hook = substr($hook, strlen($this->prefix));
         }
 

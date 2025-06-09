@@ -34,7 +34,7 @@ class ProcessorsRegistry implements \Countable
     }
 
     /**
-     * @param callable(array):array $processor
+     * @param callable(array|LogRecord):array $processor
      * @param string $identifier
      * @param string ...$channels
      * @return static

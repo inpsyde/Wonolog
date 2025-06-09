@@ -30,7 +30,7 @@ class HookListenersRegistryTest extends UnitTestCase
         $args = PHP_INT_MAX;
 
         $listener1 = \Mockery::mock(ActionListener::class);
-        $listener2 =  \Mockery::mock(FilterListener::class);
+        $listener2 = \Mockery::mock(FilterListener::class);
         $listener3 = clone $listener1;
         $listener4 = clone $listener2;
         $listener5 = clone $listener1;

@@ -11,9 +11,8 @@ class NullProcessor
     /**
      * @param array|LogRecord $record
      * @return array|LogRecord
-     * @phpstan-ignore-next-line
      */
-    public function __invoke($record)
+    public function __invoke(array|LogRecord $record): array|LogRecord
     {
         return $record;
     }

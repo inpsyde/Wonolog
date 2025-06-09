@@ -76,24 +76,36 @@ class AdvancedConfigTest extends IntegrationTestCase
             ->registerLogHook('something.else.happened')
             ->withIgnorePattern('cron job performed in [0-9\.]+ seconds')
             ->disableWpContextProcessor()
-            ->pushProcessor('test-processor', function (array|LogRecord $record): array|LogRecord {
-                return is_array($record)
-                    ? $this->addExtraDataToProcessorWhenRecordIsArray($record)
-                    : $this->addExtraDataToProcessorWhenRecordIsLogRecord($record)
-                ;
-            });
+            ->pushProcessor(
+                'test-processor',
+                // @phpstan-ignore-next-line
+                function (LogRecord|array $record): LogRecord|array {
+                    return is_array($record) // @phpstan-ignore-line
+                        ? $this->addExtraDataToProcessorWhenRecordIsArray($record)
+                        : $this->addExtraDataToProcessorWhenRecordIsLogRecord($record);
+                }
+            );
     }
 
+    /**
+     * @param array $record
+     * @return array
+     */
     protected function addExtraDataToProcessorWhenRecordIsArray(array $record): array
     {
-        empty($record['extra']) and $record['extra'] = [];
+        if (!is_array($record['extra'] ?? null)) {
+            $record['extra'] = [];
+        }
         $record['extra']['testClass'] = __CLASS__;
         return $record;
     }
 
+    /**
+     * @param LogRecord $record
+     * @return LogRecord
+     */
     protected function addExtraDataToProcessorWhenRecordIsLogRecord(LogRecord $record): LogRecord
     {
-        empty($record->extra) and $record->extra = [];
         $record->extra['testClass'] = __CLASS__;
         return $record;
     }
@@ -317,6 +329,7 @@ class AdvancedConfigTest extends IntegrationTestCase
         $context and $messageLog .= sprintf(' (%s)', json_encode($context));
 
         $lines = @file($this->logFile) ?: [];
+        $found = false;
         foreach ((array) $lines as $line) {
             preg_match(
                 '~^\[[^\]]+\] (?<channel>[A-Z_-]+)\.(?<level>[A-Z]+): (?<txt>[^\[\{]+) (?<more>.+?)$~',
@@ -350,7 +363,7 @@ class AdvancedConfigTest extends IntegrationTestCase
                 continue;
             }
 
-            static::assertTrue(true);
+            static::assertTrue(true); // @phpstan-ignore staticMethod.alreadyNarrowedType
 
             return;
         }

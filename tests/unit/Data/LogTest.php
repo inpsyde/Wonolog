@@ -103,7 +103,6 @@ class LogTest extends UnitTestCase
         static::assertInstanceOf(Log::class, $log);
 
         $context = $log->context();
-        static::assertIsArray($context);
 
         static::assertSame(Channels::DEBUG, $log->channel());
         static::assertSame('Fail!, Fail!', $log->message());
@@ -126,7 +125,6 @@ class LogTest extends UnitTestCase
         static::assertInstanceOf(Log::class, $log);
 
         $context = $log->context();
-        static::assertIsArray($context);
 
         static::assertSame(Channels::DEBUG, $log->channel());
         static::assertSame('Fail!, Fail!', $log->message());
@@ -149,7 +147,6 @@ class LogTest extends UnitTestCase
         static::assertInstanceOf(Log::class, $log);
 
         $context = $log->context();
-        static::assertIsArray($context);
 
         static::assertSame(Channels::HTTP, $log->channel());
         static::assertSame('Fail!, Fail!', $log->message());

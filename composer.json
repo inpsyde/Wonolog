@@ -54,9 +54,10 @@
         "fig/log-test": "^1.1",
         "syde/phpcs": "^1.0",
         "inpsyde/wp-stubs-versions": "dev-latest",
-        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan": "^2.1.17",
         "phpstan/phpstan-deprecation-rules": "^2.0",
-        "swissspidy/phpstan-no-private": "^1.0"
+        "swissspidy/phpstan-no-private": "^1.0",
+        "phpstan/phpstan-mockery": "^2.0"
     },
     "provide": {
         "psr/log-implementation": "1.0.0"

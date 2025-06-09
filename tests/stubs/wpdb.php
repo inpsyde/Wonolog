@@ -24,15 +24,8 @@ if (class_exists('wpdb')) {
 
 class wpdb // phpcs:ignore
 {
-    /**
-     * @var WpDieHandlerListener
-     */
-    public $wp_die_listener;
-
-    /**
-     * @var LogActionUpdater
-     */
-    public $logActionUpdater;
+    public WpDieHandlerListener $wp_die_listener;
+    public LogActionUpdater $logActionUpdater;
 
     /**
      * @param string $message
@@ -43,7 +36,7 @@ class wpdb // phpcs:ignore
     {
         $handler = $this->execute_die_listener();
 
-        return $handler($message, 'Bail');
+        return $handler($message);
     }
 
     /**
@@ -54,16 +47,16 @@ class wpdb // phpcs:ignore
     {
         $handler = $this->execute_die_listener();
 
-        return $handler($message, 'Bail');
+        return $handler($message);
     }
 
     /**
-     * @return callable
+     * @return callable(string): string
      */
-    private function execute_die_listener()
+    private function execute_die_listener(): callable
     {
-        $handler = static function ($message): string {
-            return "Handled: $message";
+        $handler = static function (string $message): string {
+            return "Handled: {$message}";
         };
 
         return $this->wp_die_listener->filter('a', [$handler], $this->logActionUpdater);

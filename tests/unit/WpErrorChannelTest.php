@@ -110,10 +110,11 @@ class WpErrorChannelTest extends UnitTestCase
     {
         $error = \Mockery::mock('WP_Error');
         $error->expects('get_error_data')->with('foo')->andReturn([]);
-        $error->expects('get_error_data')->with('bar')->andReturn(['channel' =>'TESTS']);
+        $error->expects('get_error_data')->with('bar')->andReturn(['channel' => 'TESTS']);
         $error->allows('get_error_codes')->andReturn(['foo', 'bar']);
 
         $instance = WpErrorChannel::new();
+        /** @var \WP_Error $error */
         $channel = $instance->channelFor($error);
 
         static::assertSame('TESTS', $channel);
