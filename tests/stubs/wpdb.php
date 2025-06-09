@@ -1,14 +1,6 @@
-<?php // phpcs:disable PSR1
+<?php
 
-/**
- * This file is part of the Wonolog package.
- *
- * (c) Inpsyde GmbH
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
+// phpcs:disable PSR1
 // phpcs:disable Inpsyde.CodeQuality.ForbiddenPublicProperty
 // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration
 // phpcs:disable Inpsyde.CodeQuality.ReturnTypeDeclaration
