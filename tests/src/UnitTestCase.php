@@ -25,6 +25,9 @@ class UnitTestCase extends \PHPUnit\Framework\TestCase
         parent::setUp();
         Monkey\setUp();
 
+        require_once ABSPATH . '/wp-includes/PHPMailer/SMTP.php';
+        require_once ABSPATH . '/wp-includes/PHPMailer/PHPMailer.php';
+
         Monkey\Functions\when('wp_is_stream')->alias(static function (string $path): bool {
             return strpos($path, '://') !== false;
         });
