@@ -9,6 +9,7 @@ use Inpsyde\Wonolog\Data\Debug;
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel;
+use PHPMailer\PHPMailer;
 
 /**
  * Try to log any error in PHPMailer.
@@ -16,13 +17,22 @@ use Inpsyde\Wonolog\LogLevel;
 class MailerListener implements ActionListener
 {
     private int $errorLogLevel;
+    private int $smtpDebugLevel;
 
     /**
      * @param int $errorLogLevel
+     * @param int $smtpDebugLevel
      */
-    public function __construct(int $errorLogLevel = LogLevel::ERROR)
-    {
+    public function __construct(
+        int $errorLogLevel = LogLevel::ERROR,
+        int $smtpDebugLevel = PHPMailer\SMTP::DEBUG_SERVER,
+    ) {
+
         $this->errorLogLevel = LogLevel::normalizeLevel($errorLogLevel) ?? LogLevel::ERROR;
+        $this->smtpDebugLevel = min(
+            max(PHPMailer\SMTP::DEBUG_OFF, $smtpDebugLevel),
+            PHPMailer\SMTP::DEBUG_LOWLEVEL
+        );
     }
 
     /**
@@ -72,12 +82,13 @@ class MailerListener implements ActionListener
     protected function onMailerInit(array $args, LogActionUpdater $updater): void
     {
         $mailer = $args ? reset($args) : null;
-
-        if ($mailer instanceof \PHPMailer) {
-            $mailer->SMTPDebug = 2;
-            $mailer->Debugoutput = static function (string $message) use ($updater): void {
-                $updater->update(new Debug($message, Channels::HTTP));
-            };
+        if (!($mailer instanceof PHPMailer\PHPMailer)) {
+            return;
         }
+
+        $mailer->SMTPDebug = $this->smtpDebugLevel;
+        $mailer->Debugoutput = static function (string $message) use ($updater): void {
+            $updater->update(new Debug($message, Channels::HTTP));
+        };
     }
 }

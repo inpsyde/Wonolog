@@ -21,7 +21,7 @@ use Inpsyde\Wonolog\HookListener\MailerListener;
 use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
-use Monolog\Logger;
+use PHPMailer\PHPMailer;
 
 class MailerListenerTest extends UnitTestCase
 {
@@ -45,16 +45,12 @@ class MailerListenerTest extends UnitTestCase
         Actions\expectDone('phpmailer_init')
             ->once()
             ->whenHappen(
-                static function (\PHPMailer $mailer) use ($listener, $updater): void {
+                static function (PHPMailer\PHPMailer $mailer) use ($listener, $updater): void {
                     $listener->update('phpmailer_init', [$mailer], $updater);
                 }
             );
 
-        if (!class_exists(\PHPMailer::class)) {
-            eval('class PHPMailer { public $SMTPDebug = null; public $Debugoutput = null; }');
-        }
-
-        $mailer = new \PHPMailer();
+        $mailer = new PHPMailer\PHPMailer();
         do_action('phpmailer_init', $mailer);
 
         static::assertSame(2, $mailer->SMTPDebug);

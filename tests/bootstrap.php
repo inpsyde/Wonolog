@@ -44,5 +44,7 @@ if (!getenv('GITHUB_WORKFLOW') && file_exists(__DIR__ . '/environment.php')) {
 }
 
 defined('ABSPATH') or define('ABSPATH', "{$vendorDir}/roots/wordpress-no-content/");
+require_once ABSPATH . '/wp-includes/PHPMailer/SMTP.php';
+require_once ABSPATH . '/wp-includes/PHPMailer/PHPMailer.php';
 
 unset($testsDir, $libDir, $vendorDir, $autoload);
