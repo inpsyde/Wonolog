@@ -16,13 +16,6 @@ aux_links:
 
 # Footer "Edit this page on GitHub" link text
 gh_edit_repository: https://github.com/inpsyde/Wonolog # Your repo GitHub URL
-
-# Everything above is repo specific.
-
-###############################################################
-
-# This section is repo specific. These can be omitted if defaults make sense.
-
 gh_edit_branch: 3.x # The default branch of the repo. Default: main
 gh_edit_source: docs # The directory containing the docs. Default: docs
 gh_edit_view_mode: "tree"

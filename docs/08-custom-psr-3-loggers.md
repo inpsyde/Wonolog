@@ -1,9 +1,9 @@
 ---
-title: Custom PSR-3 loggers
+title: Custom PSR-3 Loggers
 nav_order: 90
 ---
 
-# Custom PSR-3 loggers
+# Custom PSR-3 Loggers
 
 Wonolog _provides_ a PSR-3 implementation. That means that plugin/themes/packages can rely on the PSR-3 interfaces and "wait" for Wonolog to provide the implementation.
 
@@ -84,7 +84,3 @@ add_action(
 ```
 
 That's it. The custom PSR-3 logger is now fully integrated into Wonolog.
-
----
-
-« [Log records processors](./07-log-records-processors.md) || [Configuration cheat sheet](./09-configuration-cheat-sheet.md) »

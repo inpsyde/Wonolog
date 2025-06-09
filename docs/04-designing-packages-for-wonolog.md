@@ -1,9 +1,9 @@
 ---
-title: Designing packages for Wonolog
+title: Designing Packages for Wonolog
 nav_order: 50
 ---
 
-# Designing packages for Wonolog
+# Designing Packages for Wonolog
 
 Wonolog advocates a pattern in which plugins/themes/packages do not write log records (because that requires knowledge of the infrastructure that is only available at the website level) but they "emit log events" that will be "listened" by Wonolog to persist them.
 
@@ -239,7 +239,3 @@ add_action(
     }
 );
 ```
-
----
-
-« [What is logged by default](./03-what-is-logged-by-default.md) || [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md) »

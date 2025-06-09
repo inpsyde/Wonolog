@@ -1,9 +1,9 @@
 ---
-title: Configuration cheat sheet
+title: Configuration Cheat Sheet
 nav_order: 100
 ---
 
-# Configuration cheat sheet
+# Configuration Cheat Sheet
 
 All configuration in Wonolog is done calling methods on the `Inpsyde\Wonolog\Configurator` object, an instance of which is passed by the `wonolog.setup` hook.
 
@@ -471,7 +471,3 @@ public function withIgnorePattern(
 ```
 
 Tell Wonolog to ignore logs whose message matches the given regular expression pattern. Optionally it is possible to provide a level threshold to avoid ignore high severity logs. It is also possible to limit the effect to specific channels.
-
----
-
-« [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)

@@ -1,9 +1,9 @@
 ---
-title: Log records processors
+title: Log Processors
 nav_order: 80
 ---
 
-# Log records processors
+# Log Processors
 
 A "processor" is a callback that receives a log record in form of array, and returns a possibly modified log record, that should respect the same structure.
 
@@ -182,7 +182,3 @@ add_action(
     }
 );
 ```
-
----
-
-« [Log records handlers](./06-log-records-handlers.md) || [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md) »

@@ -1,9 +1,9 @@
 ---
-title: What is logged by default
+title: What Is It Logged By Default?
 nav_order: 40
 ---
 
-# What is logged by default
+# What Is It Logged By Default?
 
 When Wonolog is required in a WordPress projects, it right away starts logging "things". Here we'll see *what* it logs.
 
@@ -63,7 +63,3 @@ add_action(
 It must be noted that out-of-the-box Wonolog determines its “minimum level” for logging based on the value of the environment variable `WONOLOG_DEFAULT_MIN_LEVEL`. If that is not defined, Wonolog checks the value of the `WP_DEBUG_LOG` constant, and when that value is false, the default minimum level will be “warning”, otherwise, it will be “debug” (more details in the [*"Bootstrap and configuration gateway"*](./02-bootstrap-and-configuration-gateway.md) chapter).
 
 In the case some events listed above are not logged as expected, a probable cause is that the environment variable `WONOLOG_DEFAULT_MIN_LEVEL` is not set, and the `WP_DEBUG_LOG` constant is either not defined or defined to false.
-
----
-
-« [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md) || [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md) »

@@ -1,9 +1,9 @@
 ---
-title: Logging code not designed for Wonolog
+title: Logging Code Not Designed for Wonolog
 nav_order: 60
 ---
 
-# Logging code not designed for Wonolog
+# Logging Code Not Designed for Wonolog
 
 The [*"Designing packages for Wonolog"*](04-designing-packages-for-wonolog.md) provides detailed documentation on designing packages natively compatible with Wonolog, without requiring Wonolog as a dependency.
 
@@ -314,7 +314,3 @@ add_action(
     }
 );
 ```
-
----
-
-« [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md) || [Log records handlers](./06-log-records-handlers.md) »

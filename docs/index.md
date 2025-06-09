@@ -68,7 +68,3 @@ Please note that is precisely the approach Wonolog uses to log WordPress "events
 
 The chapter [*"What is logged by default"*](./03-what-is-logged-by-default.md) contains all the details about how Wonolog logs core events, and the chapter [*"Logging code not designed for
 Wonolog"*](./05-logging-code-not-designed-for-wonolog.md) will document how to write a similar "compatibility layer" for custom code.
-
----
-
-[Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md) »

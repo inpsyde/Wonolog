@@ -1,9 +1,9 @@
 ---
-title: Anatomy of a Wonolog log record
+title: Anatomy of a Wonolog Log Record
 nav_order: 20
 ---
 
-# Anatomy of a Wonolog log record
+# Anatomy of a Wonolog Log Record
 
 Wonolog is compatible with the [PSR-3 standard](https://www.php-fig.org/psr/psr-3/), and provides a
 PSR-3 implementation.
@@ -123,8 +123,3 @@ Wonolog also ships with several implementations of the `LogData` interface. Amon
 `LogData` interface and its implementations are only relevant when coding hook listeners as a "compatibility layer" for code that is not compatible with Wonolog: hook listeners are coupled with Wonolog and are required to use the Wonolog "log objects".
 
 Plugin/themes/packages should **not** be aware of them, and either emit package-specific logging action hooks or implement PSR-3 `LoggerAware` to accept PSR-3 loggers.
-
-
----
-
-« [Introduction](./README.md) || [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md) »

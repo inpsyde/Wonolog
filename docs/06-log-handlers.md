@@ -1,9 +1,9 @@
 ---
-title: Log records handlers
+title: Log Handlers
 nav_order: 70
 ---
 
-# Log records handlers
+# Log Handlers
 
 Wonolog will collect log records coming from different sources:
 
@@ -261,7 +261,3 @@ That is possible thanks to the `Inpsyde\Wonolog\LogsFolder::determineFolder()` s
 Many times when integrating Monolog handler for Wonolog it is desired to use the same log level used by `FileHandler`, that is the one based on `WONOLOG_MIN_LEVEL` environment variable or `WP_DEBUG_LOG` constant.
 
 In that case it is possible to use `Inpsyde\Wonolog\LogLevel::defaultMinLevel()` static method, the same `FileHandler` uses internally to determine the minimum level to use when none is explicitly configured.
-
----
-
-« [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md) || [Log records processors](./07-log-records-processors.md) »
