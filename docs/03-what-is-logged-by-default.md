@@ -1,3 +1,8 @@
+---
+title: What is logged by default
+nav_order: 40
+---
+
 # What is logged by default
 
 When Wonolog is required in a WordPress projects, it right away starts logging "things". Here we'll see *what* it logs.
@@ -58,19 +63,6 @@ add_action(
 It must be noted that out-of-the-box Wonolog determines its “minimum level” for logging based on the value of the environment variable `WONOLOG_DEFAULT_MIN_LEVEL`. If that is not defined, Wonolog checks the value of the `WP_DEBUG_LOG` constant, and when that value is false, the default minimum level will be “warning”, otherwise, it will be “debug” (more details in the [*"Bootstrap and configuration gateway"*](./02-bootstrap-and-configuration-gateway.md) chapter).
 
 In the case some events listed above are not logged as expected, a probable cause is that the environment variable `WONOLOG_DEFAULT_MIN_LEVEL` is not set, and the `WP_DEBUG_LOG` constant is either not defined or defined to false.
-
----
-
-1. [Introduction](./00-introduction.md)
-2. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
-3. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
-4. **What is logged by default**
-5. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
-6. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
-7. [Log records handlers](./06-log-records-handlers.md)
-8. [Log records processors](./07-log-records-processors.md)
-9. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
-10. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
 
 ---
 

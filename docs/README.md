@@ -1,3 +1,8 @@
+---
+title: Introduction
+nav_order: 10
+---
+
 # Introduction
 
 Wonolog is a package whose scope is logging "things" that happen in WordPress and WordPress plugins/themes/packages.
@@ -63,20 +68,6 @@ Please note that is precisely the approach Wonolog uses to log WordPress "events
 
 The chapter [*"What is logged by default"*](./03-what-is-logged-by-default.md) contains all the details about how Wonolog logs core events, and the chapter [*"Logging code not designed for
 Wonolog"*](./05-logging-code-not-designed-for-wonolog.md) will document how to write a similar "compatibility layer" for custom code.
-
-
----
-
-1. **Introduction**
-2. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
-3. [Bootstrap and configuration gateway](./02-bootstrap-and-configuration-gateway.md)
-4. [What is logged by default](./03-what-is-logged-by-default.md)
-5. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
-6. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
-7. [Log records handlers](./06-log-records-handlers.md)
-8. [Log records processors](./07-log-records-processors.md)
-9. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
-10. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
 
 ---
 

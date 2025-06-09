@@ -1,3 +1,8 @@
+---
+title: Bootstrap and configuration gateway
+nav_order: 30
+---
+
 # Bootstrap and configuration gateway
 
 Wonolog v2 bootstraps itself. As soon as it is required in a project using Composer, even without any configuration, it starts working right away using its default settings.
@@ -68,20 +73,6 @@ To do that programmatically, Wonolog offers 3 ways:
 - the `wonolog.disable` filter
 
 The list above is in order of evaluation: the value of the constant might override the value of the environment variable and the filter can be used to override the other two.
-
-
----
-
-1. [Introduction](./00-introduction.md)
-2. [Anatomy of a Wonolog log record](./01-anatomy-of-a-wonolog-log-record.md)
-3. **Bootstrap and configuration gateway**
-4. [What is logged by default](./03-what-is-logged-by-default.md)
-5. [Designing packages for Wonolog](./04-designing-packages-for-wonolog.md)
-6. [Logging code not designed for Wonolog](./05-logging-code-not-designed-for-wonolog.md)
-7. [Log records handlers](./06-log-records-handlers.md)
-8. [Log records processors](./07-log-records-processors.md)
-9. [Custom PSR-3 loggers](./08-custom-psr-3-loggers.md)
-10. [Configuration cheat sheet](./09-configuration-cheat-sheet.md)
 
 ---
 

@@ -3,7 +3,13 @@ description: Monolog-based logging package for WordPress.
 
 baseurl: /Wonolog # Your repo name with a leading slash.
 
+enable_copy_code_button: true
+heading_anchors: true
+back_to_top: true
+back_to_top_text: "Back to top"
+
 # Aux links for the upper right navigation
+aux_links_new_tab: false
 aux_links:
     "Wonolog on GitHub":
         - https://github.com/inpsyde/Wonolog
@@ -19,6 +25,7 @@ gh_edit_repository: https://github.com/inpsyde/Wonolog # Your repo GitHub URL
 
 gh_edit_branch: 3.x # The default branch of the repo. Default: main
 gh_edit_source: docs # The directory containing the docs. Default: docs
+gh_edit_view_mode: "tree"
 
 ###############################################################
 
