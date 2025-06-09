@@ -25,15 +25,15 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-versions: [ '8.1', '8.2' ]
+                php-versions: [ '8.1', '8.2', '8.3', '8.4' ]
                 dependency-versions: ['highest', 'lowest']
 
         steps:
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Use coverage?
-              if: ${{ matrix.php-versions == '7.4' }}
+              if: ${{ (matrix.php-versions == '8.2') && (matrix.dependency-versions == 'highest') }}
               run: echo "USE_COVERAGE=yes" >> $GITHUB_ENV
 
             - name: Setup PHP
@@ -44,7 +44,7 @@ jobs:
                   coverage: ${{ ((env.USE_COVERAGE == 'yes') && 'xdebug') || 'none' }}
 
             - name: Install Composer dependencies
-              uses: ramsey/composer-install@v2
+              uses: ramsey/composer-install@v3
               with:
                 dependency-versions: ${{ matrix.dependency-versions }}
 
