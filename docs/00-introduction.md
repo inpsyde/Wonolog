@@ -1,7 +1,5 @@
 # Introduction
 
-![Wonolog Logo](../resources/banner.png)
-
 Wonolog is a package whose scope is logging "things" that happen in WordPress and WordPress plugins/themes/packages.
 
 Logging means *to persist somewhere* information. When developing a plugin/theme/library, the infrastructure where the code runs is unknown, it is only known at *the website* level. That is why **Wonolog is a package to be used at the website level**.

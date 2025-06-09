@@ -1,0 +1,39 @@
+title: Wonolog
+description: Monolog-based logging package for WordPress.
+
+baseurl: /Wonolog # Your repo name with a leading slash.
+
+# Aux links for the upper right navigation
+aux_links:
+    "Inpsyde Modularity on GitHub":
+        - https://github.com/inpsyde/Wonolog
+
+# Footer "Edit this page on GitHub" link text
+gh_edit_repository: https://github.com/inpsyde/Wonolog # Your repo GitHub URL
+
+# Everything above is repo specific.
+
+###############################################################
+
+# This section is repo specific. These can be omitted if defaults make sense.
+
+gh_edit_branch: 3.x # The default branch of the repo. Default: main
+gh_edit_source: docs # The directory containing the docs. Default: docs
+
+###############################################################
+
+# Everything below should be copy and pasted into package repos
+remote_theme: inpsyde/jekyll-syde-theme
+
+###############################################################
+
+# Everything below should be copy and pasted into package repos
+# To be replaced by jekyll-inpsyde-theme's `_config.yml` when GitHub Pages supports Jekyll v4.
+
+plugins:
+    - jekyll-remote-theme
+    - jekyll-seo-tag
+    - jekyll-sitemap
+    - jemoji
+
+permalink: pretty
