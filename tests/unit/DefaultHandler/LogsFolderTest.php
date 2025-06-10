@@ -35,7 +35,7 @@ class LogsFolderTest extends UnitTestCase
     public function testDetermineDefaultWhenUploadsOutsideContent(): void
     {
         define('WP_DEBUG_LOG', true);
-        $dir = $this->setupFolders(false);
+        $dir = $this->setupFolders(uploadsIntoWpContent: false);
 
         $folder = LogsFolder::determineFolder();
 
@@ -49,7 +49,7 @@ class LogsFolderTest extends UnitTestCase
     public function testDetermineDefaultWhenUploadsOutsideContentButErrored(): void
     {
         define('WP_DEBUG_LOG', true);
-        $dir = $this->setupFolders(false, false);
+        $dir = $this->setupFolders(uploadsIntoWpContent: false, uploadsDirError: true);
 
         $folder = LogsFolder::determineFolder();
 
@@ -157,13 +157,13 @@ class LogsFolderTest extends UnitTestCase
     }
 
     /**
-     * @param bool $uploadsNested
-     * @param bool $uploadsOk
+     * @param bool $uploadsIntoWpContent
+     * @param bool $uploadsDirError
      * @return vfsStreamDirectory
      */
     private function setupFolders(
-        bool $uploadsNested = true,
-        bool $uploadsOk = true
+        bool $uploadsIntoWpContent = true,
+        bool $uploadsDirError = false
     ): vfsStreamDirectory {
 
         $dir = vfsStream::setup('root', 0777);
@@ -175,7 +175,7 @@ class LogsFolderTest extends UnitTestCase
             ],
         ];
 
-        $uploadsNested
+        $uploadsIntoWpContent
             ? $structure['www']['wp-content']['uploads'] = []
             : $structure['www']['uploads'] = [];
 
@@ -185,11 +185,11 @@ class LogsFolderTest extends UnitTestCase
 
         Monkey\Functions\when('wp_upload_dir')
             ->alias(
-                static function () use ($uploadsNested, $uploadsOk, $dir): array {
-                    $path = $uploadsNested ? '/www/wp-content/uploads' : '/www/uploads';
-                    return $uploadsOk
-                        ? ['basedir' => $dir->url() . $path]
-                        : ['error' => 'error'];
+                static function () use ($uploadsIntoWpContent, $uploadsDirError, $dir): array {
+                    $path = $uploadsIntoWpContent ? '/www/wp-content/uploads' : '/www/uploads';
+                    return $uploadsDirError
+                        ? ['error' => 'error']
+                        : ['basedir' => $dir->url() . $path];
                 }
             );
 

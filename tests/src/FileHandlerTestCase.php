@@ -5,15 +5,11 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Tests;
 
 use Brain\Monkey;
-use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\DefaultHandler\FileHandler;
 use Inpsyde\Wonolog\DefaultHandler\PassthroughFormatter;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Processor\NullProcessor;
 use Monolog\Formatter\JsonFormatter;
-use Monolog\Level;
-use Monolog\Logger;
-use Monolog\LogRecord;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 
@@ -197,7 +193,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
 
         $message = 'Test log message.';
 
-        $records = $this->factoryRecords($message, random_int(2, 5));
+        $records = $this->factoryRecords($message, random_int(2, 6));
         $handler->handleBatch($records);
 
         if ($this->buffered) {
@@ -268,12 +264,11 @@ abstract class FileHandlerTestCase extends UnitTestCase
 
     /**
      * @param bool $generateError
-     * @param int $permission
      * @return vfsStreamDirectory
      */
-    private function setupFolders(bool $generateError = false, int $permission = 0777): vfsStreamDirectory
+    private function setupFolders(bool $generateError = false): vfsStreamDirectory
     {
-        $dir = vfsStream::setup('root', $permission);
+        $dir = vfsStream::setup('root', 0777);
         vfsStream::create(
             [
                 'public' => [
@@ -304,7 +299,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
      * @param string|null $fileName
      * @return FileHandler
      */
-    protected function factoryHandler(?string $logsDir, ?string $fileName = null): FileHandler
+    private function factoryHandler(?string $logsDir, ?string $fileName = null): FileHandler
     {
         if (!defined('WP_CONTENT_DIR')) {
             $this->setupFolders();
@@ -323,35 +318,5 @@ abstract class FileHandlerTestCase extends UnitTestCase
         }
 
         return $handler;
-    }
-
-    /**
-     * @param string $message
-     * @param int $number
-     * @param array<array>|array<LogRecord> $records
-     * @return array|array[]
-     */
-    private function factoryRecords(string $message, int $number = 1, array $records = []): array
-    {
-        if ($number < 1) {
-            return $records;
-        }
-
-        $records[] = (Logger::API < 3) // @phpstan-ignore-line
-            ? [
-                'message' => $message,
-                'level' => LogLevel::DEBUG,
-                'channel' => Channels::DEBUG,
-                'context' => [],
-                'extra' => [],
-            ]
-            : new LogRecord(
-                new \DateTimeImmutable(),
-                Channels::DEBUG,
-                Level::Debug,
-                $message
-            );
-
-        return $this->factoryRecords($message, $number - 1, $records);
     }
 }

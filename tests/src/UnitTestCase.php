@@ -5,12 +5,20 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Tests;
 
 use Brain\Monkey;
+use Inpsyde\Wonolog\Channels;
+use Inpsyde\Wonolog\LogLevel;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use Monolog\Level;
+use Monolog\Logger;
+use Monolog\LogRecord;
 
 class UnitTestCase extends \PHPUnit\Framework\TestCase
 {
     use MockeryPHPUnitIntegration;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -42,9 +50,53 @@ class UnitTestCase extends \PHPUnit\Framework\TestCase
         });
     }
 
+    /**
+     * @return void
+     */
     protected function tearDown(): void
     {
         Monkey\tearDown();
         parent::tearDown();
+    }
+
+    /**
+     * @param string|null $message
+     * @param int $number
+     * @param array<array>|array<LogRecord> $records
+     * @return array|array[]
+     */
+    protected function factoryRecords(
+        ?string $message = null,
+        int $number = 1,
+        array $records = []
+    ): array {
+
+        if ($number < 1) {
+            return $records;
+        }
+
+        if ($message === null) {
+            $words = ['lorem', 'ipsum', 'dolor', 'sit', 'amet', 'adipiscing', 'elit', 'maximus'];
+            shuffle($words);
+            $message = implode(' ', array_slice($words, random_int(-2, 2)));
+            $message = ucfirst("{$message}.");
+        }
+
+        $records[] = (Logger::API < 3) // @phpstan-ignore-line
+            ? [
+                'message' => $message,
+                'level' => LogLevel::DEBUG,
+                'channel' => Channels::DEBUG,
+                'context' => [],
+                'extra' => [],
+            ]
+            : new LogRecord(
+                new \DateTimeImmutable(),
+                Channels::DEBUG,
+                Level::Debug,
+                $message
+            );
+
+        return $this->factoryRecords($message, $number - 1, $records);
     }
 }
