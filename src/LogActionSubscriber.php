@@ -34,6 +34,11 @@ class LogActionSubscriber
     }
 
     /**
+     * @param array<mixed> $hookArguments
+     * @param string|null $hookLevel
+     * @param string|null $defaultChannel
+     * @return void
+     *
      * @wp-hook wonolog.log
      * @wp-hook wonolog.log.debug
      * @wp-hook wonolog.log.info

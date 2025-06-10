@@ -161,7 +161,7 @@ final class FailedLogin implements LogData
     }
 
     /**
-     * @return array
+     * @return array{ip: string, ip_from: string, username: string}
      */
     public function context(): array
     {

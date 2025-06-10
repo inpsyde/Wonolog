@@ -12,9 +12,6 @@ final class Log implements LogData
 {
     use LogDataTrait;
 
-    /**
-     * @var array
-     */
     private const FILTERS = [
         self::MESSAGE => [
             'filter' => FILTER_UNSAFE_RAW,
@@ -36,7 +33,7 @@ final class Log implements LogData
     private int $level;
 
     /**
-     * @param array $logData
+     * @param array<mixed> $logData
      * @param string|null $defaultChannel
      * @param int|null $defaultLevel
      * @return Log
@@ -98,7 +95,7 @@ final class Log implements LogData
      * @param \Throwable $throwable
      * @param int|null $level
      * @param string $channel
-     * @param array $context
+     * @param array<mixed> $context
      * @return Log
      *
      * phpcs:disable Syde.Functions.ArgumentTypeDeclaration
@@ -127,7 +124,7 @@ final class Log implements LogData
      * @param string $message
      * @param int $level
      * @param string $channel
-     * @param array $context
+     * @param array<mixed> $context
      */
     public function __construct(
         string $message = '',
@@ -160,7 +157,7 @@ final class Log implements LogData
     }
 
     /**
-     * @param array $logData
+     * @param array<mixed> $logData
      *
      * @return Log
      */

@@ -66,7 +66,7 @@ class LogActionUpdater
 
     /**
      * @param LogData $log
-     * @return array
+     * @return array<mixed>
      */
     private function parseContext(LogData $log): array
     {

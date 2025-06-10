@@ -6,11 +6,16 @@ namespace Inpsyde\Wonolog\Processor;
 
 use Monolog\LogRecord;
 
+/**
+ * @psalm-import-type _RecordType from \Inpsyde\Wonolog\Configurator
+ */
 class NullProcessor
 {
     /**
-     * @param array|LogRecord $record
-     * @return array|LogRecord
+     * @template T of _RecordType
+     *
+     * @param T $record
+     * @return T
      */
     public function __invoke(array|LogRecord $record): array|LogRecord
     {

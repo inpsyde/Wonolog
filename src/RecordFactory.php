@@ -7,29 +7,39 @@ namespace Inpsyde\Wonolog;
 use Monolog\Level;
 use Monolog\LogRecord;
 
-class RecordFactory
+/**
+ * @phpstan-import-type _RecordType from Configurator
+ * @phpstan-import-type _RecordArray from Configurator
+ * @phpstan-import-type _RecordObject from Configurator
+ */
+abstract class RecordFactory
 {
     /**
      * @param string $message
      * @param int $level
      * @param string $channel
-     * @param array $context
-     * @return array|LogRecord
+     * @param array<mixed> $context
+     * @return _RecordType
      */
-    public function createRecord(string $message, int $level, string $channel, array $context = []): array|LogRecord
-    {
+    public static function createRecord(
+        string $message,
+        int $level,
+        string $channel,
+        array $context = []
+    ): array|LogRecord {
+
         return (MonologUtils::version() < 3)
-            ? $this->createRecordV2($message, $level, $context)
-            : $this->createRecordV3($message, $level, $channel, $context);
+            ? static::createRecordArray($message, $level, $context)
+            : static::createRecordObject($message, $level, $channel, $context);
     }
 
     /**
      * @param string $message
      * @param int $level
-     * @param array $context
-     * @return array
+     * @param array<mixed> $context
+     * @return _RecordArray
      */
-    public function createRecordV2(string $message, int $level, array $context = []): array
+    protected static function createRecordArray(string $message, int $level, array $context = []): array
     {
         return compact('message', 'context', 'level');
     }
@@ -38,10 +48,10 @@ class RecordFactory
      * @param string $message
      * @param int $level
      * @param string $channel
-     * @param array $context
-     * @return LogRecord
+     * @param array<mixed> $context
+     * @return _RecordObject
      */
-    public static function createRecordV3(
+    protected static function createRecordObject(
         string $message,
         int $level,
         string $channel,

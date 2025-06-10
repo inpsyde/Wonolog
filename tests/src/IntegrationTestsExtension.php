@@ -70,7 +70,7 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
     }
 
     /**
-     * @param array $command
+     * @param list<non-empty-string> $command
      * @return void
      */
     protected static function runWpCliCommand(array $command): void

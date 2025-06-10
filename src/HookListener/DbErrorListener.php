@@ -25,7 +25,7 @@ final class DbErrorListener implements ActionListener
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function listenTo(): array
     {
@@ -34,11 +34,11 @@ final class DbErrorListener implements ActionListener
 
     /**
      * Most db errors can't be caught up before request exit.
-     * This method runs on shutdown and look if there're errors in `$EZSQL_ERROR`
+     * This method runs on shutdown and look if there are errors in `$EZSQL_ERROR`
      * global var and log them if so.
      *
      * @param string $hook
-     * @param array $args
+     * @param array<mixed> $args
      * @param LogActionUpdater $updater
      * @return void
      *

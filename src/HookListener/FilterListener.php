@@ -10,7 +10,7 @@ interface FilterListener extends HookListener
 {
     /**
      * @param string $hook
-     * @param array $args
+     * @param array<mixed> $args
      * @param LogActionUpdater $updater
      * @return mixed
      */

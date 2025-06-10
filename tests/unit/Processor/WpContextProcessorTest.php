@@ -12,6 +12,9 @@ use Inpsyde\Wonolog\RecordFactory;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\LogRecord;
 
+/**
+ * @phpstan-import-type _RecordType from \Inpsyde\Wonolog\Configurator
+ */
 class WpContextProcessorTest extends UnitTestCase
 {
     /**
@@ -36,6 +39,7 @@ class WpContextProcessorTest extends UnitTestCase
 
         $processor = WpContextProcessor::new();
 
+        /** @var array{extra: array{wp: array{string, mixed}}} $actual */
         $actual = $processor([]);
 
         $expected = [
@@ -66,6 +70,7 @@ class WpContextProcessorTest extends UnitTestCase
 
         $processor = WpContextProcessor::new();
 
+        /** @var array{extra: array{wp: array{string, mixed}}} $actual */
         $actual = $processor([]);
 
         $expected = [
@@ -115,6 +120,7 @@ class WpContextProcessorTest extends UnitTestCase
             ],
         ];
 
+        /** @var array{extra: array{wp: array{string, mixed}}} $processedRecord */
         $processedRecord = $processor([]);
         $this->assertEquals(
             $expected,
@@ -133,11 +139,11 @@ class WpContextProcessorTest extends UnitTestCase
     }
 
     /**
-     * @return LogRecord
+     * @return _RecordType
      */
-    private static function buildLogRecord(): LogRecord
+    private static function buildLogRecord(): array|LogRecord
     {
-        return RecordFactory::createRecordV3(
+        return RecordFactory::createRecord(
             'foo log msg',
             LogLevel::DEBUG,
             'default'
@@ -176,6 +182,7 @@ class WpContextProcessorTest extends UnitTestCase
             ],
         ];
 
+        /** @var array{extra: array{wp: array{string, mixed}}} $processedRecord */
         $processedRecord = $processor([]);
         $this->assertEquals(
             $expected,
@@ -221,6 +228,7 @@ class WpContextProcessorTest extends UnitTestCase
             ],
         ];
 
+        /** @var array{extra: array{wp: array{string, mixed}}} $processedRecord */
         $processedRecord = $processor([]);
         $this->assertEquals(
             $expected,
@@ -267,6 +275,7 @@ class WpContextProcessorTest extends UnitTestCase
             ],
         ];
 
+        /** @var array{extra: array{wp: array{string, mixed}}} $processedRecord */
         $processedRecord = $processor([]);
         $this->assertEquals(
             $expected,

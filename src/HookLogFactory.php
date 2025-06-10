@@ -19,10 +19,10 @@ class HookLogFactory
     }
 
     /**
-     * @param array $params
+     * @param array<mixed> $params
      * @param int|null $defaultLevel
      * @param string|null $defaultChannel
-     * @return LogData[]
+     * @return list<LogData>
      */
     public function logsFromHookArguments(
         array $params,
@@ -66,8 +66,8 @@ class HookLogFactory
     }
 
     /**
-     * @param array $value
-     * @param array $arguments
+     * @param array<mixed> $value
+     * @param array<mixed> $arguments
      * @param int $defaultLevel
      * @param string $defaultChannel
      * @return LogData
@@ -90,7 +90,7 @@ class HookLogFactory
 
     /**
      * @param \WP_Error $value
-     * @param array $arguments
+     * @param array<mixed> $arguments
      * @param int $defaultLevel
      * @param string $defaultChannel
      * @return LogData
@@ -131,7 +131,7 @@ class HookLogFactory
 
     /**
      * @param string $value
-     * @param array $arguments
+     * @param array<mixed> $arguments
      * @param int $defaultLevel
      * @param string $defaultChannel
      * @return LogData
@@ -177,9 +177,9 @@ class HookLogFactory
      * If one or more LogData objects are passed as argument,
      * extract all of them and return remaining objects.
      *
-     * @param array $args
+     * @param array<mixed> $args
      * @param int $hookLevel
-     * @return LogData[]
+     * @return list<LogData>
      */
     private function extractLogObjectsInArgs(array $args, int $hookLevel): array
     {

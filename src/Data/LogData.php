@@ -27,7 +27,7 @@ interface LogData
     public function channel(): string;
 
     /**
-     * @return array
+     * @return array<mixed>
      */
     public function context(): array;
 }

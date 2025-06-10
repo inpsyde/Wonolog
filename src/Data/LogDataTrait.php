@@ -7,18 +7,14 @@ namespace Inpsyde\Wonolog\Data;
 trait LogDataTrait
 {
     private string $message;
-
     private string $channel;
-
-    /**
-     * @var mixed[]
-     */
+    /** @var array<mixed>  */
     private array $context;
 
     /**
      * @param string $message
      * @param string $channel
-     * @param mixed[] $context
+     * @param array<mixed> $context
      */
     public function __construct(string $message, string $channel, array $context = [])
     {
@@ -28,7 +24,7 @@ trait LogDataTrait
     }
 
     /**
-     * @return array
+     * @return array<mixed>
      */
     public function context(): array
     {

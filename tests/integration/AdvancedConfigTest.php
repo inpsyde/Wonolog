@@ -40,6 +40,7 @@ class AdvancedConfigTest extends IntegrationTestCase
                 return ['listen_to_me'];
             }
 
+            /** @param array<mixed> $args */
             public function update(string $hook, array $args, LogActionUpdater $updater): void
             {
                 $updater->update(new Notice('Test hook fired', 'TESTS', $args));
@@ -80,8 +81,8 @@ class AdvancedConfigTest extends IntegrationTestCase
     }
 
     /**
-     * @param array $record
-     * @return array
+     * @param array<mixed> $record
+     * @return array<mixed>
      */
     protected function addExtraDataToProcessorWhenRecordIsArray(array $record): array
     {
@@ -301,7 +302,7 @@ class AdvancedConfigTest extends IntegrationTestCase
      * @param string $message
      * @param string $channel
      * @param string $level
-     * @param array|null $context
+     * @param array<mixed>|null $context
      * @return void
      */
     private function assertLogFileHasLine(

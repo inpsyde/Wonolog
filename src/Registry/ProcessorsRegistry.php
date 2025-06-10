@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Registry;
 
-use Monolog\LogRecord;
+use Monolog\Processor\ProcessorInterface;
 
+/**
+ * @phpstan-import-type _Processor from \Inpsyde\Wonolog\Configurator
+ */
 class ProcessorsRegistry implements \Countable
 {
     /**
-     * @var array<string, array{callable(array):array, array<string, bool>|null}>
+     * @var array<string, array{_Processor, array<string, bool>|null}>
      */
     private array $processors = [];
 
+    /**
+     * @return ProcessorsRegistry
+     */
     public static function new(): ProcessorsRegistry
     {
         return new self();
@@ -29,18 +35,21 @@ class ProcessorsRegistry implements \Countable
         return (string) $name;
     }
 
+    /**
+     * Empty on purpose.
+     */
     private function __construct()
     {
     }
 
     /**
-     * @param callable(array|LogRecord):array $processor
+     * @param _Processor $processor
      * @param string $identifier
      * @param string ...$channels
      * @return static
      */
     public function addProcessor(
-        callable $processor,
+        callable|ProcessorInterface $processor,
         string $identifier,
         string ...$channels
     ): ProcessorsRegistry {
@@ -214,7 +223,7 @@ class ProcessorsRegistry implements \Countable
 
     /**
      * @param string $channel
-     * @return list<callable(array):array>|list<callable(LogRecord):LogRecord>
+     * @return list<_Processor>
      */
     public function findForChannel(string $channel): array
     {

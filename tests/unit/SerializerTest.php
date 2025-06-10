@@ -165,7 +165,7 @@ class SerializerTest extends UnitTestCase
     }
 
     /**
-     * @return array
+     * @return list<array{mixed, string}>
      */
     public function provideMessageExamples(): array
     {

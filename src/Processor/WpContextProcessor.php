@@ -6,6 +6,11 @@ namespace Inpsyde\Wonolog\Processor;
 
 use Monolog\LogRecord;
 
+/**
+ * @psalm-import-type _RecordType from \Inpsyde\Wonolog\Configurator
+ * @psalm-import-type _RecordArray from \Inpsyde\Wonolog\Configurator
+ * @psalm-import-type _RecordObject from \Inpsyde\Wonolog\Configurator
+ */
 class WpContextProcessor
 {
     private ?bool $isRestRequest = null;
@@ -18,14 +23,18 @@ class WpContextProcessor
         return new self();
     }
 
+    /**
+     * Empty on purpose.
+     */
     private function __construct()
     {
     }
 
     /**
-     * @param array|LogRecord $record The complete log record containing 'message', 'context'
-     *                      'level', 'level_name', 'channel', 'datetime' and 'extra'
-     * @return array|LogRecord
+     * @template T of _RecordType
+     *
+     * @param T $record
+     * @return T
      */
     public function __invoke(array|LogRecord $record): array|LogRecord
     {
@@ -54,34 +63,29 @@ class WpContextProcessor
     }
 
     /**
-     * @param array $record
-     * @param array $data
-     * @return array
+     * @param _RecordArray $record
+     * @param array<mixed> $data
+     * @return _RecordArray
      */
     private function handleExtraInfoFromArrayRecord(array $record, array $data): array
     {
-        if (!isset($record['extra']) || !is_array($record['extra'])) {
+        if (!is_array($record['extra'] ?? null)) {
             $record['extra'] = [];
         }
-
         $record['extra']['wp'] = $data;
+
         return $record;
     }
 
     /**
-     * @param LogRecord $record
-     * @param array $data
-     * @return LogRecord
+     * @param _RecordObject $record
+     * @param array<mixed> $data
+     * @return _RecordObject
      */
     private function handleExtraInfoFromLogRecord(LogRecord $record, array $data): LogRecord
     {
-        /** @phpstan-ignore-next-line */
-        if (!isset($record->extra) || !is_array($record->extra)) {
-            /** @phpstan-ignore-next-line */
-            $record->extra = [];
-        }
-        /** @phpstan-ignore-next-line */
         $record->extra['wp'] = $data;
+
         return $record;
     }
 

@@ -49,7 +49,7 @@ final class HttpApiListener implements ActionListener
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function listenTo(): array
     {
@@ -60,7 +60,7 @@ final class HttpApiListener implements ActionListener
      * Log HTTP cron requests.
      *
      * @param string $hook
-     * @param array $args
+     * @param array<mixed> $args
      * @param LogActionUpdater $updater
      * @return void
      *
@@ -109,8 +109,8 @@ final class HttpApiListener implements ActionListener
     }
 
     /**
-     * @param array $response
-     * @param array $httpArgs
+     * @param array<mixed> $response
+     * @param array<mixed> $httpArgs
      * @return bool
      */
     private function isError(array $response, array $httpArgs = []): bool
@@ -140,10 +140,10 @@ final class HttpApiListener implements ActionListener
     /**
      * Log HTTP cron requests.
      *
-     * @param array $data
+     * @param array<mixed> $data
      * @param string $context
      * @param string $class
-     * @param array $args
+     * @param array<mixed> $args
      * @param string $url
      * @return Debug
      */
@@ -172,10 +172,10 @@ final class HttpApiListener implements ActionListener
     /**
      * Log any error for HTTP API.
      *
-     * @param array $data
+     * @param array<mixed> $data
      * @param string $context
      * @param string $class
-     * @param array $args
+     * @param array<mixed> $args
      * @param string $url
      * @return LogData
      */

@@ -7,7 +7,7 @@ namespace Inpsyde\Wonolog\HookListener;
 interface HookListener
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function listenTo(): array;
 }

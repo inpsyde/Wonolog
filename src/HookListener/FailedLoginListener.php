@@ -13,7 +13,7 @@ use Inpsyde\Wonolog\LogActionUpdater;
 final class FailedLoginListener implements ActionListener
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function listenTo(): array
     {
@@ -22,12 +22,12 @@ final class FailedLoginListener implements ActionListener
 
     /**
      * @param string $hook
-     * @param array $args
+     * @param array<mixed> $args
      * @param LogActionUpdater $updater
      * @return void
      *
      * @wp-hook wp_login_failed
-     * @see     FailedLogin
+     * @see FailedLogin
      */
     public function update(string $hook, array $args, LogActionUpdater $updater): void
     {

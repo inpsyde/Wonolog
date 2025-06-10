@@ -25,7 +25,7 @@ final class WpDieHandlerListener implements FilterListener
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function listenTo(): array
     {
@@ -41,7 +41,7 @@ final class WpDieHandlerListener implements FilterListener
      * @wp-hook wp_die_handler
      *
      * @param string $hook
-     * @param array $args
+     * @param array<mixed> $args
      * @param LogActionUpdater $updater
      * @return mixed
      */

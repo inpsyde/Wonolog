@@ -80,8 +80,8 @@ abstract class Serializer
     }
 
     /**
-     * @param array $context
-     * @return array
+     * @param array<mixed> $context
+     * @return array<mixed>
      */
     final public static function serializeContext(array $context): array
     {
@@ -139,9 +139,9 @@ abstract class Serializer
     }
 
     /**
-     * @param iterable $input
+     * @param iterable<mixed> $input
      * @param int $level
-     * @return array
+     * @return array<mixed>
      */
     private static function maybeMaskInput(iterable $input, int $level = 0): array
     {
@@ -155,8 +155,7 @@ abstract class Serializer
         }
 
         if ($level > 8) {
-            /** @var \Traversable|array $input */
-            return $input instanceof \Traversable ? iterator_to_array($input) : $input;
+            return ($input instanceof \Traversable) ? iterator_to_array($input) : $input;
         }
 
         $out = [];
@@ -177,12 +176,10 @@ abstract class Serializer
     /**
      * @param mixed $input
      * @param int $level
-     * @return array|string
+     * @return array<mixed>|string
      */
     private static function maybeMaskInputInner(mixed $input, int $level = 0): array|string
     {
-        /** @var array|object $input */
-
         if (is_iterable($input)) {
             return self::maybeMaskInput($input, $level + 1);
         }
@@ -221,37 +218,65 @@ abstract class Serializer
         // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
 
         switch (true) {
-            case ($value instanceof \WP_Error):
-                return sprintf('%s: %s', get_class($value), $value->get_error_message());
             case ($value instanceof \WP_Post):
             case ($value instanceof \WP_User):
-                return sprintf('%s (ID: %s)', get_class($value), $value->ID);
+                return self::serializeObjectById($value, 'ID');
             case ($value instanceof \WP_Term):
-                return sprintf('%s (ID: %s)', get_class($value), $value->term_id);
+                return self::serializeObjectById($value, 'term_id');
             case ($value instanceof \WP_Comment):
-                return sprintf('%s (ID: %s)', get_class($value), $value->comment_ID);
+                return self::serializeObjectById($value, 'comment_ID');
             case ($value instanceof \WP_Meta_Query):
-                $args = (array) $value->queries;
-                // fallback
+                return self::serializeObjectByProp($value, 'queries');
             case ($value instanceof \WP_Query):
-                $args = $args ?? $value->query ?: null;
-                // fallback
             case ($value instanceof \WP_User_Query):
             case ($value instanceof \WP_Term_Query):
             case ($value instanceof \WP_Comment_Query):
-                $args = self::maybeMaskInput((array) ($args ?? $value->query_vars ?: []), 7);
-                $argsStr = json_encode($args, self::JSON_ENC_FLAGS, 8);
-                return sprintf('%s (%s)', get_class($value), $argsStr);
+                return self::serializeObjectByProp($value, 'query_vars');
+            case ($value instanceof \WP_Error):
+                return sprintf('%s: %s', get_class($value), $value->get_error_message());
             case ($value instanceof \Throwable):
                 return sprintf('%s: %s', get_class($value), $value->getMessage());
             case ($value instanceof \DateTimeInterface):
                 return sprintf('%s: %s', get_class($value), $value->format('r'));
-            case (is_callable([$value, '__toString'])):
+            case ($value instanceof \Stringable):
                 return (string) $value;
         }
 
-        return $ensureString
-            ? sprintf('Instance of %s (%s)', get_class($value), spl_object_hash($value))
-            : null;
+        if ($ensureString) {
+            return sprintf('Instance of %s (%s)', get_class($value), spl_object_hash($value));
+        }
+
+        return null;
+    }
+
+    /**
+     * @param object $object
+     * @param non-empty-string $prop
+     * @return string
+     */
+    private static function serializeObjectById(object $object, string $prop): string
+    {
+        $id = ($object->{$prop} ?? 0);
+        if (is_bool($id)) {
+            $id = 0;
+        }
+        if (!is_scalar($id)) {
+            $id = 0;
+        }
+
+        return sprintf('%s (ID: %d)', get_class($object), $id);
+    }
+
+    /**
+     * @param object $object
+     * @param non-empty-string $prop
+     * @return string
+     */
+    private static function serializeObjectByProp(object $object, string $prop): string
+    {
+        $args = self::maybeMaskInput((array) ($object->{$prop} ?? []), 7);
+        $argsStr = json_encode($args, self::JSON_ENC_FLAGS, 8);
+
+        return sprintf('%s (%s)', get_class($object), $argsStr);
     }
 }

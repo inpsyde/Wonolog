@@ -29,7 +29,7 @@ final class CronDebugListener implements ActionListener
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function listenTo(): array
     {
@@ -40,7 +40,7 @@ final class CronDebugListener implements ActionListener
      * Logs all the cron hook performed and their performance.
      *
      * @param string $hook
-     * @param array $args
+     * @param array<mixed> $args
      * @param LogActionUpdater $updater
      * @return void
      *
@@ -48,7 +48,7 @@ final class CronDebugListener implements ActionListener
      */
     public function update(string $hook, array $args, LogActionUpdater $updater): void
     {
-        if (!self::$ran && (wp_doing_cron() || (defined('WP_CLI') && WP_CLI))) {
+        if (!self::$ran && (wp_doing_cron() || (defined('WP_CLI') && \WP_CLI))) {
             $this->registerEventListener($updater);
         }
 
@@ -84,7 +84,7 @@ final class CronDebugListener implements ActionListener
     }
 
     /**
-     * @param array $cronData
+     * @param array<mixed> $cronData
      * @param LogActionUpdater $updater
      * @return void
      */

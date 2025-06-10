@@ -12,6 +12,9 @@ use Monolog\Level;
 use Monolog\Logger;
 use Monolog\LogRecord;
 
+/**
+ * @phpstan-import-type _RecordType from \Inpsyde\Wonolog\Configurator
+ */
 class UnitTestCase extends \PHPUnit\Framework\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -60,10 +63,12 @@ class UnitTestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @template T of _RecordType
+     *
      * @param string|null $message
      * @param int $number
-     * @param array<array>|array<LogRecord> $records
-     * @return array|array[]
+     * @param array<T> $records
+     * @return array<T>
      */
     protected function factoryRecords(
         ?string $message = null,

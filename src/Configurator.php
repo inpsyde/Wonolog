@@ -6,8 +6,22 @@ namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\Processor\WpContextProcessor;
 use Monolog\Handler\HandlerInterface;
+use Monolog\Processor\ProcessorInterface;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @phpstan-type _RecordArray = array{
+ *     message?:string,
+ *     level?:int,
+ *     channel?:string,
+ *     context?:array<mixed>,
+ *     extra?:array<mixed>
+ * }
+ * @phpstan-type _RecordObject = \Monolog\LogRecord
+ * @phpstan-type _RecordType = _RecordArray|_RecordObject
+ * @phpstan-type _ProcessorCallback = callable(_RecordType):_RecordType
+ * @phpstan-type _Processor = _ProcessorCallback|ProcessorInterface
+ */
 class Configurator
 {
     public const ACTION_LOADED = 'wonolog.loaded';
@@ -301,11 +315,14 @@ class Configurator
 
     /**
      * @param string $identifier
-     * @param callable(array):array $processor
+     * @param _Processor $processor
      * @return static
      */
-    public function pushProcessor(string $identifier, callable $processor): Configurator
-    {
+    public function pushProcessor(
+        string $identifier,
+        callable|ProcessorInterface $processor
+    ): Configurator {
+
         $this->factory->processorsRegistry()->addProcessor($processor, $identifier);
 
         return $this;
@@ -313,14 +330,14 @@ class Configurator
 
     /**
      * @param string $identifier
-     * @param callable(array):array $processor
+     * @param _Processor $processor
      * @param string $channel
      * @param string ...$channels
      * @return static
      */
     public function pushProcessorForChannels(
         string $identifier,
-        callable $processor,
+        callable|ProcessorInterface $processor,
         string $channel,
         string ...$channels
     ): Configurator {
@@ -890,7 +907,7 @@ class Configurator
     {
         // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
 
-        /** @var array $config */
+        /** @var array<string, mixed> $config */
         $config = $this->config[$key];
 
         if (($config[self::ALL] ?? null) === false) { // all disabled

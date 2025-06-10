@@ -25,7 +25,7 @@ final class QueryErrorsListener implements ActionListener
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function listenTo(): array
     {
@@ -36,7 +36,7 @@ final class QueryErrorsListener implements ActionListener
      * Checks frontend request for any errors and log them.
      *
      * @param string $hook
-     * @param array $args
+     * @param array<mixed> $args
      * @param LogActionUpdater $updater
      * @return void
      *

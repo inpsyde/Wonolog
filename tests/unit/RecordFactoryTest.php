@@ -21,8 +21,7 @@ class RecordFactoryTest extends UnitTestCase
         $context = [
             'foo' => 'bar',
         ];
-        $recordFactory = new RecordFactory();
-        $createdRecord = $recordFactory->createRecord($message, $level, $channel, $context);
+        $createdRecord = RecordFactory::createRecord($message, $level, $channel, $context);
         if (MonologUtils::version() >= 3) {
             static::assertInstanceOf(LogRecord::class, $createdRecord);
             static::assertEquals($createdRecord->context, $context);

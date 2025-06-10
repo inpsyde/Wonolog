@@ -36,7 +36,7 @@ class MailerListener implements ActionListener
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function listenTo(): array
     {
@@ -45,7 +45,7 @@ class MailerListener implements ActionListener
 
     /**
      * @param string $hook
-     * @param array $args
+     * @param array<mixed> $args
      * @param LogActionUpdater $updater
      * @return void
      */
@@ -62,7 +62,7 @@ class MailerListener implements ActionListener
     }
 
     /**
-     * @param array $args
+     * @param array<mixed> $args
      * @param LogActionUpdater $updater
      * @return void
      */
@@ -75,7 +75,7 @@ class MailerListener implements ActionListener
     }
 
     /**
-     * @param array $args
+     * @param array<mixed> $args
      * @param LogActionUpdater $updater
      * @return void
      */

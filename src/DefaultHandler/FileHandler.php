@@ -17,6 +17,9 @@ use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
 use Monolog\ResettableInterface;
 
+/**
+ * @psalm-import-type _RecordType from \Inpsyde\Wonolog\Configurator
+ */
 class FileHandler implements
     HandlerInterface,
     ProcessableHandlerInterface,
@@ -150,7 +153,7 @@ class FileHandler implements
     }
 
     /**
-     * @param array|LogRecord $record
+     * @param _RecordType $record
      * @return bool
      */
     public function handle(array|LogRecord $record): bool
@@ -161,7 +164,7 @@ class FileHandler implements
     }
 
     /**
-     * @param array|LogRecord $record
+     * @param _RecordType $record
      * @return bool
      */
     public function isHandling(array|LogRecord $record): bool
@@ -172,7 +175,9 @@ class FileHandler implements
     }
 
     /**
-     * @param array<array>|array<LogRecord> $records
+     * @template T of _RecordType
+     *
+     * @param array<T> $records
      * @return void
      */
     public function handleBatch(array $records): void
@@ -191,7 +196,9 @@ class FileHandler implements
     }
 
     /**
-     * @param callable(array):array|ProcessorInterface $callback
+     * @template T of _RecordType
+     *
+     * @param callable(T):T|ProcessorInterface $callback
      * @return static
      */
     public function pushProcessor(ProcessorInterface|callable $callback): HandlerInterface

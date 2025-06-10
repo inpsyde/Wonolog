@@ -22,7 +22,7 @@ trait MethodNamesByHookTrait
 
     /**
      * @param string $hook
-     * @param array $args
+     * @param array<mixed> $args
      * @param LogActionUpdater $subscriber
      * @return void
      */

@@ -6,14 +6,19 @@ namespace Inpsyde\Wonolog\HookListener;
 
 use Inpsyde\Wonolog\LogActionUpdater;
 
-/**
- * @method update(string $hook, array $args, LogActionUpdater $updater)
- */
 trait FilterFromUpdateTrait
 {
     /**
      * @param string $hook
-     * @param array $args
+     * @param array<mixed> $args
+     * @param LogActionUpdater $updater
+     * @return void
+     */
+    abstract public function update(string $hook, array $args, LogActionUpdater $updater): void;
+
+    /**
+     * @param string $hook
+     * @param array<mixed> $args
      * @param LogActionUpdater $updater
      * @return mixed
      */

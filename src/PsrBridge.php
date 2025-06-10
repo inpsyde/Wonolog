@@ -11,19 +11,14 @@ use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\AbstractLogger;
 
 /**
- * @phpstan-import-type Record from \Monolog\Logger
- * @phpstan-ignore-next-line
+ * @phpstan-import-type _RecordType from Configurator
  */
 class PsrBridge extends AbstractLogger
 {
     private LogActionUpdater $updater;
-
     private Channels $channels;
-
     private ?string $defaultChannel = null;
-
     private PsrLogMessageProcessor $processor;
-    private RecordFactory $recordFactory;
 
     /**
      * @param LogActionUpdater $updater
@@ -44,7 +39,6 @@ class PsrBridge extends AbstractLogger
         $this->updater = $updater;
         $this->channels = $channels;
         $this->processor = new PsrLogMessageProcessor(null, true);
-        $this->recordFactory = new RecordFactory();
     }
 
     /**
@@ -62,7 +56,7 @@ class PsrBridge extends AbstractLogger
     /**
      * @param mixed $level
      * @param mixed $message
-     * @param array $context
+     * @param array<mixed> $context
      * @return void
      *
      * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
@@ -95,43 +89,46 @@ class PsrBridge extends AbstractLogger
         }
         unset($context[LogData::CHANNEL]);
 
-        $record = $this->recordFactory->createRecord($message, $level, $channel, $context);
+        $record = RecordFactory::createRecord($message, $level, $channel, $context);
         $record = ($this->processor)($record);
 
         $this->updater->update($this->createLog($record, $level, $channel, $throwable));
     }
 
     /**
-     * @phpstan-import-type Record from \Monolog\Logger
+     * @param _RecordType $record
+     * @param mixed $level
+     * @param string $channel
+     * @param \Throwable|null $throwable
+     * @return Log
      */
     protected function createLog(
-        /** @phpstan-ignore-next-line */
         array|LogRecord $record,
         mixed $level,
         string $channel,
         ?\Throwable $throwable
     ): Log {
 
-        $class = 'Monolog\\LogRecord';
-        $recordData = (class_exists($class) && $record instanceof $class)
-            ? $record->toArray()
-            : $record;
-        // we receive the $record after the processor, we have to check if key exists
-        // @phpstan-ignore function.alreadyNarrowedType
-        $message = (string) (array_key_exists('message', $recordData)
+        $recordData = ($record instanceof LogRecord) ? $record->toArray() : $record;
+
+        $message = array_key_exists('message', $recordData)
             ? $recordData['message']
-            : ''
-        );
+            : '';
+        if (!is_scalar($message)) {
+            $message = Serializer::serializeMessage($message);
+        }
+
         $context = [];
-        // @phpstan-ignore function.alreadyNarrowedType
+
         if (array_key_exists('context', $recordData)) {
-            $context = (array) $recordData['context'];
+            $context = $recordData['context'];
         }
 
         unset($context['exception']);
         if ($throwable) {
             $context['exception'] = $throwable;
         }
-        return new Log($message, $level, $channel, $context);
+
+        return new Log((string) $message, $level, $channel, (array) $context);
     }
 }

@@ -33,7 +33,7 @@ final class NullLog implements LogData
     }
 
     /**
-     * @return array
+     * @return array<mixed>
      */
     public function context(): array
     {
