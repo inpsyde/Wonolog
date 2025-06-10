@@ -23,11 +23,7 @@ class LogsFolder
          * them, and package could be fully functional even if failures happen.
          * Silence looks like best option here.
          *
-         * Also for some reason __return_true seems not to be a valid argument?
-         * I found this related issue https://github.com/vimeo/psalm/issues/3571
-         *
          * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
-         * @psalm-suppress PossiblyInvalidArgument
          */
         set_error_handler('__return_true');
 
@@ -42,22 +38,24 @@ class LogsFolder
 
             if ($folder === null) {
                 $uploadDir = self::uploadsBaseDir();
-                $uploadDir and $folder = (string) wp_normalize_path("{$uploadDir}/wonolog");
+                if ($uploadDir !== null) {
+                    $folder = wp_normalize_path("{$uploadDir}/wonolog");
+                }
             }
 
-            if ($folder === null && defined('WP_CONTENT_DIR')) {
+            if (($folder === null) && defined('WP_CONTENT_DIR')) {
                 $content = trailingslashit(WP_CONTENT_DIR);
                 $folder = wp_normalize_path("{$content}/wonolog");
             }
 
-            if (!$folder || !wp_mkdir_p($folder)) {
+            if (($folder === '') || !is_string($folder) || !wp_mkdir_p($folder)) {
                 return null;
             }
 
             self::$folder = self::maybeCreateHtaccess($folder);
 
             return self::$folder;
-        } catch (\Throwable $throwable) {
+        } catch (\Throwable) {
             return null;
         } finally {
             restore_error_handler();
@@ -83,7 +81,7 @@ class LogsFolder
     {
         // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
 
-        $targetDir = rtrim((string) wp_normalize_path($folder), '/');
+        $targetDir = rtrim(wp_normalize_path($folder), '/');
         if (!$targetDir) {
             return null;
         }
@@ -110,24 +108,24 @@ class LogsFolder
             }
         }
 
-        if ($uploadDir && $contentDir && (strpos($uploadDir, $contentDir) === 0)) {
+        if ($uploadDir && $contentDir && str_starts_with($uploadDir, $contentDir)) {
             $uploadDir = null;
         }
 
         $targetDir .= '/';
-        if ($contentDir) {
+        if ($contentDir !== null) {
             $contentDir .= '/';
         }
 
-        if ($uploadDir) {
+        if ($uploadDir !== null) {
             $uploadDir .= '/';
         }
 
         // We will create .htaccess only if target dir is inside one of the two directories we
         // assume are publicly accessible.
         if (
-            (!$contentDir || (strpos($targetDir, $contentDir) !== 0))
-            && (!$uploadDir || (strpos($targetDir, $uploadDir) !== 0))
+            (!$contentDir || !str_starts_with($targetDir, $contentDir))
+            && (!$uploadDir || !str_starts_with($targetDir, $uploadDir))
         ) {
             return $targetDir;
         }
@@ -161,7 +159,7 @@ HTACCESS;
         $uploads = (array) wp_upload_dir(null, false);
         if (empty($uploads['error']) && !empty($uploads['basedir'])) {
             $baseDir = (string) $uploads['basedir'];
-            $uploadsBaseDir = [rtrim((string) wp_normalize_path($baseDir), '/') ?: null];
+            $uploadsBaseDir = [rtrim(wp_normalize_path($baseDir), '/') ?: null];
 
             return $uploadsBaseDir[0];
         }
@@ -182,21 +180,19 @@ HTACCESS;
         if (defined('WP_DEBUG_LOG') && is_string(WP_DEBUG_LOG)) {
             /** @var ?bool $isBool */
             $isBool = filter_var(WP_DEBUG_LOG, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-            if (is_null($isBool)) {
+            if ($isBool === null) {
                 $maybeLogFiles[] = WP_DEBUG_LOG;
             }
         }
 
-        if (defined('ERRORLOGFILE') && ERRORLOGFILE && is_string(ERRORLOGFILE)) {
+        if (defined('ERRORLOGFILE') && (ERRORLOGFILE !== '') && is_string(ERRORLOGFILE)) {
             $maybeLogFiles[] = ERRORLOGFILE;
         }
 
         foreach ($maybeLogFiles as $maybeLogFile) {
             $dirByConstant = dirname($maybeLogFile);
-            if ($dirByConstant && $dirByConstant !== '.') {
-                $folder = wp_normalize_path((string) trailingslashit($dirByConstant) . 'wonolog');
-
-                return (string) $folder;
+            if ($dirByConstant && ($dirByConstant !== '.')) {
+                return wp_normalize_path(trailingslashit($dirByConstant) . 'wonolog');
             }
         }
 

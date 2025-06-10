@@ -26,7 +26,7 @@ class NullProcessorTest extends UnitTestCase
     public function testProcessesLogRecordCorrectly(): void
     {
         if (MonologUtils::version() < 3) {
-            $this->markTestSkipped('We support LogRecord from monolog 3');
+            $this->markTestSkipped('Monolog\LogRecord not available in this version of Monolog.');
         }
         $processor = new NullProcessor();
         $message = 'mymessage';

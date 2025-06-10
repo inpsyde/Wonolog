@@ -9,7 +9,7 @@ use Inpsyde\Wonolog\Tests\FileHandlerTestCase;
 /**
  * @runTestsInSeparateProcesses
  */
-class BufferedFileHandlerTest extends FileHandlerTestCase
+class UnbufferedFileHandlerTest extends FileHandlerTestCase
 {
-    protected bool $buffered = true;
+    protected bool $buffered = false;
 }

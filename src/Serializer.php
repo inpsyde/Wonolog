@@ -237,7 +237,6 @@ abstract class Serializer
                 $args = (array) $value->queries;
                 // fallback
             case ($value instanceof \WP_Query):
-                /** @psalm-suppress UndefinedPropertyFetch */
                 $args = $args ?? $value->query ?: null;
                 // fallback
             case ($value instanceof \WP_User_Query):
