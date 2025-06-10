@@ -78,6 +78,7 @@ function prefix_call_api(string $endpoint, array $body = [], string $method = 'G
 ```
 
 The function above uses a series of action hooks, whose name always starts with the same prefix, plus a dot, and then one of the [PSR-3 log levels](https://www.php-fig.org/psr/psr-3/#5-psrlogloglevel).
+for example, `prefix_log.error`.
 
 The parameters passed by the action hooks are either:
 
@@ -157,7 +158,7 @@ function prefix_call_api(string $endpoint, array $body = [], string $method = 'G
             return null;
         }
 
-        $logger->error('Valid response', compact('endpoint', 'method', 'json'));
+        $logger->info('Valid response', compact('endpoint', 'method', 'json'));
 
         return $json;
     } catch (\Throwable $exception) {
@@ -178,7 +179,7 @@ Because the plugin can work with *any* PSR-3 implementation, it uses a filter ho
 add_filter('prefix_logger', 'Inpsyde\Wonolog\makeLogger');
 ```
 
-That’s it. The single line above is enough to ensure Wonolog is used for logging everything the plugin does and anything Guzzle will do for the plugin.
+That’s it. The single line above is enough to ensure Wonolog is used for logging everything the plugin does and _also_ anything Guzzle will do for the plugin.
 
 Using a filter to accept a PSR-3 `LoggerInterface` implementation is just one of the possible strategies plugins can use, but as long as it is possible to "inject" a PSR-3 `LoggerInterface`, the `makeLogger()` function will be enough to integrate such plugins with Wonolog.
 
@@ -206,7 +207,7 @@ When integrating plugins that make use of logging action hooks, it is possible t
 add_action(
     'wonolog.setup',
     function (Inpsyde\Wonolog\Configurator $config) {
-        $config->registerLogHook('prefix_log', Inpsyde\Wonolog\Channels::HTTP);
+        $config->registerLogHook('prefix_log', Inpsyde\Wonolog\Channels::NETWORK);
     }
 );
 ```

@@ -79,7 +79,7 @@ Wonolog makes use of the concept of "**log channels**". To speak WordPress jargo
 
 It is worth mentioning here that, because Wonolog logs WordPress events out of the box, it needs to define channels for those events. For that, Wonolog defines six channels:
 
-- HTTP
+- NETWORK
 - DB
 - SECURITY
 - DEBUG

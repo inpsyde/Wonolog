@@ -5,11 +5,9 @@ nav_order: 30
 
 # Bootstrap and Configuration
 
-Wonolog v2 bootstraps itself. As soon as it is required in a project using Composer, even without any configuration, it starts working right away using its default settings.
+Wonolog (since v2) bootstraps itself. As soon as it is required in a project using Composer, even without any configuration, it starts working right away using its default settings.
 
-Wonolog v1 required a `bootstrap()` function to be called from a MU plugin, but that is not necessary anymore. That is probably the most significant user-facing change from v1 to v2.
-
-Nevertheless, most of the time, *some* configuration is needed. MU plugins, even in v2, are still the place where configuration goes.
+Nevertheless, most of the time, *some* configuration is needed. [MU plugins](https://developer.wordpress.org/advanced-administration/plugins/mu-plugins/) are the place where configuration goes.
 
 ---
 
@@ -38,9 +36,7 @@ add_action(
 );
 ```
 
-This new approach was introduced to favor Wonolog configuration from different MU plugins (or early loaded Composer packages) and thus favor re-usable packages that configure various aspects of Wonolog.
-
-In v1, the necessity to call a `bootstrap()` function favorited the presence of _a_ single place for configuration, usually copy-and-pasted from project to project.
+This approach favor Wonolog configuration from different MU plugins (or early-loaded Composer packages) and thus favor re-usable packages that configure various aspects of Wonolog.
 
 ## Wonolog writes logs
 

@@ -140,7 +140,7 @@ If `WP_DEBUG_LOG` is not defined or is a boolean `FileHandler` fallbacks to a `/
 
 Considering that log files should **not** be publicly accessible, when `FileHandler` writes file in the "uploads" folder, it adds in its base folder a `.htaccess` file that prevents public access to it, but that only works if the web-server in use is Apache and it is configured to take into account `.htaccess` files.
 
-That is why when using Wonolog fallback handler it is essential to make sure that either the path used is not publicly accessible.
+That is why **when using Wonolog fallback handler it is essential to make sure the logs path is _not_ publicly accessible**.
 
 To manually change the `FileHandler` base folder it is necessary to either define `WP_DEBUG_LOG` constant pointing to a file, as shown above, or alternatively call `withFolder()` method on it.
 

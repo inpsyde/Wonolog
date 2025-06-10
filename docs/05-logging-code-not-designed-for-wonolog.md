@@ -251,7 +251,7 @@ class AwesomePremiumPluginListener implements HookListener\FilterListener
 
         return static function (...$args) use ($handler, $updater)
         {
-            $updater->update(new Data\Info('AJAX response sent', 'HTTP', $args));
+            $updater->update(new Data\Info('AJAX response sent', 'NETWORK', $args));
 
             if (is_callable($handler)) {
                 $handler(...$args);
