@@ -74,10 +74,10 @@ final class Log implements LogData
     ): Log {
 
         $level = LogLevel::normalizeLevel($defaultLevel) ?? LogLevel::NOTICE;
-        $message = (string) $error->get_error_message();
+        $message = $error->get_error_message();
         $context = (array) ($error->get_error_data() ?: []);
 
-        self::$wpErrorChannel or self::$wpErrorChannel = WpErrorChannel::new();
+        self::$wpErrorChannel ??= WpErrorChannel::new();
 
         $channel = self::$wpErrorChannel->channelFor($error) ?? $defaultChannel ?? Channels::DEBUG;
 
