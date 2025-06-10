@@ -51,6 +51,7 @@ class NullProcessorTest extends UnitTestCase
         static::assertEquals($processedRecord->message, $message);
         static::assertEquals($processedRecord->channel, $channel);
         static::assertInstanceOf(Level::class, $record->level);
+        /** @phpstan-ignore property.nonObject */
         static::assertEquals($processedRecord->level->value, $level);
     }
 

@@ -99,6 +99,7 @@ class AdvancedConfigTest extends IntegrationTestCase
      */
     protected function addExtraDataToProcessorWhenRecordIsLogRecord(LogRecord $record): LogRecord
     {
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         $record->extra['testClass'] = __CLASS__;
         return $record;
     }

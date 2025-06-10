@@ -137,6 +137,7 @@ abstract class LogLevel
     final public static function normalizeLevel(mixed $level): ?int
     {
         if ($level instanceof Level) {
+            /** @phpstan-ignore return.type */
             return $level->value;
         }
 

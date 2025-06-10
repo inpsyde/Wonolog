@@ -12,6 +12,7 @@ use Psr\Log\AbstractLogger;
 
 /**
  * @phpstan-import-type _RecordType from Configurator
+ * @phpstan-import-type _RecordArray from Configurator
  */
 class PsrBridge extends AbstractLogger
 {
@@ -109,6 +110,7 @@ class PsrBridge extends AbstractLogger
         ?\Throwable $throwable
     ): Log {
 
+        /** @var _RecordArray $recordData */
         $recordData = ($record instanceof LogRecord) ? $record->toArray() : $record;
 
         $message = array_key_exists('message', $recordData)
