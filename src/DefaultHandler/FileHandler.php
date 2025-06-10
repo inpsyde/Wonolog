@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\DefaultHandler;
 
 use Inpsyde\Wonolog\LogLevel;
-use Inpsyde\Wonolog\Processor;
+use Inpsyde\Wonolog\Processor\NullProcessor;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\BufferHandler;
 use Monolog\Handler\FormattableHandlerInterface;
@@ -14,6 +14,7 @@ use Monolog\Handler\NullHandler;
 use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\LogRecord;
+use Monolog\Processor\ProcessorInterface;
 use Monolog\ResettableInterface;
 
 class FileHandler implements
@@ -23,17 +24,11 @@ class FileHandler implements
     ResettableInterface
 {
     private ?string $folder = null;
-
     private ?string $filename = null;
-
     private ?int $minLevel = null;
-
     private bool $bubble = true;
-
     private bool $buffering = true;
-
-    private ?HandlerInterface $handler = null;
-
+    private StreamHandler|BufferHandler|NullHandler|null $handler = null;
     private ?string $logFilePath = null;
 
     /**
@@ -157,35 +152,28 @@ class FileHandler implements
     /**
      * @param array|LogRecord $record
      * @return bool
-     *
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @phpstan-ignore-next-line
      */
     public function handle(array|LogRecord $record): bool
     {
         $this->ensureHandler();
+
         return $this->handler->handle($record);
     }
 
     /**
      * @param array|LogRecord $record
      * @return bool
-     *
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @phpstan-ignore-next-line
      */
     public function isHandling(array|LogRecord $record): bool
     {
         $this->ensureHandler();
+
         return $this->handler->isHandling($record);
     }
 
     /**
      * @param array<array>|array<LogRecord> $records
      * @return void
-     *
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @phpstan-ignore-next-line
      */
     public function handleBatch(array $records): void
     {
@@ -199,19 +187,14 @@ class FileHandler implements
      */
     public function close(): void
     {
-        if ($this->handler) {
-            $this->handler->close();
-        }
+        $this->handler?->close();
     }
 
     /**
-     * @param callable(array):array|\Monolog\Processor\ProcessorInterface $callback
+     * @param callable(array):array|ProcessorInterface $callback
      * @return static
-     *
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @psalm-suppress MoreSpecificImplementedParamType
      */
-    public function pushProcessor(callable $callback): HandlerInterface
+    public function pushProcessor(ProcessorInterface|callable $callback): HandlerInterface
     {
         $this->ensureHandler();
         if ($this->handler instanceof ProcessableHandlerInterface) {
@@ -222,16 +205,13 @@ class FileHandler implements
     }
 
     /**
-     * @return callable(array):array | callable(LogRecord):LogRecord
-     *
-     * @psalm-suppress MixedReturnTypeCoercion
-     * @psalm-suppress LessSpecificImplementedReturnType
+     * @return callable|ProcessorInterface
      */
     public function popProcessor(): callable
     {
         $this->ensureHandler();
-        if (!$this->handler instanceof ProcessableHandlerInterface) {
-            return new Processor\NullProcessor();
+        if (!($this->handler instanceof ProcessableHandlerInterface)) {
+            return new NullProcessor();
         }
 
         return $this->handler->popProcessor();
@@ -269,9 +249,9 @@ class FileHandler implements
 
         /** @var FormatterInterface|null $noopFormatter */
         static $noopFormatter;
+        $noopFormatter ??= new PassthroughFormatter();
 
-        return $noopFormatter
-            ?? $noopFormatter = new PassthroughFormatter();
+        return $noopFormatter;
     }
 
     /**
@@ -279,7 +259,6 @@ class FileHandler implements
      */
     public function reset(): void
     {
-        $this->ensureHandler();
         if ($this->handler instanceof ResettableInterface) {
             $this->handler->reset();
         }
@@ -316,13 +295,13 @@ class FileHandler implements
             throw new \Exception('Could not obtain valid log file path: not writable.');
         }
 
-        return (string) wp_normalize_path($logFilePath);
+        return wp_normalize_path($logFilePath);
     }
 
     /**
      * @return void
      *
-     * @psalm-assert HandlerInterface $this->handler
+     * @phpstan-assert StreamHandler|BufferHandler|NullHandler $this->handler
      */
     private function ensureHandler(): void
     {
@@ -335,12 +314,12 @@ class FileHandler implements
             if (!$level) {
                 $level = LogLevel::DEBUG;
             }
-            $streamBuffer = $this->buffering || $this->bubble;
-            $handler = new StreamHandler($this->logFilePath, $level, $streamBuffer, null, true);
+            $streamBubbling = $this->buffering || $this->bubble;
+            $handler = new StreamHandler($this->logFilePath, $level, $streamBubbling, null, true);
             $this->handler = $this->buffering
                 ? new BufferHandler($handler, 0, $level, $this->bubble)
                 : $handler;
-        } catch (\Throwable $throwable) {
+        } catch (\Throwable) {
             $this->handler = new NullHandler();
         }
     }
