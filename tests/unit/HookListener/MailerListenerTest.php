@@ -29,7 +29,7 @@ class MailerListenerTest extends UnitTestCase
             ->andReturnUsing(
                 static function (Debug $debug): void {
                     static::assertSame('Test email!', $debug->message());
-                    static::assertSame(Channels::HTTP, $debug->channel());
+                    static::assertSame(Channels::NETWORK, $debug->channel());
                 }
             );
 
@@ -65,7 +65,7 @@ class MailerListenerTest extends UnitTestCase
                 static function (LogData $log): void {
                     static::assertInstanceOf(LogData::class, $log);
                     static::assertSame(Levels::ERROR, $log->level());
-                    static::assertSame(Channels::HTTP, $log->channel());
+                    static::assertSame(Channels::NETWORK, $log->channel());
                 }
             );
 

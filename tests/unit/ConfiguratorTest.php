@@ -121,7 +121,7 @@ class ConfiguratorTest extends UnitTestCase
             ->doNotLogPhpErrorsNorExceptions()
             ->disableAllDefaultHookListeners()
             ->pushHandler(new NoopHandler())
-            ->removeHandlerFromChannels(NoopHandler::class, Channels::HTTP, Channels::DB)
+            ->removeHandlerFromChannels(NoopHandler::class, Channels::NETWORK, Channels::DB)
             ->disableFallbackHandlerForChannels(Channels::DB);
 
         $config->setup();
@@ -129,7 +129,7 @@ class ConfiguratorTest extends UnitTestCase
         $handlers = $factory->handlersRegistry();
 
         $debugHandlers = $handlers->findForChannel(Channels::DEBUG);
-        $httpHandlers = $handlers->findForChannel(Channels::HTTP);
+        $httpHandlers = $handlers->findForChannel(Channels::NETWORK);
         $dbHandlers = $handlers->findForChannel(Channels::DB);
 
         static::assertCount(1, $debugHandlers);

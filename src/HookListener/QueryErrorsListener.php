@@ -71,6 +71,6 @@ final class QueryErrorsListener implements ActionListener
             'matched_rule' => $wp->matched_rule,
         ];
 
-        $updater->update(new Log($message, $this->logLevel, Channels::HTTP, $context));
+        $updater->update(new Log($message, $this->logLevel, Channels::NETWORK, $context));
     }
 }

@@ -133,12 +133,12 @@ class LogTest extends UnitTestCase
     {
         $exception = new \Exception('Fail!, Fail!', 123);
 
-        $log = Log::fromThrowable($exception, Levels::NOTICE, Channels::HTTP);
+        $log = Log::fromThrowable($exception, Levels::NOTICE, Channels::NETWORK);
         static::assertInstanceOf(Log::class, $log);
 
         $context = $log->context();
 
-        static::assertSame(Channels::HTTP, $log->channel());
+        static::assertSame(Channels::NETWORK, $log->channel());
         static::assertSame('Fail!, Fail!', $log->message());
         static::assertSame(Levels::NOTICE, $log->level());
         static::assertArrayHasKey('throwable', $context);
@@ -157,12 +157,12 @@ class LogTest extends UnitTestCase
             [
                 LogData::MESSAGE => 'message',
                 LogData::LEVEL => Levels::EMERGENCY,
-                LogData::CHANNEL => Channels::HTTP,
+                LogData::CHANNEL => Channels::NETWORK,
                 LogData::CONTEXT => ['foo'],
             ]
         );
 
-        static::assertSame(Channels::HTTP, $log->channel());
+        static::assertSame(Channels::NETWORK, $log->channel());
         static::assertSame('message', $log->message());
         static::assertSame(['foo'], $log->context());
         static::assertSame(Levels::EMERGENCY, $log->level());

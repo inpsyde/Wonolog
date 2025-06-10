@@ -217,6 +217,6 @@ final class HttpApiListener implements ActionListener
             }
         }
 
-        return new Log($msg, $this->errorLogLevel, Channels::HTTP, $logContext);
+        return new Log($msg, $this->errorLogLevel, Channels::NETWORK, $logContext);
     }
 }

@@ -11,7 +11,7 @@ use Psr\Log\NullLogger;
 
 class Channels
 {
-    public const HTTP = 'HTTP';
+    public const NETWORK = 'HTTP'; // Backward compatibility
     public const DB = 'DB';
     public const PHP_ERROR = 'PHP-ERROR';
     public const SECURITY = 'SECURITY';
@@ -20,8 +20,11 @@ class Channels
     public const ACTION_LOGGER = 'wonolog.logger';
     public const ACTION_MONOLOG_LOGGER = 'wonolog.monolog-logger';
 
+    /** @deprecated */
+    public const HTTP = self::NETWORK;
+
     public const CHANNELS = [
-        self::HTTP,
+        self::NETWORK,
         self::DB,
         self::PHP_ERROR,
         self::SECURITY,
@@ -32,7 +35,7 @@ class Channels
     ];
 
     public const DEFAULT_CHANNELS = [
-        self::HTTP,
+        self::NETWORK,
         self::DB,
         self::SECURITY,
         self::DEBUG,

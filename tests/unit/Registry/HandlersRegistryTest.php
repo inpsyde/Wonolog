@@ -47,7 +47,7 @@ class HandlersRegistryTest extends UnitTestCase
 
         static::assertFalse($registry->hasHandlerForChannel('x', Channels::CRON));
         static::assertTrue($registry->hasHandlerForChannel('x', Channels::DEBUG));
-        static::assertTrue($registry->hasHandlerForChannel('x', Channels::HTTP));
+        static::assertTrue($registry->hasHandlerForChannel('x', Channels::NETWORK));
 
         static::assertCount(1, $registry);
     }
@@ -85,8 +85,8 @@ class HandlersRegistryTest extends UnitTestCase
 
         /** @var HandlerInterface $handler */
         $handler = \Mockery::mock(HandlerInterface::class);
-        $registry->addHandler($handler, 'X', Channels::HTTP, Channels::CRON);
-        $registry->removeHandlerFromChannels('X', Channels::HTTP);
+        $registry->addHandler($handler, 'X', Channels::NETWORK, Channels::CRON);
+        $registry->removeHandlerFromChannels('X', Channels::NETWORK);
         $registry->removeHandlerFromChannels('X', Channels::CRON);
 
         static::assertCount(0, $registry);
@@ -99,9 +99,9 @@ class HandlersRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->handlersRegistry();
 
-        $registry->addHandler(new TestHandler(), 'test', Channels::HTTP, Channels::CRON);
+        $registry->addHandler(new TestHandler(), 'test', Channels::NETWORK, Channels::CRON);
         $registry->addHandler(FileHandler::new(), 'default');
-        $registry->removeHandlerFromChannels('default', Channels::HTTP);
+        $registry->removeHandlerFromChannels('default', Channels::NETWORK);
 
         Actions\expectDone(HandlersRegistry::ACTION_SETUP)
             ->once()
@@ -123,7 +123,7 @@ class HandlersRegistryTest extends UnitTestCase
 
         static::assertCount(2, $registry);
 
-        $http = $registry->findForChannel(Channels::HTTP);
+        $http = $registry->findForChannel(Channels::NETWORK);
         static::assertCount(1, $http);
         static::assertInstanceOf(TestHandler::class, $http[0]);
 
@@ -141,7 +141,7 @@ class HandlersRegistryTest extends UnitTestCase
         static::assertInstanceOf(FileHandler::class, $db[0]);
 
         $registry->removeHandler('test');
-        static::assertSame([], $registry->findForChannel(Channels::HTTP));
+        static::assertSame([], $registry->findForChannel(Channels::NETWORK));
 
         $cronAgain = $registry->findForChannel(Channels::CRON);
         static::assertCount(1, $cronAgain);

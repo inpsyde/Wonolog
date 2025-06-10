@@ -28,7 +28,7 @@ class QueryErrorsListenerTest extends UnitTestCase
             ->with(\Mockery::type(LogData::class))
             ->andReturnUsing(
                 static function (LogData $log): void {
-                    static::assertSame(Channels::HTTP, $log->channel());
+                    static::assertSame(Channels::NETWORK, $log->channel());
                     static::assertSame('Error on frontend request for url /meh.', $log->message());
                     static::assertSame(
                         [
