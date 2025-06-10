@@ -1021,19 +1021,8 @@ class Configurator
     {
         $updater = $this->factory->logActionUpdater();
         $logSilenced = (bool) $this->config[self::CONF_SILENCED_ERRORS];
-        $controller = PhpErrorController::new($logSilenced, $updater);
-
-        $logExceptions and set_exception_handler([$controller, 'onException']);
-
-        if ($errorTypes <= 0) {
-            return;
-        }
-
-        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
-        set_error_handler([$controller, 'onError'], $errorTypes);
-        if (PhpErrorController::typesMaskContainsFatals($errorTypes)) {
-            register_shutdown_function([$controller, 'onShutdown']);
-        }
+        $controller = PhpErrorController::new($errorTypes, $logExceptions, $logSilenced, $updater);
+        $controller->setup();
     }
 
     /**

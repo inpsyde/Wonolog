@@ -42,8 +42,13 @@ class PhpErrorHandlerTest extends UnitTestCase
             }
         );
 
-        $controller = PhpErrorController::new(true, $updater);
-        $this->initializeErrorController($controller);
+        $controller = PhpErrorController::new(
+            errorTypes: E_ALL,
+            logExceptions: false,
+            logSilencedErrors: true,
+            updater: $updater
+        );
+        $controller->setup();
 
         @trigger_error('Meh!', E_USER_NOTICE);
     }
@@ -66,8 +71,13 @@ class PhpErrorHandlerTest extends UnitTestCase
             }
         );
 
-        $controller = PhpErrorController::new(true, $updater);
-        $this->initializeErrorController($controller);
+        $controller = PhpErrorController::new(
+            errorTypes: E_ALL,
+            logExceptions: false,
+            logSilencedErrors: true,
+            updater: $updater
+        );
+        $controller->setup();
 
         @trigger_error('Warning!', E_USER_WARNING);
     }
@@ -77,12 +87,17 @@ class PhpErrorHandlerTest extends UnitTestCase
      */
     public function testOnException(): void
     {
+        $message = 'Exception!';
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($message);
+
         $updater = \Mockery::mock(LogActionUpdater::class);
         $updater->expects('update')->andReturnUsing(
-            static function (LogData $log): void {
+            static function (LogData $log) use ($message): void {
                 static::assertSame(Channels::PHP_ERROR, $log->channel());
                 static::assertSame(LogLevel::CRITICAL, $log->level());
-                static::assertSame('Exception!', $log->message());
+                static::assertSame($message, $log->message());
                 $context = $log->context();
                 static::assertArrayHasKey('line', $context);
                 static::assertArrayHasKey('trace', $context);
@@ -93,14 +108,16 @@ class PhpErrorHandlerTest extends UnitTestCase
             }
         );
 
-        $controller = PhpErrorController::new(true, $updater);
-        $this->initializeErrorController($controller);
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Exception!');
+        $controller = PhpErrorController::new(
+            errorTypes: E_ALL,
+            logExceptions: true,
+            logSilencedErrors: false,
+            updater: $updater
+        );
+        $controller->setup();
 
         try {
-            throw new \RuntimeException('Exception!');
+            throw new \RuntimeException($message);
         } catch (\Throwable $throwable) {
             $controller->onException($throwable);
         }
@@ -114,24 +131,19 @@ class PhpErrorHandlerTest extends UnitTestCase
     {
         $updater = \Mockery::mock(LogActionUpdater::class);
         $updater->expects('update')->never();
-        $controller = PhpErrorController::new(false, $updater);
-        $this->initializeErrorController($controller);
+
+        $controller = PhpErrorController::new(
+            errorTypes: E_ALL,
+            logExceptions: false,
+            logSilencedErrors: false,
+            updater: $updater
+        );
+        $controller->setup();
 
         $test = static function (): void {
             trigger_error('Test', E_USER_WARNING);
         };
 
         @$test();
-    }
-
-    /**
-     * @param PhpErrorController $controller
-     * @return void
-     */
-    private function initializeErrorController(PhpErrorController $controller): void
-    {
-        register_shutdown_function([$controller, 'onShutdown']);
-        set_error_handler([$controller, 'onError']);
-        set_exception_handler([$controller, 'onException']);
     }
 }
