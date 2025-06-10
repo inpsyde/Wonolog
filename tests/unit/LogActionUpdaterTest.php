@@ -109,9 +109,10 @@ class LogActionUpdaterTest extends UnitTestCase
 
         $record = $logger->records[0];
 
-        static::assertSame('Test me', $record['message']);
-        static::assertSame(LogLevel::EMERGENCY, $record['level']);
-        static::assertSame(['foo' => 'bar'], $record['context']);
+        static::assertIsArray($record);
+        static::assertSame('Test me', $record['message'] ?? '');
+        static::assertSame(LogLevel::EMERGENCY, $record['level'] ?? '');
+        static::assertSame(['foo' => 'bar'], $record['context'] ?? '');
     }
 
     /**
@@ -165,8 +166,9 @@ class LogActionUpdaterTest extends UnitTestCase
 
         $record = $logger->records[0];
 
-        static::assertSame('Test me', $record['message']);
-        static::assertSame(LogLevel::EMERGENCY, $record['level']);
-        static::assertSame($contextExpected, $record['context']);
+        static::assertIsArray($record);
+        static::assertSame('Test me', $record['message'] ?? '');
+        static::assertSame(LogLevel::EMERGENCY, $record['level'] ?? '');
+        static::assertSame($contextExpected, $record['context'] ?? '');
     }
 }

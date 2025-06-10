@@ -261,6 +261,7 @@ class AdvancedConfigTest extends IntegrationTestCase
     {
         $_SERVER['REQUEST_URI'] = 'https://example.com/foo/';
         global $wp_query;
+        /** @var \WP_Query $wp_query */
         $wp_query->is_404 = true;
 
         $wp = new \WP();

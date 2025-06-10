@@ -76,7 +76,8 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
     protected static function runWpCliCommand(array $command): void
     {
         static $cliPath;
-        $cliPath or $cliPath = (getenv('VENDOR_DIR') ?: '') . '/bin';
+        /** @var string $cliPath */
+        $cliPath ??= (getenv('VENDOR_DIR') ?: '') . '/bin';
 
         array_unshift($command, "{$cliPath}/wp");
         $command[] = '--path=' . ABSPATH;
@@ -210,17 +211,16 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
     private function phpUnitParam(string $paramName): string
     {
         static $maybeSanitize;
-        if (!isset($maybeSanitize)) {
-            $maybeSanitize = static function (string $str): string {
-                if (
-                    preg_match('~^(["\'])([^"\']+)?(["\'])$~', $str, $matches)
-                    && ($matches[1] === $matches[3])
-                ) {
-                    return $matches[2];
-                }
-                return $str;
-            };
-        }
+        /** @var \Closure(string):string $maybeSanitize */
+        $maybeSanitize ??= static function (string $str): string {
+            if (
+                preg_match('~^(["\'])([^"\']+)?(["\'])$~', $str, $matches)
+                && ($matches[1] === $matches[3])
+            ) {
+                return $matches[2];
+            }
+            return $str;
+        };
 
         /** @var array<int, string> $argv */
         global $argv;

@@ -212,7 +212,7 @@ final class HttpApiListener implements ActionListener
 
         $code = $response['code'] ?? null;
         if ($code && is_scalar($code)) {
-            $msg .= " - Response code: {$response[ 'code' ]}";
+            $msg .= " - Response code: {$code}";
             if (!empty($data['headers'])) {
                 $logContext['headers'] = $data['headers'];
             }

@@ -49,7 +49,7 @@ abstract class LogLevel
         if (!isset($allLevels)) {
             $allLevels = array_flip(self::LEVELS);
         }
-
+        /** @var array<value-of<LogLevel::LEVELS>, key-of<LogLevel::LEVELS>> $allLevels */
         return $allLevels;
     }
 

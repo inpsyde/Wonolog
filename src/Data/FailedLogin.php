@@ -96,8 +96,8 @@ final class FailedLogin implements LogData
             $attempts[$userIp] = $data;
         }
 
-        $attempts[$userIp]['count']++;
         /** @var array<string, array{count:int, last_logged:int}> $attempts */
+        $attempts[$userIp]['count']++;
         $this->attemptsData = $attempts;
 
         $count = $attempts[$userIp]['count'];
