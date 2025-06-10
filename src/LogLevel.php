@@ -21,7 +21,7 @@ abstract class LogLevel
     public const ALERT = 550;
     public const EMERGENCY = 600;
 
-    private const array LEVELS = [
+    private const LEVELS = [
         self::DEBUG => 'DEBUG',
         self::INFO => 'INFO',
         self::NOTICE => 'NOTICE',
