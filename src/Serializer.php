@@ -142,8 +142,6 @@ abstract class Serializer
      * @param iterable $input
      * @param int $level
      * @return array
-     *
-     * @psalm-suppress MixedArrayOffset
      */
     private static function maybeMaskInput(iterable $input, int $level = 0): array
     {
@@ -215,8 +213,7 @@ abstract class Serializer
      * @param bool $ensureString
      * @return string|null
      *
-     * @psalm-return ($ensureString is true ? string : string|null)
-     *
+     * @phpstan-return ($ensureString is true ? string : string|null)
      * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */
     private static function serializeObject(object $value, bool $ensureString): ?string
@@ -242,7 +239,6 @@ abstract class Serializer
             case ($value instanceof \WP_User_Query):
             case ($value instanceof \WP_Term_Query):
             case ($value instanceof \WP_Comment_Query):
-                /** @psalm-suppress UndefinedPropertyFetch */
                 $args = self::maybeMaskInput((array) ($args ?? $value->query_vars ?: []), 7);
                 $argsStr = json_encode($args, self::JSON_ENC_FLAGS, 8);
                 return sprintf('%s (%s)', get_class($value), $argsStr);

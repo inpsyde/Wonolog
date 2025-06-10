@@ -70,8 +70,8 @@ final class FailedLogin implements LogData
      *
      * @param int $ttl transient time to live in seconds
      *
-     * @psalm-assert array<string, array{count:int, last_logged:int}> $this->attemptsData
-     * @psalm-assert int $this->attempts
+     * @phpstan-assert array<string, array{count:int, last_logged:int}> $this->attemptsData
+     * @phpstan-assert int $this->attempts
      */
     private function countAttempts(int $ttl = 300): void
     {
@@ -96,18 +96,11 @@ final class FailedLogin implements LogData
             $attempts[$userIp] = $data;
         }
 
-        /** @psalm-suppress MixedOperand */
         $attempts[$userIp]['count']++;
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $this->attemptsData = $attempts;
 
-        /**
-         * Psalm warns us about count and last_logged possibly being bool to int converted
-         * We assume the value retrieved when calling get_site_transient is an integer on both
-         * @psalm-suppress RiskyCast
-         */
         $count = (int) $attempts[$userIp]['count'];
-        /** @psalm-suppress RiskyCast */
+
         $lastLogged = (int) $attempts[$userIp]['last_logged'];
 
         /**
@@ -139,7 +132,7 @@ final class FailedLogin implements LogData
     /**
      * @return void
      *
-     * @psalm-assert array{string, string} $this->ipData
+     * @phpstan-assert array{string, string} $this->ipData
      */
     private function sniffIp(): void
     {

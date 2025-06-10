@@ -68,13 +68,12 @@ final class CronDebugListener implements ActionListener
         }
 
         $cronArray = _get_cron_array();
-        /** @psalm-suppress TypeDoesNotContainType,DocblockTypeContradiction  */
         if (!$cronArray || !is_array($cronArray)) {
             return;
         }
 
         foreach ($cronArray as $cronData) {
-            $this->registerEventListenerForHooks((array) $cronData, $updater);
+            $this->registerEventListenerForHooks($cronData, $updater);
         }
 
         register_shutdown_function(
