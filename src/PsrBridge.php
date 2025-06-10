@@ -129,6 +129,8 @@ class PsrBridge extends AbstractLogger
             $context['exception'] = $throwable;
         }
 
+        $level = LogLevel::normalizeLevel($level) ?? LogLevel::DEBUG;
+
         return new Log((string) $message, $level, $channel, (array) $context);
     }
 }

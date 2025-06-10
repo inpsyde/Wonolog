@@ -88,20 +88,20 @@ final class FailedLogin implements LogData
         // Seems the first time a failed attempt for this IP
         if (
             !$attempts
-            || empty($attempts[$userIp])
-            || !isset($attempts[$userIp]['count'])
-            || !isset($attempts[$userIp]['last_logged'])
+            || !is_array($attempts[$userIp] ?? null)
+            || !is_numeric($attempts[$userIp]['count'] ?? null)
+            || !is_numeric($attempts[$userIp]['last_logged'] ?? null)
         ) {
             $data = ['count' => 0, 'last_logged' => 0];
             $attempts[$userIp] = $data;
         }
 
         $attempts[$userIp]['count']++;
+        /** @var array<string, array{count:int, last_logged:int}> $attempts */
         $this->attemptsData = $attempts;
 
-        $count = (int) $attempts[$userIp]['count'];
-
-        $lastLogged = (int) $attempts[$userIp]['last_logged'];
+        $count = $attempts[$userIp]['count'];
+        $lastLogged = $attempts[$userIp]['last_logged'];
 
         /**
          * During a brute force attack, logging all the failed attempts
@@ -115,7 +115,7 @@ final class FailedLogin implements LogData
          * - every 200 when total attempts are > 1182 (1183rd, 1383rd...)
          */
         $doLog =
-            $count === 3
+            ($count === 3)
             || ($count < 100 && ($count - $lastLogged) === 20)
             || ($count < 1000 && ($count - $lastLogged) === 100)
             || (($count - $lastLogged) === 200);

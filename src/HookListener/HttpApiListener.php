@@ -115,7 +115,8 @@ final class HttpApiListener implements ActionListener
      */
     private function isError(array $response, array $httpArgs = []): bool
     {
-        $code = $response['response']['code'] ?? null;
+        $responseData = $response['response'] ?? null;
+        $code = is_array($responseData) ? ($responseData['code'] ?? null) : null;
 
         if (!$code || !is_numeric($code)) {
             return true;

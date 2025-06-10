@@ -88,7 +88,7 @@ class PsrBridgeTest extends UnitTestCase
 
         static::assertSame(LogLevel::DEBUG, $logged->level());
         static::assertSame('MY_PLUGIN', $logged->channel());
-        static::assertSame('test X!', $$logged->message());
+        static::assertSame('test X!', $logged->message());
         static::assertSame(['y' => 'Y!'], $logged->context());
     }
 
