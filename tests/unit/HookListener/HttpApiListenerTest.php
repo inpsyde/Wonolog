@@ -26,8 +26,8 @@ class HttpApiListenerTest extends UnitTestCase
             ->andReturnUsing(
                 static function (LogData $log): void {
                     static::assertSame('WP HTTP API Error: Test!', $log->message());
-                    static::assertSame(Channels::HTTP, $log->channel());
                     static::assertSame(Levels::ERROR, $log->level());
+                    static::assertSame(Channels::NETWORK, $log->channel());
                     static::assertSame(
                         [
                             'transport' => 'TestClass',
@@ -76,8 +76,8 @@ class HttpApiListenerTest extends UnitTestCase
             ->with(\Mockery::type(LogData::class))
             ->andReturnUsing(
                 static function (LogData $log): void {
-                    static::assertSame(Channels::HTTP, $log->channel());
                     static::assertSame(Levels::ERROR, $log->level());
+                    static::assertSame(Channels::NETWORK, $log->channel());
                     static::assertSame(
                         'WP HTTP API Error: Internal Server Error - Response code: 500',
                         $log->message()

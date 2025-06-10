@@ -70,7 +70,7 @@ class MailerListener implements ActionListener
     {
         $error = $args ? reset($args) : null;
         if ($error instanceof \WP_Error) {
-            $updater->update(Log::fromWpError($error, $this->errorLogLevel, Channels::HTTP));
+            $updater->update(Log::fromWpError($error, $this->errorLogLevel, Channels::NETWORK));
         }
     }
 
@@ -88,7 +88,7 @@ class MailerListener implements ActionListener
 
         $mailer->SMTPDebug = $this->smtpDebugLevel;
         $mailer->Debugoutput = static function (string $message) use ($updater): void {
-            $updater->update(new Debug($message, Channels::HTTP));
+            $updater->update(new Debug($message, Channels::NETWORK));
         };
     }
 }

@@ -82,7 +82,7 @@ class WpErrorChannel
             || stripos($code, 'wp_mail') !== false
             || stripos($code, 'email') !== false
         ) {
-            return Channels::HTTP;
+            return Channels::NETWORK;
         }
 
         return null;

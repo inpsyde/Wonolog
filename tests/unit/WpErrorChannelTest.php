@@ -47,7 +47,7 @@ class WpErrorChannelTest extends UnitTestCase
         $instance = WpErrorChannel::new();
         $channel = $instance->channelFor($error);
 
-        static::assertSame(Channels::HTTP, $channel);
+        static::assertSame(Channels::NETWORK, $channel);
     }
 
     /**

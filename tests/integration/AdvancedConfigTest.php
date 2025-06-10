@@ -149,14 +149,14 @@ class AdvancedConfigTest extends IntegrationTestCase
             'wonolog.log',
             [
                 'message' => 'Something happened.',
-                'channel' => Channels::HTTP,
+                'channel' => Channels::NETWORK,
                 'level' => LogLevel::NOTICE,
             ]
         );
 
         static::assertFalse($this->testHandler->hasNoticeThatContains('Something happened.'));
 
-        $this->assertLogFileHasLine('Something happened.', Channels::HTTP, 'NOTICE');
+        $this->assertLogFileHasLine('Something happened.', Channels::NETWORK, 'NOTICE');
     }
 
     /**
@@ -266,7 +266,7 @@ class AdvancedConfigTest extends IntegrationTestCase
         $wp->matched_rule = 'rule';
         $wp->query_vars['error'] = 'Error one';
 
-        $expectedMessage = 'Error on frontend request';
+        $expectedMsg = 'Error on frontend request';
         $expectedContext = [
             'error' => ['Error one', '404 Page not found'],
             'query_vars' => ['error' => 'Error one'],
@@ -275,7 +275,7 @@ class AdvancedConfigTest extends IntegrationTestCase
 
         do_action('wp', $wp);
 
-        $this->assertLogFileHasLine($expectedMessage, Channels::HTTP, 'NOTICE', $expectedContext);
+        $this->assertLogFileHasLine($expectedMsg, Channels::NETWORK, 'NOTICE', $expectedContext);
         static::assertSame([], $this->testHandler->getRecords());
     }
 
