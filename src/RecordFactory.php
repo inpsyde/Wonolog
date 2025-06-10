@@ -49,7 +49,7 @@ class RecordFactory
     ): LogRecord {
 
         if (!in_array($level, Level::VALUES, true)) {
-            $level = Levels::ERROR;
+            $level = LogLevel::ERROR;
         }
 
         return new LogRecord(

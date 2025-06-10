@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog\Tests\Unit;
 
-use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
@@ -29,7 +28,7 @@ class LogLevelTest extends UnitTestCase
     {
         putenv('WONOLOG_DEFAULT_MIN_LEVEL=CRITICAL');
 
-        static::assertSame(Levels::CRITICAL, LogLevel::defaultMinLevel());
+        static::assertSame(LogLevel::CRITICAL, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -39,7 +38,7 @@ class LogLevelTest extends UnitTestCase
     {
         putenv('WONOLOG_DEFAULT_MIN_LEVEL=500');
 
-        static::assertSame(Levels::CRITICAL, LogLevel::defaultMinLevel());
+        static::assertSame(LogLevel::CRITICAL, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -47,7 +46,7 @@ class LogLevelTest extends UnitTestCase
      */
     public function testDefaultLevelByConstantNone(): void
     {
-        static::assertSame(Levels::WARNING, LogLevel::defaultMinLevel());
+        static::assertSame(LogLevel::DEBUG, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -57,7 +56,7 @@ class LogLevelTest extends UnitTestCase
     {
         define('WP_DEBUG_LOG', true);
 
-        static::assertSame(Levels::DEBUG, LogLevel::defaultMinLevel());
+        static::assertSame(LogLevel::DEBUG, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -68,7 +67,7 @@ class LogLevelTest extends UnitTestCase
         define('WP_DEBUG', true);
 
         static::assertFalse(defined('WP_DEBUG_LOG'));
-        static::assertSame(Levels::DEBUG, LogLevel::defaultMinLevel());
+        static::assertSame(LogLevel::DEBUG, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -79,7 +78,7 @@ class LogLevelTest extends UnitTestCase
         define('WP_DEBUG_LOG', false);
         define('WP_DEBUG', true);
 
-        static::assertSame(Levels::WARNING, LogLevel::defaultMinLevel());
+        static::assertSame(LogLevel::WARNING, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -91,7 +90,7 @@ class LogLevelTest extends UnitTestCase
         define('WP_DEBUG_LOG', false);
         define('WP_DEBUG', true);
 
-        static::assertSame(Levels::EMERGENCY, LogLevel::defaultMinLevel());
+        static::assertSame(LogLevel::EMERGENCY, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -114,14 +113,14 @@ class LogLevelTest extends UnitTestCase
      */
     public function testCheckLevelAcceptsDefinedLevelStrings(): void
     {
-        static::assertSame(Levels::CRITICAL, LogLevel::normalizeLevel('CRITICAL'));
-        static::assertSame(Levels::ERROR, LogLevel::normalizeLevel('error'));
-        static::assertSame(Levels::DEBUG, LogLevel::normalizeLevel('Debug'));
-        static::assertSame(Levels::ALERT, LogLevel::normalizeLevel('aLeRt'));
-        static::assertSame(Levels::EMERGENCY, LogLevel::normalizeLevel('emeRGEncy'));
-        static::assertSame(Levels::INFO, LogLevel::normalizeLevel(' INFO '));
-        static::assertSame(Levels::NOTICE, LogLevel::normalizeLevel(' nOtiCE'));
-        static::assertSame(Levels::WARNING, LogLevel::normalizeLevel('Warning '));
+        static::assertSame(LogLevel::CRITICAL, LogLevel::normalizeLevel('CRITICAL'));
+        static::assertSame(LogLevel::ERROR, LogLevel::normalizeLevel('error'));
+        static::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel('Debug'));
+        static::assertSame(LogLevel::ALERT, LogLevel::normalizeLevel('aLeRt'));
+        static::assertSame(LogLevel::EMERGENCY, LogLevel::normalizeLevel('emeRGEncy'));
+        static::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(' INFO '));
+        static::assertSame(LogLevel::NOTICE, LogLevel::normalizeLevel(' nOtiCE'));
+        static::assertSame(LogLevel::WARNING, LogLevel::normalizeLevel('Warning '));
         static::assertNull(LogLevel::normalizeLevel('MEH'));
     }
 }

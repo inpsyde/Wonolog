@@ -7,7 +7,7 @@ namespace Inpsyde\Wonolog\Tests\Unit\Data;
 use Brain\Monkey\Functions;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\FailedLogin;
-use Inpsyde\Wonolog\Levels;
+use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
 class FailedLoginTest extends UnitTestCase
@@ -51,23 +51,23 @@ class FailedLoginTest extends UnitTestCase
         }
 
         $expectedLoggedLevels = [
-            3 => Levels::NOTICE,
-            23 => Levels::NOTICE,
-            43 => Levels::NOTICE,
-            63 => Levels::NOTICE,
-            83 => Levels::NOTICE,
-            183 => Levels::WARNING,
-            283 => Levels::WARNING,
-            383 => Levels::WARNING,
-            483 => Levels::WARNING,
-            583 => Levels::WARNING,
-            683 => Levels::ERROR,
-            783 => Levels::ERROR,
-            883 => Levels::ERROR,
-            983 => Levels::ERROR,
-            1183 => Levels::CRITICAL,
-            1383 => Levels::CRITICAL,
-            1583 => Levels::CRITICAL,
+            3 => LogLevel::NOTICE,
+            23 => LogLevel::NOTICE,
+            43 => LogLevel::NOTICE,
+            63 => LogLevel::NOTICE,
+            83 => LogLevel::NOTICE,
+            183 => LogLevel::WARNING,
+            283 => LogLevel::WARNING,
+            383 => LogLevel::WARNING,
+            483 => LogLevel::WARNING,
+            583 => LogLevel::WARNING,
+            683 => LogLevel::ERROR,
+            783 => LogLevel::ERROR,
+            883 => LogLevel::ERROR,
+            983 => LogLevel::ERROR,
+            1183 => LogLevel::CRITICAL,
+            1383 => LogLevel::CRITICAL,
+            1583 => LogLevel::CRITICAL,
         ];
 
         static::assertSame($expectedLoggedLevels, $logged);
