@@ -304,6 +304,8 @@ class AdvancedConfigTest extends IntegrationTestCase
      * @param string $level
      * @param array<mixed>|null $context
      * @return void
+     *
+     * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */
     private function assertLogFileHasLine(
         string $message,
@@ -311,6 +313,7 @@ class AdvancedConfigTest extends IntegrationTestCase
         string $level,
         ?array $context = null
     ): void {
+        // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
 
         if (!file_exists($this->logFile)) {
             throw new AssertionFailedError(
@@ -340,16 +343,16 @@ class AdvancedConfigTest extends IntegrationTestCase
             }
 
             $more = $matches['more'] ?? '';
-            $extra = json_encode(['testClass' => __CLASS__]);
+            $extra = json_encode(['testClass' => __CLASS__], \JSON_THROW_ON_ERROR);
             if (!preg_match('~' . preg_quote($extra, '~') . '~', $more)) {
                 continue;
             }
 
-            if (
-                $context !== null
-                && !preg_match('~' . preg_quote(json_encode($context), '~') . '~', $more)
-            ) {
-                continue;
+            if ($context !== null) {
+                $encodedContext = json_encode($context, \JSON_THROW_ON_ERROR);
+                if (!preg_match('~' . preg_quote($encodedContext, '~') . '~', $more)) {
+                    continue;
+                }
             }
 
             $logText = $matches['txt'] ?? '';

@@ -78,12 +78,12 @@ class PsrBridge extends AbstractLogger
 
         $level = LogLevel::normalizeLevel($level);
         if (!$level) {
-            $level = $throwable ? LogLevel::ERROR : LogLevel::DEBUG;
+            $level = ($throwable === null) ? LogLevel::DEBUG : LogLevel::ERROR;
         }
 
         $channel = $context[LogData::CHANNEL] ?? null;
         if (!$channel || !is_string($channel)) {
-            $channel = $throwable
+            $channel = ($throwable instanceof \Throwable)
                 ? ($this->defaultChannel ?? Channels::PHP_ERROR)
                 : ($this->defaultChannel ?? $this->channels->defaultChannel());
         }
@@ -91,7 +91,7 @@ class PsrBridge extends AbstractLogger
 
         $record = RecordFactory::createRecord($message, $level, $channel, $context);
         $record = ($this->processor)($record);
-
+        /** @var \Throwable|null $throwable */
         $this->updater->update($this->createLog($record, $level, $channel, $throwable));
     }
 

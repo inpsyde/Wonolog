@@ -158,7 +158,12 @@ class PhpErrorController
         );
 
         if (in_array($error['type'], self::FATALS, true)) {
-            $this->onError($error['type'], $error['message'], $error['file'], $error['line']);
+            /** @var value-of<PhpErrorController::FATALS> $type */
+            $type = $error['type'];
+            $message = (string) ($error['message'] ?? '');
+            $file = (string) ($error['file'] ?? 'file unknown');
+            $line = (int) ($error['line'] ?? -1);
+            $this->onError($type, $message, $file, $line);
         }
     }
 

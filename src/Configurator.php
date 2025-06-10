@@ -899,7 +899,7 @@ class Configurator
     /**
      * @param string $key
      * @param list<string> $allValues
-     * @return non-empty-list<string>|null
+     * @return list<string>|null
      *
      * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */

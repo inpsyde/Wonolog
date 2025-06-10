@@ -32,8 +32,8 @@ class RecordFactoryTest extends UnitTestCase
             return;
         }
         static::assertIsArray($createdRecord);
-        static::assertEquals($createdRecord['message'], $message);
-        static::assertEquals($createdRecord['context'], $context);
-        static::assertEquals($createdRecord['level'], $level);
+        static::assertEquals($createdRecord['message'] ?? '', $message);
+        static::assertEquals($createdRecord['context'] ?? '', $context);
+        static::assertEquals($createdRecord['level'] ?? '', $level);
     }
 }

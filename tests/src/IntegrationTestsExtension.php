@@ -222,10 +222,11 @@ class IntegrationTestsExtension implements BeforeFirstTestHook, AfterLastTestHoo
             };
         }
 
+        /** @var array<int, string> $argv */
         global $argv;
         $value = '';
         $i = array_search("--{$paramName}", $argv, true);
-        if ($i) {
+        if ($i !== false) {
             return $maybeSanitize($argv[$i + 1] ?? 'yes');
         }
         foreach ($argv as $param) {

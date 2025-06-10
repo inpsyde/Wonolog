@@ -32,16 +32,16 @@ abstract class LogLevel
         self::EMERGENCY => 'EMERGENCY',
     ];
 
-
+    /** @var key-of<LogLevel::LEVELS>|null */
     private static ?int $minLevel = null;
 
     /**
-     * @var array<int|string, int|null>
+     * @var array<array-key, key-of<LogLevel::LEVELS>|null>
      */
     private static array $mappedLevels = [];
 
     /**
-     * @return array<string, int>
+     * @return array<value-of<LogLevel::LEVELS>, key-of<LogLevel::LEVELS>>
      */
     final public static function allLevels(): array
     {
@@ -59,7 +59,7 @@ abstract class LogLevel
      *
      * The level is set once per request and it is filterable.
      *
-     * @return int
+     * @return key-of<LogLevel::LEVELS>
      */
     final public static function defaultMinLevel(): int
     {
@@ -132,7 +132,7 @@ abstract class LogLevel
      * If there's no way to resolve the given level, null is returned.
      *
      * @param mixed $level
-     * @return int|null
+     * @return key-of<LogLevel::LEVELS>|null
      */
     final public static function normalizeLevel(mixed $level): ?int
     {
@@ -156,7 +156,9 @@ abstract class LogLevel
         $allLevels = self::allLevels();
 
         if ($string) {
-            self::$mappedLevels[$level] = $allLevels[strtoupper(trim($level))] ?? null;
+            /** @var string $level */
+            $levelName = strtoupper(trim($level));
+            self::$mappedLevels[$level] = $allLevels[$levelName] ?? null;
 
             return self::$mappedLevels[$level];
         }
