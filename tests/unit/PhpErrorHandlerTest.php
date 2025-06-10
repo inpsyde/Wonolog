@@ -6,8 +6,8 @@ namespace Inpsyde\Wonolog\Tests\Unit;
 
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\LogData;
-use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
+use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\PhpErrorController;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
@@ -33,7 +33,7 @@ class PhpErrorHandlerTest extends UnitTestCase
         $updater->expects('update')->andReturnUsing(
             static function (LogData $log): void {
                 static::assertSame(Channels::PHP_ERROR, $log->channel());
-                static::assertSame(Levels::NOTICE, $log->level());
+                static::assertSame(LogLevel::NOTICE, $log->level());
                 static::assertSame('Meh!', $log->message());
                 $context = $log->context();
                 static::assertArrayHasKey('line', $context);
@@ -57,7 +57,7 @@ class PhpErrorHandlerTest extends UnitTestCase
         $updater->expects('update')->andReturnUsing(
             static function (LogData $log): void {
                 static::assertSame(Channels::PHP_ERROR, $log->channel());
-                static::assertSame(Levels::WARNING, $log->level());
+                static::assertSame(LogLevel::WARNING, $log->level());
                 static::assertSame('Warning!', $log->message());
                 $context = $log->context();
                 static::assertArrayHasKey('line', $context);
@@ -81,7 +81,7 @@ class PhpErrorHandlerTest extends UnitTestCase
         $updater->expects('update')->andReturnUsing(
             static function (LogData $log): void {
                 static::assertSame(Channels::PHP_ERROR, $log->channel());
-                static::assertSame(Levels::CRITICAL, $log->level());
+                static::assertSame(LogLevel::CRITICAL, $log->level());
                 static::assertSame('Exception!', $log->message());
                 $context = $log->context();
                 static::assertArrayHasKey('line', $context);

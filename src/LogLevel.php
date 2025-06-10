@@ -4,28 +4,34 @@ declare(strict_types=1);
 
 namespace Inpsyde\Wonolog;
 
+use Monolog\Level;
+
 /**
  * Utility object used to build default min logging level based WordPress and environment settings.
  * It also has a method to check the validity of a value as level identifier.
  */
 abstract class LogLevel
 {
-    /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const DEBUG = Levels::DEBUG;
-    /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const INFO = Levels::INFO;
-    /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const NOTICE = Levels::NOTICE;
-    /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const WARNING = Levels::WARNING;
-    /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const ERROR = Levels::ERROR;
-    /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const CRITICAL = Levels::CRITICAL;
-    /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const ALERT = Levels::ALERT;
-    /** @phpstan-ignore-next-line classConstant.deprecated */
-    public const EMERGENCY = Levels::EMERGENCY;
+    public const int DEBUG = 100;
+    public const int INFO = 200;
+    public const int NOTICE = 250;
+    public const int WARNING = 300;
+    public const int ERROR = 400;
+    public const int CRITICAL = 500;
+    public const int ALERT = 550;
+    public const int EMERGENCY = 600;
+
+    private const array LEVELS = [
+        self::DEBUG => 'DEBUG',
+        self::INFO => 'INFO',
+        self::NOTICE => 'NOTICE',
+        self::WARNING => 'WARNING',
+        self::ERROR => 'ERROR',
+        self::CRITICAL => 'CRITICAL',
+        self::ALERT => 'ALERT',
+        self::EMERGENCY => 'EMERGENCY',
+    ];
+
 
     private static ?int $minLevel = null;
 
@@ -39,12 +45,17 @@ abstract class LogLevel
      */
     final public static function allLevels(): array
     {
-        return Levels::allLevels();
+        static $allLevels;
+        if (!isset($allLevels)) {
+            $allLevels = array_flip(self::LEVELS);
+        }
+
+        return $allLevels;
     }
 
     /**
-     * Returns the minimum default log level based on environment variable or WordPress debug
-     * settings (in this order of priority).
+     * Returns the minimum default log level based on Wonolog constant, environment variable or
+     * WordPress debug settings (in this order of priority).
      *
      * The level is set once per request and it is filterable.
      *
@@ -56,15 +67,24 @@ abstract class LogLevel
             return self::$minLevel;
         }
 
-        $envLevel = getenv('WONOLOG_DEFAULT_MIN_LEVEL');
+        $configLevel = defined('WONOLOG_DEFAULT_MIN_LEVEL')
+            ? \WONOLOG_DEFAULT_MIN_LEVEL
+            : getenv('WONOLOG_DEFAULT_MIN_LEVEL');
+        if (is_numeric($configLevel)) {
+            $configLevel = (int) $configLevel;
+        }
+        if (!is_int($configLevel) && (!is_string($configLevel) || ($configLevel === ''))) {
+            $configLevel = null;
+        }
 
-        $minLevel = static::normalizeLevel($envLevel ?: null);
+        $minLevel = static::normalizeLevel($configLevel);
 
-        // If no valid level is defined via env var, then let's resort to WP constants.
-        if (!$minLevel) {
+        // If no valid level is defined via Wonolog config, then let's resort to WP constants.
+        if ($minLevel === null) {
             $const = defined('WP_DEBUG_LOG') ? 'WP_DEBUG_LOG' : 'WP_DEBUG';
-            /** @phpstan-ignore-next-line classConstant.deprecated */
-            $minLevel = (defined($const) && constant($const)) ? Levels::DEBUG : Levels::WARNING;
+            $minLevel = (defined($const) && (constant($const) === false))
+                ? self::WARNING
+                : self::DEBUG;
         }
 
         self::$minLevel = $minLevel;
@@ -78,24 +98,16 @@ abstract class LogLevel
      */
     final public static function toPsrLevel(int $numLevel): string
     {
-        switch ($numLevel) {
-            case self::EMERGENCY:
-                return \Psr\Log\LogLevel::EMERGENCY;
-            case self::ALERT:
-                return \Psr\Log\LogLevel::ALERT;
-            case self::CRITICAL:
-                return \Psr\Log\LogLevel::CRITICAL;
-            case self::ERROR:
-                return \Psr\Log\LogLevel::ERROR;
-            case self::WARNING:
-                return \Psr\Log\LogLevel::WARNING;
-            case self::NOTICE:
-                return \Psr\Log\LogLevel::NOTICE;
-            case self::INFO:
-                return \Psr\Log\LogLevel::INFO;
-        }
-
-        return \Psr\Log\LogLevel::DEBUG;
+        return match ($numLevel) {
+            self::EMERGENCY => \Psr\Log\LogLevel::EMERGENCY,
+            self::ALERT => \Psr\Log\LogLevel::ALERT,
+            self::CRITICAL => \Psr\Log\LogLevel::CRITICAL,
+            self::ERROR => \Psr\Log\LogLevel::ERROR,
+            self::WARNING => \Psr\Log\LogLevel::WARNING,
+            self::NOTICE => \Psr\Log\LogLevel::NOTICE,
+            self::INFO => \Psr\Log\LogLevel::INFO,
+            default => \Psr\Log\LogLevel::DEBUG,
+        };
     }
 
     /**
@@ -108,9 +120,10 @@ abstract class LogLevel
     }
 
     /**
-     * In Monolog/Wonolog there're two ways to indicate a logger level:
+     * In Monolog/Wonolog there are three ways to indicate a logger level:
      * - a integer value
      * - level "names".
+     * - Monolog v3+ Level enum.
      * Names are defined in the PSR-3 specification, integers are used in Monolog to allow severity
      * comparison: the higher the number, the higher the severity.
      *
@@ -120,12 +133,12 @@ abstract class LogLevel
      *
      * @param mixed $level
      * @return int|null
-     *
-     * phpcs:disable Syde.Functions.ArgumentTypeDeclaration
      */
-    final public static function normalizeLevel($level): ?int
+    final public static function normalizeLevel(mixed $level): ?int
     {
-        // phpcs:enable Syde.Functions.ArgumentTypeDeclaration
+        if ($level instanceof Level) {
+            return $level->value;
+        }
 
         $numeric = is_numeric($level);
         $string = !$numeric && is_string($level);
@@ -165,5 +178,12 @@ abstract class LogLevel
         self::$mappedLevels[$level] = $maxLevel ?? self::DEBUG;
 
         return self::$mappedLevels[$level];
+    }
+
+    /**
+     * Private constructor to make the class non-instantiable
+     */
+    private function __construct()
+    {
     }
 }

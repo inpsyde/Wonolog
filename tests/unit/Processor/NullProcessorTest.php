@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Tests\Unit\Processor;
 
 use Brain\Monkey\Functions;
-use Inpsyde\Wonolog\Levels;
+use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\MonologUtils;
 use Inpsyde\Wonolog\Processor\NullProcessor;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
@@ -30,7 +30,7 @@ class NullProcessorTest extends UnitTestCase
         }
         $processor = new NullProcessor();
         $message = 'mymessage';
-        $level = Levels::ERROR;
+        $level = LogLevel::ERROR;
         $channel = 'mychannel';
         $context = [
             'foo' => 'bar',
@@ -58,7 +58,7 @@ class NullProcessorTest extends UnitTestCase
     {
         $processor = new NullProcessor();
         $message = 'my-message';
-        $level = Levels::ERROR;
+        $level = LogLevel::ERROR;
         $channel = 'my-channel';
         $context = [
             'foo' => 'bar',

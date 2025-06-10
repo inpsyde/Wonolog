@@ -6,6 +6,7 @@ namespace Inpsyde\Wonolog;
 
 use Inpsyde\Wonolog\Data\Log;
 use Inpsyde\Wonolog\Data\LogData;
+use Monolog\LogRecord;
 
 class HookLogFactory
 {
@@ -149,13 +150,24 @@ class HookLogFactory
 
     /**
      * @param int $hookLevel
-     * @param LogData $log
+     * @param LogData|LogRecord $log
      * @return LogData
      */
-    private function maybeRaiseLevel(int $hookLevel, LogData $log): LogData
+    private function maybeRaiseLevel(int $hookLevel, LogData|LogRecord $log): LogData
     {
-        if ($hookLevel > $log->level()) {
+        $logLevel = ($log instanceof LogRecord) ? $log->level->value : $log->level();
+        if ($hookLevel > $logLevel) {
             return new Log($log->message(), $hookLevel, $log->channel(), $log->context());
+        }
+
+        if ($log instanceof LogRecord) {
+            $context = $log->context;
+            if ($log->extra !== []) {
+                $context['extra'] = $log->extra;
+            }
+            $context['datetime'] = $log->datetime;
+
+            return new Log($log->message, $hookLevel, $log->channel, $context);
         }
 
         return $log;
@@ -174,6 +186,9 @@ class HookLogFactory
         $logs = [];
         foreach ($args as $arg) {
             if ($arg instanceof LogData) {
+                $logs[] = $this->maybeRaiseLevel($hookLevel, $arg);
+            }
+            if ($arg instanceof LogRecord) {
                 $logs[] = $this->maybeRaiseLevel($hookLevel, $arg);
             }
         }

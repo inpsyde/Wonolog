@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Inpsyde\Wonolog\Tests\Unit\Processor;
 
 use Brain\Monkey\Functions;
-use Inpsyde\Wonolog\Levels;
+use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\MonologUtils;
 use Inpsyde\Wonolog\Processor\WpContextProcessor;
 use Inpsyde\Wonolog\RecordFactory;
@@ -139,7 +139,7 @@ class WpContextProcessorTest extends UnitTestCase
     {
         return RecordFactory::createRecordV3(
             'foo log msg',
-            Levels::DEBUG,
+            LogLevel::DEBUG,
             'default'
         );
     }

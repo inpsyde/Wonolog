@@ -9,8 +9,8 @@ use Brain\Monkey\Functions;
 use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Data\LogData;
 use Inpsyde\Wonolog\HookListener\HttpApiListener;
-use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
+use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
 class HttpApiListenerTest extends UnitTestCase
@@ -26,8 +26,8 @@ class HttpApiListenerTest extends UnitTestCase
             ->andReturnUsing(
                 static function (LogData $log): void {
                     static::assertSame('WP HTTP API Error: Test!', $log->message());
-                    static::assertSame(Levels::ERROR, $log->level());
                     static::assertSame(Channels::NETWORK, $log->channel());
+                    static::assertSame(LogLevel::ERROR, $log->level());
                     static::assertSame(
                         [
                             'transport' => 'TestClass',
@@ -76,8 +76,8 @@ class HttpApiListenerTest extends UnitTestCase
             ->with(\Mockery::type(LogData::class))
             ->andReturnUsing(
                 static function (LogData $log): void {
-                    static::assertSame(Levels::ERROR, $log->level());
                     static::assertSame(Channels::NETWORK, $log->channel());
+                    static::assertSame(LogLevel::ERROR, $log->level());
                     static::assertSame(
                         'WP HTTP API Error: Internal Server Error - Response code: 500',
                         $log->message()
@@ -176,7 +176,7 @@ class HttpApiListenerTest extends UnitTestCase
                 static function (LogData $log): void {
                     static::assertSame('Cron request', $log->message());
                     static::assertSame(Channels::DEBUG, $log->channel());
-                    static::assertSame(Levels::DEBUG, $log->level());
+                    static::assertSame(LogLevel::DEBUG, $log->level());
                     static::assertSame(
                         [
                             'transport' => 'TestClass',

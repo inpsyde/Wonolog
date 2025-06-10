@@ -10,7 +10,6 @@ use Inpsyde\Wonolog\Data\Notice;
 use Inpsyde\Wonolog\DefaultHandler\FileHandler;
 use Inpsyde\Wonolog\HookListener\ActionListener;
 use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
-use Inpsyde\Wonolog\Levels;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\IntegrationTestCase;
 use Monolog\Handler\TestHandler;
@@ -52,7 +51,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             ->disableBuffering()
             ->withFolder($dir->url() . '/logs')
             ->withFilename('wonolog.log')
-            ->withMinimumLevel(Levels::NOTICE);
+            ->withMinimumLevel(\Inpsyde\Wonolog\LogLevel::NOTICE);
 
         $this->logFile = $dir->url() . '/logs/wonolog.log';
         $this->testHandler = new TestHandler();
@@ -63,7 +62,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             ->removeHandlerFromChannels('default-handler', Channels::SECURITY)
             ->pushHandlerForChannels($this->testHandler, 'test-handler', Channels::DEBUG, 'TESTS')
             ->disableAllDefaultHookListeners()
-            ->addActionListener(new QueryErrorsListener(Levels::NOTICE))
+            ->addActionListener(new QueryErrorsListener(\Inpsyde\Wonolog\LogLevel::NOTICE))
             ->addActionListener($listener, 'test-listener')
             ->registerLogHook('my-plugin.log', 'MY_PLUGIN')
             ->registerLogHook('something.else.happened')
