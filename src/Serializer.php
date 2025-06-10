@@ -174,11 +174,11 @@ abstract class Serializer
     }
 
     /**
-     * @param mixed $input
+     * @param object|array<mixed> $input
      * @param int $level
      * @return array<mixed>|string
      */
-    private static function maybeMaskInputInner(mixed $input, int $level = 0): array|string
+    private static function maybeMaskInputInner(object|array $input, int $level = 0): array|string
     {
         if (is_iterable($input)) {
             return self::maybeMaskInput($input, $level + 1);

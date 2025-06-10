@@ -48,6 +48,13 @@ class wpdb
             return "Handled: {$message}";
         };
 
-        return $this->wp_die_listener->filter('a', [$handler], $this->logActionUpdater);
+        $callback = $this->wp_die_listener->filter(
+            'a',
+            [$handler],
+            $this->logActionUpdater
+        );
+        assert(is_callable($callback));
+        /** @var callable(string):string $callback */
+        return $callback;
     }
 }

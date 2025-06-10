@@ -115,7 +115,8 @@ final class HttpApiListener implements ActionListener
      */
     private function isError(array $response, array $httpArgs = []): bool
     {
-        $code = $response['response']['code'] ?? null;
+        $responseData = $response['response'] ?? null;
+        $code = is_array($responseData) ? ($responseData['code'] ?? null) : null;
 
         if (!$code || !is_numeric($code)) {
             return true;
@@ -211,7 +212,7 @@ final class HttpApiListener implements ActionListener
 
         $code = $response['code'] ?? null;
         if ($code && is_scalar($code)) {
-            $msg .= " - Response code: {$response[ 'code' ]}";
+            $msg .= " - Response code: {$code}";
             if (!empty($data['headers'])) {
                 $logContext['headers'] = $data['headers'];
             }

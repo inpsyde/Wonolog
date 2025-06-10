@@ -775,7 +775,7 @@ class Configurator
 
         $channels = $this->factory->channels();
 
-        [$errorTypes, $exceptions] = $this->shouldlogErrorsAndExceptions();
+        [$errorTypes, $exceptions] = $this->shouldLogErrorsAndExceptions();
         if (($errorTypes > 0) || $exceptions) {
             $channels->addChannel(Channels::PHP_ERROR);
         }
@@ -791,9 +791,11 @@ class Configurator
         $defaultChannel = $channels->defaultChannel();
         $this->setupLogActionSubscriberForHook(LOG, $defaultChannel, $maxSeverity);
 
-        foreach ((array) $this->config[self::CONF_HOOK_ALIASES] as $alias => $aliasChannel) {
-            $channel = (string) ($aliasChannel ?? $defaultChannel);
-            $this->setupLogActionSubscriberForHook((string) $alias, $channel, $maxSeverity);
+        /** @var array<string, string|null> $aliasConfig */
+        $aliasConfig = $this->config[self::CONF_HOOK_ALIASES];
+        foreach ($aliasConfig as $alias => $aliasChannel) {
+            $channel = $aliasChannel ?? $defaultChannel;
+            $this->setupLogActionSubscriberForHook($alias, $channel, $maxSeverity);
         }
 
         $this->setupHookListeners();
@@ -849,12 +851,15 @@ class Configurator
     /**
      * @return array{int, bool}
      */
-    private function shouldlogErrorsAndExceptions(): array
+    private function shouldLogErrorsAndExceptions(): array
     {
-        $errorTypes = (int) ($this->config[self::CONF_ERROR_TYPES] ?? E_ALL);
-        $exceptions = (bool) ($this->config[self::CONF_LOG_EXCEPTIONS] ?? false);
+        /** @var int $errorTypes */
+        $errorTypes = $this->config[self::CONF_ERROR_TYPES] ?? E_ALL;
 
-        return [$errorTypes, $exceptions];
+        /** @var bool $logExceptions */
+        $logExceptions = $this->config[self::CONF_LOG_EXCEPTIONS] ?? false;
+
+        return [$errorTypes, $logExceptions];
     }
 
     /**
@@ -899,7 +904,7 @@ class Configurator
     /**
      * @param string $key
      * @param list<string> $allValues
-     * @return non-empty-list<string>|null
+     * @return list<string>|null
      *
      * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */
@@ -1003,7 +1008,9 @@ class Configurator
             $listeners->addFilterListener($class, $listener);
         }
 
-        $listeners->listenAll((int) $this->config[self::CONF_BASE_HOOK_PRIORITY]);
+        /** @var int $basePriority */
+        $basePriority = $this->config[self::CONF_BASE_HOOK_PRIORITY];
+        $listeners->listenAll($basePriority);
     }
 
     /**
@@ -1043,7 +1050,8 @@ class Configurator
 
         [$listen, $listenWithLevel] = $this->listenCallbacksData($defaultChannel);
 
-        $basePriority = (int) $this->config[self::CONF_BASE_HOOK_PRIORITY];
+        /** @var int $basePriority */
+        $basePriority = $this->config[self::CONF_BASE_HOOK_PRIORITY];
         add_action($hook, $listen, $basePriority + $maxSeverity + 1, PHP_INT_MAX);
 
         foreach ($listenWithLevel as $levelName => [$callback, $severity]) {

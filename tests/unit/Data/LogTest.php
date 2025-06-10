@@ -98,8 +98,9 @@ class LogTest extends UnitTestCase
         static::assertSame('Fail!, Fail!', $log->message());
         static::assertSame(LogLevel::ERROR, $log->level());
         static::assertArrayHasKey('throwable', $context);
-        static::assertSame($context['throwable']['class'], get_class($exception));
-        static::assertSame($context['throwable']['file'], __FILE__);
+        static::assertIsArray($context['throwable']);
+        static::assertSame($context['throwable']['class'] ?? '', get_class($exception));
+        static::assertSame($context['throwable']['file'] ?? '', __FILE__);
         static::assertArrayHasKey('line', $context['throwable']);
         static::assertArrayHasKey('trace', $context['throwable']);
     }
@@ -120,8 +121,9 @@ class LogTest extends UnitTestCase
         static::assertSame('Fail!, Fail!', $log->message());
         static::assertSame(LogLevel::DEBUG, $log->level());
         static::assertArrayHasKey('throwable', $context);
-        static::assertSame($context['throwable']['class'], get_class($exception));
-        static::assertSame($context['throwable']['file'], __FILE__);
+        static::assertIsArray($context['throwable']);
+        static::assertSame($context['throwable']['class'] ?? '', get_class($exception));
+        static::assertSame($context['throwable']['file'] ?? '', __FILE__);
         static::assertArrayHasKey('line', $context['throwable']);
         static::assertArrayHasKey('trace', $context['throwable']);
     }
@@ -142,10 +144,11 @@ class LogTest extends UnitTestCase
         static::assertSame('Fail!, Fail!', $log->message());
         static::assertSame(LogLevel::NOTICE, $log->level());
         static::assertArrayHasKey('throwable', $context);
-        static::assertSame($context['throwable']['class'], get_class($exception));
-        static::assertSame($context['throwable']['file'], __FILE__);
+        static::assertIsArray($context['throwable']);
         static::assertArrayHasKey('line', $context['throwable']);
         static::assertArrayHasKey('trace', $context['throwable']);
+        static::assertSame($context['throwable']['class'] ?? '', get_class($exception));
+        static::assertSame($context['throwable']['file'] ?? '', __FILE__);
     }
 
     /**

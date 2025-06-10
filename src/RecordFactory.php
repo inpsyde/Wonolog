@@ -57,7 +57,7 @@ abstract class RecordFactory
         string $channel,
         array $context = []
     ): LogRecord {
-
+        /** @phpstan-ignore argument.type */
         if (!in_array($level, Level::VALUES, true)) {
             $level = LogLevel::ERROR;
         }

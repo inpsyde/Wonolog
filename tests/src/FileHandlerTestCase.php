@@ -178,7 +178,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
             $handler->reset();
         }
 
-        $fileContents = file_get_contents($handler->logFilePath());
+        $fileContents = (string) file_get_contents($handler->logFilePath());
 
         static::assertSame(count($records), substr_count($fileContents, $message));
     }
@@ -200,7 +200,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
             $handler->reset();
         }
 
-        $fileContents = file_get_contents($handler->logFilePath());
+        $fileContents = (string) file_get_contents($handler->logFilePath());
 
         static::assertSame(count($records), substr_count($fileContents, $message));
     }

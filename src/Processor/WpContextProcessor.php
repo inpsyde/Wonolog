@@ -84,6 +84,7 @@ class WpContextProcessor
      */
     private function handleExtraInfoFromLogRecord(LogRecord $record, array $data): LogRecord
     {
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         $record->extra['wp'] = $data;
 
         return $record;

@@ -155,7 +155,9 @@ class HookLogFactory
      */
     private function maybeRaiseLevel(int $hookLevel, LogData|LogRecord $log): LogData
     {
+        /** @phpstan-ignore property.nonObject */
         $logLevel = ($log instanceof LogRecord) ? $log->level->value : $log->level();
+        /** @var key-of<LogLevel::LEVELS> $logLevel */
         if ($hookLevel > $logLevel) {
             return new Log($log->message(), $hookLevel, $log->channel(), $log->context());
         }
@@ -163,11 +165,20 @@ class HookLogFactory
         if ($log instanceof LogRecord) {
             $context = $log->context;
             if ($log->extra !== []) {
+                /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
                 $context['extra'] = $log->extra;
             }
+            /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
             $context['datetime'] = $log->datetime;
-
-            return new Log($log->message, $hookLevel, $log->channel, $context);
+            /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
+            $message = $log->message;
+            /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
+            $channel = $log->channel;
+            /**
+             * @var string $message
+             * @var string $channel
+             */
+            return new Log($message, $hookLevel, $channel, $context);
         }
 
         return $log;

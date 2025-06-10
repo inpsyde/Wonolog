@@ -99,6 +99,7 @@ class AdvancedConfigTest extends IntegrationTestCase
      */
     protected function addExtraDataToProcessorWhenRecordIsLogRecord(LogRecord $record): LogRecord
     {
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         $record->extra['testClass'] = __CLASS__;
         return $record;
     }
@@ -118,7 +119,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertTrue($this->testHandler->hasNoticeThatContains('Something happened.'));
+        static::assertTrue($this->testHandler?->hasNoticeThatContains('Something happened.'));
 
         $this->assertLogFileHasLine('Something happened.', Channels::DEBUG, 'notice', ['foo']);
     }
@@ -136,7 +137,8 @@ class AdvancedConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertTrue($this->testHandler->hasDebugThatContains('Something happened.'));
+        static::assertTrue($this->testHandler?->hasDebugThatContains('Something happened.'));
+        static::assertNotNull($this->logFile);
         static::assertFalse(file_exists($this->logFile));
     }
 
@@ -154,7 +156,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertFalse($this->testHandler->hasNoticeThatContains('Something happened.'));
+        static::assertFalse($this->testHandler?->hasNoticeThatContains('Something happened.'));
 
         $this->assertLogFileHasLine('Something happened.', Channels::NETWORK, 'NOTICE');
     }
@@ -173,8 +175,8 @@ class AdvancedConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertFalse($this->testHandler->hasNoticeThatContains('Something happened.'));
-
+        static::assertFalse($this->testHandler?->hasNoticeThatContains('Something happened.'));
+        static::assertNotNull($this->logFile);
         static::assertFalse(file_exists($this->logFile));
     }
 
@@ -192,7 +194,8 @@ class AdvancedConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertFalse($this->testHandler->hasNoticeThatContains('cron job'));
+        static::assertFalse($this->testHandler?->hasNoticeThatContains('cron job'));
+        static::assertNotNull($this->logFile);
         static::assertFalse(file_exists($this->logFile));
     }
 
@@ -203,7 +206,7 @@ class AdvancedConfigTest extends IntegrationTestCase
     {
         do_action('listen_to_me', 'Hello', 'World');
 
-        static::assertTrue($this->testHandler->hasNoticeThatContains('Test hook fired'));
+        static::assertTrue($this->testHandler?->hasNoticeThatContains('Test hook fired'));
 
         $this->assertLogFileHasLine('Test hook fired', 'TESTS', 'notice', ['Hello', 'World']);
     }
@@ -247,7 +250,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertTrue($this->testHandler->hasWarningThatContains('old man who fished'));
+        static::assertTrue($this->testHandler?->hasWarningThatContains('old man who fished'));
 
         $this->assertLogFileHasLine('old man who fished', 'TESTS', 'WARNING');
     }
@@ -259,6 +262,7 @@ class AdvancedConfigTest extends IntegrationTestCase
     {
         $_SERVER['REQUEST_URI'] = 'https://example.com/foo/';
         global $wp_query;
+        /** @var \WP_Query $wp_query */
         $wp_query->is_404 = true;
 
         $wp = new \WP();
@@ -276,7 +280,7 @@ class AdvancedConfigTest extends IntegrationTestCase
         do_action('wp', $wp);
 
         $this->assertLogFileHasLine($expectedMsg, Channels::NETWORK, 'NOTICE', $expectedContext);
-        static::assertSame([], $this->testHandler->getRecords());
+        static::assertSame([], $this->testHandler?->getRecords());
     }
 
     /**
@@ -288,7 +292,7 @@ class AdvancedConfigTest extends IntegrationTestCase
 
         $logger->notice('Something happened.', ['user_password' => 'bar']);
 
-        static::assertTrue($this->testHandler->hasNoticeThatContains('Something happened.'));
+        static::assertTrue($this->testHandler?->hasNoticeThatContains('Something happened.'));
 
         $this->assertLogFileHasLine(
             'Something happened.',
@@ -304,6 +308,8 @@ class AdvancedConfigTest extends IntegrationTestCase
      * @param string $level
      * @param array<mixed>|null $context
      * @return void
+     *
+     * phpcs:disable SlevomatCodingStandard.Complexity.Cognitive
      */
     private function assertLogFileHasLine(
         string $message,
@@ -311,8 +317,9 @@ class AdvancedConfigTest extends IntegrationTestCase
         string $level,
         ?array $context = null
     ): void {
+        // phpcs:enable SlevomatCodingStandard.Complexity.Cognitive
 
-        if (!file_exists($this->logFile)) {
+        if (($this->logFile === null) || !file_exists($this->logFile)) {
             throw new AssertionFailedError(
                 "Log file does not exist, expected log containing '{$message}'."
             );
@@ -340,16 +347,16 @@ class AdvancedConfigTest extends IntegrationTestCase
             }
 
             $more = $matches['more'] ?? '';
-            $extra = json_encode(['testClass' => __CLASS__]);
+            $extra = json_encode(['testClass' => __CLASS__], \JSON_THROW_ON_ERROR);
             if (!preg_match('~' . preg_quote($extra, '~') . '~', $more)) {
                 continue;
             }
 
-            if (
-                $context !== null
-                && !preg_match('~' . preg_quote(json_encode($context), '~') . '~', $more)
-            ) {
-                continue;
+            if ($context !== null) {
+                $encodedContext = json_encode($context, \JSON_THROW_ON_ERROR);
+                if (!preg_match('~' . preg_quote($encodedContext, '~') . '~', $more)) {
+                    continue;
+                }
             }
 
             $logText = $matches['txt'] ?? '';

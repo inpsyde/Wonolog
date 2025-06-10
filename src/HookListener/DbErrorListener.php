@@ -57,7 +57,7 @@ final class DbErrorListener implements ActionListener
         // phpcs:enable Syde.NamingConventions.VariableName
 
         $last = end($errors);
-        $message = isset($last['error_str']) ? (string) $last['error_str'] : 'DB error.';
+        $message = is_string($last['error_str'] ?? null) ? $last['error_str'] : 'DB error.';
         $context = ['last_wpdb_query' => $last['query'] ?? '', 'last_wpdb_errors' => $errors];
 
         $updater->update(new Log($message, $this->logLevel, Channels::DB, $context));

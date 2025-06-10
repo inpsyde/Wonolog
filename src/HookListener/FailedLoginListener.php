@@ -6,6 +6,7 @@ namespace Inpsyde\Wonolog\HookListener;
 
 use Inpsyde\Wonolog\Data\FailedLogin;
 use Inpsyde\Wonolog\LogActionUpdater;
+use Inpsyde\Wonolog\Serializer;
 
 /**
  * Listens to failed login attempts and logs them.
@@ -32,6 +33,9 @@ final class FailedLoginListener implements ActionListener
     public function update(string $hook, array $args, LogActionUpdater $updater): void
     {
         $username = $args ? reset($args) : 'Unknown user';
+        if (!is_scalar($username)) {
+            $username = Serializer::serializeMessage($username);
+        }
 
         $updater->update(new FailedLogin((string) $username));
     }

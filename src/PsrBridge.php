@@ -12,6 +12,7 @@ use Psr\Log\AbstractLogger;
 
 /**
  * @phpstan-import-type _RecordType from Configurator
+ * @phpstan-import-type _RecordArray from Configurator
  */
 class PsrBridge extends AbstractLogger
 {
@@ -78,12 +79,12 @@ class PsrBridge extends AbstractLogger
 
         $level = LogLevel::normalizeLevel($level);
         if (!$level) {
-            $level = $throwable ? LogLevel::ERROR : LogLevel::DEBUG;
+            $level = ($throwable === null) ? LogLevel::DEBUG : LogLevel::ERROR;
         }
 
         $channel = $context[LogData::CHANNEL] ?? null;
         if (!$channel || !is_string($channel)) {
-            $channel = $throwable
+            $channel = ($throwable instanceof \Throwable)
                 ? ($this->defaultChannel ?? Channels::PHP_ERROR)
                 : ($this->defaultChannel ?? $this->channels->defaultChannel());
         }
@@ -91,7 +92,7 @@ class PsrBridge extends AbstractLogger
 
         $record = RecordFactory::createRecord($message, $level, $channel, $context);
         $record = ($this->processor)($record);
-
+        /** @var \Throwable|null $throwable */
         $this->updater->update($this->createLog($record, $level, $channel, $throwable));
     }
 
@@ -109,6 +110,7 @@ class PsrBridge extends AbstractLogger
         ?\Throwable $throwable
     ): Log {
 
+        /** @var _RecordArray $recordData */
         $recordData = ($record instanceof LogRecord) ? $record->toArray() : $record;
 
         $message = array_key_exists('message', $recordData)
@@ -128,6 +130,8 @@ class PsrBridge extends AbstractLogger
         if ($throwable) {
             $context['exception'] = $throwable;
         }
+
+        $level = LogLevel::normalizeLevel($level) ?? LogLevel::DEBUG;
 
         return new Log((string) $message, $level, $channel, (array) $context);
     }

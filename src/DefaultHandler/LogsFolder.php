@@ -156,9 +156,19 @@ HTACCESS;
             return $uploadsBaseDir[0];
         }
 
-        $uploads = (array) wp_upload_dir(null, false);
+        /**
+         * @var array{
+         *     path?: string,
+         *     url?: string,
+         *     subdir?: string,
+         *     basedir?: string,
+         *     baseurl?: string,
+         *     error?: string|false,
+         * } $uploads
+         */
+        $uploads = wp_upload_dir(null, false);
         if (empty($uploads['error']) && !empty($uploads['basedir'])) {
-            $baseDir = (string) $uploads['basedir'];
+            $baseDir = $uploads['basedir'];
             $uploadsBaseDir = [rtrim(wp_normalize_path($baseDir), '/') ?: null];
 
             return $uploadsBaseDir[0];

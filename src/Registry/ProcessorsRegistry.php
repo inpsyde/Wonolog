@@ -25,14 +25,14 @@ class ProcessorsRegistry implements \Countable
     }
 
     /**
-     * @return string
+     * @return non-empty-string
      */
     private static function allChannelsName(): string
     {
         static $name;
-        $name or $name = '~*~' . bin2hex(random_bytes(8));
-
-        return (string) $name;
+        $name ??= '~*~' . bin2hex(random_bytes(8));
+        /** @var non-empty-string $name */
+        return $name;
     }
 
     /**

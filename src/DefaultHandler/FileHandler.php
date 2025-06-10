@@ -28,6 +28,7 @@ class FileHandler implements
 {
     private ?string $folder = null;
     private ?string $filename = null;
+    /** @var key-of<LogLevel::LEVELS>|null */
     private ?int $minLevel = null;
     private bool $bubble = true;
     private bool $buffering = true;
@@ -205,6 +206,7 @@ class FileHandler implements
     {
         $this->ensureHandler();
         if ($this->handler instanceof ProcessableHandlerInterface) {
+            /** @phpstan-ignore argument.type */
             $this->handler->pushProcessor($callback);
         }
 
@@ -318,9 +320,6 @@ class FileHandler implements
         try {
             $this->logFilePath = $this->logFilePath();
             $level = $this->minLevel ?? LogLevel::defaultMinLevel();
-            if (!$level) {
-                $level = LogLevel::DEBUG;
-            }
             $streamBubbling = $this->buffering || $this->bubble;
             $handler = new StreamHandler($this->logFilePath, $level, $streamBubbling, null, true);
             $this->handler = $this->buffering
