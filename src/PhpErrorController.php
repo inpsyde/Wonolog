@@ -115,11 +115,12 @@ class PhpErrorController
 
     /**
      * @return void
+     * @private
      */
     public function setup(): void
     {
         if ($this->alreadySetup) {
-            throw new \Exception(__METHOD__ . ' can only be executed once.');
+            return;
         }
         $this->alreadySetup = true;
 
