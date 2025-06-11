@@ -44,9 +44,10 @@ class PhpErrorController
         | E_RECOVERABLE_ERROR
         | E_PARSE;
 
-    private bool $logSilencedErrors;
+    private bool $alreadySetup = false;
 
-    private LogActionUpdater $updater;
+    /** @var callable|null */
+    private $previousHandler = null;
 
     /**
      * @param int $errorTypes
@@ -88,19 +89,54 @@ class PhpErrorController
      * @param LogActionUpdater $updater
      * @return PhpErrorController
      */
-    public static function new(bool $logSilencedErrors, LogActionUpdater $updater): PhpErrorController
-    {
-        return new self($logSilencedErrors, $updater);
+    public static function new(
+        int $errorTypes,
+        bool $logExceptions,
+        bool $logSilencedErrors,
+        LogActionUpdater $updater
+    ): PhpErrorController {
+
+        return new self($errorTypes, $logExceptions, $logSilencedErrors, $updater);
     }
 
     /**
+     * @param int $errorTypes
+     * @param bool $logExceptions
      * @param bool $logSilencedErrors
      * @param LogActionUpdater $updater
      */
-    private function __construct(bool $logSilencedErrors, LogActionUpdater $updater)
+    private function __construct(
+        private readonly int $errorTypes,
+        private readonly bool $logExceptions,
+        private readonly bool $logSilencedErrors,
+        private readonly LogActionUpdater $updater
+    ) {
+    }
+
+    /**
+     * @return void
+     * @private
+     */
+    public function setup(): void
     {
-        $this->logSilencedErrors = $logSilencedErrors;
-        $this->updater = $updater;
+        if ($this->alreadySetup) {
+            return;
+        }
+        $this->alreadySetup = true;
+
+        if ($this->logExceptions) {
+            $this->previousHandler = set_exception_handler([$this, 'onException']);
+        }
+
+        if ($this->errorTypes <= 0) {
+            return;
+        }
+
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+        set_error_handler([$this, 'onError'], $this->errorTypes);
+        if (self::typesMaskContainsFatals($this->errorTypes)) {
+            register_shutdown_function([$this, 'onShutdown']);
+        }
     }
 
     /**
@@ -137,8 +173,15 @@ class PhpErrorController
         // Log the PHP exception.
         $this->updater->update(static::factoryThrowableLog($throwable));
 
-        // after logging let's reset handler and throw the exception
-        restore_exception_handler();
+        // If there was a previous handler, let's call it manually.
+        // this make sure that we can throw the exception at the end after having completely
+        // reset the handler, obtaining a "transparent" result.
+        if ($this->previousHandler) {
+            ($this->previousHandler)($throwable);
+        }
+
+        // Reset to the default handler and throw, to be transparent
+        set_exception_handler(null);
         throw $throwable;
     }
 
@@ -172,28 +215,17 @@ class PhpErrorController
      */
     private function isSilencedError(): bool
     {
-        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_error_reporting, WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
+        // phpcs:disable WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_error_reporting
+        // phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
         $errorReporting = error_reporting();
-
-        /**
-         * Prior to PHP 8, calling error_reporting() inside a custom error handler would return
-         * 0 if the error was suppressed via @, but as of PHP 8.0.0, it returns a fixed value.
-         * We can say the error is silenced if `error_reporting()` above returns that value and
-         * if that value is different from what is set in ini.
-         * @see https://www.php.net/manual/en/language.operators.errorcontrol.php
-         */
-        /** @var positive-int $phpVersion */
-        $phpVersion = PHP_MAJOR_VERSION;
-        if ($phpVersion >= 8) {
-            if ($errorReporting !== self::PHP_8_SILENCED_ERROR_CODE) {
-                return false;
-            }
-
-            // If the fixed value returned by `error_reporting()` for silenced error is set in the
-            // config we can't really tell the error was suppressed.
-            return (int) ini_get('error_reporting') !== $errorReporting;
+        // phpcs:enable WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_error_reporting
+        // phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
+        if ($errorReporting !== self::PHP_8_SILENCED_ERROR_CODE) {
+            return false;
         }
 
-        return $errorReporting === 0;
+        // If the fixed value returned by `error_reporting()` for silenced error is set in the
+        // config we can't really tell the error was suppressed.
+        return (int) ini_get('error_reporting') !== $errorReporting;
     }
 }
