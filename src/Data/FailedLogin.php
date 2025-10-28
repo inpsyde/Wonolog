@@ -82,6 +82,7 @@ final class FailedLogin implements LogData
         $this->sniffIp();
         $userIp = $this->ipData[0];
 
+        /** @var array<string, array{count:int, last_logged:int}>|null $attempts */
         $attempts = get_site_transient(self::TRANSIENT_NAME);
         $attempts = is_array($attempts) ? $attempts : [];
 
@@ -96,7 +97,6 @@ final class FailedLogin implements LogData
             $attempts[$userIp] = $data;
         }
 
-        /** @var array<string, array{count:int, last_logged:int}> $attempts */
         $attempts[$userIp]['count']++;
         $this->attemptsData = $attempts;
 
