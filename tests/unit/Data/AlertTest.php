@@ -66,4 +66,21 @@ class AlertTest extends UnitTestCase
         static::assertSame(LogLevel::ALERT, $alertWithSimpleContext->level());
         static::assertSame(LogLevel::ALERT, $alertWithComplexContext->level());
     }
+
+    /**
+     * @test
+     */
+    public function testLevelIsIndependentOfMessage(): void
+    {
+        $shortAlert = new Alert('Alert', Channels::DEBUG);
+        $longAlert = new Alert(
+            'This is a very long alert message with lots of details',
+            Channels::DEBUG
+        );
+        $emptyAlert = new Alert('', Channels::DEBUG);
+
+        static::assertSame(LogLevel::ALERT, $shortAlert->level());
+        static::assertSame(LogLevel::ALERT, $longAlert->level());
+        static::assertSame(LogLevel::ALERT, $emptyAlert->level());
+    }
 }
