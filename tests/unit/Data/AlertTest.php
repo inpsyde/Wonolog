@@ -32,4 +32,20 @@ class AlertTest extends UnitTestCase
         static::assertSame(LogLevel::ALERT, $alert->level());
         static::assertSame(550, $alert->level());
     }
+
+    /**
+     * @test
+     */
+    public function testLevelIsIndependentOfChannel(): void
+    {
+        $debugAlert = new Alert('Alert message', Channels::DEBUG);
+        $securityAlert = new Alert('Alert message', Channels::SECURITY);
+        $dbAlert = new Alert('Alert message', Channels::DB);
+        $networkAlert = new Alert('Alert message', Channels::NETWORK);
+
+        static::assertSame(LogLevel::ALERT, $debugAlert->level());
+        static::assertSame(LogLevel::ALERT, $securityAlert->level());
+        static::assertSame(LogLevel::ALERT, $dbAlert->level());
+        static::assertSame(LogLevel::ALERT, $networkAlert->level());
+    }
 }
