@@ -21,4 +21,15 @@ class AlertTest extends UnitTestCase
 
         static::assertInstanceOf(LogData::class, $alert);
     }
+
+    /**
+     * @test
+     */
+    public function testLevelAlwaysReturnsAlertConstant(): void
+    {
+        $alert = new Alert('Test message', Channels::DEBUG);
+
+        static::assertSame(LogLevel::ALERT, $alert->level());
+        static::assertSame(550, $alert->level());
+    }
 }
