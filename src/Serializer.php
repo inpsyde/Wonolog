@@ -160,6 +160,7 @@ abstract class Serializer
 
         $out = [];
         foreach ($input as $key => $value) {
+            /** @var string|int $key */
             if (in_array($key, self::$maskedKeys, true)) {
                 $out[$key] = '***';
                 continue;
