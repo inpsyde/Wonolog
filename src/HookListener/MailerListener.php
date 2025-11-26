@@ -28,6 +28,7 @@ class MailerListener implements ActionListener
         int $errorLogLevel = LogLevel::ERROR,
         int $smtpDebugLevel = 2, // PHPMailer\SMTP::DEBUG_SERVER - hardcoded to avoid race conditions
     ) {
+
         $this->errorLogLevel = LogLevel::normalizeLevel($errorLogLevel) ?? LogLevel::ERROR;
 
         $this->smtpDebugLevel = min(
