@@ -22,16 +22,17 @@ class MailerListener implements ActionListener
     /**
      * @param int $errorLogLevel
      * @param int $smtpDebugLevel
+     * @see PHPMailer\SMTP
      */
     public function __construct(
         int $errorLogLevel = LogLevel::ERROR,
-        int $smtpDebugLevel = PHPMailer\SMTP::DEBUG_SERVER,
+        int $smtpDebugLevel = 2, // PHPMailer\SMTP::DEBUG_SERVER - hardcoded to avoid race conditions
     ) {
-
         $this->errorLogLevel = LogLevel::normalizeLevel($errorLogLevel) ?? LogLevel::ERROR;
+
         $this->smtpDebugLevel = min(
-            max(PHPMailer\SMTP::DEBUG_OFF, $smtpDebugLevel),
-            PHPMailer\SMTP::DEBUG_LOWLEVEL
+            max(0, $smtpDebugLevel), // 0 = PHPMailer\SMTP::DEBUG_OFF
+            4 // 4 = PHPMailer\SMTP::DEBUG_LOWLEVEL
         );
     }
 
