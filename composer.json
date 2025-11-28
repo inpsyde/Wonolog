@@ -44,7 +44,7 @@
         "monolog/monolog": "^2.0||^3.0"
     },
     "require-dev": {
-        "antecedent/patchwork": "^2.2.1",
+        "antecedent/patchwork": "^2.2.3",
         "hamcrest/hamcrest-php": "^2.1.1",
         "brain/monkey": "^2.6.2",
         "mockery/mockery": "^1.6.12",
