@@ -67,3 +67,14 @@ services:
           *db-environment
         volumes:
           *wp-volume
+    php85:
+      container_name: wonolog-php-85
+      build:
+        context: .
+        dockerfile: ./php85/Dockerfile
+      depends_on:
+        - db
+      environment:
+        *db-environment
+      volumes:
+        *wp-volume
