@@ -143,6 +143,18 @@ class HookLogFactory
         string $defaultChannel
     ): LogData {
 
+        if ((count($arguments) === 1) && is_array($arguments[0] ?? null)) {
+            if (
+                isset($arguments[0][LogData::LEVEL])
+                || is_string($arguments[0][LogData::CHANNEL] ?? null)
+                || is_array($arguments[0][LogData::CONTEXT] ?? null)
+            ) {
+                $arguments[0][LogData::MESSAGE] = $value;
+
+                return self::fromArray($arguments[0], [], $defaultLevel, $defaultChannel);
+            }
+        }
+
         $log = new Log($value, $defaultLevel, $defaultChannel, $arguments);
 
         return $this->maybeRaiseLevel($defaultLevel, $log);
