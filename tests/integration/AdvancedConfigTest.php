@@ -340,13 +340,13 @@ class AdvancedConfigTest extends IntegrationTestCase
 
             if (
                 !$matches
-                || strtoupper($channel) !== ($matches['channel'] ?? null)
-                || strtoupper($level) !== ($matches['level'] ?? null)
+                || strtoupper($channel) !== ($matches['channel'])
+                || strtoupper($level) !== ($matches['level'])
             ) {
                 continue;
             }
 
-            $more = $matches['more'] ?? '';
+            $more = $matches['more'];
             $extra = json_encode(['testClass' => __CLASS__], \JSON_THROW_ON_ERROR);
             if (!preg_match('~' . preg_quote($extra, '~') . '~', $more)) {
                 continue;
@@ -359,7 +359,7 @@ class AdvancedConfigTest extends IntegrationTestCase
                 }
             }
 
-            $logText = $matches['txt'] ?? '';
+            $logText = $matches['txt'];
             if (!preg_match('~' . preg_quote($message, '~') . '~', $logText)) {
                 continue;
             }
