@@ -115,15 +115,16 @@ final class HttpApiListener implements ActionListener
      */
     private function isError(array $response, array $httpArgs = []): bool
     {
+        if (array_key_exists('blocking', $httpArgs) && !$httpArgs['blocking']) {
+            // If the request is non-blocking, we cannot determine if it was an error or not.
+            return false;
+        }
+
         $responseData = $response['response'] ?? null;
         $code = is_array($responseData) ? ($responseData['code'] ?? null) : null;
 
         if (!$code || !is_numeric($code)) {
             return true;
-        }
-
-        if (array_key_exists('blocking', $httpArgs) && !$httpArgs['blocking']) {
-            return false;
         }
 
         return !in_array((int) $code, self::HTTP_SUCCESS_CODES, true);
