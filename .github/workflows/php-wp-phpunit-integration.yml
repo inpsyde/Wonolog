@@ -8,6 +8,8 @@ on:
     push:
         paths:
             - '**workflows/php-wp-phpunit-integration.yml'
+            - '**.php'
+            - '**phpunit-integration-wp-phpunit.xml.dist'
             - '**composer.json'
     pull_request:
     workflow_dispatch:
