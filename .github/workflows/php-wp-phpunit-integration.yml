@@ -1,0 +1,47 @@
+# `syde/wp-phpunit-integration` requires PHP >=8.2, so it's installed manually here (PHP 8.2+
+# matrix only) instead of via composer.json or the shared reusable workflow, to avoid raising
+# the PHP floor for the whole package (Wonolog still supports PHP 8.1).
+# This only checks the package installs cleanly; the actual test migration is tracked separately.
+name: PHP WP-PHPUnit-Integration Install Check
+
+on:
+    push:
+        paths:
+            - '**workflows/php-wp-phpunit-integration.yml'
+            - '**composer.json'
+    pull_request:
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    install-check:
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                php-versions: [ '8.2', '8.3', '8.4', '8.5' ]
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-versions }}
+                  extensions: pdo, pdo_sqlite
+                  coverage: none
+
+            - name: Install Composer dependencies
+              uses: ramsey/composer-install@v3
+
+            # wpackagist.org hosts a transitive dependency not on Packagist, and symfony/process
+            # needs bumping past our pinned ^6.4.20 to satisfy this package's requirement.
+            - name: Install syde/wp-phpunit-integration (manual, PHP 8.2+ only)
+              run: |
+                  composer config repositories.wpackagist composer https://wpackagist.org
+                  composer require --dev syde/wp-phpunit-integration "symfony/process:>=7.4" --no-interaction -W
