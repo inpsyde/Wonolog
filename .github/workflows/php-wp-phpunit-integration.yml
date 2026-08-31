@@ -1,8 +1,6 @@
 # `syde/wp-phpunit-integration` requires PHP >=8.2, so it's installed manually here (PHP 8.2+
-# matrix only) instead of via composer.json or the shared reusable workflow, to avoid raising
-# the PHP floor for the whole package (Wonolog still supports PHP 8.1).
-# This only checks the package installs cleanly; the actual test migration is tracked separately.
-name: PHP WP-PHPUnit-Integration Install Check
+# only) instead of via composer.json or the shared reusable workflow, to keep Wonolog on PHP 8.1.
+name: PHP WP-PHPUnit-Integration Tests
 
 on:
     push:
@@ -41,10 +39,8 @@ jobs:
             - name: Install Composer dependencies
               uses: ramsey/composer-install@v3
 
-            # wpackagist.org hosts a transitive dependency not on Packagist, and symfony/process
-            # needs bumping past our pinned ^6.4.20 to satisfy this package's requirement. A
-            # fresh cache dir avoids reusing a stale wpackagist provider index from the previous
-            # step's cached Composer cache, which caused sporadic 404s.
+            # wpackagist.org and a symfony/process bump are needed for this package; the isolated
+            # cache dir avoids stale wpackagist metadata.
             - name: Install syde/wp-phpunit-integration (manual, PHP 8.2+ only)
               env:
                   COMPOSER_CACHE_DIR: ${{ runner.temp }}/composer-cache-wp-phpunit-integration
