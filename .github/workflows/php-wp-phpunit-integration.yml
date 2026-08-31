@@ -49,3 +49,116 @@ jobs:
               run: |
                   composer config repositories.wpackagist composer https://wpackagist.org
                   composer require --dev syde/wp-phpunit-integration "symfony/process:>=7.4" --no-interaction -W
+
+    # Manually-triggered only. Reproduces a syde/wp-phpunit-integration bug in isolation, with no
+    # Wonolog code involved: Bootstrap::init() loads WordPress in PHPUnit's main process too (not
+    # just isolated child processes), leaving closures from WP's own hook system in $GLOBALS. That
+    # crashes PHPUnit's @runTestsInSeparateProcesses, which needs to snapshot $GLOBALS to hand off
+    # to each isolated child. This job is expected to fail; it exists to link a real CI run in the
+    # upstream bug report, not to pass.
+    isolation-bug-repro:
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.2'
+                  extensions: pdo, pdo_sqlite
+                  coverage: none
+
+            - name: Scaffold minimal reproduction
+              run: |
+                  mkdir -p repro/tests/Integration
+
+                  cat > repro/composer.json <<'JSON'
+                  {
+                      "name": "acme/wp-phpunit-integration-isolation-repro",
+                      "type": "project",
+                      "license": "MIT",
+                      "require": {
+                          "php": ">=8.2"
+                      },
+                      "require-dev": {
+                          "phpunit/phpunit": "^9.6",
+                          "roots/wordpress-no-content": ">=6.1.1",
+                          "syde/wp-phpunit-integration": "^0.4.1",
+                          "symfony/process": ">=7.4"
+                      },
+                      "config": {
+                          "allow-plugins": {
+                              "composer/installers": true
+                          }
+                      }
+                  }
+                  JSON
+
+                  cat > repro/tests/bootstrap-integration.php <<'PHP'
+                  <?php
+
+                  declare(strict_types=1);
+
+                  use Syde\WpPhpUnitIntegration\Bootstrap;
+
+                  $packagePath = dirname(__DIR__);
+                  $vendorPath = "{$packagePath}/vendor";
+
+                  if (!realpath($vendorPath)) {
+                      die('Please install via Composer before running tests.');
+                  }
+
+                  require_once "{$vendorPath}/autoload.php";
+
+                  Bootstrap::init($packagePath);
+
+                  unset($packagePath, $vendorPath);
+                  PHP
+
+                  cat > repro/phpunit-integration.xml.dist <<'XML'
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <phpunit
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+                          bootstrap="tests/bootstrap-integration.php">
+                      <testsuites>
+                          <testsuite name="integration">
+                              <directory>tests/Integration</directory>
+                          </testsuite>
+                      </testsuites>
+                  </phpunit>
+                  XML
+
+                  cat > repro/tests/Integration/IsolationCrashTest.php <<'PHP'
+                  <?php
+
+                  declare(strict_types=1);
+
+                  namespace Acme\Tests\Integration;
+
+                  use PHPUnit\Framework\TestCase;
+
+                  /**
+                   * @runTestsInSeparateProcesses
+                   */
+                  class IsolationCrashTest extends TestCase
+                  {
+                      /**
+                       * @test
+                       */
+                      public function itLoadsWordPress(): void
+                      {
+                          static::assertTrue(function_exists('do_action'));
+                      }
+                  }
+                  PHP
+
+            - name: Install dependencies
+              working-directory: repro
+              run: |
+                  composer config repositories.wpackagist composer https://wpackagist.org
+                  composer install --no-interaction --no-progress
+
+            - name: Run isolated test (expected to crash)
+              working-directory: repro
+              run: php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml.dist
