@@ -19,7 +19,7 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    install-check:
+    integration-tests:
         runs-on: ubuntu-latest
 
         strategy:
