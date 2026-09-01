@@ -19,12 +19,12 @@ class Bootstrap
     }
 }
 
-readonly class BootstrapLifecycle
+class BootstrapLifecycle
 {
     public function __construct(
-        private ?\Closure $setup = null,
-        private ?\Closure $load = null,
-        private ?\Closure $cleanup = null,
+        private readonly ?\Closure $setup = null,
+        private readonly ?\Closure $load = null,
+        private readonly ?\Closure $cleanup = null,
     ) {
     }
 }
