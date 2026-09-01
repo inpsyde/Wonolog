@@ -7,8 +7,10 @@ parameters:
     excludePaths:
       - src/HookListener/MethodNamesByHookTrait.php
       - src/HookListener/FilterFromUpdateTrait.php
+      - tests/phpstan-stubs/wp-phpunit-integration.php
     scanFiles:
         - vendor/inpsyde/wp-stubs-versions/latest.php
+        - tests/phpstan-stubs/wp-phpunit-integration.php
     scanDirectories:
         - vendor/roots/wordpress-no-content/wp-includes/PHPMailer
         - tests/stubs
