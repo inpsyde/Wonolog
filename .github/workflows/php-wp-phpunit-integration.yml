@@ -41,12 +41,19 @@ jobs:
 
             # wpackagist.org and a symfony/process bump are needed for this package; the isolated
             # cache dir avoids stale wpackagist metadata.
+
+            # globalis/wp-cli-bin (only needed by the separate Docker-based integration tests) is removed here because
+            # it and johnpbloch/wp-cli-phar (this package's own WP-CLI dependency) both register a `wp`
+            # binary; the package finds *some* file named `wp` in the project rather than its own
+            # dependency specifically, so leaving both installed makes which one it runs
+            # non-deterministic. Additionally, globalis/wp-cli-bin fails because of an old bug.
             - name: Install syde/wp-phpunit-integration (manual, PHP 8.2+ only)
               env:
                   COMPOSER_CACHE_DIR: ${{ runner.temp }}/composer-cache-wp-phpunit-integration
               run: |
                   composer config repositories.wpackagist composer https://wpackagist.org
                   composer require --dev syde/wp-phpunit-integration "symfony/process:>=7.4" --no-interaction -W
+                  composer remove --dev globalis/wp-cli-bin --no-interaction
 
             - name: Run integration tests via syde/wp-phpunit-integration
               run: composer tests:integration:wp-phpunit
