@@ -63,5 +63,10 @@ jobs:
                   composer require --dev syde/wp-phpunit-integration "symfony/process:>=7.4" --no-interaction -W
                   composer remove --dev globalis/wp-cli-bin --no-interaction
 
+            # TEMPORARY: diagnosing why display_errors=On/log_errors=Off didn't stop the
+            # PHP 8.5 job from still crashing on stderr output -- remove once resolved.
+            - name: Debug PHP error settings
+              run: php -i | grep -E "^display_errors|^log_errors|^error_log |^error_reporting "
+
             - name: Run integration tests via syde/wp-phpunit-integration
               run: composer tests:integration:wp-phpunit
