@@ -10,6 +10,7 @@
 [![PHP Static Code Analysis](https://github.com/inpsyde/Wonolog/actions/workflows/php-static-analysis.yml/badge.svg)](https://github.com/inpsyde/Wonolog/actions/workflows/php-static-analysis.yml)
 [![PHP Unit Tests](https://github.com/inpsyde/Wonolog/actions/workflows/php-unit-tests.yml/badge.svg)](https://github.com/inpsyde/Wonolog/actions/workflows/php-unit-tests.yml)
 [![PHP Integration Tests](https://github.com/inpsyde/Wonolog/actions/workflows/php-integration-tests.yml/badge.svg)](https://github.com/inpsyde/Wonolog/actions/workflows/php-integration-tests.yml)
+[![PHP WP-PHPUnit-Integration Tests](https://github.com/inpsyde/Wonolog/actions/workflows/php-wp-phpunit-integration.yml/badge.svg)](https://github.com/inpsyde/Wonolog/actions/workflows/php-wp-phpunit-integration.yml)
 
 ------
 
