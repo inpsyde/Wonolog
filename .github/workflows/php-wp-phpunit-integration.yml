@@ -29,11 +29,19 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
+            # syde/wp-phpunit-integration treats any output on the wp-cli subprocess's stderr as
+            # fatal, and a deprecation notice deep in a bundled wp-cli dependency (unrelated to our
+            # own code, and unfixed in the latest release) writes there. auto_prepend_file installs
+            # an error handler, before any other code (including WP-CLI's own bootstrap) runs, that
+            # silently swallows only E_DEPRECATED -- see the prepended script for why this needs to
+            # happen this early, and why simpler attempts (redirecting display_errors, excluding
+            # E_DEPRECATED via error_reporting, forcing WP-CLI's color off) didn't work.
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php-versions }}
                   extensions: pdo, pdo_sqlite
+                  ini-values: auto_prepend_file=${{ github.workspace }}/.github/workflows/php-wp-phpunit-integration-suppress-deprecated.php
                   coverage: none
 
             - name: Install Composer dependencies
@@ -55,13 +63,5 @@ jobs:
                   composer require --dev syde/wp-phpunit-integration "symfony/process:>=7.4" --no-interaction -W
                   composer remove --dev globalis/wp-cli-bin --no-interaction
 
-            # syde/wp-phpunit-integration treats any output on the wp-cli subprocess's stderr as
-            # fatal. A deprecation notice deep in a bundled wp-cli dependency (unrelated to our own
-            # code) only fires when WP-CLI decides to colorize its logger output; forcing color off
-            # via a WP-CLI config file skips that code path entirely.
             - name: Run integration tests via syde/wp-phpunit-integration
-              env:
-                  WP_CLI_CONFIG_PATH: ${{ runner.temp }}/wp-cli-no-color.yml
-              run: |
-                  echo "color: false" > "$WP_CLI_CONFIG_PATH"
-                  composer tests:integration:wp-phpunit
+              run: composer tests:integration:wp-phpunit
