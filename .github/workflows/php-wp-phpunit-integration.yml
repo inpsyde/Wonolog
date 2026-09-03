@@ -63,10 +63,17 @@ jobs:
                   composer require --dev syde/wp-phpunit-integration "symfony/process:>=7.4" --no-interaction -W
                   composer remove --dev globalis/wp-cli-bin --no-interaction
 
-            # TEMPORARY: diagnosing why display_errors=On/log_errors=Off didn't stop the
-            # PHP 8.5 job from still crashing on stderr output -- remove once resolved.
-            - name: Debug PHP error settings
-              run: php -i | grep -E "^display_errors|^log_errors|^error_log |^error_reporting "
-
+            # syde/wp-phpunit-integration treats any output on the wp-cli subprocess's stderr as
+            # fatal. A deprecation notice deep in a bundled wp-cli dependency (unrelated to our own
+            # code) only fires when WP-CLI decides to colorize its logger output; forcing color off
+            # via a WP-CLI config file skips that code path entirely (Logger\Regular::_line() ->
+            # Colors::colorize() short-circuits before reaching the buggy call). This doesn't touch
+            # error_reporting, so it doesn't suppress a real deprecation in Wonolog's own code
+            # (unlike two earlier attempts -- redirecting display_errors, and excluding
+            # E_DEPRECATED from error_reporting -- which both turned out ineffective in CI).
             - name: Run integration tests via syde/wp-phpunit-integration
-              run: composer tests:integration:wp-phpunit
+              env:
+                  WP_CLI_CONFIG_PATH: ${{ runner.temp }}/wp-cli-no-color.yml
+              run: |
+                  echo "color: false" > "$WP_CLI_CONFIG_PATH"
+                  composer tests:integration:wp-phpunit
