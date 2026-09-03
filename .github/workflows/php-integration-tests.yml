@@ -19,10 +19,13 @@ jobs:
     integration-tests:
         runs-on: ubuntu-latest
         if: ${{ !contains(github.event.head_commit.message, 'skip integration') }}
+        # PHP 8.2+ is covered by php-wp-phpunit-integration.yml instead (same test files, SQLite
+        # instead of Docker/MariaDB). This Docker-based workflow is kept only for PHP 8.1, which
+        # syde/wp-phpunit-integration can't run on.
         strategy:
             fail-fast: false
             matrix:
-                php-service: [ '81', '82', '83', '84', '85' ]
+                php-service: [ '81' ]
                 dependency-versions: [ 'lowest', 'highest' ]
         steps:
             -   name: Checkout
