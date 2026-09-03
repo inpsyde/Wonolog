@@ -58,11 +58,7 @@ jobs:
             # syde/wp-phpunit-integration treats any output on the wp-cli subprocess's stderr as
             # fatal. A deprecation notice deep in a bundled wp-cli dependency (unrelated to our own
             # code) only fires when WP-CLI decides to colorize its logger output; forcing color off
-            # via a WP-CLI config file skips that code path entirely (Logger\Regular::_line() ->
-            # Colors::colorize() short-circuits before reaching the buggy call). This doesn't touch
-            # error_reporting, so it doesn't suppress a real deprecation in Wonolog's own code
-            # (unlike two earlier attempts -- redirecting display_errors, and excluding
-            # E_DEPRECATED from error_reporting -- which both turned out ineffective in CI).
+            # via a WP-CLI config file skips that code path entirely.
             - name: Run integration tests via syde/wp-phpunit-integration
               env:
                   WP_CLI_CONFIG_PATH: ${{ runner.temp }}/wp-cli-no-color.yml
