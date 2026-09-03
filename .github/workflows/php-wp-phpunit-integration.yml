@@ -30,18 +30,18 @@ jobs:
               uses: actions/checkout@v4
 
             # syde/wp-phpunit-integration treats any output on the wp-cli subprocess's stderr as
-            # fatal, and a deprecation notice deep in johnpbloch/wp-cli-phar's bundled dependencies
-            # (unrelated to our own code) writes there. Redirecting display_errors doesn't help:
-            # WP-CLI's own bootstrap (utils-wp.php's wp_debug_mode()) unconditionally forces
-            # display_errors back to 'stderr' at runtime unless Xdebug is loaded, overriding
-            # whatever we configure here. Excluding E_DEPRECATED from error_reporting addresses the
-            # generation of the notice instead of fighting where it gets displayed.
+            # fatal, and deprecation notices deep in johnpbloch/wp-cli-phar's bundled dependencies
+            # (unrelated to our own code) write there under this runner's CLI defaults -- via two
+            # independent channels (display_errors and the separate log_errors/error_log, whose
+            # CLI default is also stderr). Redirecting both to stdout/off avoids the crash without
+            # touching error_reporting, so a real deprecation in Wonolog's own code run by these
+            # tests still surfaces normally.
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php-versions }}
                   extensions: pdo, pdo_sqlite
-                  ini-values: error_reporting=E_ALL & ~E_DEPRECATED
+                  ini-values: display_errors=On, log_errors=Off
                   coverage: none
 
             - name: Install Composer dependencies
