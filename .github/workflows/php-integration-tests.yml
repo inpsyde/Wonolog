@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
     integration-tests:
+        name: integration-tests (php 8.1, ${{ matrix.dependency-versions }})
         runs-on: ubuntu-latest
         if: ${{ !contains(github.event.head_commit.message, 'skip integration') }}
         # PHP 8.2+ is covered by php-wp-phpunit-integration.yml instead (same test files, SQLite
@@ -25,7 +26,6 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-service: [ '81' ]
                 dependency-versions: [ 'lowest', 'highest' ]
         steps:
             -   name: Checkout
@@ -33,11 +33,11 @@ jobs:
 
             -   name: Copy wait-for
                 run: |
-                    cp .github/workflows/docker/install-composer.sh .github/workflows/docker/php${{ matrix.php-service }}/install-composer.sh
-                    cp .github/workflows/docker/wait-for.sh .github/workflows/docker/php${{ matrix.php-service }}/wait-for.sh
+                    cp .github/workflows/docker/install-composer.sh .github/workflows/docker/php81/install-composer.sh
+                    cp .github/workflows/docker/wait-for.sh .github/workflows/docker/php81/wait-for.sh
 
             -   name: Run integration tests
                 working-directory: .github/workflows/docker
                 run: |
                     COMPOSER_DEPENDENCY_VERSIONS=${{ matrix.dependency-versions == 'lowest' && '--prefer-lowest' || '' }}
-                    docker compose run --rm php${{ matrix.php-service }} sh -c "wait-for.sh wonolog-db:3306 -t 15 -- composer update $COMPOSER_DEPENDENCY_VERSIONS && composer tests:integration"
+                    docker compose run --rm php81 sh -c "wait-for.sh wonolog-db:3306 -t 15 -- composer update $COMPOSER_DEPENDENCY_VERSIONS && composer tests:integration"
