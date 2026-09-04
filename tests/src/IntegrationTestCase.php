@@ -58,7 +58,6 @@ abstract class IntegrationTestCase extends TestCase
             static function (mixed $log, mixed $throwable): void {
                 //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_print_backtrace
                 debug_print_backtrace();
-                //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_dump
                 if ($throwable instanceof \Throwable) {
                     fwrite(STDOUT, "\nThere was an error: " . $throwable->getMessage() . "\n");
                 }
@@ -95,7 +94,6 @@ abstract class IntegrationTestCase extends TestCase
             static function (mixed $log, mixed $throwable): void {
                 //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_print_backtrace
                 debug_print_backtrace();
-                //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_dump
                 if ($throwable instanceof \Throwable) {
                     fwrite(STDOUT, "\nThere was an error: " . $throwable->getMessage() . "\n");
                 }
