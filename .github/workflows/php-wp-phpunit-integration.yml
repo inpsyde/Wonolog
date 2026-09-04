@@ -1,0 +1,67 @@
+# `syde/wp-phpunit-integration` requires PHP >=8.2, so it's installed manually here (PHP 8.2+
+# only) instead of via composer.json or the shared reusable workflow, to keep Wonolog on PHP 8.1.
+name: PHP WP-PHPUnit-Integration Tests
+
+on:
+    push:
+        paths:
+            - '**workflows/php-wp-phpunit-integration.yml'
+            - '**.php'
+            - '**phpunit-integration-wp-phpunit.xml.dist'
+            - '**composer.json'
+    pull_request:
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    integration-tests:
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                php-versions: [ '8.2', '8.3', '8.4', '8.5' ]
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            # syde/wp-phpunit-integration treats any output on the wp-cli subprocess's stderr as
+            # fatal, and a deprecation notice deep in a bundled wp-cli dependency (unrelated to our
+            # own code, and unfixed in the latest release) writes there. auto_prepend_file installs
+            # an error handler, before any other code (including WP-CLI's own bootstrap) runs, that
+            # silently swallows only E_DEPRECATED -- see the prepended script for why this needs to
+            # happen this early, and why simpler attempts (redirecting display_errors, excluding
+            # E_DEPRECATED via error_reporting, forcing WP-CLI's color off) didn't work.
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-versions }}
+                  extensions: pdo, pdo_sqlite
+                  ini-values: auto_prepend_file=${{ github.workspace }}/.github/workflows/php-wp-phpunit-integration-suppress-deprecated.php
+                  coverage: none
+
+            - name: Install Composer dependencies
+              uses: ramsey/composer-install@v3
+
+            # wpackagist.org and a symfony/process bump are needed for this package; the isolated
+            # cache dir avoids stale wpackagist metadata.
+
+            # globalis/wp-cli-bin (only needed by the separate Docker-based integration tests) is removed here because
+            # it and johnpbloch/wp-cli-phar (this package's own WP-CLI dependency) both register a `wp`
+            # binary; the package finds *some* file named `wp` in the project rather than its own
+            # dependency specifically, so leaving both installed makes which one it runs
+            # non-deterministic. Additionally, globalis/wp-cli-bin fails because of an old bug.
+            - name: Install syde/wp-phpunit-integration (manual, PHP 8.2+ only)
+              env:
+                  COMPOSER_CACHE_DIR: ${{ runner.temp }}/composer-cache-wp-phpunit-integration
+              run: |
+                  composer config repositories.wpackagist composer https://wpackagist.org
+                  composer require --dev syde/wp-phpunit-integration "symfony/process:>=7.4" --no-interaction -W
+                  composer remove --dev globalis/wp-cli-bin --no-interaction
+
+            - name: Run integration tests via syde/wp-phpunit-integration
+              run: composer tests:integration:wp-phpunit
