@@ -8,8 +8,8 @@
     <!-- Report warnings, but return zero exit code. -->
     <config name="ignore_warnings_on_exit" value="1" />
 
-    <!-- Check for cross-version support for PHP 8.1 and higher. -->
-    <config name="testVersion" value="8.1-" />
+    <!-- Check for cross-version support for PHP 8.2 and higher. -->
+    <config name="testVersion" value="8.2-" />
 
     <file>./inc</file>
     <file>./src</file>
