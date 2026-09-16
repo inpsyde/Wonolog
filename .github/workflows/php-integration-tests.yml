@@ -4,6 +4,7 @@ on:
     push:
         paths:
             - '**workflows/php-integration-tests.yml'
+            - '**workflows/php-integration-suppress-deprecated.php'
             - '**.php'
             - '**phpunit-integration.xml.dist'
             - '**composer.json'
@@ -29,11 +30,17 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
+            # syde/wp-phpunit-integration treats any output on the wp-cli subprocess's stderr as
+            # fatal, and a deprecation notice deep in a bundled wp-cli dependency writes there
+            # under CI's non-interactive/piped output (see php-integration-suppress-deprecated.php
+            # for details). auto_prepend_file installs an error handler, before any other code
+            # (including WP-CLI's own bootstrap) runs, that silently swallows only E_DEPRECATED.
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php-versions }}
                   extensions: pdo, pdo_sqlite
+                  ini-values: auto_prepend_file=${{ github.workspace }}/.github/workflows/php-integration-suppress-deprecated.php
                   coverage: none
 
             - name: Install Composer dependencies
