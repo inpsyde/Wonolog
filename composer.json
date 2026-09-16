@@ -107,7 +107,7 @@
         "tests:unit": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit",
         "tests:unit:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --no-coverage",
         "tests:unit:codecov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --coverage-clover coverage.xml",
-        "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=integration --no-coverage",
+        "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml.dist --no-coverage",
         "qa" : [
           "@cs",
           "@phpstan",
