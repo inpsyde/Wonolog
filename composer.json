@@ -57,7 +57,7 @@
         "brain/monkey": "^2.6.2",
         "mockery/mockery": "^1.6.12",
         "mikey179/vfsstream": "~1.6.12",
-        "roots/wordpress-no-content": ">=6.1.1",
+        "roots/wordpress-no-content": ">=6.9",
         "phpunit/phpunit": "^9.6.23",
         "fig/log-test": "^1.1.0",
         "syde/phpcs": "^1.0.0",
