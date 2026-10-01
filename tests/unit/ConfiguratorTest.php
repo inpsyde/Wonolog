@@ -135,8 +135,8 @@ final class ConfiguratorTest extends UnitTestCase
         $this->assertCount(1, $debugHandlers);
         $this->assertCount(1, $httpHandlers);
         $this->assertCount(0, $dbHandlers);
-        $this->assertInstanceOf(\Monolog\Handler\NoopHandler::class, $debugHandlers[0]);
-        $this->assertInstanceOf(\Inpsyde\Wonolog\DefaultHandler\FileHandler::class, $httpHandlers[0]);
+        $this->assertInstanceOf(NoopHandler::class, $debugHandlers[0]);
+        $this->assertInstanceOf(FileHandler::class, $httpHandlers[0]);
     }
 
     /**
@@ -173,7 +173,7 @@ final class ConfiguratorTest extends UnitTestCase
 
             $this->assertCount($notExpecting ? 0 : 1, $handlers, "For channel {$channel}.");
             if (!$notExpecting) {
-                $this->assertInstanceOf(\Inpsyde\Wonolog\DefaultHandler\FileHandler::class, $handlers[0]);
+                $this->assertInstanceOf(FileHandler::class, $handlers[0]);
             }
         }
     }
@@ -211,7 +211,7 @@ final class ConfiguratorTest extends UnitTestCase
 
             $this->assertCount($expecting ? 1 : 0, $processors, "For channel {$channel}.");
             if ($expecting) {
-                $this->assertInstanceOf(\Inpsyde\Wonolog\Processor\WpContextProcessor::class, $processors[0]);
+                $this->assertInstanceOf(WpContextProcessor::class, $processors[0]);
             }
         }
     }
@@ -249,7 +249,7 @@ final class ConfiguratorTest extends UnitTestCase
 
             $this->assertCount($notExpecting ? 0 : 1, $processors, "For channel {$channel}.");
             if (!$notExpecting) {
-                $this->assertInstanceOf(\Inpsyde\Wonolog\Processor\WpContextProcessor::class, $processors[0]);
+                $this->assertInstanceOf(WpContextProcessor::class, $processors[0]);
             }
         }
     }

@@ -108,11 +108,13 @@ final class FailedLoginTest extends UnitTestCase
             $firstFailedLogin->message()
         );
 
+        // @phpstan-ignore method.alreadyNarrowedType
         $this->assertSame(
             sprintf($expectedMessageFormat, 1, 'h4ck3rb0y'),
             $firstFailedLogin->message()
         );
 
+        // @phpstan-ignore method.alreadyNarrowedType
         $this->assertSame(
             sprintf($expectedMessageFormat, 1, 'h4ck3rb0y'),
             $firstFailedLogin->message()
@@ -123,6 +125,7 @@ final class FailedLoginTest extends UnitTestCase
             $secondFailedLogin->message()
         );
 
+        // @phpstan-ignore method.alreadyNarrowedType
         $this->assertSame(
             sprintf($expectedMessageFormat, 2, 'h4ck3rb0y'),
             $secondFailedLogin->message()

@@ -187,6 +187,7 @@ class HookLogFactory
             /**
              * @var string $message
              * @var string $channel
+             * @var array<mixed> $context
              */
             return new Log($message, $hookLevel, $channel, $context);
         }

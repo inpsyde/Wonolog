@@ -17,7 +17,7 @@ final class ProcessorsRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->processorsRegistry();
 
-        $callback = (static fn(array|LogRecord $record): array|LogRecord => $record);
+        $callback = (static fn (array|LogRecord $record): array|LogRecord => $record);
 
         $handlerOne = $callback;
         $handlerTwo = clone $callback;
@@ -37,8 +37,8 @@ final class ProcessorsRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->processorsRegistry();
 
-        $callback1 = (static fn(array|LogRecord $record): array|LogRecord => $record);
-        $callback2 = (static fn(array|LogRecord $record): array|LogRecord => $record);
+        $callback1 = (static fn (array|LogRecord $record): array|LogRecord => $record);
+        $callback2 = (static fn (array|LogRecord $record): array|LogRecord => $record);
 
         $registry->addProcessor($callback1, 'x', 'A', 'B');
         $registry->addProcessor($callback2, 'y', 'C', 'D');
@@ -61,8 +61,8 @@ final class ProcessorsRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->processorsRegistry();
 
-        $callback1 = (static fn(array|LogRecord $record): array|LogRecord => $record);
-        $callback2 = (static fn(array|LogRecord $record): array|LogRecord => $record);
+        $callback1 = (static fn (array|LogRecord $record): array|LogRecord => $record);
+        $callback2 = (static fn (array|LogRecord $record): array|LogRecord => $record);
 
         $registry->addProcessor($callback1, 'x', 'A', 'B');
         $registry->addProcessor($callback2, 'y', 'A', 'C');
@@ -85,8 +85,8 @@ final class ProcessorsRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->processorsRegistry();
 
-        $callback1 = (static fn(array|LogRecord $record): array|LogRecord => $record);
-        $callback2 = (static fn(array|LogRecord $record): array|LogRecord => $record);
+        $callback1 = (static fn (array|LogRecord $record): array|LogRecord => $record);
+        $callback2 = (static fn (array|LogRecord $record): array|LogRecord => $record);
 
         $registry->addProcessor($callback1, 'x');
         $registry->addProcessor($callback2, 'y', 'A', 'C');

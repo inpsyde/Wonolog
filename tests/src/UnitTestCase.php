@@ -27,7 +27,9 @@ class UnitTestCase extends \PHPUnit\Framework\TestCase
         parent::setUp();
         Monkey\setUp();
 
-        Monkey\Functions\when('wp_is_stream')->alias(static fn(string $path): bool => str_contains($path, '://'));
+        Monkey\Functions\when('wp_is_stream')->alias(
+            static fn (string $path): bool => str_contains($path, '://')
+        );
 
         Monkey\Functions\when('wp_normalize_path')->alias(static function (string $path): string {
             $wrapper = '';

@@ -32,7 +32,7 @@ final class CustomLogDataTest extends UnitTestCase
     }
 
     /**
-     * @return \Iterator<(int | string), array{int, \Inpsyde\Wonolog\Data\LogData}>
+     * @return \Iterator<(int | string), array{int, LogData}>
      */
     public function dataProviderLogLevels(): \Iterator
     {

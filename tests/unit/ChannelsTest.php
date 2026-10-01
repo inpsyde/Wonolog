@@ -68,6 +68,7 @@ final class ChannelsTest extends UnitTestCase
 
         $this->assertInstanceOf(Logger::class, $logger);
         $this->assertSame($logger, $channels->logger(Channels::DEBUG));
+        // @phpstan-ignore method.alreadyNarrowedType
         $this->assertSame($logger, $channels->logger(Channels::DEBUG));
         $this->assertEquals([$handler], $logger->getHandlers());
     }
@@ -88,6 +89,7 @@ final class ChannelsTest extends UnitTestCase
 
         $this->assertInstanceOf(Logger::class, $logger);
         $this->assertSame($logger, $channels->logger(Channels::DEBUG));
+        // @phpstan-ignore method.alreadyNarrowedType
         $this->assertSame($logger, $channels->logger(Channels::DEBUG));
 
         $handlers = $logger->getHandlers();

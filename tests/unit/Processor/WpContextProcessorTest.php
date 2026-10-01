@@ -164,7 +164,7 @@ final class WpContextProcessorTest extends UnitTestCase
         Functions\when('add_query_arg')->justReturn('http://example.com/wp-json/foo/bar');
         Functions\when('set_url_scheme')
             ->alias(
-                static fn(string $str): string => str_replace('http://', 'https://', $str)
+                static fn (string $str): string => str_replace('http://', 'https://', $str)
             );
 
         $processor = WpContextProcessor::new();

@@ -72,7 +72,7 @@ final class AdvancedConfigTest extends IntegrationTestCase
             ->pushProcessor(
                 'test-processor',
                 // @phpstan-ignore-next-line
-                fn(LogRecord|array $record): LogRecord|array => is_array($record) // @phpstan-ignore-line
+                fn (LogRecord|array $record): LogRecord|array => is_array($record) // @phpstan-ignore-line
                     ? $this->addExtraDataToProcessorWhenRecordIsArray($record)
                     : $this->addExtraDataToProcessorWhenRecordIsLogRecord($record)
             );
@@ -137,7 +137,7 @@ final class AdvancedConfigTest extends IntegrationTestCase
 
         $this->assertTrue($this->testHandler?->hasDebugThatContains('Something happened.'));
         $this->assertNotNull($this->logFile);
-        $this->assertFileNotExists($this->logFile);
+        $this->assertFileDoesNotExist($this->logFile);
     }
 
     /**
@@ -175,7 +175,7 @@ final class AdvancedConfigTest extends IntegrationTestCase
 
         $this->assertFalse($this->testHandler?->hasNoticeThatContains('Something happened.'));
         $this->assertNotNull($this->logFile);
-        $this->assertFileNotExists($this->logFile);
+        $this->assertFileDoesNotExist($this->logFile);
     }
 
     /**
@@ -194,7 +194,7 @@ final class AdvancedConfigTest extends IntegrationTestCase
 
         $this->assertFalse($this->testHandler?->hasNoticeThatContains('cron job'));
         $this->assertNotNull($this->logFile);
-        $this->assertFileNotExists($this->logFile);
+        $this->assertFileDoesNotExist($this->logFile);
     }
 
     /**
@@ -362,7 +362,7 @@ final class AdvancedConfigTest extends IntegrationTestCase
                 continue;
             }
 
-            $this->assertTrue(true); // @phpstan-ignore staticMethod.alreadyNarrowedType
+            $this->assertTrue(true); // @phpstan-ignore method.alreadyNarrowedType
 
             return;
         }

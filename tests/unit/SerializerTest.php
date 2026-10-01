@@ -165,7 +165,7 @@ final class SerializerTest extends UnitTestCase
     }
 
     /**
-     * @return \Iterator<int<0, max>, array{mixed, string}>
+     * @return \Iterator<int, array{mixed, string}>
      */
     public function provideMessageExamples(): \Iterator
     {

@@ -99,7 +99,7 @@ final class LogTest extends UnitTestCase
         $this->assertSame(LogLevel::ERROR, $log->level());
         $this->assertArrayHasKey('throwable', $context);
         $this->assertIsArray($context['throwable']);
-        $this->assertInstanceOf($context['throwable']['class'] ?? '', $exception);
+        $this->assertSame($exception::class, $context['throwable']['class'] ?? '');
         $this->assertSame(__FILE__, $context['throwable']['file'] ?? '');
         $this->assertArrayHasKey('line', $context['throwable']);
         $this->assertArrayHasKey('trace', $context['throwable']);
@@ -122,7 +122,7 @@ final class LogTest extends UnitTestCase
         $this->assertSame(LogLevel::DEBUG, $log->level());
         $this->assertArrayHasKey('throwable', $context);
         $this->assertIsArray($context['throwable']);
-        $this->assertInstanceOf($context['throwable']['class'] ?? '', $exception);
+        $this->assertSame($exception::class, $context['throwable']['class'] ?? '');
         $this->assertSame(__FILE__, $context['throwable']['file'] ?? '');
         $this->assertArrayHasKey('line', $context['throwable']);
         $this->assertArrayHasKey('trace', $context['throwable']);
@@ -147,7 +147,7 @@ final class LogTest extends UnitTestCase
         $this->assertIsArray($context['throwable']);
         $this->assertArrayHasKey('line', $context['throwable']);
         $this->assertArrayHasKey('trace', $context['throwable']);
-        $this->assertInstanceOf($context['throwable']['class'] ?? '', $exception);
+        $this->assertSame($exception::class, $context['throwable']['class'] ?? '');
         $this->assertSame(__FILE__, $context['throwable']['file'] ?? '');
     }
 

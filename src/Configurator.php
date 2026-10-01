@@ -800,9 +800,8 @@ class Configurator
         // This ensures the `add_action` inside `makeLogger` function is executed.
         makeLogger();
 
-        /** @var callable(?string):LoggerInterface $factoryCb */
         $factoryCb = $this->factory->psr3Logger(...);
-        $psr3Factory = (static fn(?string $channel = null): LoggerInterface => $factoryCb($channel));
+        $psr3Factory = static fn (?string $channel = null): LoggerInterface => $factoryCb($channel);
 
         /**
          * Fires right after Wonolog has been set up.

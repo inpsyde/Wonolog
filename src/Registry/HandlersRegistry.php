@@ -71,7 +71,7 @@ class HandlersRegistry implements \Countable
         $channels = $channels ?: [$allChannels];
 
         [$currentHandler, $currentChannels] = $this->handlers[$identifier] ?? [null, []];
-        if ($currentHandler instanceof \Monolog\Handler\HandlerInterface && $currentHandler !== $handler) {
+        if ($currentHandler instanceof HandlerInterface && $currentHandler !== $handler) {
             return $this;
         }
 
@@ -154,7 +154,7 @@ class HandlersRegistry implements \Countable
     ): HandlersRegistry {
 
         [$handler, $currentChannels] = $this->handlers[$identifier] ?? [null, null];
-        if ($handler instanceof \Monolog\Handler\HandlerInterface && empty($currentChannels[self::allChannelsName()])) {
+        if ($handler instanceof HandlerInterface && empty($currentChannels[self::allChannelsName()])) {
             $this->addHandler($handler, $identifier, $channel, ...$channels);
         }
 
@@ -190,7 +190,7 @@ class HandlersRegistry implements \Countable
     {
         [$handler, $channels] = $this->handlers[$identifier] ?? [null, []];
 
-        return $handler instanceof \Monolog\Handler\HandlerInterface && ($channels[$channel] ?? $channels[self::allChannelsName()] ?? false);
+        return $handler instanceof HandlerInterface && ($channels[$channel] ?? $channels[self::allChannelsName()] ?? false);
     }
 
     /**

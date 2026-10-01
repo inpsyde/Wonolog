@@ -32,7 +32,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
 
         $this->assertSame("{$dir}/wonolog.log", $handler->logFilePath());
         $this->assertDirectoryExists($dir);
-        $this->assertFileNotExists("{$dir}/.htaccess");
+        $this->assertFileDoesNotExist("{$dir}/.htaccess");
     }
 
     /**
@@ -45,7 +45,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
 
         $this->assertSame("{$dir}/wonolog.log", $handler->logFilePath());
         $this->assertDirectoryExists($dir);
-        $this->assertFileNotExists("{$dir}/.htaccess");
+        $this->assertFileDoesNotExist("{$dir}/.htaccess");
     }
 
     /**
@@ -75,7 +75,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
     public function testThrowExceptionOnInvalidFolder(): void
     {
         Monkey\Functions\when('wp_mkdir_p')->alias(
-            static fn(string $folder): bool => $folder !== WP_CONTENT_DIR
+            static fn (string $folder): bool => $folder !== WP_CONTENT_DIR
         );
         $this->setupFolders(generateError: true);
 
@@ -276,7 +276,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
 
         Monkey\Functions\when('wp_upload_dir')
             ->alias(
-                static fn(): array => $generateError
+                static fn (): array => $generateError
                     ? ['error' => 'error']
                     : ['basedir' => WP_CONTENT_DIR . '/uploads']
             );

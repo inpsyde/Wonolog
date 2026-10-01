@@ -68,7 +68,7 @@ final class LogsFolderTest extends UnitTestCase
         $folder = LogsFolder::determineFolder();
 
         $this->assertSame($dir->url() . '/tmp/wonolog/', $folder);
-        $this->assertFileNotExists($dir->url() . '/tmp/wonolog/.htaccess');
+        $this->assertFileDoesNotExist($dir->url() . '/tmp/wonolog/.htaccess');
     }
 
     /**
@@ -83,7 +83,7 @@ final class LogsFolderTest extends UnitTestCase
         $folder = LogsFolder::determineFolder();
 
         $this->assertSame($dir->url() . '/tmp/wonolog/', $folder);
-        $this->assertFileNotExists($dir->url() . '/tmp/wonolog/.htaccess');
+        $this->assertFileDoesNotExist($dir->url() . '/tmp/wonolog/.htaccess');
     }
 
     /**
@@ -153,7 +153,7 @@ final class LogsFolderTest extends UnitTestCase
         $folder = LogsFolder::determineFolder($dir->url() . '/tmp/logs');
 
         $this->assertSame($dir->url() . '/tmp/logs/', $folder);
-        $this->assertFileNotExists($dir->url() . '/tmp/logs/.htaccess');
+        $this->assertFileDoesNotExist($dir->url() . '/tmp/logs/.htaccess');
     }
 
     /**
