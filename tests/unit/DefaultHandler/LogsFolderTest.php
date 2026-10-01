@@ -13,7 +13,7 @@ use org\bovigo\vfs\vfsStreamDirectory;
 /**
  * @runTestsInSeparateProcesses
  */
-class LogsFolderTest extends UnitTestCase
+final class LogsFolderTest extends UnitTestCase
 {
     /**
      * @test
@@ -25,8 +25,8 @@ class LogsFolderTest extends UnitTestCase
 
         $folder = LogsFolder::determineFolder();
 
-        static::assertSame($dir->url() . '/www/wp-content/uploads/wonolog/', $folder);
-        static::assertTrue(file_exists($dir->url() . '/www/wp-content/uploads/wonolog/.htaccess'));
+        $this->assertSame($dir->url() . '/www/wp-content/uploads/wonolog/', $folder);
+        $this->assertFileExists($dir->url() . '/www/wp-content/uploads/wonolog/.htaccess');
     }
 
     /**
@@ -39,8 +39,8 @@ class LogsFolderTest extends UnitTestCase
 
         $folder = LogsFolder::determineFolder();
 
-        static::assertSame($dir->url() . '/www/uploads/wonolog/', $folder);
-        static::assertTrue(file_exists($dir->url() . '/www/uploads/wonolog/.htaccess'));
+        $this->assertSame($dir->url() . '/www/uploads/wonolog/', $folder);
+        $this->assertFileExists($dir->url() . '/www/uploads/wonolog/.htaccess');
     }
 
     /**
@@ -53,8 +53,8 @@ class LogsFolderTest extends UnitTestCase
 
         $folder = LogsFolder::determineFolder();
 
-        static::assertSame($dir->url() . '/www/wp-content/wonolog/', $folder);
-        static::assertTrue(file_exists($dir->url() . '/www/wp-content/wonolog/.htaccess'));
+        $this->assertSame($dir->url() . '/www/wp-content/wonolog/', $folder);
+        $this->assertFileExists($dir->url() . '/www/wp-content/wonolog/.htaccess');
     }
 
     /**
@@ -67,8 +67,8 @@ class LogsFolderTest extends UnitTestCase
 
         $folder = LogsFolder::determineFolder();
 
-        static::assertSame($dir->url() . '/tmp/wonolog/', $folder);
-        static::assertFalse(file_exists($dir->url() . '/tmp/wonolog/.htaccess'));
+        $this->assertSame($dir->url() . '/tmp/wonolog/', $folder);
+        $this->assertFileNotExists($dir->url() . '/tmp/wonolog/.htaccess');
     }
 
     /**
@@ -82,8 +82,8 @@ class LogsFolderTest extends UnitTestCase
 
         $folder = LogsFolder::determineFolder();
 
-        static::assertSame($dir->url() . '/tmp/wonolog/', $folder);
-        static::assertFalse(file_exists($dir->url() . '/tmp/wonolog/.htaccess'));
+        $this->assertSame($dir->url() . '/tmp/wonolog/', $folder);
+        $this->assertFileNotExists($dir->url() . '/tmp/wonolog/.htaccess');
     }
 
     /**
@@ -96,8 +96,8 @@ class LogsFolderTest extends UnitTestCase
 
         $folder = LogsFolder::determineFolder(WP_CONTENT_DIR . '/uploads');
 
-        static::assertSame($dir->url() . '/www/wp-content/uploads/wonolog/', $folder);
-        static::assertTrue(file_exists($dir->url() . '/www/wp-content/uploads/wonolog/.htaccess'));
+        $this->assertSame($dir->url() . '/www/wp-content/uploads/wonolog/', $folder);
+        $this->assertFileExists($dir->url() . '/www/wp-content/uploads/wonolog/.htaccess');
     }
 
     /**
@@ -110,8 +110,8 @@ class LogsFolderTest extends UnitTestCase
 
         $folder = LogsFolder::determineFolder(WP_CONTENT_DIR . '/uploads/logs');
 
-        static::assertSame($dir->url() . '/www/wp-content/uploads/logs/', $folder);
-        static::assertTrue(file_exists($dir->url() . '/www/wp-content/uploads/logs/.htaccess'));
+        $this->assertSame($dir->url() . '/www/wp-content/uploads/logs/', $folder);
+        $this->assertFileExists($dir->url() . '/www/wp-content/uploads/logs/.htaccess');
     }
 
     /**
@@ -124,8 +124,8 @@ class LogsFolderTest extends UnitTestCase
 
         $folder = LogsFolder::determineFolder(WP_CONTENT_DIR);
 
-        static::assertSame($dir->url() . '/www/wp-content/wonolog/', $folder);
-        static::assertTrue(file_exists($dir->url() . '/www/wp-content/wonolog/.htaccess'));
+        $this->assertSame($dir->url() . '/www/wp-content/wonolog/', $folder);
+        $this->assertFileExists($dir->url() . '/www/wp-content/wonolog/.htaccess');
     }
 
     /**
@@ -138,8 +138,8 @@ class LogsFolderTest extends UnitTestCase
 
         $folder = LogsFolder::determineFolder(WP_CONTENT_DIR . '/logs');
 
-        static::assertSame($dir->url() . '/www/wp-content/logs/', $folder);
-        static::assertTrue(file_exists($dir->url() . '/www/wp-content/logs/.htaccess'));
+        $this->assertSame($dir->url() . '/www/wp-content/logs/', $folder);
+        $this->assertFileExists($dir->url() . '/www/wp-content/logs/.htaccess');
     }
 
     /**
@@ -152,8 +152,8 @@ class LogsFolderTest extends UnitTestCase
 
         $folder = LogsFolder::determineFolder($dir->url() . '/tmp/logs');
 
-        static::assertSame($dir->url() . '/tmp/logs/', $folder);
-        static::assertFalse(file_exists($dir->url() . '/tmp/logs/.htaccess'));
+        $this->assertSame($dir->url() . '/tmp/logs/', $folder);
+        $this->assertFileNotExists($dir->url() . '/tmp/logs/.htaccess');
     }
 
     /**

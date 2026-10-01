@@ -11,7 +11,7 @@ use Inpsyde\Wonolog\Tests\UnitTestCase;
 /**
  * @runTestsInSeparateProcesses
  */
-class SerializerTest extends UnitTestCase
+final class SerializerTest extends UnitTestCase
 {
     /**
      * @test
@@ -19,7 +19,7 @@ class SerializerTest extends UnitTestCase
      */
     public function testMessageSerialization(mixed $message, string $expected): void
     {
-        static::assertSame($expected, Serializer::serializeMessage($message));
+        $this->assertSame($expected, Serializer::serializeMessage($message));
     }
 
     /**
@@ -28,7 +28,7 @@ class SerializerTest extends UnitTestCase
     public function testMessageSerializationWithResource(): void
     {
         $res = fopen(__FILE__, 'r');
-        static::assertSame('Resource (stream)', Serializer::serializeMessage($res));
+        $this->assertSame('Resource (stream)', Serializer::serializeMessage($res));
     }
 
     /**
@@ -36,7 +36,7 @@ class SerializerTest extends UnitTestCase
      */
     public function testMessageSerializationWithException(): void
     {
-        static::assertSame('Error: Error!', Serializer::serializeMessage(new \Error('Error!')));
+        $this->assertSame('Error: Error!', Serializer::serializeMessage(new \Error('Error!')));
     }
 
     /**
@@ -72,8 +72,8 @@ class SerializerTest extends UnitTestCase
         $query->query_vars = ['post_password' => 'abc', 'post_type' => 'post'];
         $query->query = [];
 
-        $postClass = get_class($post1);
-        $queryClass = get_class($query);
+        $postClass = $post1::class;
+        $queryClass = $query::class;
 
         $throwable = new \Error('Foo');
         $datetime = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
@@ -88,7 +88,7 @@ class SerializerTest extends UnitTestCase
 
         $jsonObj = new class implements \JsonSerializable
         {
-            public function jsonSerialize(): object
+            public function jsonSerialize(): \stdClass
             {
                 return (object) ['token' => 'x'];
             }
@@ -152,7 +152,7 @@ class SerializerTest extends UnitTestCase
             ],
             'data' => [
                 'query' => $queryClass . ' ({"post_password":"***","post_type":"post"})',
-                'object' => sprintf('Instance of %s (%s)', __CLASS__, spl_object_hash($this)),
+                'object' => sprintf('Instance of %s (%s)', self::class, spl_object_hash($this)),
                 'objects' => [
                     'throwable' => 'Error: ' . $throwable->getMessage(),
                     'datetime' => 'DateTimeImmutable: ' . $datetime->format('r'),
@@ -161,26 +161,24 @@ class SerializerTest extends UnitTestCase
             'json' => [['token' => '***'], '1'],
         ];
 
-        static::assertSame($expected, Serializer::serializeContext($input));
+        $this->assertSame($expected, Serializer::serializeContext($input));
     }
 
     /**
-     * @return list<array{mixed, string}>
+     * @return \Iterator<int<0, max>, array{mixed, string}>
      */
-    public function provideMessageExamples(): array
+    public function provideMessageExamples(): \Iterator
     {
-        return [
-            ['A message', 'A message'],
-            [null, 'NULL'],
-            [true, 'TRUE'],
-            [false, 'FALSE'],
-            [1, '1'],
-            [1.05, '1.05'],
-            [NAN, 'NaN'],
-            [INF, 'INF'],
-            [-INF, '-INF'],
-            [(object) ['foo' => 'bar'], '{"foo":"bar"}'],
-            [['foo' => 'bar'], '{"foo":"bar"}'],
-        ];
+        yield ['A message', 'A message'];
+        yield [null, 'NULL'];
+        yield [true, 'TRUE'];
+        yield [false, 'FALSE'];
+        yield [1, '1'];
+        yield [1.05, '1.05'];
+        yield [NAN, 'NaN'];
+        yield [INF, 'INF'];
+        yield [-INF, '-INF'];
+        yield [(object) ['foo' => 'bar'], '{"foo":"bar"}'];
+        yield [['foo' => 'bar'], '{"foo":"bar"}'];
     }
 }

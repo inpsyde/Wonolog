@@ -16,8 +16,8 @@ use PHPMailer\PHPMailer;
  */
 class MailerListener implements ActionListener
 {
-    private int $errorLogLevel;
-    private int $smtpDebugLevel;
+    private readonly int $errorLogLevel;
+    private readonly int $smtpDebugLevel;
 
     /**
      * @param int $errorLogLevel

@@ -9,7 +9,7 @@ use Inpsyde\Wonolog\Channels;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Inpsyde\Wonolog\WpErrorChannel;
 
-class WpErrorChannelTest extends UnitTestCase
+final class WpErrorChannelTest extends UnitTestCase
 {
     /**
      * @test
@@ -27,7 +27,7 @@ class WpErrorChannelTest extends UnitTestCase
         $instance = WpErrorChannel::new();
         $channel = $instance->channelFor($error);
 
-        static::assertSame(Channels::DB, $channel);
+        $this->assertSame(Channels::DB, $channel);
     }
 
     /**
@@ -47,7 +47,7 @@ class WpErrorChannelTest extends UnitTestCase
         $instance = WpErrorChannel::new();
         $channel = $instance->channelFor($error);
 
-        static::assertSame(Channels::NETWORK, $channel);
+        $this->assertSame(Channels::NETWORK, $channel);
     }
 
     /**
@@ -66,7 +66,7 @@ class WpErrorChannelTest extends UnitTestCase
         $instance = WpErrorChannel::new();
         $channel = $instance->channelFor($error);
 
-        static::assertSame(Channels::SECURITY, $channel);
+        $this->assertSame(Channels::SECURITY, $channel);
     }
 
     /**
@@ -91,7 +91,7 @@ class WpErrorChannelTest extends UnitTestCase
         $instance = WpErrorChannel::new();
         $channel = $instance->channelFor($error);
 
-        static::assertSame('BAR', $channel);
+        $this->assertSame('BAR', $channel);
     }
 
     /**
@@ -108,6 +108,6 @@ class WpErrorChannelTest extends UnitTestCase
         /** @var \WP_Error $error */
         $channel = $instance->channelFor($error);
 
-        static::assertSame('TESTS', $channel);
+        $this->assertSame('TESTS', $channel);
     }
 }

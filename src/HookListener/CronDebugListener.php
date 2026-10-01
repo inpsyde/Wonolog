@@ -13,7 +13,7 @@ final class CronDebugListener implements ActionListener
 {
     private static bool $ran = false;
 
-    private int $logLevel;
+    private readonly int $logLevel;
 
     /**
      * @var array<string, array{float, string|null}>

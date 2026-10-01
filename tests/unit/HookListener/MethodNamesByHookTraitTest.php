@@ -13,7 +13,7 @@ use Inpsyde\Wonolog\HookListener\MethodNamesByHookTrait;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class MethodNamesByHookTraitTest extends UnitTestCase
+final class MethodNamesByHookTraitTest extends UnitTestCase
 {
     /**
      * @test
@@ -77,7 +77,7 @@ class MethodNamesByHookTraitTest extends UnitTestCase
         $listener->update('hook.four', [], $updater);
         $listener->update('hookFive', [], $updater);
 
-        static::assertSame(['one', 'two', 'three', 'four'], $logMessages);
+        $this->assertSame(['one', 'two', 'three', 'four'], $logMessages);
     }
 
     /**
@@ -130,7 +130,7 @@ class MethodNamesByHookTraitTest extends UnitTestCase
         $listener->update('prefix_two', [], $updater);
         $listener->update('three', [], $updater);
 
-        static::assertSame(['one', 'two', 'three'], $logMessages);
+        $this->assertSame(['one', 'two', 'three'], $logMessages);
     }
 
     /**
@@ -168,7 +168,7 @@ class MethodNamesByHookTraitTest extends UnitTestCase
         $value = new \stdClass();
         $filtered = $listener->filter('log', [$value], $updater);
 
-        static::assertSame('logged!', $logMessage);
-        static::assertSame($value, $filtered);
+        $this->assertSame('logged!', $logMessage);
+        $this->assertSame($value, $filtered);
     }
 }

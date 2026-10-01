@@ -14,7 +14,7 @@ use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\TestHandler;
 
-class HandlersRegistryTest extends UnitTestCase
+final class HandlersRegistryTest extends UnitTestCase
 {
     /**
      * @test
@@ -31,7 +31,7 @@ class HandlersRegistryTest extends UnitTestCase
         $registry->addHandler($handlerTwo, 'test');
         $registry->addHandler($handlerThree, 'test');
 
-        static::assertCount(1, $registry);
+        $this->assertCount(1, $registry);
     }
 
     /**
@@ -45,11 +45,11 @@ class HandlersRegistryTest extends UnitTestCase
         $registry->addHandler($handler, 'x');
         $registry->removeHandlerFromChannels('x', Channels::CRON);
 
-        static::assertFalse($registry->hasHandlerForChannel('x', Channels::CRON));
-        static::assertTrue($registry->hasHandlerForChannel('x', Channels::DEBUG));
-        static::assertTrue($registry->hasHandlerForChannel('x', Channels::NETWORK));
+        $this->assertFalse($registry->hasHandlerForChannel('x', Channels::CRON));
+        $this->assertTrue($registry->hasHandlerForChannel('x', Channels::DEBUG));
+        $this->assertTrue($registry->hasHandlerForChannel('x', Channels::NETWORK));
 
-        static::assertCount(1, $registry);
+        $this->assertCount(1, $registry);
     }
 
     /**
@@ -68,12 +68,12 @@ class HandlersRegistryTest extends UnitTestCase
         $registry->addHandler($handlerTwo, 'b');
         $registry->addHandler($handlerThree, 'c');
 
-        static::assertSame($handlerOne, $registry->findById('a'));
-        static::assertSame($handlerTwo, $registry->findById('b'));
-        static::assertSame($handlerThree, $registry->findById('c'));
-        static::assertNull($registry->findById('x'));
+        $this->assertSame($handlerOne, $registry->findById('a'));
+        $this->assertSame($handlerTwo, $registry->findById('b'));
+        $this->assertSame($handlerThree, $registry->findById('c'));
+        $this->assertNull($registry->findById('x'));
 
-        static::assertCount(3, $registry);
+        $this->assertCount(3, $registry);
     }
 
     /**
@@ -89,7 +89,7 @@ class HandlersRegistryTest extends UnitTestCase
         $registry->removeHandlerFromChannels('X', Channels::NETWORK);
         $registry->removeHandlerFromChannels('X', Channels::CRON);
 
-        static::assertCount(0, $registry);
+        $this->assertCount(0, $registry);
     }
 
     /**
@@ -121,41 +121,41 @@ class HandlersRegistryTest extends UnitTestCase
             ->once()
             ->andReturn(false);
 
-        static::assertCount(2, $registry);
+        $this->assertCount(2, $registry);
 
         $http = $registry->findForChannel(Channels::NETWORK);
-        static::assertCount(1, $http);
-        static::assertInstanceOf(TestHandler::class, $http[0]);
+        $this->assertCount(1, $http);
+        $this->assertInstanceOf(TestHandler::class, $http[0]);
 
         $cron = $registry->findForChannel(Channels::CRON);
-        static::assertCount(2, $cron);
-        static::assertInstanceOf(TestHandler::class, $cron[0]);
-        static::assertInstanceOf(FileHandler::class, $cron[1]);
+        $this->assertCount(2, $cron);
+        $this->assertInstanceOf(TestHandler::class, $cron[0]);
+        $this->assertInstanceOf(FileHandler::class, $cron[1]);
 
         $debug = $registry->findForChannel(Channels::DEBUG);
-        static::assertCount(1, $debug);
-        static::assertInstanceOf(FileHandler::class, $debug[0]);
+        $this->assertCount(1, $debug);
+        $this->assertInstanceOf(FileHandler::class, $debug[0]);
 
         $db = $registry->findForChannel(Channels::DB);
-        static::assertCount(1, $db);
-        static::assertInstanceOf(FileHandler::class, $db[0]);
+        $this->assertCount(1, $db);
+        $this->assertInstanceOf(FileHandler::class, $db[0]);
 
         $registry->removeHandler('test');
-        static::assertSame([], $registry->findForChannel(Channels::NETWORK));
+        $this->assertSame([], $registry->findForChannel(Channels::NETWORK));
 
         $cronAgain = $registry->findForChannel(Channels::CRON);
-        static::assertCount(1, $cronAgain);
-        static::assertInstanceOf(FileHandler::class, $cronAgain[0]);
+        $this->assertCount(1, $cronAgain);
+        $this->assertInstanceOf(FileHandler::class, $cronAgain[0]);
 
         $dbAgain = $registry->findForChannel(Channels::DB);
-        static::assertCount(1, $dbAgain);
-        static::assertInstanceOf(FileHandler::class, $dbAgain[0]);
+        $this->assertCount(1, $dbAgain);
+        $this->assertInstanceOf(FileHandler::class, $dbAgain[0]);
 
         $registry->removeHandlerFromChannels('default', Channels::CRON);
-        static::assertSame([], $registry->findForChannel(Channels::CRON));
+        $this->assertSame([], $registry->findForChannel(Channels::CRON));
 
         $dbThirdTime = $registry->findForChannel(Channels::DB);
-        static::assertCount(1, $dbThirdTime);
-        static::assertInstanceOf(FileHandler::class, $dbThirdTime[0]);
+        $this->assertCount(1, $dbThirdTime);
+        $this->assertInstanceOf(FileHandler::class, $dbThirdTime[0]);
     }
 }

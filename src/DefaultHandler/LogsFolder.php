@@ -25,7 +25,7 @@ class LogsFolder
          *
          * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
          */
-        set_error_handler('__return_true');
+        set_error_handler(__return_true(...));
 
         try {
             if ($customFolder) {

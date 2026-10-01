@@ -23,7 +23,7 @@ use function Inpsyde\Wonolog\makeLogger;
 /**
  * @runTestsInSeparateProcesses
  */
-class AdvancedConfigTest extends IntegrationTestCase
+final class AdvancedConfigTest extends IntegrationTestCase
 {
     private ?string $logFile = null;
     private ?TestHandler $testHandler = null;
@@ -72,11 +72,9 @@ class AdvancedConfigTest extends IntegrationTestCase
             ->pushProcessor(
                 'test-processor',
                 // @phpstan-ignore-next-line
-                function (LogRecord|array $record): LogRecord|array {
-                    return is_array($record) // @phpstan-ignore-line
-                        ? $this->addExtraDataToProcessorWhenRecordIsArray($record)
-                        : $this->addExtraDataToProcessorWhenRecordIsLogRecord($record);
-                }
+                fn(LogRecord|array $record): LogRecord|array => is_array($record) // @phpstan-ignore-line
+                    ? $this->addExtraDataToProcessorWhenRecordIsArray($record)
+                    : $this->addExtraDataToProcessorWhenRecordIsLogRecord($record)
             );
     }
 
@@ -89,7 +87,7 @@ class AdvancedConfigTest extends IntegrationTestCase
         if (!is_array($record['extra'] ?? null)) {
             $record['extra'] = [];
         }
-        $record['extra']['testClass'] = __CLASS__;
+        $record['extra']['testClass'] = self::class;
         return $record;
     }
 
@@ -100,7 +98,7 @@ class AdvancedConfigTest extends IntegrationTestCase
     protected function addExtraDataToProcessorWhenRecordIsLogRecord(LogRecord $record): LogRecord
     {
         /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
-        $record->extra['testClass'] = __CLASS__;
+        $record->extra['testClass'] = self::class;
         return $record;
     }
 
@@ -119,7 +117,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertTrue($this->testHandler?->hasNoticeThatContains('Something happened.'));
+        $this->assertTrue($this->testHandler?->hasNoticeThatContains('Something happened.'));
 
         $this->assertLogFileHasLine('Something happened.', Channels::DEBUG, 'notice', ['foo']);
     }
@@ -137,9 +135,9 @@ class AdvancedConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertTrue($this->testHandler?->hasDebugThatContains('Something happened.'));
-        static::assertNotNull($this->logFile);
-        static::assertFalse(file_exists($this->logFile));
+        $this->assertTrue($this->testHandler?->hasDebugThatContains('Something happened.'));
+        $this->assertNotNull($this->logFile);
+        $this->assertFileNotExists($this->logFile);
     }
 
     /**
@@ -156,7 +154,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertFalse($this->testHandler?->hasNoticeThatContains('Something happened.'));
+        $this->assertFalse($this->testHandler?->hasNoticeThatContains('Something happened.'));
 
         $this->assertLogFileHasLine('Something happened.', Channels::NETWORK, 'NOTICE');
     }
@@ -175,9 +173,9 @@ class AdvancedConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertFalse($this->testHandler?->hasNoticeThatContains('Something happened.'));
-        static::assertNotNull($this->logFile);
-        static::assertFalse(file_exists($this->logFile));
+        $this->assertFalse($this->testHandler?->hasNoticeThatContains('Something happened.'));
+        $this->assertNotNull($this->logFile);
+        $this->assertFileNotExists($this->logFile);
     }
 
     /**
@@ -194,9 +192,9 @@ class AdvancedConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertFalse($this->testHandler?->hasNoticeThatContains('cron job'));
-        static::assertNotNull($this->logFile);
-        static::assertFalse(file_exists($this->logFile));
+        $this->assertFalse($this->testHandler?->hasNoticeThatContains('cron job'));
+        $this->assertNotNull($this->logFile);
+        $this->assertFileNotExists($this->logFile);
     }
 
     /**
@@ -206,7 +204,7 @@ class AdvancedConfigTest extends IntegrationTestCase
     {
         do_action('listen_to_me', 'Hello', 'World');
 
-        static::assertTrue($this->testHandler?->hasNoticeThatContains('Test hook fired'));
+        $this->assertTrue($this->testHandler?->hasNoticeThatContains('Test hook fired'));
 
         $this->assertLogFileHasLine('Test hook fired', 'TESTS', 'notice', ['Hello', 'World']);
     }
@@ -250,7 +248,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertTrue($this->testHandler?->hasWarningThatContains('old man who fished'));
+        $this->assertTrue($this->testHandler?->hasWarningThatContains('old man who fished'));
 
         $this->assertLogFileHasLine('old man who fished', 'TESTS', 'WARNING');
     }
@@ -280,7 +278,7 @@ class AdvancedConfigTest extends IntegrationTestCase
         do_action('wp', $wp);
 
         $this->assertLogFileHasLine($expectedMsg, Channels::NETWORK, 'NOTICE', $expectedContext);
-        static::assertSame([], $this->testHandler?->getRecords());
+        $this->assertSame([], $this->testHandler?->getRecords());
     }
 
     /**
@@ -292,7 +290,7 @@ class AdvancedConfigTest extends IntegrationTestCase
 
         $logger->notice('Something happened.', ['user_password' => 'bar']);
 
-        static::assertTrue($this->testHandler?->hasNoticeThatContains('Something happened.'));
+        $this->assertTrue($this->testHandler?->hasNoticeThatContains('Something happened.'));
 
         $this->assertLogFileHasLine(
             'Something happened.',
@@ -347,7 +345,7 @@ class AdvancedConfigTest extends IntegrationTestCase
             }
 
             $more = $matches['more'];
-            $extra = json_encode(['testClass' => __CLASS__], \JSON_THROW_ON_ERROR);
+            $extra = json_encode(['testClass' => self::class], \JSON_THROW_ON_ERROR);
             if (!preg_match('~' . preg_quote($extra, '~') . '~', $more)) {
                 continue;
             }
@@ -364,7 +362,7 @@ class AdvancedConfigTest extends IntegrationTestCase
                 continue;
             }
 
-            static::assertTrue(true); // @phpstan-ignore staticMethod.alreadyNarrowedType
+            $this->assertTrue(true); // @phpstan-ignore staticMethod.alreadyNarrowedType
 
             return;
         }

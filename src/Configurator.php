@@ -50,8 +50,6 @@ class Configurator
         HookListener\WpDieHandlerListener::class,
     ];
 
-    protected Factory $factory;
-
     /**
      * @var array<string, mixed>
      */
@@ -89,9 +87,8 @@ class Configurator
     /**
      * @param Factory $factory
      */
-    protected function __construct(Factory $factory)
+    protected function __construct(protected Factory $factory)
     {
-        $this->factory = $factory;
     }
 
     /**
@@ -556,7 +553,7 @@ class Configurator
         ?string $identifier = null
     ): Configurator {
 
-        $identifier = $identifier ?? get_class($listener);
+        $identifier ??= $listener::class;
         $this->factory->listenersRegistry()->addActionListener($identifier, $listener);
 
         return $this;
@@ -574,7 +571,7 @@ class Configurator
         ?string $identifier = null
     ): Configurator {
 
-        $identifier = $identifier ?? get_class($listener);
+        $identifier ??= $listener::class;
         $this->factory->listenersRegistry()
             ->addActionListenerWithPriority($identifier, $listener, $priority);
 
@@ -591,7 +588,7 @@ class Configurator
         ?string $identifier = null
     ): Configurator {
 
-        $identifier = $identifier ?? get_class($listener);
+        $identifier ??= $listener::class;
         $this->factory->listenersRegistry()->addFilterListener($identifier, $listener);
 
         return $this;
@@ -609,7 +606,7 @@ class Configurator
         ?string $identifier = null
     ): Configurator {
 
-        $identifier = $identifier ?? get_class($listener);
+        $identifier ??= $listener::class;
         $this->factory->listenersRegistry()
             ->addFilterListenerWithPriority($identifier, $listener, $priority);
 
@@ -804,10 +801,8 @@ class Configurator
         makeLogger();
 
         /** @var callable(?string):LoggerInterface $factoryCb */
-        $factoryCb = [$this->factory, 'psr3Logger'];
-        $psr3Factory = static function (?string $channel = null) use ($factoryCb): LoggerInterface {
-            return $factoryCb($channel);
-        };
+        $factoryCb = $this->factory->psr3Logger(...);
+        $psr3Factory = (static fn(?string $channel = null): LoggerInterface => $factoryCb($channel));
 
         /**
          * Fires right after Wonolog has been set up.

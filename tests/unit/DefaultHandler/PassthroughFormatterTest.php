@@ -7,7 +7,7 @@ namespace Inpsyde\Wonolog\Tests\Unit\DefaultHandler;
 use Inpsyde\Wonolog\DefaultHandler\PassthroughFormatter;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class PassthroughFormatterTest extends UnitTestCase
+final class PassthroughFormatterTest extends UnitTestCase
 {
     /**
      * @test
@@ -18,7 +18,7 @@ class PassthroughFormatterTest extends UnitTestCase
 
         $formatter = new PassthroughFormatter();
         foreach ($records as $record) {
-            static::assertSame($record, $formatter->format($record));
+            $this->assertSame($record, $formatter->format($record));
         }
     }
 
@@ -33,7 +33,7 @@ class PassthroughFormatterTest extends UnitTestCase
         $formattedRecords = $formatter->formatBatch($records);
 
         foreach ($records as $i => $record) {
-            static::assertSame($record, $formattedRecords[$i]);
+            $this->assertSame($record, $formattedRecords[$i]);
         }
     }
 }

@@ -7,13 +7,13 @@ namespace Inpsyde\Wonolog\Tests\Unit;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class LevelsTest extends UnitTestCase
+final class LevelsTest extends UnitTestCase
 {
     public function testAllLevelsMethod(): void
     {
         $actual = LogLevel::allLevels();
-        static::assertCount(8, $actual);
-        static::assertArrayHasKey('DEBUG', $actual);
-        static::assertEquals(LogLevel::DEBUG, $actual['DEBUG']);
+        $this->assertCount(8, $actual);
+        $this->assertArrayHasKey('DEBUG', $actual);
+        $this->assertEquals(LogLevel::DEBUG, $actual['DEBUG']);
     }
 }

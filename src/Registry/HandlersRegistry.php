@@ -21,8 +21,6 @@ class HandlersRegistry implements \Countable
      */
     private array $handlers = [];
 
-    private ProcessorsRegistry $processorsRegistry;
-
     /**
      * @var list<string>
      */
@@ -51,9 +49,8 @@ class HandlersRegistry implements \Countable
     /**
      * @param ProcessorsRegistry $processorsRegistry
      */
-    private function __construct(ProcessorsRegistry $processorsRegistry)
+    private function __construct(private readonly ProcessorsRegistry $processorsRegistry)
     {
-        $this->processorsRegistry = $processorsRegistry;
     }
 
     /**
@@ -68,15 +65,13 @@ class HandlersRegistry implements \Countable
         string ...$channels
     ): HandlersRegistry {
 
-        if ($identifier === null) {
-            $identifier = get_class($handler);
-        }
+        $identifier ??= $handler::class;
 
         $allChannels = self::allChannelsName();
         $channels = $channels ?: [$allChannels];
 
         [$currentHandler, $currentChannels] = $this->handlers[$identifier] ?? [null, []];
-        if ($currentHandler && $currentHandler !== $handler) {
+        if ($currentHandler instanceof \Monolog\Handler\HandlerInterface && $currentHandler !== $handler) {
             return $this;
         }
 
@@ -159,7 +154,7 @@ class HandlersRegistry implements \Countable
     ): HandlersRegistry {
 
         [$handler, $currentChannels] = $this->handlers[$identifier] ?? [null, null];
-        if ($handler && empty($currentChannels[self::allChannelsName()])) {
+        if ($handler instanceof \Monolog\Handler\HandlerInterface && empty($currentChannels[self::allChannelsName()])) {
             $this->addHandler($handler, $identifier, $channel, ...$channels);
         }
 
@@ -195,7 +190,7 @@ class HandlersRegistry implements \Countable
     {
         [$handler, $channels] = $this->handlers[$identifier] ?? [null, []];
 
-        return $handler && ($channels[$channel] ?? $channels[self::allChannelsName()] ?? false);
+        return $handler instanceof \Monolog\Handler\HandlerInterface && ($channels[$channel] ?? $channels[self::allChannelsName()] ?? false);
     }
 
     /**

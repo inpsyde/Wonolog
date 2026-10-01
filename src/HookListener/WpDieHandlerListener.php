@@ -14,7 +14,7 @@ use Inpsyde\Wonolog\LogLevel;
  */
 final class WpDieHandlerListener implements FilterListener
 {
-    private int $logLevel;
+    private readonly int $logLevel;
 
     /**
      * @param int $logLevel

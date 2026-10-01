@@ -8,7 +8,7 @@ use Inpsyde\Wonolog\Factory;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\LogRecord;
 
-class ProcessorsRegistryTest extends UnitTestCase
+final class ProcessorsRegistryTest extends UnitTestCase
 {
     /**
      * @test
@@ -17,9 +17,7 @@ class ProcessorsRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->processorsRegistry();
 
-        $callback = static function (array|LogRecord $record): array|LogRecord {
-            return $record;
-        };
+        $callback = (static fn(array|LogRecord $record): array|LogRecord => $record);
 
         $handlerOne = $callback;
         $handlerTwo = clone $callback;
@@ -29,7 +27,7 @@ class ProcessorsRegistryTest extends UnitTestCase
         $registry->addProcessor($handlerTwo, 'test');
         $registry->addProcessor($handlerThree, 'test');
 
-        static::assertCount(1, $registry);
+        $this->assertCount(1, $registry);
     }
 
     /**
@@ -39,25 +37,21 @@ class ProcessorsRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->processorsRegistry();
 
-        $callback1 = static function (array|LogRecord $record): array|LogRecord {
-            return $record;
-        };
-        $callback2 = static function (array|LogRecord $record): array|LogRecord {
-            return $record;
-        };
+        $callback1 = (static fn(array|LogRecord $record): array|LogRecord => $record);
+        $callback2 = (static fn(array|LogRecord $record): array|LogRecord => $record);
 
         $registry->addProcessor($callback1, 'x', 'A', 'B');
         $registry->addProcessor($callback2, 'y', 'C', 'D');
         $registry->removeProcessorFromChannels('x', 'B');
 
-        static::assertTrue($registry->hasProcessorForAnyChannel('x'));
-        static::assertTrue($registry->hasProcessorForAnyChannel('y'));
-        static::assertTrue($registry->hasProcessorForChannel('x', 'A'));
-        static::assertFalse($registry->hasProcessorForChannel('x', 'B'));
-        static::assertTrue($registry->hasProcessorForChannel('y', 'C'));
-        static::assertTrue($registry->hasProcessorForChannel('y', 'D'));
-        static::assertFalse($registry->hasProcessorForChannel('x', 'Meh'));
-        static::assertFalse($registry->hasProcessorForChannel('y', 'Meh'));
+        $this->assertTrue($registry->hasProcessorForAnyChannel('x'));
+        $this->assertTrue($registry->hasProcessorForAnyChannel('y'));
+        $this->assertTrue($registry->hasProcessorForChannel('x', 'A'));
+        $this->assertFalse($registry->hasProcessorForChannel('x', 'B'));
+        $this->assertTrue($registry->hasProcessorForChannel('y', 'C'));
+        $this->assertTrue($registry->hasProcessorForChannel('y', 'D'));
+        $this->assertFalse($registry->hasProcessorForChannel('x', 'Meh'));
+        $this->assertFalse($registry->hasProcessorForChannel('y', 'Meh'));
     }
 
     /**
@@ -67,12 +61,8 @@ class ProcessorsRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->processorsRegistry();
 
-        $callback1 = static function (array|LogRecord $record): array|LogRecord {
-            return $record;
-        };
-        $callback2 = static function (array|LogRecord $record): array|LogRecord {
-            return $record;
-        };
+        $callback1 = (static fn(array|LogRecord $record): array|LogRecord => $record);
+        $callback2 = (static fn(array|LogRecord $record): array|LogRecord => $record);
 
         $registry->addProcessor($callback1, 'x', 'A', 'B');
         $registry->addProcessor($callback2, 'y', 'A', 'C');
@@ -82,10 +72,10 @@ class ProcessorsRegistryTest extends UnitTestCase
         $cProc = $registry->findForChannel('C');
         $dProc = $registry->findForChannel('D');
 
-        static::assertSame([$callback1, $callback2], $aProc);
-        static::assertSame([$callback1], $bProc);
-        static::assertSame([$callback2], $cProc);
-        static::assertSame([], $dProc);
+        $this->assertSame([$callback1, $callback2], $aProc);
+        $this->assertSame([$callback1], $bProc);
+        $this->assertSame([$callback2], $cProc);
+        $this->assertSame([], $dProc);
     }
 
     /**
@@ -95,18 +85,14 @@ class ProcessorsRegistryTest extends UnitTestCase
     {
         $registry = Factory::new()->processorsRegistry();
 
-        $callback1 = static function (array|LogRecord $record): array|LogRecord {
-            return $record;
-        };
-        $callback2 = static function (array|LogRecord $record): array|LogRecord {
-            return $record;
-        };
+        $callback1 = (static fn(array|LogRecord $record): array|LogRecord => $record);
+        $callback2 = (static fn(array|LogRecord $record): array|LogRecord => $record);
 
         $registry->addProcessor($callback1, 'x');
         $registry->addProcessor($callback2, 'y', 'A', 'C');
 
-        static::assertSame($callback1, $registry->findById('x'));
-        static::assertSame($callback2, $registry->findById('y'));
-        static::assertNull($registry->findById('z'));
+        $this->assertSame($callback1, $registry->findById('x'));
+        $this->assertSame($callback2, $registry->findById('y'));
+        $this->assertNull($registry->findById('z'));
     }
 }

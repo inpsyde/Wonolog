@@ -10,7 +10,7 @@ use Inpsyde\Wonolog\HookListener\ActionListener;
 use Inpsyde\Wonolog\HookListener\FilterListener;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class HookListenersRegistryTest extends UnitTestCase
+final class HookListenersRegistryTest extends UnitTestCase
 {
     /**
      * @test
@@ -61,11 +61,11 @@ class HookListenersRegistryTest extends UnitTestCase
             ->once()
             ->with(\Mockery::type('Closure'), 4, $args);
 
-        static::assertFalse($registry->hasListener('one'));
-        static::assertTrue($registry->hasListener('two'));
-        static::assertTrue($registry->hasListener('three'));
-        static::assertTrue($registry->hasListener('four'));
-        static::assertTrue($registry->hasListener('five'));
+        $this->assertFalse($registry->hasListener('one'));
+        $this->assertTrue($registry->hasListener('two'));
+        $this->assertTrue($registry->hasListener('three'));
+        $this->assertTrue($registry->hasListener('four'));
+        $this->assertTrue($registry->hasListener('five'));
 
         $registry->listenAll($defPriority);
     }

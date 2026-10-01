@@ -11,7 +11,7 @@ use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class CronDebugListenerTest extends UnitTestCase
+final class CronDebugListenerTest extends UnitTestCase
 {
     /**
      * @test
@@ -86,9 +86,9 @@ class CronDebugListenerTest extends UnitTestCase
 
         (new CronDebugListener(LogLevel::NOTICE))->update('wp_loaded', [], $updater);
 
-        static::assertIsCallable($cb1);
-        static::assertIsCallable($cb2);
-        static::assertIsCallable($cb3);
+        $this->assertIsCallable($cb1);
+        $this->assertIsCallable($cb2);
+        $this->assertIsCallable($cb3);
 
         $cb1();
         $cb2();
@@ -100,8 +100,8 @@ class CronDebugListenerTest extends UnitTestCase
 
         $regxp = '~^Cron action "%s" performed\. Duration: [0|1]\.[0-9]+ seconds\.$~';
 
-        static::assertMatchesRegularExpression(sprintf($regxp, 'wp_scheduled_delete'), $logs[0]);
-        static::assertMatchesRegularExpression(sprintf($regxp, 'wp_update_plugins'), $logs[1]);
-        static::assertMatchesRegularExpression(sprintf($regxp, 'wp_version_check'), $logs[2]);
+        $this->assertMatchesRegularExpression(sprintf($regxp, 'wp_scheduled_delete'), $logs[0]);
+        $this->assertMatchesRegularExpression(sprintf($regxp, 'wp_update_plugins'), $logs[1]);
+        $this->assertMatchesRegularExpression(sprintf($regxp, 'wp_version_check'), $logs[2]);
     }
 }

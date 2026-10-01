@@ -76,7 +76,7 @@ class PhpErrorController
             LogLevel::CRITICAL,
             Channels::PHP_ERROR,
             [
-                'exception' => get_class($throwable),
+                'exception' => $throwable::class,
                 'file' => $throwable->getFile(),
                 'line' => $throwable->getLine(),
                 'trace' => $throwable->getTraceAsString(),
@@ -125,7 +125,7 @@ class PhpErrorController
         $this->alreadySetup = true;
 
         if ($this->logExceptions) {
-            $this->previousHandler = set_exception_handler([$this, 'onException']);
+            $this->previousHandler = set_exception_handler($this->onException(...));
         }
 
         if ($this->errorTypes <= 0) {
@@ -133,7 +133,7 @@ class PhpErrorController
         }
 
         // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
-        set_error_handler([$this, 'onError'], $this->errorTypes);
+        set_error_handler($this->onError(...), $this->errorTypes);
         if (self::typesMaskContainsFatals($this->errorTypes)) {
             register_shutdown_function([$this, 'onShutdown']);
         }

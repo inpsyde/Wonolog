@@ -16,10 +16,8 @@ use Psr\Log\AbstractLogger;
  */
 class PsrBridge extends AbstractLogger
 {
-    private LogActionUpdater $updater;
-    private Channels $channels;
     private ?string $defaultChannel = null;
-    private PsrLogMessageProcessor $processor;
+    private readonly PsrLogMessageProcessor $processor;
 
     /**
      * @param LogActionUpdater $updater
@@ -35,10 +33,8 @@ class PsrBridge extends AbstractLogger
      * @param LogActionUpdater $updater
      * @param Channels $channels
      */
-    private function __construct(LogActionUpdater $updater, Channels $channels)
+    private function __construct(private readonly LogActionUpdater $updater, private readonly Channels $channels)
     {
-        $this->updater = $updater;
-        $this->channels = $channels;
         $this->processor = new PsrLogMessageProcessor(null, true);
     }
 
@@ -70,7 +66,7 @@ class PsrBridge extends AbstractLogger
             $throwable = $message;
             $message = $message->getMessage();
         }
-        $throwable = $throwable ?? $context['exception'] ?? null;
+        $throwable ??= $context['exception'] ?? null;
         if ($throwable && !($throwable instanceof \Throwable)) {
             $throwable = null;
         }

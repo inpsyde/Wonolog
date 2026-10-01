@@ -12,7 +12,7 @@ use Inpsyde\Wonolog\HookListener\QueryErrorsListener;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class QueryErrorsListenerTest extends UnitTestCase
+final class QueryErrorsListenerTest extends UnitTestCase
 {
     /**
      * @test

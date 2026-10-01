@@ -14,7 +14,7 @@ use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Psr\Log\LogLevel;
 use Psr\Log\Test\TestLogger;
 
-class LogActionUpdaterTest extends UnitTestCase
+final class LogActionUpdaterTest extends UnitTestCase
 {
     /**
      * @test
@@ -109,10 +109,10 @@ class LogActionUpdaterTest extends UnitTestCase
 
         $record = $logger->records[0];
 
-        static::assertIsArray($record);
-        static::assertSame('Test me', $record['message'] ?? '');
-        static::assertSame(LogLevel::EMERGENCY, $record['level'] ?? '');
-        static::assertSame(['foo' => 'bar'], $record['context'] ?? '');
+        $this->assertIsArray($record);
+        $this->assertSame('Test me', $record['message'] ?? '');
+        $this->assertSame(LogLevel::EMERGENCY, $record['level'] ?? '');
+        $this->assertSame(['foo' => 'bar'], $record['context'] ?? '');
     }
 
     /**
@@ -166,9 +166,9 @@ class LogActionUpdaterTest extends UnitTestCase
 
         $record = $logger->records[0];
 
-        static::assertIsArray($record);
-        static::assertSame('Test me', $record['message'] ?? '');
-        static::assertSame(LogLevel::EMERGENCY, $record['level'] ?? '');
-        static::assertSame($contextExpected, $record['context'] ?? '');
+        $this->assertIsArray($record);
+        $this->assertSame('Test me', $record['message'] ?? '');
+        $this->assertSame(LogLevel::EMERGENCY, $record['level'] ?? '');
+        $this->assertSame($contextExpected, $record['context'] ?? '');
     }
 }

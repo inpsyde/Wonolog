@@ -38,7 +38,7 @@ final class HttpApiListener implements ActionListener
         308,
     ];
 
-    private int $errorLogLevel;
+    private readonly int $errorLogLevel;
 
     /**
      * @param int $errorLogLevel

@@ -13,7 +13,7 @@ use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class HttpApiListenerTest extends UnitTestCase
+final class HttpApiListenerTest extends UnitTestCase
 {
     /**
      * @test

@@ -234,17 +234,17 @@ abstract class Serializer
             case ($value instanceof \WP_Comment_Query):
                 return self::serializeObjectByProp($value, 'query_vars');
             case ($value instanceof \WP_Error):
-                return sprintf('%s: %s', get_class($value), $value->get_error_message());
+                return sprintf('%s: %s', $value::class, $value->get_error_message());
             case ($value instanceof \Throwable):
-                return sprintf('%s: %s', get_class($value), $value->getMessage());
+                return sprintf('%s: %s', $value::class, $value->getMessage());
             case ($value instanceof \DateTimeInterface):
-                return sprintf('%s: %s', get_class($value), $value->format('r'));
+                return sprintf('%s: %s', $value::class, $value->format('r'));
             case ($value instanceof \Stringable):
                 return (string) $value;
         }
 
         if ($ensureString) {
-            return sprintf('Instance of %s (%s)', get_class($value), spl_object_hash($value));
+            return sprintf('Instance of %s (%s)', $value::class, spl_object_hash($value));
         }
 
         return null;
@@ -265,7 +265,7 @@ abstract class Serializer
             $id = 0;
         }
 
-        return sprintf('%s (ID: %d)', get_class($object), $id);
+        return sprintf('%s (ID: %d)', $object::class, $id);
     }
 
     /**
@@ -278,6 +278,6 @@ abstract class Serializer
         $args = self::maybeMaskInput((array) ($object->{$prop} ?? []), 7);
         $argsStr = json_encode($args, self::JSON_ENC_FLAGS, 8);
 
-        return sprintf('%s (%s)', get_class($object), $argsStr);
+        return sprintf('%s (%s)', $object::class, $argsStr);
     }
 }

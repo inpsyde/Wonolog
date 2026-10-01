@@ -49,10 +49,6 @@ class Channels
      */
     private array $channels;
 
-    private Registry\HandlersRegistry $handlersRegistry;
-
-    private Registry\ProcessorsRegistry $processorsRegistry;
-
     private ?\DateTimeZone $timezone = null;
 
     /**
@@ -81,16 +77,14 @@ class Channels
     }
 
     /**
-     * @param Registry\HandlersRegistry $handlers
-     * @param Registry\ProcessorsRegistry $processors
+     * @param Registry\HandlersRegistry $handlersRegistry
+     * @param Registry\ProcessorsRegistry $processorsRegistry
      */
     private function __construct(
-        Registry\HandlersRegistry $handlers,
-        Registry\ProcessorsRegistry $processors
+        private readonly Registry\HandlersRegistry $handlersRegistry,
+        private readonly Registry\ProcessorsRegistry $processorsRegistry
     ) {
 
-        $this->handlersRegistry = $handlers;
-        $this->processorsRegistry = $processors;
         $this->channels = array_fill_keys(self::DEFAULT_CHANNELS, 1);
         $this->defaultChannel = self::DEBUG;
     }
@@ -196,7 +190,7 @@ class Channels
             if (!$matches) {
                 return false;
             }
-        } catch (\Throwable $throwable) {
+        } catch (\Throwable) {
             return false;
         }
 

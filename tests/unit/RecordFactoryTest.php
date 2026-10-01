@@ -11,7 +11,7 @@ use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Level;
 use Monolog\LogRecord;
 
-class RecordFactoryTest extends UnitTestCase
+final class RecordFactoryTest extends UnitTestCase
 {
     public function testRecordFactoryCreatesCorrectRecordType(): void
     {
@@ -23,17 +23,17 @@ class RecordFactoryTest extends UnitTestCase
         ];
         $createdRecord = RecordFactory::createRecord($message, $level, $channel, $context);
         if (MonologUtils::version() >= 3) {
-            static::assertInstanceOf(LogRecord::class, $createdRecord);
-            static::assertEquals($createdRecord->context, $context);
-            static::assertEquals($createdRecord->message, $message);
-            static::assertEquals($createdRecord->channel, $channel);
-            static::assertInstanceOf(Level::class, $createdRecord->level);
-            static::assertEquals($createdRecord->level->value, $level);
+            $this->assertInstanceOf(LogRecord::class, $createdRecord);
+            $this->assertEquals($createdRecord->context, $context);
+            $this->assertSame($createdRecord->message, $message);
+            $this->assertSame($createdRecord->channel, $channel);
+            $this->assertInstanceOf(Level::class, $createdRecord->level);
+            $this->assertEquals($createdRecord->level->value, $level);
             return;
         }
-        static::assertIsArray($createdRecord);
-        static::assertEquals($createdRecord['message'] ?? '', $message);
-        static::assertEquals($createdRecord['context'] ?? '', $context);
-        static::assertEquals($createdRecord['level'] ?? '', $level);
+        $this->assertIsArray($createdRecord);
+        $this->assertEquals($createdRecord['message'] ?? '', $message);
+        $this->assertEquals($createdRecord['context'] ?? '', $context);
+        $this->assertEquals($createdRecord['level'] ?? '', $level);
     }
 }

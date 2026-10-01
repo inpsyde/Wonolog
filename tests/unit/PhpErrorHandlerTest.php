@@ -11,7 +11,7 @@ use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\PhpErrorController;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class PhpErrorHandlerTest extends UnitTestCase
+final class PhpErrorHandlerTest extends UnitTestCase
 {
     /**
      * @return void

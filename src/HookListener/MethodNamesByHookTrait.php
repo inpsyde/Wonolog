@@ -63,7 +63,7 @@ trait MethodNamesByHookTrait
             return [$this, $snakeMethod];
         }
 
-        $camelMethod = array_shift($parts) . implode('', array_map('ucfirst', $parts));
+        $camelMethod = array_shift($parts) . implode('', array_map(ucfirst(...), $parts));
 
         return is_callable([$this, $camelMethod]) ? [$this, $camelMethod] : null;
     }

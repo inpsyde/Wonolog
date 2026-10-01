@@ -11,7 +11,7 @@ use Inpsyde\Wonolog\HookListener\DbErrorListener;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class DbErrorListenerTest extends UnitTestCase
+final class DbErrorListenerTest extends UnitTestCase
 {
     /**
      * @return void

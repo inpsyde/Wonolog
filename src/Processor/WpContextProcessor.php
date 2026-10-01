@@ -118,7 +118,7 @@ class WpContextProcessor
 
         $restUrl = (string) set_url_scheme(get_rest_url());
         $currentUrl = (string) set_url_scheme(add_query_arg([]));
-        $this->isRestRequest = strpos($currentUrl, (string) set_url_scheme($restUrl)) === 0;
+        $this->isRestRequest = str_starts_with($currentUrl, (string) set_url_scheme($restUrl));
 
         return $this->isRestRequest;
     }

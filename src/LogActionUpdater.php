@@ -11,8 +11,6 @@ class LogActionUpdater
     public const ACTION_LOGGER_ERROR = 'wonolog.logger-error';
     public const FILTER_CONTEXT = 'wonolog.log-data-context';
 
-    private Channels $channels;
-
     /**
      * @param Channels $channels
      * @return LogActionUpdater
@@ -25,9 +23,8 @@ class LogActionUpdater
     /**
      * @param Channels $channels
      */
-    private function __construct(Channels $channels)
+    private function __construct(private readonly Channels $channels)
     {
-        $this->channels = $channels;
     }
 
     /**

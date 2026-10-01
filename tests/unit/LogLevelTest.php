@@ -10,7 +10,7 @@ use Inpsyde\Wonolog\Tests\UnitTestCase;
 /**
  * @runTestsInSeparateProcesses
  */
-class LogLevelTest extends UnitTestCase
+final class LogLevelTest extends UnitTestCase
 {
     /**
      * @return void
@@ -28,7 +28,7 @@ class LogLevelTest extends UnitTestCase
     {
         putenv('WONOLOG_DEFAULT_MIN_LEVEL=CRITICAL');
 
-        static::assertSame(LogLevel::CRITICAL, LogLevel::defaultMinLevel());
+        $this->assertSame(LogLevel::CRITICAL, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -38,7 +38,7 @@ class LogLevelTest extends UnitTestCase
     {
         putenv('WONOLOG_DEFAULT_MIN_LEVEL=500');
 
-        static::assertSame(LogLevel::CRITICAL, LogLevel::defaultMinLevel());
+        $this->assertSame(LogLevel::CRITICAL, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -46,7 +46,7 @@ class LogLevelTest extends UnitTestCase
      */
     public function testDefaultLevelByConstantNone(): void
     {
-        static::assertSame(LogLevel::DEBUG, LogLevel::defaultMinLevel());
+        $this->assertSame(LogLevel::DEBUG, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -56,7 +56,7 @@ class LogLevelTest extends UnitTestCase
     {
         define('WP_DEBUG_LOG', true);
 
-        static::assertSame(LogLevel::DEBUG, LogLevel::defaultMinLevel());
+        $this->assertSame(LogLevel::DEBUG, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -66,8 +66,8 @@ class LogLevelTest extends UnitTestCase
     {
         define('WP_DEBUG', true);
 
-        static::assertFalse(defined('WP_DEBUG_LOG'));
-        static::assertSame(LogLevel::DEBUG, LogLevel::defaultMinLevel());
+        $this->assertFalse(defined('WP_DEBUG_LOG'));
+        $this->assertSame(LogLevel::DEBUG, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -78,7 +78,7 @@ class LogLevelTest extends UnitTestCase
         define('WP_DEBUG_LOG', false);
         define('WP_DEBUG', true);
 
-        static::assertSame(LogLevel::WARNING, LogLevel::defaultMinLevel());
+        $this->assertSame(LogLevel::WARNING, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -90,7 +90,7 @@ class LogLevelTest extends UnitTestCase
         define('WP_DEBUG_LOG', false);
         define('WP_DEBUG', true);
 
-        static::assertSame(LogLevel::EMERGENCY, LogLevel::defaultMinLevel());
+        $this->assertSame(LogLevel::EMERGENCY, LogLevel::defaultMinLevel());
     }
 
     /**
@@ -98,14 +98,14 @@ class LogLevelTest extends UnitTestCase
      */
     public function testNormalizeLevelNormalizeToClosestValidLevel(): void
     {
-        static::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(0));
-        static::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(-10));
-        static::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(LogLevel::DEBUG - 10));
-        static::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(LogLevel::INFO - 1));
-        static::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::INFO));
-        static::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::INFO + 1));
-        static::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::NOTICE - 1));
-        static::assertSame(LogLevel::NOTICE, LogLevel::normalizeLevel(LogLevel::NOTICE));
+        $this->assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(0));
+        $this->assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(-10));
+        $this->assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(LogLevel::DEBUG - 10));
+        $this->assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel(LogLevel::INFO - 1));
+        $this->assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::INFO));
+        $this->assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::INFO + 1));
+        $this->assertSame(LogLevel::INFO, LogLevel::normalizeLevel(LogLevel::NOTICE - 1));
+        $this->assertSame(LogLevel::NOTICE, LogLevel::normalizeLevel(LogLevel::NOTICE));
     }
 
     /**
@@ -113,14 +113,14 @@ class LogLevelTest extends UnitTestCase
      */
     public function testCheckLevelAcceptsDefinedLevelStrings(): void
     {
-        static::assertSame(LogLevel::CRITICAL, LogLevel::normalizeLevel('CRITICAL'));
-        static::assertSame(LogLevel::ERROR, LogLevel::normalizeLevel('error'));
-        static::assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel('Debug'));
-        static::assertSame(LogLevel::ALERT, LogLevel::normalizeLevel('aLeRt'));
-        static::assertSame(LogLevel::EMERGENCY, LogLevel::normalizeLevel('emeRGEncy'));
-        static::assertSame(LogLevel::INFO, LogLevel::normalizeLevel(' INFO '));
-        static::assertSame(LogLevel::NOTICE, LogLevel::normalizeLevel(' nOtiCE'));
-        static::assertSame(LogLevel::WARNING, LogLevel::normalizeLevel('Warning '));
-        static::assertNull(LogLevel::normalizeLevel('MEH'));
+        $this->assertSame(LogLevel::CRITICAL, LogLevel::normalizeLevel('CRITICAL'));
+        $this->assertSame(LogLevel::ERROR, LogLevel::normalizeLevel('error'));
+        $this->assertSame(LogLevel::DEBUG, LogLevel::normalizeLevel('Debug'));
+        $this->assertSame(LogLevel::ALERT, LogLevel::normalizeLevel('aLeRt'));
+        $this->assertSame(LogLevel::EMERGENCY, LogLevel::normalizeLevel('emeRGEncy'));
+        $this->assertSame(LogLevel::INFO, LogLevel::normalizeLevel(' INFO '));
+        $this->assertSame(LogLevel::NOTICE, LogLevel::normalizeLevel(' nOtiCE'));
+        $this->assertSame(LogLevel::WARNING, LogLevel::normalizeLevel('Warning '));
+        $this->assertNull(LogLevel::normalizeLevel('MEH'));
     }
 }

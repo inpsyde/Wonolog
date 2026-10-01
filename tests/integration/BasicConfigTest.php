@@ -15,7 +15,7 @@ use function Inpsyde\Wonolog\makeLogger;
 /**
  * @runTestsInSeparateProcesses
  */
-class BasicConfigTest extends IntegrationTestCase
+final class BasicConfigTest extends IntegrationTestCase
 {
     private TestHandler $handler;
 
@@ -44,7 +44,7 @@ class BasicConfigTest extends IntegrationTestCase
             ]
         );
 
-        static::assertTrue($this->handler->hasNoticeThatContains('Something happened.'));
+        $this->assertTrue($this->handler->hasNoticeThatContains('Something happened.'));
     }
 
     /**
@@ -56,7 +56,7 @@ class BasicConfigTest extends IntegrationTestCase
 
         do_action('wonolog.log.emergency', $error);
 
-        static::assertTrue($this->handler->hasEmergencyThatContains('Lorem ipsum dolor sit amet.'));
+        $this->assertTrue($this->handler->hasEmergencyThatContains('Lorem ipsum dolor sit amet.'));
     }
 
     /**
@@ -70,7 +70,7 @@ class BasicConfigTest extends IntegrationTestCase
             do_action('wonolog.log', $throwable);
         }
 
-        static::assertTrue($this->handler->hasErrorThatContains('Bla bla bla'));
+        $this->assertTrue($this->handler->hasErrorThatContains('Bla bla bla'));
     }
 
     /**
@@ -80,7 +80,7 @@ class BasicConfigTest extends IntegrationTestCase
     {
         do_action('wonolog.log.info', 'Hello, I\'m there');
 
-        static::assertTrue($this->handler->hasInfoThatContains('Hello, I\'m there'));
+        $this->assertTrue($this->handler->hasInfoThatContains('Hello, I\'m there'));
     }
 
     /**
@@ -91,6 +91,6 @@ class BasicConfigTest extends IntegrationTestCase
         $logger = makeLogger('test');
         $logger->alert('From PSR-3 with love.', ['foo' => 'bar']);
 
-        static::assertTrue($this->handler->hasAlertThatContains('From PSR-3 with love.'));
+        $this->assertTrue($this->handler->hasAlertThatContains('From PSR-3 with love.'));
     }
 }

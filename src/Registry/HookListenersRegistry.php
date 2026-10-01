@@ -18,8 +18,6 @@ class HookListenersRegistry
 
     private bool $booted = false;
 
-    private LogActionUpdater $updater;
-
     /**
      * @param LogActionUpdater $updater
      * @return HookListenersRegistry
@@ -32,9 +30,8 @@ class HookListenersRegistry
     /**
      * @param LogActionUpdater $updater
      */
-    private function __construct(LogActionUpdater $updater)
+    private function __construct(private readonly LogActionUpdater $updater)
     {
-        $this->updater = $updater;
     }
 
     /**
@@ -68,9 +65,7 @@ class HookListenersRegistry
         ActionListener $listener
     ): HookListenersRegistry {
 
-        if (!isset($this->listeners[$identifier])) {
-            $this->listeners[$identifier] = [$listener, null];
-        }
+        $this->listeners[$identifier] ??= [$listener, null];
 
         return $this;
     }
@@ -85,9 +80,7 @@ class HookListenersRegistry
         FilterListener $listener
     ): HookListenersRegistry {
 
-        if (!isset($this->listeners[$identifier])) {
-            $this->listeners[$identifier] = [$listener, null];
-        }
+        $this->listeners[$identifier] ??= [$listener, null];
 
         return $this;
     }
@@ -104,9 +97,7 @@ class HookListenersRegistry
         int $priority
     ): HookListenersRegistry {
 
-        if (!isset($this->listeners[$identifier])) {
-            $this->listeners[$identifier] = [$listener, $priority];
-        }
+        $this->listeners[$identifier] ??= [$listener, $priority];
 
         return $this;
     }
@@ -123,9 +114,7 @@ class HookListenersRegistry
         int $priority
     ): HookListenersRegistry {
 
-        if (!isset($this->listeners[$identifier])) {
-            $this->listeners[$identifier] = [$listener, $priority];
-        }
+        $this->listeners[$identifier] ??= [$listener, $priority];
 
         return $this;
     }

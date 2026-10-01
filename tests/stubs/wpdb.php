@@ -44,9 +44,7 @@ class wpdb
      */
     private function execute_die_listener(): callable
     {
-        $handler = static function (string $message): string {
-            return "Handled: {$message}";
-        };
+        $handler = (static fn(string $message): string => "Handled: {$message}");
 
         $callback = $this->wp_die_listener->filter(
             'a',

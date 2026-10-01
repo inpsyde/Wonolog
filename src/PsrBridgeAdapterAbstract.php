@@ -9,10 +9,6 @@ use Psr\Log\AbstractLogger;
 
 abstract class PsrBridgeAdapterAbstract extends AbstractLogger
 {
-    protected LogActionUpdater $updater;
-
-    protected Channels $channels;
-
     protected ?string $defaultChannel = null;
 
     protected PsrLogMessageProcessor $processor;
@@ -21,10 +17,8 @@ abstract class PsrBridgeAdapterAbstract extends AbstractLogger
      * @param LogActionUpdater $updater
      * @param Channels $channels
      */
-    public function __construct(LogActionUpdater $updater, Channels $channels)
+    public function __construct(protected LogActionUpdater $updater, protected Channels $channels)
     {
-        $this->updater = $updater;
-        $this->channels = $channels;
         $this->processor = new PsrLogMessageProcessor(null, true);
     }
 

@@ -6,10 +6,6 @@ namespace Inpsyde\Wonolog;
 
 class LogActionSubscriber
 {
-    private LogActionUpdater $updater;
-
-    private HookLogFactory $factory;
-
     /**
      * @param LogActionUpdater $updater
      * @param HookLogFactory $factory
@@ -27,10 +23,8 @@ class LogActionSubscriber
      * @param LogActionUpdater $updater
      * @param HookLogFactory $factory
      */
-    private function __construct(LogActionUpdater $updater, HookLogFactory $factory)
+    private function __construct(private readonly LogActionUpdater $updater, private readonly HookLogFactory $factory)
     {
-        $this->updater = $updater;
-        $this->factory = $factory;
     }
 
     /**

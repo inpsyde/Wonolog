@@ -30,9 +30,9 @@ abstract class FileHandlerTestCase extends UnitTestCase
         $dir = $this->setupFolders()->url() . '/logs';
         $handler = $this->factoryHandler($dir, 'wonolog.log');
 
-        static::assertSame("{$dir}/wonolog.log", $handler->logFilePath());
-        static::assertTrue(is_dir($dir));
-        static::assertFalse(file_exists("{$dir}/.htaccess"));
+        $this->assertSame("{$dir}/wonolog.log", $handler->logFilePath());
+        $this->assertDirectoryExists($dir);
+        $this->assertFileNotExists("{$dir}/.htaccess");
     }
 
     /**
@@ -43,9 +43,9 @@ abstract class FileHandlerTestCase extends UnitTestCase
         $dir = $this->setupFolders()->url() . '/wp-content/logs';
         $handler = $this->factoryHandler($dir, 'wonolog.log');
 
-        static::assertSame("{$dir}/wonolog.log", $handler->logFilePath());
-        static::assertTrue(is_dir($dir));
-        static::assertFalse(file_exists("{$dir}/.htaccess"));
+        $this->assertSame("{$dir}/wonolog.log", $handler->logFilePath());
+        $this->assertDirectoryExists($dir);
+        $this->assertFileNotExists("{$dir}/.htaccess");
     }
 
     /**
@@ -55,10 +55,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
     {
         $handler = $this->factoryHandler(null, 'wonolog.log');
 
-        static::assertSame(
-            WP_CONTENT_DIR . '/uploads/wonolog/wonolog.log',
-            $handler->logFilePath()
-        );
+        $this->assertSame(WP_CONTENT_DIR . '/uploads/wonolog/wonolog.log', $handler->logFilePath());
     }
 
     /**
@@ -69,10 +66,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
         $this->setupFolders(generateError: true);
         $handler = $this->factoryHandler(null, 'wonolog.log');
 
-        static::assertSame(
-            WP_CONTENT_DIR . '/wonolog/wonolog.log',
-            $handler->logFilePath()
-        );
+        $this->assertSame(WP_CONTENT_DIR . '/wonolog/wonolog.log', $handler->logFilePath());
     }
 
     /**
@@ -81,9 +75,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
     public function testThrowExceptionOnInvalidFolder(): void
     {
         Monkey\Functions\when('wp_mkdir_p')->alias(
-            static function (string $folder): bool {
-                return $folder !== WP_CONTENT_DIR;
-            }
+            static fn(string $folder): bool => $folder !== WP_CONTENT_DIR
         );
         $this->setupFolders(generateError: true);
 
@@ -141,7 +133,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
         $handler = $this->factoryHandler($dir);
         $date = date('Y/m/d');
 
-        static::assertSame($handler->logFilePath(), "{$dir}/{$date}.log");
+        $this->assertSame("{$dir}/{$date}.log", $handler->logFilePath());
     }
 
     /**
@@ -155,7 +147,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
         $handler = $this->factoryHandler($dir)
             ->withDateBasedFileFormat($format);
 
-        static::assertSame("{$dir}/" . date($format) . '.log', $handler->logFilePath());
+        $this->assertSame("{$dir}/" . date($format) . '.log', $handler->logFilePath());
     }
 
     /**
@@ -180,7 +172,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
 
         $fileContents = (string) file_get_contents($handler->logFilePath());
 
-        static::assertSame(count($records), substr_count($fileContents, $message));
+        $this->assertSame(count($records), substr_count($fileContents, $message));
     }
 
     /**
@@ -202,7 +194,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
 
         $fileContents = (string) file_get_contents($handler->logFilePath());
 
-        static::assertSame(count($records), substr_count($fileContents, $message));
+        $this->assertSame(count($records), substr_count($fileContents, $message));
     }
 
     /**
@@ -221,7 +213,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
             ->pushProcessor($processor2)
             ->pushProcessor($processor3);
 
-        static::assertSame($processor3, $handler->popProcessor());
+        $this->assertSame($processor3, $handler->popProcessor());
     }
 
     /**
@@ -234,7 +226,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
         $handler = $this->factoryHandler(null);
         $handler->pushProcessor(static fn (array $record): array => $record);
 
-        static::assertInstanceOf(NullProcessor::class, $handler->popProcessor());
+        $this->assertInstanceOf(NullProcessor::class, $handler->popProcessor());
     }
 
     /**
@@ -247,7 +239,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
         $formatter = new JsonFormatter();
         $handler->setFormatter($formatter);
 
-        static::assertSame($formatter, $handler->getFormatter());
+        $this->assertSame($formatter, $handler->getFormatter());
     }
 
     /**
@@ -259,7 +251,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
 
         $handler = $this->factoryHandler(null)->setFormatter(new JsonFormatter());
 
-        static::assertInstanceOf(PassthroughFormatter::class, $handler->getFormatter());
+        $this->assertInstanceOf(PassthroughFormatter::class, $handler->getFormatter());
     }
 
     /**
@@ -284,11 +276,9 @@ abstract class FileHandlerTestCase extends UnitTestCase
 
         Monkey\Functions\when('wp_upload_dir')
             ->alias(
-                static function () use ($generateError): array {
-                    return $generateError
-                        ? ['error' => 'error']
-                        : ['basedir' => WP_CONTENT_DIR . '/uploads'];
-                }
+                static fn(): array => $generateError
+                    ? ['error' => 'error']
+                    : ['basedir' => WP_CONTENT_DIR . '/uploads']
             );
 
         return $dir;

@@ -11,9 +11,9 @@ use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\PsrBridge;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class PsrBridgeTest extends UnitTestCase
+final class PsrBridgeTest extends UnitTestCase
 {
-    private LogData|null $logged;
+    private LogData|null $logged = null;
 
     /**
      * @return void
@@ -33,12 +33,12 @@ class PsrBridgeTest extends UnitTestCase
         $bridge->emergency('test {x}', ['x' => 'X!', 'y' => 'Y!']);
 
         $logged = $this->logged;
-        static::assertInstanceOf(LogData::class, $logged);
+        $this->assertInstanceOf(LogData::class, $logged);
 
-        static::assertSame(LogLevel::EMERGENCY, $logged->level());
-        static::assertSame(Channels::DEBUG, $logged->channel());
-        static::assertSame('test X!', $logged->message());
-        static::assertSame(['y' => 'Y!'], $logged->context());
+        $this->assertSame(LogLevel::EMERGENCY, $logged->level());
+        $this->assertSame(Channels::DEBUG, $logged->channel());
+        $this->assertSame('test X!', $logged->message());
+        $this->assertSame(['y' => 'Y!'], $logged->context());
     }
 
     /**
@@ -50,12 +50,12 @@ class PsrBridgeTest extends UnitTestCase
         $bridge->emergency('test {x}', ['x' => 'X!', 'y' => 'Y!']);
 
         $logged = $this->logged;
-        static::assertInstanceOf(LogData::class, $logged);
+        $this->assertInstanceOf(LogData::class, $logged);
 
-        static::assertSame(LogLevel::EMERGENCY, $logged->level());
-        static::assertSame('CUSTOM', $logged->channel());
-        static::assertSame('test X!', $logged->message());
-        static::assertSame(['y' => 'Y!'], $logged->context());
+        $this->assertSame(LogLevel::EMERGENCY, $logged->level());
+        $this->assertSame('CUSTOM', $logged->channel());
+        $this->assertSame('test X!', $logged->message());
+        $this->assertSame(['y' => 'Y!'], $logged->context());
     }
 
     /**
@@ -67,12 +67,12 @@ class PsrBridgeTest extends UnitTestCase
         $bridge->emergency('test {x}', ['x' => 'X!', 'y' => 'Y!']);
 
         $logged = $this->logged;
-        static::assertInstanceOf(LogData::class, $logged);
+        $this->assertInstanceOf(LogData::class, $logged);
 
-        static::assertSame(LogLevel::EMERGENCY, $logged->level());
-        static::assertSame('MY_PLUGIN', $logged->channel());
-        static::assertSame('test X!', $logged->message());
-        static::assertSame(['y' => 'Y!'], $logged->context());
+        $this->assertSame(LogLevel::EMERGENCY, $logged->level());
+        $this->assertSame('MY_PLUGIN', $logged->channel());
+        $this->assertSame('test X!', $logged->message());
+        $this->assertSame(['y' => 'Y!'], $logged->context());
     }
 
     /**
@@ -84,12 +84,12 @@ class PsrBridgeTest extends UnitTestCase
         $bridge->log('foo', 'test {x}', ['x' => 'X!', 'y' => 'Y!']);
 
         $logged = $this->logged;
-        static::assertInstanceOf(LogData::class, $logged);
+        $this->assertInstanceOf(LogData::class, $logged);
 
-        static::assertSame(LogLevel::DEBUG, $logged->level());
-        static::assertSame('MY_PLUGIN', $logged->channel());
-        static::assertSame('test X!', $logged->message());
-        static::assertSame(['y' => 'Y!'], $logged->context());
+        $this->assertSame(LogLevel::DEBUG, $logged->level());
+        $this->assertSame('MY_PLUGIN', $logged->channel());
+        $this->assertSame('test X!', $logged->message());
+        $this->assertSame(['y' => 'Y!'], $logged->context());
     }
 
     /**

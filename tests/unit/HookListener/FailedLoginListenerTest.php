@@ -12,7 +12,7 @@ use Inpsyde\Wonolog\HookListener\FailedLoginListener;
 use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class FailedLoginListenerTest extends UnitTestCase
+final class FailedLoginListenerTest extends UnitTestCase
 {
     /**
      * @test

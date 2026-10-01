@@ -12,7 +12,7 @@ use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Level;
 use Monolog\LogRecord;
 
-class NullProcessorTest extends UnitTestCase
+final class NullProcessorTest extends UnitTestCase
 {
     /**
      * @return void
@@ -46,13 +46,13 @@ class NullProcessorTest extends UnitTestCase
         /** @var LogRecord $processedRecord */
         $processedRecord = $processor($record);
 
-        static::assertInstanceOf(LogRecord::class, $processor($record));
-        static::assertEquals($processedRecord->context, $context);
-        static::assertEquals($processedRecord->message, $message);
-        static::assertEquals($processedRecord->channel, $channel);
-        static::assertInstanceOf(Level::class, $record->level);
+        $this->assertInstanceOf(LogRecord::class, $processor($record));
+        $this->assertEquals($processedRecord->context, $context);
+        $this->assertEquals($processedRecord->message, $message);
+        $this->assertEquals($processedRecord->channel, $channel);
+        $this->assertInstanceOf(Level::class, $record->level);
         /** @phpstan-ignore property.nonObject */
-        static::assertEquals($processedRecord->level->value, $level);
+        $this->assertEquals($processedRecord->level->value, $level);
     }
 
     public function testProcessesArrayCorrectly(): void
@@ -67,10 +67,10 @@ class NullProcessorTest extends UnitTestCase
         $record = compact('message', 'context', 'level', 'channel');
         $processedRecord = $processor($record);
 
-        static::assertIsArray($processedRecord);
-        static::assertEquals($processedRecord['message'], $message);
-        static::assertEquals($processedRecord['context'], $context);
-        static::assertEquals($processedRecord['level'], $level);
-        static::assertEquals($processedRecord['channel'], $channel);
+        $this->assertIsArray($processedRecord);
+        $this->assertSame($processedRecord['message'], $message);
+        $this->assertSame($processedRecord['context'], $context);
+        $this->assertSame($processedRecord['level'], $level);
+        $this->assertSame($processedRecord['channel'], $channel);
     }
 }

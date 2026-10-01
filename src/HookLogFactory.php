@@ -79,9 +79,7 @@ class HookLogFactory
         string $defaultChannel
     ): LogData {
 
-        if (!isset($value[LogData::CONTEXT])) {
-            $value[LogData::CONTEXT] = $arguments;
-        }
+        $value[LogData::CONTEXT] ??= $arguments;
 
         $log = Log::fromArray($value, $defaultChannel, $defaultLevel);
 

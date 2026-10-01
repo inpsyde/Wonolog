@@ -10,7 +10,7 @@ use Inpsyde\Wonolog\Data\FailedLogin;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class FailedLoginTest extends UnitTestCase
+final class FailedLoginTest extends UnitTestCase
 {
     /**
      * @test
@@ -41,11 +41,11 @@ class FailedLoginTest extends UnitTestCase
                 $logged[$i] = $level;
                 $messages[] = $failedLogin->message();
                 $context = $failedLogin->context();
-                static::assertArrayHasKey('ip', $context);
-                static::assertArrayHasKey('ip_from', $context);
-                static::assertArrayHasKey('username', $context);
-                static::assertSame('h4ck3rb0y', $context['username']);
-                static::assertSame(Channels::SECURITY, $failedLogin->channel());
+                $this->assertArrayHasKey('ip', $context);
+                $this->assertArrayHasKey('ip_from', $context);
+                $this->assertArrayHasKey('username', $context);
+                $this->assertSame('h4ck3rb0y', $context['username']);
+                $this->assertSame(Channels::SECURITY, $failedLogin->channel());
             }
             $failedLogin = new FailedLogin('h4ck3rb0y');
         }
@@ -70,12 +70,12 @@ class FailedLoginTest extends UnitTestCase
             1583 => LogLevel::CRITICAL,
         ];
 
-        static::assertSame($expectedLoggedLevels, $logged);
+        $this->assertSame($expectedLoggedLevels, $logged);
 
         $format = "%d failed login attempts from username 'h4ck3rb0y' in last 5 minutes";
 
         foreach (array_keys($expectedLoggedLevels) as $i => $levelNum) {
-            static::assertSame($messages[$i], sprintf($format, $levelNum));
+            $this->assertSame($messages[$i], sprintf($format, $levelNum));
         }
     }
 

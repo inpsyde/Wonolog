@@ -14,7 +14,7 @@ use Inpsyde\Wonolog\LogLevel;
  */
 final class QueryErrorsListener implements ActionListener
 {
-    private int $logLevel;
+    private readonly int $logLevel;
 
     /**
      * @param int $logLevel

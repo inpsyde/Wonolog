@@ -18,7 +18,7 @@ use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use Psr\Log\NullLogger;
 
-class ChannelsTest extends UnitTestCase
+final class ChannelsTest extends UnitTestCase
 {
     /**
      * @test
@@ -27,16 +27,16 @@ class ChannelsTest extends UnitTestCase
     {
         $channels = Factory::new()->channels();
 
-        static::assertTrue($channels->hasChannel(Channels::DEBUG));
-        static::assertFalse($channels->hasChannel('Foo'));
+        $this->assertTrue($channels->hasChannel(Channels::DEBUG));
+        $this->assertFalse($channels->hasChannel('Foo'));
 
         $channels->addChannel('Foo');
-        static::assertTrue($channels->hasChannel(Channels::DEBUG));
-        static::assertTrue($channels->hasChannel('Foo'));
+        $this->assertTrue($channels->hasChannel(Channels::DEBUG));
+        $this->assertTrue($channels->hasChannel('Foo'));
 
         $channels->removeChannel(Channels::DEBUG);
-        static::assertFalse($channels->hasChannel(Channels::DEBUG));
-        static::assertTrue($channels->hasChannel('Foo'));
+        $this->assertFalse($channels->hasChannel(Channels::DEBUG));
+        $this->assertTrue($channels->hasChannel('Foo'));
     }
 
     /**
@@ -46,7 +46,7 @@ class ChannelsTest extends UnitTestCase
     {
         $channels = Factory::new()->channels();
 
-        static::assertInstanceOf(NullLogger::class, $channels->logger('X'));
+        $this->assertInstanceOf(NullLogger::class, $channels->logger('X'));
     }
 
     /**
@@ -66,10 +66,10 @@ class ChannelsTest extends UnitTestCase
 
         $logger = $channels->logger(Channels::DEBUG);
 
-        static::assertInstanceOf(Logger::class, $logger);
-        static::assertSame($logger, $channels->logger(Channels::DEBUG));
-        static::assertSame($logger, $channels->logger(Channels::DEBUG));
-        static::assertEquals([$handler], $logger->getHandlers());
+        $this->assertInstanceOf(Logger::class, $logger);
+        $this->assertSame($logger, $channels->logger(Channels::DEBUG));
+        $this->assertSame($logger, $channels->logger(Channels::DEBUG));
+        $this->assertEquals([$handler], $logger->getHandlers());
     }
 
     /**
@@ -86,16 +86,16 @@ class ChannelsTest extends UnitTestCase
 
         $logger = $channels->logger(Channels::DEBUG);
 
-        static::assertInstanceOf(Logger::class, $logger);
-        static::assertSame($logger, $channels->logger(Channels::DEBUG));
-        static::assertSame($logger, $channels->logger(Channels::DEBUG));
+        $this->assertInstanceOf(Logger::class, $logger);
+        $this->assertSame($logger, $channels->logger(Channels::DEBUG));
+        $this->assertSame($logger, $channels->logger(Channels::DEBUG));
 
         $handlers = $logger->getHandlers();
-        static::assertCount(1, $handlers);
+        $this->assertCount(1, $handlers);
 
         $handler = reset($handlers);
 
-        static::assertInstanceOf(BufferHandler::class, $handler);
+        $this->assertInstanceOf(BufferHandler::class, $handler);
     }
 
     /**
@@ -110,12 +110,12 @@ class ChannelsTest extends UnitTestCase
             ->withIgnorePattern('ABC: [0-9]+', LogLevel::ALERT)
             ->withIgnorePattern('cron "[^"]+"', null, Channels::CRON);
 
-        static::assertTrue($channels->isIgnored(new Debug('~~annoying~~', Channels::DEBUG)));
-        static::assertTrue($channels->isIgnored(new Debug('prefix foo', Channels::DEBUG)));
-        static::assertFalse($channels->isIgnored(new Debug('-prefix foo', Channels::DEBUG)));
-        static::assertTrue($channels->isIgnored(new Debug('->ABC: 123', Channels::DEBUG)));
-        static::assertFalse($channels->isIgnored(new Emergency('->ABC: 123', Channels::DEBUG)));
-        static::assertFalse($channels->isIgnored(new Info('cron "foo" done', Channels::DEBUG)));
-        static::assertTrue($channels->isIgnored(new Info('cron "foo" done', Channels::CRON)));
+        $this->assertTrue($channels->isIgnored(new Debug('~~annoying~~', Channels::DEBUG)));
+        $this->assertTrue($channels->isIgnored(new Debug('prefix foo', Channels::DEBUG)));
+        $this->assertFalse($channels->isIgnored(new Debug('-prefix foo', Channels::DEBUG)));
+        $this->assertTrue($channels->isIgnored(new Debug('->ABC: 123', Channels::DEBUG)));
+        $this->assertFalse($channels->isIgnored(new Emergency('->ABC: 123', Channels::DEBUG)));
+        $this->assertFalse($channels->isIgnored(new Info('cron "foo" done', Channels::DEBUG)));
+        $this->assertTrue($channels->isIgnored(new Info('cron "foo" done', Channels::CRON)));
     }
 }

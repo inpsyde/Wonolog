@@ -14,7 +14,7 @@ use Inpsyde\Wonolog\LogLevel;
  */
 final class DbErrorListener implements ActionListener
 {
-    private int $logLevel;
+    private readonly int $logLevel;
 
     /**
      * @param int $logLevel

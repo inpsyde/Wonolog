@@ -11,7 +11,7 @@ use Inpsyde\Wonolog\LogActionUpdater;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 
-class WpDieHandlerListenerTest extends UnitTestCase
+final class WpDieHandlerListenerTest extends UnitTestCase
 {
     /**
      * @test
@@ -34,7 +34,7 @@ class WpDieHandlerListenerTest extends UnitTestCase
 
         $wpdb->logActionUpdater = $updater; // @phpstan-ignore property.notFound
 
-        static::assertSame('Handled: Bailed!', $wpdb->bail('Bailed!'));
+        $this->assertSame('Handled: Bailed!', $wpdb->bail('Bailed!'));
     }
 
     /**
@@ -57,6 +57,6 @@ class WpDieHandlerListenerTest extends UnitTestCase
 
         $wpdb->logActionUpdater = $updater; // @phpstan-ignore property.notFound
 
-        static::assertSame('Handled: Error!', $wpdb->print_error('Error!'));
+        $this->assertSame('Handled: Error!', $wpdb->print_error('Error!'));
     }
 }

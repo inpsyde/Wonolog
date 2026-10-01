@@ -14,7 +14,7 @@ use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Tests\UnitTestCase;
 use PHPMailer\PHPMailer;
 
-class MailerListenerTest extends UnitTestCase
+final class MailerListenerTest extends UnitTestCase
 {
     /**
      * @test
@@ -44,8 +44,8 @@ class MailerListenerTest extends UnitTestCase
         $mailer = new PHPMailer\PHPMailer();
         do_action('phpmailer_init', $mailer);
 
-        static::assertSame(2, $mailer->SMTPDebug);
-        static::assertIsCallable($mailer->Debugoutput);
+        $this->assertSame(2, $mailer->SMTPDebug);
+        $this->assertIsCallable($mailer->Debugoutput);
 
         $callback = $mailer->Debugoutput;
         $callback('Test email!');

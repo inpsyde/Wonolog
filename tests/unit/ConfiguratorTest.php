@@ -17,7 +17,7 @@ use Inpsyde\Wonolog\Tests\UnitTestCase;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\NoopHandler;
 
-class ConfiguratorTest extends UnitTestCase
+final class ConfiguratorTest extends UnitTestCase
 {
     /**
      * @test
@@ -132,11 +132,11 @@ class ConfiguratorTest extends UnitTestCase
         $httpHandlers = $handlers->findForChannel(Channels::NETWORK);
         $dbHandlers = $handlers->findForChannel(Channels::DB);
 
-        static::assertCount(1, $debugHandlers);
-        static::assertCount(1, $httpHandlers);
-        static::assertCount(0, $dbHandlers);
-        static::assertTrue($debugHandlers[0] instanceof NoopHandler);
-        static::assertTrue($httpHandlers[0] instanceof FileHandler);
+        $this->assertCount(1, $debugHandlers);
+        $this->assertCount(1, $httpHandlers);
+        $this->assertCount(0, $dbHandlers);
+        $this->assertInstanceOf(\Monolog\Handler\NoopHandler::class, $debugHandlers[0]);
+        $this->assertInstanceOf(\Inpsyde\Wonolog\DefaultHandler\FileHandler::class, $httpHandlers[0]);
     }
 
     /**
@@ -171,9 +171,9 @@ class ConfiguratorTest extends UnitTestCase
             $handlers = $handlersRegistry->findForChannel($channel);
             $notExpecting = $channel === Channels::SECURITY || $channel === Channels::DB;
 
-            static::assertCount($notExpecting ? 0 : 1, $handlers, "For channel {$channel}.");
+            $this->assertCount($notExpecting ? 0 : 1, $handlers, "For channel {$channel}.");
             if (!$notExpecting) {
-                static::assertTrue($handlers[0] instanceof FileHandler);
+                $this->assertInstanceOf(\Inpsyde\Wonolog\DefaultHandler\FileHandler::class, $handlers[0]);
             }
         }
     }
@@ -209,9 +209,9 @@ class ConfiguratorTest extends UnitTestCase
             $processors = $processorRegistry->findForChannel($channel);
             $expecting = $channel === Channels::SECURITY || $channel === Channels::DB;
 
-            static::assertCount($expecting ? 1 : 0, $processors, "For channel {$channel}.");
+            $this->assertCount($expecting ? 1 : 0, $processors, "For channel {$channel}.");
             if ($expecting) {
-                static::assertTrue($processors[0] instanceof WpContextProcessor);
+                $this->assertInstanceOf(\Inpsyde\Wonolog\Processor\WpContextProcessor::class, $processors[0]);
             }
         }
     }
@@ -247,9 +247,9 @@ class ConfiguratorTest extends UnitTestCase
             $processors = $processorRegistry->findForChannel($channel);
             $notExpecting = $channel === Channels::SECURITY || $channel === Channels::DB;
 
-            static::assertCount($notExpecting ? 0 : 1, $processors, "For channel {$channel}.");
+            $this->assertCount($notExpecting ? 0 : 1, $processors, "For channel {$channel}.");
             if (!$notExpecting) {
-                static::assertTrue($processors[0] instanceof WpContextProcessor);
+                $this->assertInstanceOf(\Inpsyde\Wonolog\Processor\WpContextProcessor::class, $processors[0]);
             }
         }
     }

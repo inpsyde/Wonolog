@@ -30,8 +30,6 @@ final class Log implements LogData
 
     private static ?WpErrorChannel $wpErrorChannel = null;
 
-    private int $level;
-
     /**
      * @param array<mixed> $logData
      * @param string|null $defaultChannel
@@ -111,7 +109,7 @@ final class Log implements LogData
         $channel = in_array($channel, Channels::CHANNELS, true) ? $channel : Channels::DEBUG;
 
         $context['throwable'] = [
-            'class' => get_class($throwable),
+            'class' => $throwable::class,
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
             'trace' => $throwable->getTrace(),
@@ -128,12 +126,11 @@ final class Log implements LogData
      */
     public function __construct(
         string $message = '',
-        int $level = LogLevel::DEBUG,
+        private int $level = LogLevel::DEBUG,
         string $channel = Channels::DEBUG,
         array $context = []
     ) {
 
-        $this->level = $level;
         $this->message = $message;
         $this->channel = $channel;
         $this->context = $context;
