@@ -31,6 +31,11 @@
     "repositories": [
         {
             "type": "composer",
+            "url": "https://raw.githubusercontent.com/inpsyde/wp-stubs/refs/heads/main",
+            "only": ["inpsyde/wp-stubs-versions"]
+        },
+        {
+            "type": "composer",
             "url": "https://raw.githubusercontent.com/inpsyde/wp-stubs/main",
             "only": [
                 "inpsyde/wp-stubs-versions"
@@ -59,7 +64,8 @@
         "phpstan/phpstan": "^2.1.17",
         "phpstan/phpstan-deprecation-rules": "^2.0.3",
         "swissspidy/phpstan-no-private": "^1.0.0",
-        "phpstan/phpstan-mockery": "^2.0.0"
+        "phpstan/phpstan-mockery": "^2.0.0",
+        "rector/rector": "^2.6"
     },
     "provide": {
         "psr/log-implementation": "1.0.0"
@@ -85,7 +91,8 @@
             "inpsyde/*": true,
             "composer/*": true,
             "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+        },
+        "source-fallback": true
     },
     "extra": {
         "branch-alias": {
