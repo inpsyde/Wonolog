@@ -2,6 +2,9 @@ name: PHP Static Code Analysis
 
 on:
     push:
+        branches:
+            - '3.x'
+            - '4.x'
         paths:
             - '**workflows/php-static-analysis.yml'
             - '**.php'

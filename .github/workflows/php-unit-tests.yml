@@ -2,6 +2,9 @@ name: PHP Unit Tests
 
 on:
     push:
+        branches:
+            - '3.x'
+            - '4.x'
         paths:
             - '**workflows/php-unit-tests.yml'
             - '**.php'
