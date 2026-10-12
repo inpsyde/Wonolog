@@ -35,6 +35,14 @@
             "only": [
                 "inpsyde/wp-stubs-versions"
             ]
+        },
+        {
+            "type": "composer",
+            "url": "https://wpackagist.org",
+            "only": [
+                "wpackagist-plugin/*",
+                "wpackagist-theme/*"
+            ]
         }
     ],
     "require": {
@@ -49,9 +57,7 @@
         "brain/monkey": "^2.6.2",
         "mockery/mockery": "^1.6.12",
         "mikey179/vfsstream": "~1.6.12",
-        "roots/wordpress-no-content": ">=6.1.1",
-        "symfony/process": "^6.4.20",
-        "globalis/wp-cli-bin": "^2.8.1",
+        "roots/wordpress-no-content": ">=6.9",
         "phpunit/phpunit": "^9.6.23",
         "fig/log-test": "^1.1.0",
         "syde/phpcs": "^1.0.0",
@@ -59,7 +65,9 @@
         "phpstan/phpstan": "^2.1.17",
         "phpstan/phpstan-deprecation-rules": "^2.0.3",
         "swissspidy/phpstan-no-private": "^1.0.0",
-        "phpstan/phpstan-mockery": "^2.0.0"
+        "phpstan/phpstan-mockery": "^2.0.0",
+        "syde/wp-phpunit-integration": "^0.4",
+        "composer/installers": "^2.2"
     },
     "provide": {
         "psr/log-implementation": "1.0.0"
@@ -100,7 +108,7 @@
         "tests:unit": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit",
         "tests:unit:no-cov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --no-coverage",
         "tests:unit:codecov": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=unit --coverage-clover coverage.xml",
-        "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit --testsuite=integration --no-coverage",
+        "tests:integration": "@php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml.dist --no-coverage",
         "qa" : [
           "@cs",
           "@phpstan",
