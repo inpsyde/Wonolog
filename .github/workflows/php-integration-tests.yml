@@ -22,7 +22,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-service: [ '81', '82', '83', '84', '85' ]
+                php-service: [ '82', '83', '84', '85' ]
                 dependency-versions: [ 'lowest', 'highest' ]
         steps:
             -   name: Checkout

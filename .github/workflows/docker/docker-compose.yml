@@ -23,17 +23,6 @@ services:
             MARIADB_USER: wordpress
             MARIADB_PASSWORD: wordpress
 
-    php81:
-        container_name: wonolog-php-81
-        build:
-            context: .
-            dockerfile: ./php81/Dockerfile
-        depends_on:
-            - db
-        environment:
-          *db-environment
-        volumes:
-          *wp-volume
     php82:
         container_name: wonolog-php-82
         build:
