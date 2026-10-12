@@ -2,6 +2,9 @@ name: PHP Integration Tests
 
 on:
     push:
+        branches:
+            - '3.x'
+            - '4.x'
         paths:
             - '**workflows/php-integration-tests.yml'
             - '**workflows/docker/**'
