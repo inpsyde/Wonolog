@@ -1,26 +1,11 @@
 version: 2
 
-registries:
-  private_packagist:
-    type: composer-repository
-    url: https://repo.packagist.com/inpsyde/
-    username: token
-    password: ${{secrets.PACKAGIST_TOKEN}}
-  github:
-    type: git
-    url: https://github.com
-    username: x-access-token
-    password: ${{secrets.DEPLOYBOT_PACKAGES_READ_WRITE_TOKEN}}
-
 updates:
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-    registries:
-      - private_packagist
-      - github
     cooldown:
       default-days: 3
       semver-major-days: 14
