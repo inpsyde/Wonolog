@@ -16,15 +16,9 @@
       <directory suffix=".php">src</directory>
     </include>
   </coverage>
-  <extensions>
-    <extension class="Inpsyde\Wonolog\Tests\IntegrationTestsExtension"/>
-  </extensions>
   <testsuites>
     <testsuite name="unit">
       <directory suffix="Test.php">tests/unit</directory>
-    </testsuite>
-    <testsuite name="integration">
-      <directory suffix="Test.php">tests/integration</directory>
     </testsuite>
   </testsuites>
 </phpunit>

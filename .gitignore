@@ -2,6 +2,7 @@
 /composer.phar
 /composer.lock
 /vendor/
+/wp-content/
 
 # PHPUnit
 /coverage.xml
@@ -10,11 +11,9 @@
 
 # Tools local config
 /phpunit.xml
+/phpunit-integration.xml
 /phpcs.xml.dist
 /phpstan.neon
-
-# Docker
-.github/workflows/docker/php*/*.sh
 
 # Adding a folder to put things temporarily
 temp/

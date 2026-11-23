@@ -175,6 +175,7 @@ final class FailedLogin implements LogData
     }
 
     /**
+     * @phpstan-impure
      * @return string
      */
     public function message(): string

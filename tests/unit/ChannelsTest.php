@@ -68,7 +68,6 @@ class ChannelsTest extends UnitTestCase
 
         static::assertInstanceOf(Logger::class, $logger);
         static::assertSame($logger, $channels->logger(Channels::DEBUG));
-        static::assertSame($logger, $channels->logger(Channels::DEBUG));
         static::assertEquals([$handler], $logger->getHandlers());
     }
 
@@ -87,7 +86,6 @@ class ChannelsTest extends UnitTestCase
         $logger = $channels->logger(Channels::DEBUG);
 
         static::assertInstanceOf(Logger::class, $logger);
-        static::assertSame($logger, $channels->logger(Channels::DEBUG));
         static::assertSame($logger, $channels->logger(Channels::DEBUG));
 
         $handlers = $logger->getHandlers();

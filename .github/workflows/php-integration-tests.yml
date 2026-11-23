@@ -4,9 +4,9 @@ on:
     push:
         paths:
             - '**workflows/php-integration-tests.yml'
-            - '**workflows/docker/**'
+            - '**workflows/php-integration-suppress-deprecated.php'
             - '**.php'
-            - '**phpunit.xml.dist'
+            - '**phpunit-integration.xml.dist'
             - '**composer.json'
     pull_request:
     workflow_dispatch:
@@ -19,22 +19,34 @@ jobs:
     integration-tests:
         runs-on: ubuntu-latest
         if: ${{ !contains(github.event.head_commit.message, 'skip integration') }}
+
         strategy:
             fail-fast: false
             matrix:
-                php-service: [ '82', '83', '84', '85' ]
+                php-versions: [ '8.2', '8.3', '8.4', '8.5' ]
                 dependency-versions: [ 'lowest', 'highest' ]
+
         steps:
-            -   name: Checkout
-                uses: actions/checkout@v3
+            - name: Checkout
+              uses: actions/checkout@v4
 
-            -   name: Copy wait-for
-                run: |
-                    cp .github/workflows/docker/install-composer.sh .github/workflows/docker/php${{ matrix.php-service }}/install-composer.sh
-                    cp .github/workflows/docker/wait-for.sh .github/workflows/docker/php${{ matrix.php-service }}/wait-for.sh
+            # syde/wp-phpunit-integration treats any output on the wp-cli subprocess's stderr as
+            # fatal, and a deprecation notice deep in a bundled wp-cli dependency writes there
+            # under CI's non-interactive/piped output (see php-integration-suppress-deprecated.php
+            # for details). auto_prepend_file installs an error handler, before any other code
+            # (including WP-CLI's own bootstrap) runs, that silently swallows only E_DEPRECATED.
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-versions }}
+                  extensions: pdo, pdo_sqlite
+                  ini-values: auto_prepend_file=${{ github.workspace }}/.github/workflows/php-integration-suppress-deprecated.php
+                  coverage: none
 
-            -   name: Run integration tests
-                working-directory: .github/workflows/docker
-                run: |
-                    COMPOSER_DEPENDENCY_VERSIONS=${{ matrix.dependency-versions == 'lowest' && '--prefer-lowest' || '' }}
-                    docker compose run --rm php${{ matrix.php-service }} sh -c "wait-for.sh wonolog-db:3306 -t 15 -- composer update $COMPOSER_DEPENDENCY_VERSIONS && composer tests:integration"
+            - name: Install Composer dependencies
+              uses: ramsey/composer-install@v3
+              with:
+                  dependency-versions: ${{ matrix.dependency-versions }}
+
+            - name: Run integration tests
+              run: composer tests:integration

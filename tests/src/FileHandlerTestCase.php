@@ -10,6 +10,7 @@ use Inpsyde\Wonolog\DefaultHandler\PassthroughFormatter;
 use Inpsyde\Wonolog\LogLevel;
 use Inpsyde\Wonolog\Processor\NullProcessor;
 use Monolog\Formatter\JsonFormatter;
+use Monolog\LogRecord;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 
@@ -212,9 +213,9 @@ abstract class FileHandlerTestCase extends UnitTestCase
     {
         $handler = $this->factoryHandler(null);
 
-        $processor1 = static fn (array $record): array => $record;
-        $processor2 = static fn (array $record): array => $record;
-        $processor3 = static fn (array $record): array => $record;
+        $processor1 = static fn (array|LogRecord $record): array|LogRecord => $record;
+        $processor2 = static fn (array|LogRecord $record): array|LogRecord => $record;
+        $processor3 = static fn (array|LogRecord $record): array|LogRecord => $record;
 
         $handler
             ->pushProcessor($processor1)
@@ -232,7 +233,7 @@ abstract class FileHandlerTestCase extends UnitTestCase
         Monkey\Functions\when('wp_mkdir_p')->justReturn(false);
 
         $handler = $this->factoryHandler(null);
-        $handler->pushProcessor(static fn (array $record): array => $record);
+        $handler->pushProcessor(static fn (array|LogRecord $record): array|LogRecord => $record);
 
         static::assertInstanceOf(NullProcessor::class, $handler->popProcessor());
     }
